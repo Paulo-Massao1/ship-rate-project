@@ -19,7 +19,8 @@ import 'rating_controller.dart';
 /// - Identificação do avaliador é feita no controller (via FirebaseAuth).
 class AddRatingPage extends StatefulWidget {
   /// IMO opcional recebido via navegação.
-  /// Caso vazio, será tratado como "Não informado".
+  /// Se vier vazio, não será salvo no banco (fica null),
+  /// e apenas a UI poderá exibir “Não informado”.
   final String imo;
 
   const AddRatingPage({super.key, required this.imo});
@@ -35,8 +36,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
   /// Controller responsável pela persistência e consultas no Firestore.
   final _controller = RatingController();
 
+  /// Nome do navio mantido como fonte de verdade (ao invés de TextEditingController).
+  ///
+  /// Isso evita o bug de o campo sumir quando o Autocomplete recria o controller
+  /// interno após um setState.
+  String _nomeNavioAtual = '';
+
   /// Controllers de texto para os dados principais do navio.
-  final TextEditingController nomeNavioController = TextEditingController();
   final TextEditingController tripulacaoController = TextEditingController();
   final TextEditingController cabinesController = TextEditingController();
 
@@ -80,12 +86,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   /// -------------------------------------------------------------------------
   /// Verifica se um navio já existe no banco.
+  ///
   /// Caso exista:
   ///  - bloqueia campos do passadiço
   ///  - preenche informações existentes
+  ///
   /// Caso não exista:
   ///  - libera campos
-  ///  - limpa valores temporários
+  ///  - limpa valores temporários (exceto o nome do navio).
   /// -------------------------------------------------------------------------
   Future<void> _verificarNavioExistente(String nome) async {
     if (nome.trim().isEmpty) return;
@@ -114,22 +122,30 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   /// -------------------------------------------------------------------------
   /// Valida o formulário e dispara o salvamento via controller.
-  /// Converte IMO vazio para "Não informado".
-  /// Ao salvar com sucesso → retorna resultado via Navigator.pop(true).
+  ///
+  /// - Se o IMO vier vazio do widget, repassamos vazio para o controller.
+  ///   O controller decide se usa doc automático e mantém 'imo' = null.
+  /// - Ao salvar com sucesso → retorna resultado via Navigator.pop(true).
   /// -------------------------------------------------------------------------
   Future<void> _onSalvar() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final nomeFinal = _nomeNavioAtual.trim();
+    if (nomeFinal.isEmpty) {
+      // Proteção extra caso o validator não pegue por algum motivo.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o nome do navio.')),
+      );
+      return;
+    }
+
     setState(() => isSaving = true);
 
-    /// Tratamento do IMO: substitui vazio.
-    final String imoFinal = widget.imo.trim().isEmpty
-        ? "Não informado"
-        : widget.imo.trim();
+    final String imoFinal = widget.imo.trim(); // pode ser vazio
 
     try {
       await _controller.salvarAvaliacao(
-        nomeNavio: nomeNavioController.text.trim(),
+        nomeNavio: nomeFinal,
         imoInicial: imoFinal,
         notaCamarote: notaCamarote,
         notaLimpeza: notaLimpeza,
@@ -155,9 +171,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   /// -------------------------------------------------------------------------
   /// Componente utilitário para criar blocos de sliders com ícone + título + valor.
-  /// Simplifica repetição do padrão.
   /// -------------------------------------------------------------------------
-  Widget _sliderTile(String titulo, IconData icon, int valor, Function(int) onChanged) {
+  Widget _sliderTile(
+    String titulo,
+    IconData icon,
+    int valor,
+    Function(int) onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -185,6 +205,23 @@ class _AddRatingPageState extends State<AddRatingPage> {
     );
   }
 
+  /// -------------------------------------------------------------------------
+  /// BUILD
+  ///
+  /// A UI é composta por:
+  ///  - AppBar + botão de salvar fixo
+  ///  - Formulário com campo autocomplete
+  ///  - Sliders de notas
+  ///  - Campos de passadiço
+  ///  - Campos gerais
+  ///
+  /// Observações importantes:
+  ///  • O Autocomplete usa um controller interno.
+  ///  • O texto visível é sempre sincronizado com `_nomeNavioAtual`:
+  ///    - onChanged atualiza `_nomeNavioAtual`.
+  ///    - no build, se o texto do controller for diferente, ele é atualizado
+  ///      para `_nomeNavioAtual` (sem apagar o que o usuário digitou).
+  /// -------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final maxWidth = MediaQuery.sizeOf(context).width;
@@ -236,25 +273,34 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
                   /// Campo com autocomplete para nome do navio
                   Autocomplete<String>(
-                    optionsBuilder: (text) {
-                      final value = text.text.toLowerCase();
-                      if (value.isEmpty) return const Iterable<String>.empty();
+                    optionsBuilder: (textEditingValue) {
+                      final value = textEditingValue.text.toLowerCase();
+                      if (value.isEmpty) {
+                        return const Iterable<String>.empty();
+                      }
                       return naviosCadastrados.where(
                         (op) => op.toLowerCase().contains(value),
                       );
                     },
                     onSelected: (value) {
-                      nomeNavioController.text = value;
+                      setState(() {
+                        _nomeNavioAtual = value;
+                      });
                       _verificarNavioExistente(value);
                     },
-                    fieldViewBuilder: (_, fieldController, focusNode, __) {
-                      /// Sincroniza controllers
-                      fieldController.addListener(() {
-                        nomeNavioController.text = fieldController.text;
-                      });
+                    fieldViewBuilder:
+                        (_, textController, focusNode, onFieldSubmitted) {
+                      // Garante que, após qualquer rebuild, o texto visível
+                      // continue igual ao último valor digitado/selecionado.
+                      if (textController.text != _nomeNavioAtual) {
+                        textController.text = _nomeNavioAtual;
+                        textController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _nomeNavioAtual.length),
+                        );
+                      }
 
                       return TextFormField(
-                        controller: fieldController,
+                        controller: textController,
                         focusNode: focusNode,
                         decoration: InputDecoration(
                           labelText: 'Nome do navio',
@@ -264,7 +310,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
                                   child: SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
                                   ),
                                 )
                               : null,
@@ -276,7 +324,16 @@ class _AddRatingPageState extends State<AddRatingPage> {
                             value == null || value.trim().isEmpty
                                 ? 'Informe o nome do navio'
                                 : null,
-                        onChanged: (v) => _verificarNavioExistente(v),
+                        onChanged: (value) {
+                          setState(() {
+                            _nomeNavioAtual = value;
+                          });
+                          _verificarNavioExistente(value);
+                        },
+                        onFieldSubmitted: (value) {
+                          onFieldSubmitted();
+                          _verificarNavioExistente(value);
+                        },
                       );
                     },
                   ),
@@ -292,14 +349,30 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   ),
                   const SizedBox(height: 8),
 
-                  _sliderTile("Camarote", Icons.bed, notaCamarote,
-                      (v) => setState(() => notaCamarote = v)),
-                  _sliderTile("Limpeza", Icons.cleaning_services, notaLimpeza,
-                      (v) => setState(() => notaLimpeza = v)),
-                  _sliderTile("Ar condicionado", Icons.ac_unit, notaAr,
-                      (v) => setState(() => notaAr = v)),
-                  _sliderTile("Comida", Icons.restaurant, notaComida,
-                      (v) => setState(() => notaComida = v)),
+                  _sliderTile(
+                    "Camarote",
+                    Icons.bed,
+                    notaCamarote,
+                    (v) => setState(() => notaCamarote = v),
+                  ),
+                  _sliderTile(
+                    "Limpeza",
+                    Icons.cleaning_services,
+                    notaLimpeza,
+                    (v) => setState(() => notaLimpeza = v),
+                  ),
+                  _sliderTile(
+                    "Ar condicionado",
+                    Icons.ac_unit,
+                    notaAr,
+                    (v) => setState(() => notaAr = v),
+                  ),
+                  _sliderTile(
+                    "Comida",
+                    Icons.restaurant,
+                    notaComida,
+                    (v) => setState(() => notaComida = v),
+                  ),
 
                   const Divider(height: 32),
 
@@ -313,7 +386,12 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   DropdownButtonFormField<String>(
                     value: frigobar,
                     items: ['Sim', 'Não']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ),
+                        )
                         .toList(),
                     onChanged: camposPassadicoDesativados
                         ? null
@@ -325,10 +403,16 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   ),
 
                   const SizedBox(height: 16),
+
                   DropdownButtonFormField<String>(
                     value: pia,
                     items: ['Sim', 'Não']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ),
+                        )
                         .toList(),
                     onChanged: camposPassadicoDesativados
                         ? null
@@ -350,6 +434,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   ),
 
                   const SizedBox(height: 12),
+
                   TextFormField(
                     controller: tripulacaoController,
                     decoration: const InputDecoration(
@@ -357,7 +442,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
                       border: OutlineInputBorder(),
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: cabinesController,
                     decoration: const InputDecoration(

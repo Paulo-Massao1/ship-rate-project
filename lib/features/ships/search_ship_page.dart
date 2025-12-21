@@ -6,13 +6,13 @@ import '../ratings/add_rating_page.dart';
 /// BuscarAvaliarNavioPage
 /// -----------------------------------------------------------------------------
 /// Tela principal da feature de navios.
-/// 
+///
 /// Funções principais:
 ///  • Apresenta duas abas (buscar / avaliar).
-///  • Gera uma interface simples e responsiva de navegação.
+///  • Gera uma interface simples e responsiva.
 ///  • Renderiza o componente de busca e avaliação.
 ///
-/// TabController controla a troca entre telas.
+/// O TabController controla a troca entre as duas telas.
 /// -----------------------------------------------------------------------------
 class BuscarAvaliarNavioPage extends StatefulWidget {
   const BuscarAvaliarNavioPage({super.key});
@@ -29,9 +29,9 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
   void initState() {
     super.initState();
 
-    /// Define um controlador com 2 abas:
-    ///  - Buscar
-    ///  - Avaliar
+    /// Define 2 abas:
+    ///  - buscar navios
+    ///  - avaliar navios
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -45,7 +45,7 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
           children: [
             const SizedBox(height: 10),
 
-            /// Título da página
+            /// Título principal
             const Text(
               'Avaliação de Navios',
               style: TextStyle(
@@ -56,19 +56,16 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
 
             const SizedBox(height: 4),
 
-            /// Subtítulo informativo
+            /// Subtítulo explicativo
             const Text(
               'Pesquise avaliações ou registre sua experiência',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
 
             const SizedBox(height: 12),
 
-            /// Seletor de abas com design customizado
+            /// Menu de abas
             Container(
               height: 48,
               decoration: BoxDecoration(
@@ -83,8 +80,6 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
                   color: Colors.indigo,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorPadding: EdgeInsets.zero,
                 tabs: const [
                   Tab(text: 'Buscar'),
                   Tab(text: 'Avaliar'),
@@ -94,7 +89,7 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
 
             const SizedBox(height: 10),
 
-            /// Conteúdo renderizado conforme aba selecionada
+            /// Conteúdo das abas
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -114,16 +109,12 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
 /// -----------------------------------------------------------------------------
 /// BuscarNavioTab
 /// -----------------------------------------------------------------------------
-/// Tela dedicada à busca de navios.
+/// Tela responsável por buscar navios.
+///  • Busca simples por nome ou IMO.
+///  • Renderiza card com dados do navio.
+///  • Exibe avaliações e nomes dos práticos.
 ///
-/// Regras:
-///  • Pesquisa simples pelo campo nome ou IMO.
-///  • Busca feita via Firestore.
-///  • Se encontrado, renderiza card com dados.
-///  • Caso contrário, mostra aviso.
-///
-/// NÃO faz busca paginada ou por índice (FireStore não indexado).
-/// Esse design é adequado para base pequena; pode ser otimizado usando where.
+/// Obs: busca sem índice — adequada para pequeno volume.
 /// -----------------------------------------------------------------------------
 class BuscarNavioTab extends StatefulWidget {
   const BuscarNavioTab({super.key});
@@ -133,37 +124,32 @@ class BuscarNavioTab extends StatefulWidget {
 }
 
 class _BuscarNavioTabState extends State<BuscarNavioTab> {
-  /// Controller do campo de texto de busca
   final TextEditingController buscaController = TextEditingController();
 
-  /// Guarda o navio encontrado (se existir)
   Map<String, dynamic>? navioEncontrado;
-
-  /// Guarda avaliações carregadas do Firestore
   List<QueryDocumentSnapshot>? avaliacoes;
 
-  /// Executa a busca pelo nome ou IMO
+  /// Executa busca por nome ou imo
   Future<void> buscarNavio() async {
     final busca = buscaController.text.trim();
     if (busca.isEmpty) return;
 
     final snapshot = await FirebaseFirestore.instance.collection('navios').get();
 
-    /// Iteração local na coleção (ideal apenas para dataset pequeno)
     for (var doc in snapshot.docs) {
       final data = doc.data();
 
-      /// Match por nome (case insensitive) ou por IMO
+      /// match nome ou IMO
       if (data['nome'].toString().toLowerCase() == busca.toLowerCase() ||
           data['imo']?.toString() == busca) {
         
-        /// Atualiza interface para exibir card
         setState(() => navioEncontrado = data);
 
-        /// Carrega avaliações relacionadas
+        /// CORREÇÃO IMPORTANTE:
+        /// buscar avaliações usando doc.id e NÃO data['imo']
         final avaliacoesSnapshot = await FirebaseFirestore.instance
             .collection('navios')
-            .doc(data['imo'])
+            .doc(doc.id)
             .collection('avaliacoes')
             .get();
 
@@ -172,7 +158,6 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
       }
     }
 
-    /// Não encontrado: reset estado + snackbar
     setState(() {
       navioEncontrado = null;
       avaliacoes = null;
@@ -189,7 +174,6 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
         children: [
-          /// Input de busca
           TextField(
             controller: buscaController,
             decoration: InputDecoration(
@@ -206,7 +190,6 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 
           const SizedBox(height: 12),
 
-          /// Botão "Buscar"
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -215,22 +198,18 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
               onPressed: buscarNavio,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.indigo,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
               ),
             ),
           ),
 
           const SizedBox(height: 10),
 
-          /// Exibição condicional:
-          /// - Se navio encontrado → renderiza card
-          /// - Caso contrário → apenas espaço vazio
           Expanded(
             child: navioEncontrado != null
-                ? _CardNavio(navio: navioEncontrado!, avaliacoes: avaliacoes)
+                ? _CardNavio(
+                    navio: navioEncontrado!,
+                    avaliacoes: avaliacoes,
+                  )
                 : const SizedBox(),
           ),
         ],
@@ -242,14 +221,11 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 /// -----------------------------------------------------------------------------
 /// _CardNavio
 /// -----------------------------------------------------------------------------
-/// Widget responsável por exibir:
-///  • dados estruturais do navio
-///  • equipamentos (frigobar/pia)
-///  • tripulação / cabines
-///  • médias agregadas
-///  • lista de avaliadores (nome de guerra)
-///
-/// É usado apenas pela aba de busca.
+/// Widget que exibe:
+///  • dados do navio
+///  • equipamentos
+///  • médias
+///  • E PRINCIPALMENTE: nomes dos práticos/avaliadores
 /// -----------------------------------------------------------------------------
 class _CardNavio extends StatelessWidget {
   final Map<String, dynamic> navio;
@@ -271,15 +247,12 @@ class _CardNavio extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.only(top: 14),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            /// Nome do navio
             Text(
               navio['nome'],
               style: const TextStyle(
@@ -288,9 +261,8 @@ class _CardNavio extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
 
-            /// IMO (pode ser não informado)
             Text(
               navio['imo'] == null || navio['imo'].toString().isEmpty
                   ? 'IMO: Não informado'
@@ -300,84 +272,61 @@ class _CardNavio extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            /// Informações do passadiço
-            const Text(
-              "Passadiço",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text("Passadiço", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
 
             Wrap(
               spacing: 6,
               children: [
-                Chip(
-                  label: Text('Frigobar: $temFrigobar'),
-                  backgroundColor: Colors.indigo.shade50,
-                ),
-                Chip(
-                  label: Text('Pia: $temPia'),
-                  backgroundColor: Colors.indigo.shade50,
-                ),
+                Chip(label: Text('Frigobar: $temFrigobar')),
+                Chip(label: Text('Pia: $temPia')),
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            /// Tripulação e cabines
-            const Text(
-              "Informações Gerais",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text("Informações Gerais", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
 
             Wrap(
               spacing: 6,
               children: [
-                Chip(
-                  label: Text('Tripulação: $trip'),
-                  backgroundColor: Colors.grey.shade200,
-                ),
-                Chip(
-                  label: Text('Cabines: $cabines'),
-                  backgroundColor: Colors.grey.shade200,
-                ),
+                Chip(label: Text('Tripulação: $trip')),
+                Chip(label: Text('Cabines: $cabines')),
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
-            /// Médias agregadas
             if (medias.isNotEmpty) ...[
-              const Text(
-                "Médias das Avaliações",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
+              const Text("Médias", style: TextStyle(fontWeight: FontWeight.bold)),
               Wrap(
                 spacing: 6,
                 children: [
                   for (var entry in medias.entries)
-                    Chip(
-                      label: Text('${entry.key}: ${entry.value}'),
-                      backgroundColor: Colors.blue.shade50,
-                    ),
+                    Chip(label: Text('${entry.key}: ${entry.value}')),
                 ],
               ),
             ],
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 20),
 
-            /// Lista de avaliadores
+            /// EXIBIÇÃO DOS PRÁTICOS
             if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
-              const Divider(height: 24),
-              const Text(
-                'Avaliado por:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Divider(),
+              const Text("Avaliado por:", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              for (var doc in avaliacoes!)
-                Text("• ${doc['nomeGuerra'] ?? 'Prático'}"),
-            ],
+
+              for (var doc in avaliacoes!) ...[
+                Builder(
+                  builder: (_) {
+                    final map = doc.data() as Map<String, dynamic>;
+                    final nome = map['nomeGuerra'] ?? 'Prático';
+                    return Text("• Prático: $nome");
+                  },
+                )
+              ]
+            ]
           ],
         ),
       ),
@@ -388,85 +337,35 @@ class _CardNavio extends StatelessWidget {
 /// -----------------------------------------------------------------------------
 /// AvaliarNavioTab
 /// -----------------------------------------------------------------------------
-/// Exibe CTA simples com botão para ir à AddRatingPage.
-///
-/// NÃO contém lógica de cadastro.
-/// Apenas encaminha para fluxo de avaliação.
-/// -----------------------------------------------------------------------------
 class AvaliarNavioTab extends StatelessWidget {
   const AvaliarNavioTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return Center(
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.rate_review),
+        label: const Text('Avaliar um navio'),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddRatingPage(imo: ''),
+            ),
+          );
 
-        /// Ícone central
-        Icon(
-          Icons.directions_boat_filled_rounded,
-          color: Colors.indigo,
-          size: 80,
-        ),
+          if (!context.mounted) return;
 
-        const SizedBox(height: 16),
-
-        const Text(
-          'Ainda não avaliou um navio?',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        const Text(
-          'Clique no botão abaixo para registrar sua experiência.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black54,
-          ),
-          textAlign: TextAlign.center,
-        ),
-
-        const SizedBox(height: 28),
-
-        /// Botão → abre AddRatingPage
-        ElevatedButton.icon(
-          icon: const Icon(Icons.rate_review),
-          label: const Text('Avaliar um navio'),
-          onPressed: () async {
-            final resultado = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const AddRatingPage(imo: ''),
+          if (result == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Avaliação salva com sucesso'),
+                backgroundColor: Colors.green,
               ),
             );
-
-            if (!context.mounted) return;
-
-            /// Feedback caso o salvamento tenha sido bem-sucedido
-            if (resultado == true) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Avaliação salva com sucesso'),
-                  backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.indigo,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 36),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-        ),
-      ],
+          }
+        },
+      ),
     );
   }
 }
