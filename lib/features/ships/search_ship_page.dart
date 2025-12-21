@@ -5,15 +5,6 @@ import '../ratings/add_rating_page.dart';
 /// -----------------------------------------------------------------------------
 /// BuscarAvaliarNavioPage
 /// -----------------------------------------------------------------------------
-/// Tela principal da feature de navios.
-///
-/// Funções principais:
-///  • Apresenta duas abas (buscar / avaliar).
-///  • Gera uma interface simples e responsiva.
-///  • Renderiza o componente de busca e avaliação.
-///
-/// O TabController controla a troca entre as duas telas.
-/// -----------------------------------------------------------------------------
 class BuscarAvaliarNavioPage extends StatefulWidget {
   const BuscarAvaliarNavioPage({super.key});
 
@@ -28,10 +19,6 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
   @override
   void initState() {
     super.initState();
-
-    /// Define 2 abas:
-    ///  - buscar navios
-    ///  - avaliar navios
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -44,28 +31,17 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 10),
-
-            /// Título principal
             const Text(
               'Avaliação de Navios',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 4),
-
-            /// Subtítulo explicativo
             const Text(
               'Pesquise avaliações ou registre sua experiência',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
-
             const SizedBox(height: 12),
-
-            /// Menu de abas
             Container(
               height: 48,
               decoration: BoxDecoration(
@@ -86,10 +62,7 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
                 ],
               ),
             ),
-
             const SizedBox(height: 10),
-
-            /// Conteúdo das abas
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -109,13 +82,6 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
 /// -----------------------------------------------------------------------------
 /// BuscarNavioTab
 /// -----------------------------------------------------------------------------
-/// Tela responsável por buscar navios.
-///  • Busca simples por nome ou IMO.
-///  • Renderiza card com dados do navio.
-///  • Exibe avaliações e nomes dos práticos.
-///
-/// Obs: busca sem índice — adequada para pequeno volume.
-/// -----------------------------------------------------------------------------
 class BuscarNavioTab extends StatefulWidget {
   const BuscarNavioTab({super.key});
 
@@ -129,7 +95,6 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
   Map<String, dynamic>? navioEncontrado;
   List<QueryDocumentSnapshot>? avaliacoes;
 
-  /// Executa busca por nome ou imo
   Future<void> buscarNavio() async {
     final busca = buscaController.text.trim();
     if (busca.isEmpty) return;
@@ -139,14 +104,12 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
     for (var doc in snapshot.docs) {
       final data = doc.data();
 
-      /// match nome ou IMO
       if (data['nome'].toString().toLowerCase() == busca.toLowerCase() ||
           data['imo']?.toString() == busca) {
         
         setState(() => navioEncontrado = data);
 
-        /// CORREÇÃO IMPORTANTE:
-        /// buscar avaliações usando doc.id e NÃO data['imo']
+        /// CORREÇÃO AQUI: usar doc.id
         final avaliacoesSnapshot = await FirebaseFirestore.instance
             .collection('navios')
             .doc(doc.id)
@@ -187,9 +150,7 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
             ),
             onSubmitted: (_) => buscarNavio(),
           ),
-
           const SizedBox(height: 12),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -201,9 +162,7 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
           Expanded(
             child: navioEncontrado != null
                 ? _CardNavio(
@@ -221,12 +180,6 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 /// -----------------------------------------------------------------------------
 /// _CardNavio
 /// -----------------------------------------------------------------------------
-/// Widget que exibe:
-///  • dados do navio
-///  • equipamentos
-///  • médias
-///  • E PRINCIPALMENTE: nomes dos práticos/avaliadores
-/// -----------------------------------------------------------------------------
 class _CardNavio extends StatelessWidget {
   final Map<String, dynamic> navio;
   final List<QueryDocumentSnapshot>? avaliacoes;
@@ -239,7 +192,6 @@ class _CardNavio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final medias = (navio['medias'] ?? {}) as Map;
-
     final temFrigobar = navio['frigobar'] ?? 'Não informado';
     final temPia = navio['pia'] ?? 'Não informado';
     final trip = navio['tripulacao'] ?? 'Não informada';
@@ -250,84 +202,71 @@ class _CardNavio extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              navio['nome'],
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                navio['nome'],
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-            ),
-
-            const SizedBox(height: 6),
-
-            Text(
-              navio['imo'] == null || navio['imo'].toString().isEmpty
-                  ? 'IMO: Não informado'
-                  : 'IMO: ${navio['imo']}',
-              style: const TextStyle(color: Colors.black54),
-            ),
-
-            const SizedBox(height: 14),
-
-            const Text("Passadiço", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-
-            Wrap(
-              spacing: 6,
-              children: [
-                Chip(label: Text('Frigobar: $temFrigobar')),
-                Chip(label: Text('Pia: $temPia')),
-              ],
-            ),
-
-            const SizedBox(height: 14),
-
-            const Text("Informações Gerais", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-
-            Wrap(
-              spacing: 6,
-              children: [
-                Chip(label: Text('Tripulação: $trip')),
-                Chip(label: Text('Cabines: $cabines')),
-              ],
-            ),
-
-            const SizedBox(height: 14),
-
-            if (medias.isNotEmpty) ...[
-              const Text("Médias", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 6),
+              Text(
+                navio['imo'] == null || navio['imo'].toString().isEmpty
+                    ? 'IMO: Não informado'
+                    : 'IMO: ${navio['imo']}',
+                style: const TextStyle(color: Colors.black54),
+              ),
+              const SizedBox(height: 14),
+              const Text("Passadiço", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 6),
               Wrap(
                 spacing: 6,
                 children: [
-                  for (var entry in medias.entries)
-                    Chip(label: Text('${entry.key}: ${entry.value}')),
+                  Chip(label: Text('Frigobar: $temFrigobar')),
+                  Chip(label: Text('Pia: $temPia')),
                 ],
               ),
-            ],
-
-            const SizedBox(height: 20),
-
-            /// EXIBIÇÃO DOS PRÁTICOS
-            if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
-              const Divider(),
-              const Text("Avaliado por:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 14),
+              const Text("Informações Gerais", style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                children: [
+                  Chip(label: Text('Tripulação: $trip')),
+                  Chip(label: Text('Cabines: $cabines')),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (medias.isNotEmpty) ...[
+                const Text("Médias", style: TextStyle(fontWeight: FontWeight.bold)),
+                Wrap(
+                  spacing: 6,
+                  children: [
+                    for (var entry in medias.entries)
+                      Chip(label: Text('${entry.key}: ${entry.value}')),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 20),
 
-              for (var doc in avaliacoes!) ...[
-                Builder(
-                  builder: (_) {
-                    final map = doc.data() as Map<String, dynamic>;
-                    final nome = map['nomeGuerra'] ?? 'Prático';
-                    return Text("• Prático: $nome");
-                  },
-                )
+              /// EXIBIÇÃO DOS PRÁTICOS
+              if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
+                const Divider(),
+                const Text("Avaliado por:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                for (var doc in avaliacoes!) ...[
+                  Builder(
+                    builder: (_) {
+                      final map = doc.data() as Map<String, dynamic>;
+                      final nome = map['nomeGuerra'] ?? 'Prático';
+                      return Text("• Prático: $nome");
+                    },
+                  )
+                ]
               ]
-            ]
-          ],
+            ],
+          ),
         ),
       ),
     );
