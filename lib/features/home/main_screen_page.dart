@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../auth/login_page.dart';
 import '../ships/search_ship_page.dart';
 import 'home_controller.dart';
-import '../sugestoes/sugestao_page.dart'; // Página para envio de sugestões
+import '../sugestoes/sugestao_page.dart';
 
 /// ---------------------------------------------------------------------------
 /// CONTROLADOR DE VERSÃO LOCAL DO APLICATIVO
@@ -12,16 +12,6 @@ import '../sugestoes/sugestao_page.dart'; // Página para envio de sugestões
 /// • `kAppVersionCode` é utilizado para comparação com a versão remota.
 /// • `kAppVersionLabel` é exibido na interface (rodapé).
 /// • `kAppChannelLabel` pode marcar canal BETA/PROD etc.
-/// 
-/// IMPORTANTE:
-/// Sempre que realizar um novo deploy, atualizar:
-///   - kAppVersionCode (int)
-///   - kAppVersionLabel (string)
-///
-/// E atualizar o documento em Firestore:
-///   config/app { versao_atual: <num> }
-///
-/// Dessa forma, o app renderiza um banner avisando sobre atualização.
 const int kAppVersionCode = 2;
 const String kAppVersionLabel = '1.1.0';
 const String kAppChannelLabel = 'VERSÃO BETA';
@@ -29,26 +19,6 @@ const String kAppChannelLabel = 'VERSÃO BETA';
 /// ---------------------------------------------------------------------------
 /// MAIN SCREEN (HOME) DO APLICATIVO
 /// ---------------------------------------------------------------------------
-/// Responsável por:
-/// • Controlar o layout principal após login.
-/// • Conter AppBar, Drawer e conteúdo principal.
-/// • Renderizar a feature de busca/avaliação.
-/// • Exibir aviso de atualização (versão do Firestore).
-/// • Expor acesso ao menu lateral (logout, sugestões).
-///
-/// Fluxo:
-/// - `initState()` → verifica versão remota no Firestore.
-/// - `_checkRemoteVersion()` → compara versão atual com remota.
-/// - `_handleLogout()` → delega logout ao controller.
-/// - Menu Drawer:
-///     Buscar/Avaliar Navios
-///     Enviar Sugestão
-///     Logout
-///
-/// - `body` → monta:
-///     banner de atualização
-///     conteúdo da tela (BuscarAvaliarNavioPage)
-///     rodapé com versão e canal
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -57,10 +27,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  /// Controla a exibição do banner de atualização.
   bool _showUpdateBanner = false;
-
-  /// Armazena a versão remota obtida no Firestore.
   int _remoteVersionCode = kAppVersionCode;
 
   @override
@@ -69,16 +36,6 @@ class _MainScreenState extends State<MainScreen> {
     _checkRemoteVersion();
   }
 
-  /// -------------------------------------------------------------------------
-  /// Consulta o Firestore procurando a versão mais recente do app.
-  ///
-  /// Estrutura esperada no Firestore:
-  ///   collection: config
-  ///   document: app
-  ///   field: versao_atual
-  ///
-  /// Se a versão remota > versão local:
-  ///   → exibe aviso solicitando recarregar o app/PWA.
   Future<void> _checkRemoteVersion() async {
     try {
       final doc = await FirebaseFirestore.instance
@@ -100,14 +57,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  /// -------------------------------------------------------------------------
-  /// Realiza logout do app.
-  ///
-  /// Observação:
-  ///   - Implementação futura deve ser centralizada no MainScreenController
-  ///     ou AuthController.
-  ///
-  /// A navegação limpa a stack para não permitir retorno ao MainScreen.
   Future<void> _handleLogout() async {
     final controller = MainScreenController();
     await controller.logout();
@@ -121,7 +70,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// Banner exibido somente quando existe versão remota > local.
   Widget _buildUpdateBanner() {
     if (!_showUpdateBanner) return const SizedBox.shrink();
 
@@ -141,7 +89,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// Rodapé fixo exibindo versão + canal (ex.: BETA).
   Widget _buildVersionFooter() {
     return Container(
       width: double.infinity,
@@ -154,85 +101,92 @@ class _MainScreenState extends State<MainScreen> {
           fontSize: 12,
           letterSpacing: 0.7,
           fontWeight: FontWeight.w600,
-          color: Colors.black87,
         ),
       ),
     );
   }
 
-  /// -------------------------------------------------------------------------
-  /// Build principal da tela
-  /// -------------------------------------------------------------------------
-  /// Composição:
-  /// - AppBar personalizada
-  /// - Drawer com navegação lateral
-  /// - Corpo contendo o fluxo principal (buscar/avaliar navios)
-  /// - Banner de atualização condicional
-  /// - Rodapé com versão
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'ShipRate',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('ShipRate', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         centerTitle: true,
-        elevation: 4,
       ),
 
+      /// =========================
+      /// DRAWER REALMENTE NOVO
+      /// =========================
       drawer: Drawer(
-        child: Column(
-          children: [
-            /// Cabeçalho do Drawer com branding
-            DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.indigo),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.directions_boat, size: 60, color: Colors.white),
-                  SizedBox(height: 8),
-                  Text(
-                    "ShipRate",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /// HEADER CUSTOM (não DrawerHeader)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.indigo,
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(24),
                   ),
-                ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Icon(Icons.directions_boat, size: 48, color: Colors.white),
+                    SizedBox(height: 12),
+                    Text(
+                      'ShipRate',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Avaliação profissional de navios',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            /// Navegação para fluxo principal
-            ListTile(
-              leading: const Icon(Icons.search),
-              title: const Text("Buscar/Avaliar Navios"),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+              const SizedBox(height: 20),
 
-            /// Navegação da feature "Enviar Sugestão"
-            /// Tela utiliza Firestore para persistir feedbacks.
-            ListTile(
-              leading: const Icon(Icons.lightbulb_outline),
-              title: const Text("Enviar Sugestão"),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SugestaoPage()),
-                );
-              },
-            ),
+              _drawerItem(
+                icon: Icons.search,
+                label: 'Buscar / Avaliar Navios',
+                onTap: () => Navigator.pop(context),
+              ),
 
-            const Divider(),
+              _drawerItem(
+                icon: Icons.lightbulb_outline,
+                label: 'Enviar Sugestão',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SugestaoPage()),
+                  );
+                },
+              ),
 
-            /// Logout
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Sair"),
-              onTap: _handleLogout,
-            ),
-          ],
+              const Spacer(),
+              const Divider(),
+
+              _drawerItem(
+                icon: Icons.logout,
+                label: 'Sair',
+                color: Colors.redAccent,
+                onTap: _handleLogout,
+              ),
+            ],
+          ),
         ),
       ),
 
@@ -243,6 +197,25 @@ class _MainScreenState extends State<MainScreen> {
           _buildVersionFooter(),
         ],
       ),
+    );
+  }
+
+  Widget _drawerItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Colors.black87),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: color ?? Colors.black87,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

@@ -4,25 +4,6 @@ import 'package:ship_rate/data/services/sugestao_service.dart';
 /// ============================================================================
 /// SugestaoPage
 /// ============================================================================
-/// Tela responsável por permitir que o usuário envie sugestões sobre o app.
-///
-/// OBJETIVOS PRINCIPAIS:
-///  • Captura de e-mail, título e descrição.
-///  • Envio via SugestaoService (Firestore).
-///  • Feedback ao usuário via SnackBar.
-///  • UI simples e direta.
-///
-/// NOTAS ARQUITETURAIS:
-///  • Não faz validação complexa — ideal para ser validada futuramente.
-///  • Reaproveita SugestaoService para manter controller/service separado da UI.
-///  • Navegação: retorna para tela anterior após sucesso.
-///
-/// Firestore:
-///  • Coleção: "sugestoes"
-///  • Campos persistidos: email, titulo, mensagem, createdAt
-///
-/// ============================================================================
-
 class SugestaoPage extends StatefulWidget {
   const SugestaoPage({super.key});
 
@@ -31,28 +12,12 @@ class SugestaoPage extends StatefulWidget {
 }
 
 class _SugestaoPageState extends State<SugestaoPage> {
-  /// Controllers dos campos de entrada
   final _emailController = TextEditingController();
   final _tituloController = TextEditingController();
   final _mensagemController = TextEditingController();
 
-  /// Estado para exibir carregamento durante envio
   bool isLoading = false;
 
-  /// --------------------------------------------------------------------------
-  /// _enviar()
-  /// --------------------------------------------------------------------------
-  /// Ação disparada ao clicar no botão "Enviar".
-  ///
-  /// Regras:
-  ///  • dispara SugestaoService.enviar(...)
-  ///  • exibe SnackBar com sucesso ou falha
-  ///  • desabilita botão enquanto envia
-  ///  • retorna à tela anterior em caso de sucesso
-  ///
-  /// Não possui validação obrigatória — intencional para simplicidade inicial.
-  /// Pode ser estendida com validações de campo no futuro.
-  /// --------------------------------------------------------------------------
   Future<void> _enviar() async {
     setState(() => isLoading = true);
 
@@ -66,67 +31,114 @@ class _SugestaoPageState extends State<SugestaoPage> {
 
     if (!mounted) return;
 
-    /// Feedback ao usuário via SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          ok ? "Sugestão enviada com sucesso!" : "Erro ao enviar sugestão.",
-        ),
+        content: Text(ok
+            ? 'Sugestão enviada com sucesso!'
+            : 'Erro ao enviar sugestão.'),
         backgroundColor: ok ? Colors.green : Colors.red,
       ),
     );
 
-    /// Retorna à tela anterior apenas se sucesso
     if (ok) Navigator.pop(context);
   }
 
-  /// --------------------------------------------------------------------------
-  /// build()
-  /// --------------------------------------------------------------------------
-  /// Renderiza a interface:
-  ///  • AppBar
-  ///  • Formulário simples
-  ///  • Button com loader
-  ///
-  /// UI focada em simplicidade e clareza.
-  /// --------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Enviar Sugestão")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(
+        title: const Text('Enviar Sugestão',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Campo de e-mail
-            TextField(
+            const Text(
+              'Sua opinião é importante',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Ajude a melhorar o ShipRate com sugestões e ideias.',
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 24),
+
+            _field(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: "Seu e-mail"),
+              label: 'Seu e-mail',
+              icon: Icons.email_outlined,
             ),
-
-            /// Campo título
-            TextField(
+            const SizedBox(height: 16),
+            _field(
               controller: _tituloController,
-              decoration: const InputDecoration(labelText: "Título"),
+              label: 'Título da sugestão',
+              icon: Icons.title,
             ),
-
-            /// Campo mensagem
-            TextField(
+            const SizedBox(height: 16),
+            _field(
               controller: _mensagemController,
-              maxLines: 4,
-              decoration: const InputDecoration(labelText: "Mensagem"),
+              label: 'Mensagem',
+              icon: Icons.message_outlined,
+              maxLines: 5,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
 
-            /// Botão enviar (ou indicador de loading)
-            ElevatedButton(
-              onPressed: isLoading ? null : _enviar,
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Enviar"),
-            )
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : _enviar,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Enviar Sugestão',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _field({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
         ),
       ),
     );

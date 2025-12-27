@@ -5,6 +5,13 @@ import '../ratings/add_rating_page.dart';
 /// -----------------------------------------------------------------------------
 /// BuscarAvaliarNavioPage
 /// -----------------------------------------------------------------------------
+/// Tela principal da feature de navios.
+///
+/// Funções principais:
+///  • Apresenta duas abas (buscar / avaliar).
+///  • Busca com autocomplete profissional.
+///  • Exibe card completo SOMENTE após seleção do navio.
+/// -----------------------------------------------------------------------------
 class BuscarAvaliarNavioPage extends StatefulWidget {
   const BuscarAvaliarNavioPage({super.key});
 
@@ -28,8 +35,9 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             const Text(
               'Avaliação de Navios',
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
@@ -37,31 +45,31 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
             const SizedBox(height: 4),
             const Text(
               'Pesquise avaliações ou registre sua experiência',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.black54),
+              style: TextStyle(color: Colors.black54),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Container(
-              height: 48,
+              height: 44,
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: TabBar(
                 controller: _tabController,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black,
                 indicator: BoxDecoration(
                   color: Colors.indigo,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(20),
                 ),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black87,
                 tabs: const [
                   Tab(text: 'Buscar'),
                   Tab(text: 'Avaliar'),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -89,95 +97,70 @@ class BuscarNavioTab extends StatefulWidget {
 }
 
 class _BuscarNavioTabState extends State<BuscarNavioTab> {
-  final TextEditingController buscaController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
-  Map<String, dynamic>? navioEncontrado;
+  List<QueryDocumentSnapshot> sugestoes = [];
+  QueryDocumentSnapshot? navioSelecionado;
   List<QueryDocumentSnapshot>? avaliacoes;
-  List<String> nomesNavios = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _carregarNomesNavios();
-  }
+  Future<void> _atualizarSugestoes(String texto) async {
+    if (texto.isEmpty) {
+      setState(() {
+        sugestoes = [];
+        navioSelecionado = null;
+        avaliacoes = null;
+      });
+      return;
+    }
 
-  Future<void> _carregarNomesNavios() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('navios').get();
 
-    nomesNavios = snapshot.docs
-        .map((doc) => doc.data()['nome'].toString())
-        .toList();
-
-    setState(() {});
+    setState(() {
+      sugestoes = snapshot.docs.where((doc) {
+        final nome = doc['nome'].toString().toLowerCase();
+        return nome.contains(texto.toLowerCase());
+      }).toList();
+    });
   }
 
-  Future<void> buscarNavio() async {
-    final busca = buscaController.text.trim();
-    if (busca.isEmpty) return;
-
-    final snapshot = await FirebaseFirestore.instance.collection('navios').get();
-
-    for (var doc in snapshot.docs) {
-      final data = doc.data();
-
-      if (data['nome'].toString().toLowerCase() == busca.toLowerCase() ||
-          data['imo']?.toString() == busca) {
-        setState(() => navioEncontrado = data);
-
-        final avaliacoesSnapshot = await FirebaseFirestore.instance
-            .collection('navios')
-            .doc(doc.id)
-            .collection('avaliacoes')
-            .get();
-
-        setState(() => avaliacoes = avaliacoesSnapshot.docs);
-        return;
-      }
-    }
+  Future<void> _selecionarNavio(QueryDocumentSnapshot doc) async {
+    final avaliacoesSnapshot = await FirebaseFirestore.instance
+        .collection('navios')
+        .doc(doc.id)
+        .collection('avaliacoes')
+        .get();
 
     setState(() {
-      navioEncontrado = null;
-      avaliacoes = null;
+      navioSelecionado = doc;
+      avaliacoes = avaliacoesSnapshot.docs;
+      sugestoes = [];
+      _controller.text = doc['nome'];
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navio não encontrado.')),
-    );
   }
 
   /// ---------------------------------------------------------------------------
-  /// Cria texto com destaque da substring digitada
+  /// Negrita SOMENTE a primeira ocorrência do texto buscado
   /// ---------------------------------------------------------------------------
-  RichText _highlightMatch(String text, String query) {
+  Widget _highlightMatch(String text, String query) {
+    if (query.isEmpty) return Text(text);
+
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
 
-    if (!lowerText.contains(lowerQuery)) {
-      return RichText(text: TextSpan(text: text, style: const TextStyle(color: Colors.black)));
-    }
-
-    final start = lowerText.indexOf(lowerQuery);
-    final end = start + query.length;
+    final index = lowerText.indexOf(lowerQuery);
+    if (index < 0) return Text(text);
 
     return RichText(
       text: TextSpan(
+        style: const TextStyle(color: Colors.black, fontSize: 16),
         children: [
+          TextSpan(text: text.substring(0, index)),
           TextSpan(
-            text: text.substring(0, start),
-            style: const TextStyle(color: Colors.black),
+            text: text.substring(index, index + query.length),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          TextSpan(
-            text: text.substring(start, end),
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          TextSpan(
-            text: text.substring(end),
-            style: const TextStyle(color: Colors.black),
-          ),
+          TextSpan(text: text.substring(index + query.length)),
         ],
       ),
     );
@@ -185,103 +168,68 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Column(
-        children: [
-          Autocomplete<String>(
-            optionsBuilder: (TextEditingValue value) {
-              final query = value.text.toLowerCase();
-              if (query.isEmpty) return const Iterable<String>.empty();
-
-              return nomesNavios.where(
-                (nome) => nome.toLowerCase().contains(query),
-              );
-            },
-            onSelected: (String selection) {
-              buscaController.text = selection;
-              buscarNavio();
-            },
-            fieldViewBuilder:
-                (context, controller, focusNode, onFieldSubmitted) {
-              return TextField(
-                controller: controller,
-                focusNode: focusNode,
-                decoration: InputDecoration(
-                  hintText: 'Buscar por nome ou IMO',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onChanged: (value) {
-                  buscaController.text = value;
-                },
-                onSubmitted: (_) => buscarNavio(),
-              );
-            },
-            optionsViewBuilder: (context, onSelected, options) {
-              final query = buscaController.text;
-
-              return Align(
-                alignment: Alignment.topLeft,
-                child: Material(
-                  elevation: 4,
-                  borderRadius: BorderRadius.circular(12),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 220),
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: options.length,
-                      itemBuilder: (context, index) {
-                        final option = options.elementAt(index);
-                        return ListTile(
-                          title: _highlightMatch(option, query),
-                          onTap: () => onSelected(option),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              );
-            },
+    return Column(
+      children: [
+        TextField(
+          controller: _controller,
+          onChanged: _atualizarSugestoes,
+          decoration: InputDecoration(
+            hintText: 'Buscar por nome do navio',
+            prefixIcon: const Icon(Icons.search),
+            filled: true,
+            fillColor: Colors.grey[100],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
           ),
+        ),
 
-          const SizedBox(height: 12),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.search),
-              label: const Text('Buscar'),
-              onPressed: buscarNavio,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
+        if (sugestoes.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: const [
+                BoxShadow(color: Colors.black12, blurRadius: 8),
+              ],
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: sugestoes.length,
+              separatorBuilder: (_, __) =>
+                  Divider(height: 1, color: Colors.grey[200]),
+              itemBuilder: (_, i) {
+                final doc = sugestoes[i];
+                return ListTile(
+                  leading: const Icon(Icons.directions_boat),
+                  title: _highlightMatch(doc['nome'], _controller.text),
+                  onTap: () => _selecionarNavio(doc),
+                );
+              },
             ),
           ),
 
-          const SizedBox(height: 10),
+        const SizedBox(height: 12),
 
+        if (navioSelecionado != null)
           Expanded(
-            child: navioEncontrado != null
-                ? _CardNavio(
-                    navio: navioEncontrado!,
-                    avaliacoes: avaliacoes,
-                  )
-                : const SizedBox(),
+            child: _CardNavio(
+              navio: navioSelecionado!,
+              avaliacoes: avaliacoes,
+            ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }
 
 /// -----------------------------------------------------------------------------
-/// _CardNavio
+/// Card do Navio (DESIGN RESTAURADO COM CONTAINERS)
 /// -----------------------------------------------------------------------------
 class _CardNavio extends StatelessWidget {
-  final Map<String, dynamic> navio;
+  final QueryDocumentSnapshot navio;
   final List<QueryDocumentSnapshot>? avaliacoes;
 
   const _CardNavio({
@@ -291,29 +239,103 @@ class _CardNavio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = navio.data() as Map<String, dynamic>;
+    final medias = (data['medias'] ?? {}) as Map;
+
+    return ListView(
+      children: [
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data['nome'],
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  data['imo'] == null || data['imo'].toString().isEmpty
+                      ? 'IMO: Não informado'
+                      : 'IMO: ${data['imo']}',
+                  style: const TextStyle(color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        _section(
+          title: 'Passadiço',
+          content: Wrap(
+            spacing: 8,
+            children: [
+              Chip(label: Text('Frigobar: ${data['frigobar'] ?? '—'}')),
+              Chip(label: Text('Pia: ${data['pia'] ?? '—'}')),
+            ],
+          ),
+        ),
+
+        _section(
+          title: 'Informações Gerais',
+          content: Wrap(
+            spacing: 8,
+            children: [
+              Chip(label: Text('Tripulação: ${data['tripulacao'] ?? '—'}')),
+              Chip(label: Text('Cabines: ${data['cabines'] ?? '—'}')),
+            ],
+          ),
+        ),
+
+        if (medias.isNotEmpty)
+          _section(
+            title: 'Médias',
+            content: Wrap(
+              spacing: 8,
+              children: medias.entries
+                  .map((e) => Chip(label: Text('${e.key}: ${e.value}')))
+                  .toList(),
+            ),
+          ),
+
+        if (avaliacoes != null && avaliacoes!.isNotEmpty)
+          _section(
+            title: 'Avaliado por',
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: avaliacoes!
+                  .map(
+                    (doc) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        'Prático: ${(doc.data() as Map)['nomeGuerra'] ?? '—'}',
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _section({required String title, required Widget content}) {
     return Card(
-      elevation: 4,
+      margin: const EdgeInsets.only(top: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              navio['nome'],
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 14),
-            if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
-              const Divider(),
-              const Text(
-                "Avaliado por:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              for (var doc in avaliacoes!)
-                Text("• Prático: ${doc['nomeGuerra'] ?? 'Prático'}"),
-            ]
+            Text(title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 8),
+            content,
           ],
         ),
       ),
@@ -333,24 +355,13 @@ class AvaliarNavioTab extends StatelessWidget {
       child: ElevatedButton.icon(
         icon: const Icon(Icons.rate_review),
         label: const Text('Avaliar um navio'),
-        onPressed: () async {
-          final result = await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => const AddRatingPage(imo: ''),
             ),
           );
-
-          if (!context.mounted) return;
-
-          if (result == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Avaliação salva com sucesso'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
         },
       ),
     );
