@@ -28,7 +28,6 @@ class _BuscarAvaliarNavioPageState extends State<BuscarAvaliarNavioPage>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 10),
             const Text(
@@ -94,6 +93,24 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 
   Map<String, dynamic>? navioEncontrado;
   List<QueryDocumentSnapshot>? avaliacoes;
+  List<String> nomesNavios = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarNomesNavios();
+  }
+
+  Future<void> _carregarNomesNavios() async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('navios').get();
+
+    nomesNavios = snapshot.docs
+        .map((doc) => doc.data()['nome'].toString())
+        .toList();
+
+    setState(() {});
+  }
 
   Future<void> buscarNavio() async {
     final busca = buscaController.text.trim();
@@ -106,10 +123,8 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
 
       if (data['nome'].toString().toLowerCase() == busca.toLowerCase() ||
           data['imo']?.toString() == busca) {
-        
         setState(() => navioEncontrado = data);
 
-        /// CORREÇÃO AQUI: usar doc.id
         final avaliacoesSnapshot = await FirebaseFirestore.instance
             .collection('navios')
             .doc(doc.id)
@@ -131,38 +146,123 @@ class _BuscarNavioTabState extends State<BuscarNavioTab> {
     );
   }
 
+  /// ---------------------------------------------------------------------------
+  /// Cria texto com destaque da substring digitada
+  /// ---------------------------------------------------------------------------
+  RichText _highlightMatch(String text, String query) {
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+
+    if (!lowerText.contains(lowerQuery)) {
+      return RichText(text: TextSpan(text: text, style: const TextStyle(color: Colors.black)));
+    }
+
+    final start = lowerText.indexOf(lowerQuery);
+    final end = start + query.length;
+
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: text.substring(0, start),
+            style: const TextStyle(color: Colors.black),
+          ),
+          TextSpan(
+            text: text.substring(start, end),
+            style: const TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          TextSpan(
+            text: text.substring(end),
+            style: const TextStyle(color: Colors.black),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Column(
         children: [
-          TextField(
-            controller: buscaController,
-            decoration: InputDecoration(
-              hintText: 'Buscar por nome ou IMO',
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            onSubmitted: (_) => buscarNavio(),
+          Autocomplete<String>(
+            optionsBuilder: (TextEditingValue value) {
+              final query = value.text.toLowerCase();
+              if (query.isEmpty) return const Iterable<String>.empty();
+
+              return nomesNavios.where(
+                (nome) => nome.toLowerCase().contains(query),
+              );
+            },
+            onSelected: (String selection) {
+              buscaController.text = selection;
+              buscarNavio();
+            },
+            fieldViewBuilder:
+                (context, controller, focusNode, onFieldSubmitted) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  hintText: 'Buscar por nome ou IMO',
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onChanged: (value) {
+                  buscaController.text = value;
+                },
+                onSubmitted: (_) => buscarNavio(),
+              );
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              final query = buscaController.text;
+
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(12),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 220),
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
+                        return ListTile(
+                          title: _highlightMatch(option, query),
+                          onTap: () => onSelected(option),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
+
           const SizedBox(height: 12),
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.search),
               label: const Text('Buscar'),
               onPressed: buscarNavio,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
             ),
           ),
+
           const SizedBox(height: 10),
+
           Expanded(
             child: navioEncontrado != null
                 ? _CardNavio(
@@ -191,82 +291,30 @@ class _CardNavio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final medias = (navio['medias'] ?? {}) as Map;
-    final temFrigobar = navio['frigobar'] ?? 'Não informado';
-    final temPia = navio['pia'] ?? 'Não informado';
-    final trip = navio['tripulacao'] ?? 'Não informada';
-    final cabines = navio['cabines']?.toString() ?? 'Não informado';
-
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(18),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                navio['nome'],
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              navio['nome'],
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 14),
+            if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
+              const Divider(),
+              const Text(
+                "Avaliado por:",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
-              Text(
-                navio['imo'] == null || navio['imo'].toString().isEmpty
-                    ? 'IMO: Não informado'
-                    : 'IMO: ${navio['imo']}',
-                style: const TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 14),
-              const Text("Passadiço", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                children: [
-                  Chip(label: Text('Frigobar: $temFrigobar')),
-                  Chip(label: Text('Pia: $temPia')),
-                ],
-              ),
-              const SizedBox(height: 14),
-              const Text("Informações Gerais", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                children: [
-                  Chip(label: Text('Tripulação: $trip')),
-                  Chip(label: Text('Cabines: $cabines')),
-                ],
-              ),
-              const SizedBox(height: 14),
-              if (medias.isNotEmpty) ...[
-                const Text("Médias", style: TextStyle(fontWeight: FontWeight.bold)),
-                Wrap(
-                  spacing: 6,
-                  children: [
-                    for (var entry in medias.entries)
-                      Chip(label: Text('${entry.key}: ${entry.value}')),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 20),
-
-              /// EXIBIÇÃO DOS PRÁTICOS
-              if (avaliacoes != null && avaliacoes!.isNotEmpty) ...[
-                const Divider(),
-                const Text("Avaliado por:", style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                for (var doc in avaliacoes!) ...[
-                  Builder(
-                    builder: (_) {
-                      final map = doc.data() as Map<String, dynamic>;
-                      final nome = map['nomeGuerra'] ?? 'Prático';
-                      return Text("• Prático: $nome");
-                    },
-                  )
-                ]
-              ]
-            ],
-          ),
+              for (var doc in avaliacoes!)
+                Text("• Prático: ${doc['nomeGuerra'] ?? 'Prático'}"),
+            ]
+          ],
         ),
       ),
     );
