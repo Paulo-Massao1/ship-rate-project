@@ -1,94 +1,52 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// ----------------------------------------------------------------------------
-/// RatingController
-/// ----------------------------------------------------------------------------
-/// Camada de controle responsável por operações relacionadas a:
-///
-///  • Cadastro de novos navios.
-///  • Atualização de navios existentes.
-///  • Registro de avaliações.
-///  • Cálculo e atualização das médias.
-///  • Consulta de navios existentes.
-///
-/// A responsabilidade desta classe é intermediar:
-///  - Fluxo da AddRatingPage
-///  - Firestore
-///  - Autenticação do usuário
-///
-/// Observações importantes:
-///  - Cada navio é armazenado em `navios/{imo}`.
-///  - Avaliações são salvas em `navios/{imo}/avaliacoes`.
-///  - O campo `medias` é recalculado a cada nova avaliação.
-///  - O IMO é tratado como identificador primário, mas pode ser preenchido
-///    posteriormente caso o navio tenha sido criado sem ele inicialmente.
-/// ----------------------------------------------------------------------------
 class RatingController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// ORDEM OFICIAL DOS ITENS
+  static const List<String> _itensAvaliacao = [
+    'Dispositivo de Embarque/Desembarque',
+    'Temperatura da Cabine',
+    'Limpeza da Cabine',
+    'Passadiço – Equipamentos',
+    'Passadiço – Temperatura',
+    'Comida',
+    'Relacionamento com comandante/tripulação',
+  ];
+
   /// --------------------------------------------------------------------------
-  /// Retorna apenas a lista de nomes de navios cadastrados.
-  /// Utilizado para autocomplete.
+  /// Lista de navios (autocomplete / busca)
   /// --------------------------------------------------------------------------
   Future<List<String>> carregarNavios() async {
     final snapshot = await _firestore.collection('navios').get();
-    return snapshot.docs.map((e) => e['nome'].toString()).toList();
+
+    final nomes = <String>{};
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final nome = (data['nome'] ?? '').toString().trim();
+      final imo = (data['imo'] ?? '').toString().trim();
+
+      if (nome.isNotEmpty) nomes.add(nome);
+      if (imo.isNotEmpty) nomes.add(imo);
+    }
+
+    return nomes.toList();
   }
 
   /// --------------------------------------------------------------------------
-  /// Verifica se um navio com o nome informado já existe.
-  ///
-  /// Retorna:
-  ///  - Map<String, dynamic> com os dados se encontrado
-  ///  - null caso contrário
-  ///
-  /// Isso permite:
-  ///  • preencher automaticamente campos
-  ///  • bloquear campos já definidos
-  /// --------------------------------------------------------------------------
-  Future<Map<String, dynamic>?> verificarNavioExistente(String nome) async {
-    final query = await _firestore
-        .collection('navios')
-        .where('nome', isEqualTo: nome)
-        .get();
-
-    if (query.docs.isEmpty) return null;
-
-    return query.docs.first.data();
-  }
-
-  /// --------------------------------------------------------------------------
-  /// Cadastra ou atualiza um navio e registra uma avaliação.
-  ///
-  /// Regra de negócio:
-  ///  1) Se o navio já existe:
-  ///      - IMOs não são sobrescritos, mas podem ser definidos se estavam vazios.
-  ///      - Apenas campos editáveis: tripulação e cabines.
-  ///  2) Se não existe:
-  ///      - Cria documento novo.
-  ///      - Se não houver IMO inicial → salva como null.
-  ///
-  /// Em seguida:
-  ///  - Recupera o nome de guerra do prático logado.
-  ///  - Registra avaliação em subcoleção.
-  ///  - Recalcula médias agregadas.
-  ///
-  /// Autorização:
-  ///  - Usuário deve estar autenticado (uid requerido)
+  /// Salvar avaliação
   /// --------------------------------------------------------------------------
   Future<void> salvarAvaliacao({
     required String nomeNavio,
     required String imoInicial,
-    required int notaCamarote,
-    required int notaLimpeza,
-    required int notaAr,
-    required int notaComida,
-    required String frigobar,
-    required String pia,
-    required String tripulacao,
-    required int cabines,
+    required DateTime dataDesembarque,
+    required String tipoCabine,
+    required String observacaoGeral,
+    required Map<String, Map<String, dynamic>> itens,
+    Map<String, dynamic>? infoNavio,
   }) async {
     final usuarioId = _auth.currentUser?.uid;
     if (usuarioId == null) {
@@ -97,118 +55,181 @@ class RatingController {
 
     final naviosRef = _firestore.collection('navios');
 
-    /// Busca pelo nome para identificar navio pré-existente
-    final query = await naviosRef.where('nome', isEqualTo: nomeNavio).get();
+    final nomeNormalizado = nomeNavio.trim();
+    final imoNormalizado = imoInicial.trim();
 
-    late DocumentReference navioRef;
-    late String imo;
+    if (nomeNormalizado.isEmpty && imoNormalizado.isEmpty) {
+      throw Exception('Nome ou IMO do navio é obrigatório');
+    }
+
+    /// ----------------------------------------------------------
+    /// 🔍 BUSCA DO NAVIO (IMO > NOME)
+    /// ----------------------------------------------------------
+    QuerySnapshot<Map<String, dynamic>> query;
+
+    if (imoNormalizado.isNotEmpty) {
+      query = await naviosRef
+          .where('imo', isEqualTo: imoNormalizado)
+          .limit(1)
+          .get();
+    } else {
+      query = await naviosRef
+          .where('nome', isEqualTo: nomeNormalizado)
+          .limit(1)
+          .get();
+    }
+
+    late DocumentReference<Map<String, dynamic>> navioRef;
 
     if (query.docs.isNotEmpty) {
-      // ----------------------------------------------------------------------
-      // NAVIO EXISTENTE
-      // ----------------------------------------------------------------------
-      final doc = query.docs.first;
-
-      imo = doc['imo'] ?? '';
-
-      // Caso o navio já exista mas ainda sem IMO e o prático informar agora
-      if (imo.isEmpty && imoInicial.isNotEmpty) {
-        imo = imoInicial;
-        await doc.reference.update({'imo': imo});
-      }
-
-      // Se o IMO existir, usa o IMO como ID do documento
-      navioRef = naviosRef.doc(imo.isEmpty ? doc.id : imo);
-
-      // Atualiza apenas os campos que fazem sentido para edição contínua
-      await navioRef.update({
-        'tripulacao': tripulacao,
-        'cabines': cabines,
-      });
-
+      navioRef = query.docs.first.reference;
     } else {
-      // ----------------------------------------------------------------------
-      // NOVO NAVIO
-      // ----------------------------------------------------------------------
-      imo = imoInicial.isNotEmpty ? imoInicial : '';
-
-      // Se o IMO existe → usa como ID do doc
-      // Caso contrário → doc() gera ID automático
-      navioRef = imo.isNotEmpty ? naviosRef.doc(imo) : naviosRef.doc();
+      navioRef = naviosRef.doc();
 
       await navioRef.set({
-        'nome': nomeNavio,
-        'imo': imo.isEmpty ? null : imo,
-        'frigobar': frigobar,
-        'pia': pia,
-        'tripulacao': tripulacao,
-        'cabines': cabines,
+        'nome': nomeNormalizado,
+        'imo': imoNormalizado.isNotEmpty ? imoNormalizado : null,
         'medias': {},
+        'info': {},
       });
     }
 
-    // ------------------------------------------------------------------------
-    // IDENTIFICAÇÃO DO AVALIADOR
-    // ------------------------------------------------------------------------
+    /// ----------------------------------------------------------
+    /// Nome de guerra
+    /// ----------------------------------------------------------
     final userSnapshot =
         await _firestore.collection('usuarios').doc(usuarioId).get();
-
     final nomeGuerra = userSnapshot.data()?['nomeGuerra'] ?? 'Prático';
 
-    // ------------------------------------------------------------------------
-    // SALVAR AVALIAÇÃO EM SUBCOLEÇÃO
-    // ------------------------------------------------------------------------
+    /// ----------------------------------------------------------
+    /// Normalizar itens (compatível com versões antigas)
+    /// ----------------------------------------------------------
+    final itensNormalizados = {
+      for (final item in _itensAvaliacao)
+        item: {
+          'nota': _toDouble(itens[item]?['nota']),
+          'observacao': (itens[item]?['observacao'] ?? '').toString(),
+        }
+    };
+
+    /// ----------------------------------------------------------
+    /// Normalizar infoNavio
+    /// ----------------------------------------------------------
+    final infoFinal = <String, dynamic>{};
+
+    if (infoNavio != null) {
+      if (infoNavio['nacionalidadeTripulacao'] != null) {
+        infoFinal['nacionalidadeTripulacao'] =
+            infoNavio['nacionalidadeTripulacao'].toString().trim();
+      }
+
+      if (infoNavio['numeroCabines'] != null) {
+        final n = infoNavio['numeroCabines'];
+        infoFinal['numeroCabines'] =
+            n is int ? n : int.tryParse(n.toString()) ?? 0;
+      }
+
+      if (infoNavio['frigobar'] != null) {
+        infoFinal['frigobar'] = infoNavio['frigobar'] == true;
+      }
+
+      if (infoNavio['pia'] != null) {
+        infoFinal['pia'] = infoNavio['pia'] == true;
+      }
+    }
+
+    /// ----------------------------------------------------------
+    /// Salvar avaliação
+    /// ----------------------------------------------------------
     await navioRef.collection('avaliacoes').add({
       'usuarioId': usuarioId,
       'nomeGuerra': nomeGuerra,
-      'notaCamarote': notaCamarote,
-      'notaLimpeza': notaLimpeza,
-      'notaAr': notaAr,
-      'notaComida': notaComida,
+      'dataDesembarque': Timestamp.fromDate(dataDesembarque),
+      'tipoCabine': tipoCabine,
+      'observacaoGeral': observacaoGeral,
+      'infoNavio': infoFinal,
+      'itens': itensNormalizados,
       'data': Timestamp.now(),
     });
 
-    // ------------------------------------------------------------------------
-    // REATUALIZAR MÉDIAS GERAIS
-    // ------------------------------------------------------------------------
+    /// Atualizar info resumida do navio
+    if (infoFinal.isNotEmpty) {
+      await navioRef.set(
+        {'info': infoFinal},
+        SetOptions(merge: true),
+      );
+    }
+
     await _atualizarMedias(navioRef);
   }
 
   /// --------------------------------------------------------------------------
-  /// Recalcula médias da subcoleção `avaliacoes` e atualiza o documento principal
-  /// em `navios/{id}`.
-  ///
-  /// As médias são armazenadas como string formatada com 1 casa decimal.
-  /// Isso facilita exibição e leitura rápida na UI.
+  /// Recalcular médias
   /// --------------------------------------------------------------------------
-  Future<void> _atualizarMedias(DocumentReference navioRef) async {
+  Future<void> _atualizarMedias(
+      DocumentReference<Map<String, dynamic>> navioRef) async {
     final snapshot = await navioRef.collection('avaliacoes').get();
     if (snapshot.docs.isEmpty) return;
 
-    double totalCamarote = 0;
-    double totalLimpeza = 0;
-    double totalAr = 0;
-    double totalComida = 0;
+    final total = {for (final i in _itensAvaliacao) i: 0.0};
+    final count = {for (final i in _itensAvaliacao) i: 0};
 
-    /// Itera sobre cada avaliação acumulando valores
-    for (var doc in snapshot.docs) {
+    for (final doc in snapshot.docs) {
       final data = doc.data();
-      totalCamarote += (data['notaCamarote'] ?? 0).toDouble();
-      totalLimpeza += (data['notaLimpeza'] ?? 0).toDouble();
-      totalAr += (data['notaAr'] ?? 0).toDouble();
-      totalComida += (data['notaComida'] ?? 0).toDouble();
+      final itens = data['itens'] as Map?;
+      if (itens == null) continue;
+
+      for (final item in _itensAvaliacao) {
+        final v = itens[item];
+        if (v is Map) {
+          final nota = _toDouble(v['nota']);
+          if (nota > 0) {
+            total[item] = total[item]! + nota;
+            count[item] = count[item]! + 1;
+          }
+        }
+      }
     }
 
-    final count = snapshot.docs.length;
-
-    /// Atualiza médias agregadas
-    await navioRef.update({
-      'medias': {
-        'camarote': (totalCamarote / count).toStringAsFixed(1),
-        'limpeza': (totalLimpeza / count).toStringAsFixed(1),
-        'ar': (totalAr / count).toStringAsFixed(1),
-        'comida': (totalComida / count).toStringAsFixed(1),
+    final medias = <String, String>{};
+    for (final item in _itensAvaliacao) {
+      if (count[item]! > 0) {
+        medias[_mediaKey(item)] =
+            (total[item]! / count[item]!).toStringAsFixed(1);
       }
-    });
+    }
+
+    await navioRef.update({'medias': medias});
+  }
+
+  /// --------------------------------------------------------------------------
+  /// Helpers
+  /// --------------------------------------------------------------------------
+  double _toDouble(dynamic v) {
+    if (v == null) return 0.0;
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v.replaceAll(',', '.')) ?? 0.0;
+    return 0.0;
+  }
+
+  String _mediaKey(String item) {
+    switch (item) {
+      case 'Dispositivo de Embarque/Desembarque':
+        return 'dispositivo';
+      case 'Temperatura da Cabine':
+        return 'temp_cabine';
+      case 'Limpeza da Cabine':
+        return 'limpeza_cabine';
+      case 'Passadiço – Equipamentos':
+        return 'passadico_equip';
+      case 'Passadiço – Temperatura':
+        return 'passadico_temp';
+      case 'Comida':
+        return 'comida';
+      case 'Relacionamento com comandante/tripulação':
+        return 'relacionamento';
+      default:
+        return item.toLowerCase();
+    }
   }
 }

@@ -5,6 +5,7 @@ import '../auth/login_page.dart';
 import '../ships/search_ship_page.dart';
 import 'home_controller.dart';
 import '../sugestoes/sugestao_page.dart';
+import '../ships/minhas_avaliacoes_page.dart';
 
 /// ---------------------------------------------------------------------------
 /// CONTROLADOR DE VERSÃO LOCAL DO APLICATIVO
@@ -120,80 +121,101 @@ class _MainScreenState extends State<MainScreen> {
       /// DRAWER REALMENTE NOVO
       /// =========================
       drawer: Drawer(
-        child: SafeArea(
+  child: SafeArea(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// HEADER CUSTOM
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.indigo,
+            borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(24),
+            ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// HEADER CUSTOM (não DrawerHeader)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Colors.indigo,
-                  borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Icon(Icons.directions_boat, size: 48, color: Colors.white),
-                    SizedBox(height: 12),
-                    Text(
-                      'ShipRate',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Avaliação profissional de navios',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ],
+            children: const [
+              Icon(Icons.directions_boat, size: 48, color: Colors.white),
+              SizedBox(height: 12),
+              Text(
+                'ShipRate',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              _drawerItem(
-                icon: Icons.search,
-                label: 'Buscar / Avaliar Navios',
-                onTap: () => Navigator.pop(context),
-              ),
-
-              _drawerItem(
-                icon: Icons.lightbulb_outline,
-                label: 'Enviar Sugestão',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SugestaoPage()),
-                  );
-                },
-              ),
-
-              const Spacer(),
-              const Divider(),
-
-              _drawerItem(
-                icon: Icons.logout,
-                label: 'Sair',
-                color: Colors.redAccent,
-                onTap: _handleLogout,
+              SizedBox(height: 4),
+              Text(
+                'Avaliação profissional de navios',
+                style: TextStyle(color: Colors.white70),
               ),
             ],
           ),
         ),
-      ),
+
+        const SizedBox(height: 20),
+
+        /// 🔍 BUSCAR / AVALIAR
+        _drawerItem(
+          icon: Icons.search,
+          label: 'Buscar / Avaliar Navios',
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+
+        /// 📋 MINHAS AVALIAÇÕES (NOVO)
+        _drawerItem(
+          icon: Icons.assignment_turned_in_outlined,
+          label: 'Minhas Avaliações',
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MinhasAvaliacoesPage(),
+              ),
+            );
+          },
+        ),
+
+        /// 💡 SUGESTÃO
+        _drawerItem(
+          icon: Icons.lightbulb_outline,
+          label: 'Enviar Sugestão',
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SugestaoPage()),
+            );
+          },
+        ),
+
+        const Spacer(),
+        const Divider(),
+
+        /// 🚪 LOGOUT
+        _drawerItem(
+          icon: Icons.logout,
+          label: 'Sair',
+          color: Colors.redAccent,
+          onTap: _handleLogout,
+        ),
+      ],
+    ),
+  ),
+),
+
 
       body: Column(
         children: [
           _buildUpdateBanner(),
-          const Expanded(child: BuscarAvaliarNavioPage()),
+           Expanded(child: BuscarAvaliarNavioPage()),
           _buildVersionFooter(),
         ],
       ),
