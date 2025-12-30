@@ -3,33 +3,37 @@ import 'auth_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 
+/// ============================================================================
+/// REGISTER PAGE
+/// ============================================================================
 /// Tela de criação de conta no ShipRate.
 ///
-/// Objetivo principal:
-/// --------------------
-/// Permitir que um novo usuário registre-se fornecendo:
-///   • nome de guerra (identificação do prático)
-///   • e-mail
-///   • senha e confirmação
+/// Objetivo Principal:
+/// -------------------
+/// Permitir que um novo usuário se registre fornecendo:
+///   • Nome de guerra (identificação do prático)
+///   • E-mail
+///   • Senha e confirmação
 ///
-/// Funcionalidades internas:
-/// -------------------------
-/// 1. Validação básica de campos é executada no controller (`AuthController.register`)
+/// Funcionalidades:
+/// ----------------
+/// 1. Validação de campos executada no [AuthController.register]
 /// 2. Após criação bem-sucedida:
-///      - o usuário é cadastrado via Firebase Auth
-///      - dados complementares (nomeGuerra e email) são gravados no Firestore
+///      - Usuário é cadastrado via Firebase Auth
+///      - Dados complementares (nomeGuerra e email) são salvos no Firestore
 /// 3. Em caso de sucesso:
-///      - uma snackbar positiva é exibida
-///      - o usuário retorna para a tela de Login (`Navigator.pop`)
+///      - SnackBar positiva é exibida
+///      - Retorna para tela de Login [Navigator.pop]
+/// 4. Em caso de erro:
+///      - Mensagens amigáveis via [AuthException] são exibidas
 ///
-/// 4. Em caso de erros:
-///      - mensagens amigáveis via `AuthException` são mostradas ao usuário.
-///
-/// UI:
-/// ----
+/// UX/UI:
+/// ------
 /// • Fundo com imagem + overlay escuro para contraste
-/// • Card central com formulário estilizado
-/// • Botão com indicador de carregamento para evitar múltiplos submits
+/// • Card centralizado com formulário estilizado
+/// • Botão com indicador de carregamento (evita múltiplos submits)
+/// • Suporte responsivo (mobile e web) através de constraints
+///
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -38,35 +42,47 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  /// Controllers para armazenar os valores digitados nos campos do formulário.
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final _confirmarSenhaController = TextEditingController();
-  final _nomeGuerraController = TextEditingController();
+  /// Controller do campo de nome de guerra
+  final _callSignController = TextEditingController();
 
-  /// Controller responsável pela lógica de autenticação/registro.
+  /// Controller do campo de e-mail
+  final _emailController = TextEditingController();
+
+  /// Controller do campo de senha
+  final _passwordController = TextEditingController();
+
+  /// Controller do campo de confirmação de senha
+  final _confirmPasswordController = TextEditingController();
+
+  /// Controlador de autenticação (Firebase Auth + Firestore)
   final _authController = AuthController();
 
-  /// Flag usada para exibir ProgressIndicator e desabilitar botão.
-  bool isLoading = false;
+  /// Flag para controlar estado de carregamento e desabilitar botão durante operação
+  bool _isLoading = false;
 
-  /// Método acionado ao tocar no botão "Cadastrar".
+  /// --------------------------------------------------------------------------
+  /// Realiza cadastro de novo usuário
+  /// --------------------------------------------------------------------------
+  /// Fluxo de execução:
+  ///   1. Ativa loading (desabilita botão)
+  ///   2. Chama [AuthController.register] com dados do formulário
+  ///   3. Exibe feedback de sucesso via SnackBar
+  ///   4. Retorna para tela anterior (LoginPage)
+  ///   5. Em caso de erro, exibe mensagem clara ao usuário
   ///
-  /// Fluxo:
-  ///  1) Define loading=true
-  ///  2) Chama `register()` do AuthController
-  ///  3) Exibe mensagem de sucesso
-  ///  4) Retorna à tela anterior (LoginPage)
-  ///  5) Em caso de erro, exibe mensagem apropriada
+  /// Observações:
+  ///   • Validações são executadas no AuthController
+  ///   • Navigator.pop remove tela de registro da pilha
+  ///   • Erros são capturados como [AuthException] com mensagens amigáveis
   Future<void> _register() async {
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     try {
       await _authController.register(
         email: _emailController.text.trim(),
-        password: _senhaController.text.trim(),
-        confirmPassword: _confirmarSenhaController.text.trim(),
-        nomeGuerra: _nomeGuerraController.text.trim(),
+        password: _passwordController.text.trim(),
+        confirmPassword: _confirmPasswordController.text.trim(),
+        callSign: _callSignController.text.trim(),
       );
 
       if (!mounted) return;
@@ -76,20 +92,26 @@ class _RegisterPageState extends State<RegisterPage> {
         color: AppColors.success,
       );
 
-      // Retorna para a tela anterior (LoginPage)
+      /// Retorna para tela de login após cadastro bem-sucedido
       Navigator.pop(context);
-
-    } catch (e) {
+    } catch (error) {
       _showSnackBar(
-        e.toString(),
+        error.toString(),
         color: AppColors.danger,
       );
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  /// Método utilitário para exibir SnackBars coloridas.
+  /// --------------------------------------------------------------------------
+  /// Exibe Snackbar padronizada
+  /// --------------------------------------------------------------------------
+  /// Mostra feedback visual flutuante com mensagem e cor customizável.
+  ///
+  /// Parâmetros:
+  ///   • [message] - Texto a ser exibido
+  ///   • [color] - Cor de fundo (sucesso/erro)
   void _showSnackBar(String message, {required Color color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -106,7 +128,10 @@ class _RegisterPageState extends State<RegisterPage> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          /// Imagem de fundo cobrindo toda a tela.
+          /// -------------------------------------------------------------------
+          /// Imagem de fundo
+          /// -------------------------------------------------------------------
+          /// Reforça identidade visual do aplicativo
           Image.asset(
             'assets/images/navio.jpg',
             fit: BoxFit.cover,
@@ -114,10 +139,16 @@ class _RegisterPageState extends State<RegisterPage> {
             height: double.infinity,
           ),
 
-          /// Overlay escuro para melhorar contraste com o formulário.
+          /// -------------------------------------------------------------------
+          /// Overlay escuro
+          /// -------------------------------------------------------------------
+          /// Garante contraste e legibilidade do conteúdo
           Container(color: Colors.black.withAlpha(130)),
 
-          /// Card central contendo o formulário de cadastro.
+          /// -------------------------------------------------------------------
+          /// Card de cadastro centralizado
+          /// -------------------------------------------------------------------
+          /// SingleChildScrollView permite scroll em telas menores
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -135,6 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        /// Ícone de identificação visual
                         const Icon(
                           Icons.person_add_alt_1,
                           size: 54,
@@ -142,6 +174,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 16),
 
+                        /// Título da página
                         Text(
                           'Criar conta',
                           textAlign: TextAlign.center,
@@ -150,6 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 6),
 
+                        /// Subtítulo com instrução ao usuário
                         const Text(
                           'Preencha os dados para continuar',
                           textAlign: TextAlign.center,
@@ -158,9 +192,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 32),
 
-                        /// Nome de guerra — identificador do prático.
+                        /// Campo de entrada de nome de guerra
+                        /// Identificador público usado nas avaliações
                         TextField(
-                          controller: _nomeGuerraController,
+                          controller: _callSignController,
                           decoration: InputDecoration(
                             labelText: 'Nome de guerra',
                             prefixIcon: const Icon(Icons.account_circle),
@@ -172,7 +207,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 16),
 
-                        /// E-mail usado para autenticação no Firebase Auth.
+                        /// Campo de entrada de e-mail
+                        /// Usado para autenticação no Firebase Auth
                         TextField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -187,9 +223,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 16),
 
-                        /// Campo de senha.
+                        /// Campo de entrada de senha
                         TextField(
-                          controller: _senhaController,
+                          controller: _passwordController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Senha',
@@ -202,9 +238,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 16),
 
-                        /// Campo de confirmação de senha.
+                        /// Campo de confirmação de senha
+                        /// Validado no AuthController
                         TextField(
-                          controller: _confirmarSenhaController,
+                          controller: _confirmPasswordController,
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: 'Confirmar senha',
@@ -217,9 +254,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 28),
 
-                        /// Botão de ação principal do formulário.
+                        /// Botão principal de cadastro
+                        /// Substituído por CircularProgressIndicator durante processamento
                         ElevatedButton(
-                          onPressed: isLoading ? null : _register,
+                          onPressed: _isLoading ? null : _register,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -227,7 +265,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: isLoading
+                          child: _isLoading
                               ? const SizedBox(
                                   height: 22,
                                   width: 22,
@@ -244,7 +282,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 16),
 
-                        /// Caso o usuário já tenha uma conta, retorna para Login.
+                        /// Link de retorno para tela de login
+                        /// Para usuários que já possuem conta
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: const Text(

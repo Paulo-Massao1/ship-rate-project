@@ -4,25 +4,32 @@ import 'package:flutter/material.dart';
 import '../features/home/main_screen_page.dart';
 import '../features/auth/login_page.dart';
 
-/// AuthGate
-/// --------
-/// Este widget atua como uma "porta de entrada" da aplicação.
-/// Ele escuta o estado de autenticação do Firebase e redireciona
-/// automaticamente o usuário para a tela correta:
-///   • `MainScreen()` quando autenticado
-///   • `LoginPage()` quando não autenticado
+/// ============================================================================
+/// AUTH GATE
+/// ============================================================================
+/// Widget responsável por controlar o fluxo de autenticação da aplicação.
+///
+/// Este widget atua como uma "porta de entrada" que escuta o estado de
+/// autenticação do Firebase e redireciona automaticamente o usuário para
+/// a tela apropriada:
+///   • [MainScreen] quando o usuário está autenticado
+///   • [LoginPage] quando o usuário não está autenticado
 ///
 /// Benefícios desta abordagem:
-///   • remove a necessidade de navegação manual após login/logout
-///   • evita telas piscando ao abrir o app
-///   • garante maior segurança e UX consistente
+///   • Remove a necessidade de navegação manual após login/logout
+///   • Evita flicker ao abrir o app (transições suaves)
+///   • Garante segurança e experiência de usuário consistente
+///   • Sincroniza automaticamente com mudanças no estado de auth
 ///
-/// É recomendado que este widget seja usado como tela inicial
-/// no `MaterialApp`, substituindo rotas manuais.
+/// Recomendação:
+/// Este widget deve ser usado como tela inicial no [MaterialApp],
+/// substituindo rotas manuais de autenticação.
 ///
-/// Exemplo no main.dart:
+/// Exemplo de uso no main.dart:
 /// ```dart
-/// home: const AuthGate()
+/// MaterialApp(
+///   home: const AuthGate(),
+/// )
 /// ```
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -30,17 +37,22 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      // Escuta contínua do estado atual do Firebase Auth.
-      // Emite eventos quando:
-      // • usuário faz login
-      // • usuário faz logout
-      // • sessão expira
-      // • cadastro é concluído
+      /// Escuta contínua do estado de autenticação do Firebase.
+      /// 
+      /// Este stream emite eventos quando:
+      /// • Usuário faz login
+      /// • Usuário faz logout
+      /// • Sessão expira
+      /// • Cadastro é concluído
+      /// • Token é renovado
       stream: FirebaseAuth.instance.authStateChanges(),
+      
       builder: (context, snapshot) {
-
-        // Enquanto o Firebase verifica o estado (token, sessão, cache),
-        // exibimos um carregamento simples para evitar flicker.
+        /// ---------------------------------------------------------------------
+        /// Estado: Verificando autenticação
+        /// ---------------------------------------------------------------------
+        /// Enquanto o Firebase verifica o estado (token, sessão, cache local),
+        /// exibimos um loading para evitar flash de conteúdo não autenticado.
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(
@@ -49,13 +61,19 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        // Caso snapshot contenha dados, significa que o usuário está autenticado.
-        // Nesse caso, o app deve exibir a Home (main screen).
+        /// ---------------------------------------------------------------------
+        /// Estado: Usuário autenticado
+        /// ---------------------------------------------------------------------
+        /// Se o snapshot contém dados, significa que existe uma sessão ativa.
+        /// Neste caso, direcionamos para a tela principal do aplicativo.
         if (snapshot.hasData) {
           return const MainScreen();
         }
 
-        // Caso não tenha sessão ativa, direcionamos para login.
+        /// ---------------------------------------------------------------------
+        /// Estado: Usuário não autenticado
+        /// ---------------------------------------------------------------------
+        /// Caso não haja sessão ativa, direcionamos para a tela de login.
         return const LoginPage();
       },
     );

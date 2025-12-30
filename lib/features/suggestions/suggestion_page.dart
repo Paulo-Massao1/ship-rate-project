@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/data/services/suggestion_service.dart';
 
@@ -7,7 +8,7 @@ import 'package:ship_rate/data/services/suggestion_service.dart';
 /// Tela responsável por permitir que o usuário envie sugestões
 /// e feedbacks para melhoria do aplicativo ShipRate.
 ///
-/// A sugestão é enviada utilizando o [SugestaoService].
+/// A sugestão é enviada utilizando o [SuggestionService].
 class SuggestionPage extends StatefulWidget {
   const SuggestionPage({super.key});
 
@@ -16,10 +17,11 @@ class SuggestionPage extends StatefulWidget {
 }
 
 class _SuggestionPageState extends State<SuggestionPage> {
-  /// Controllers dos campos de formulário
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _titleController = TextEditingController();
+  /// Controller do campo de mensagem
   final TextEditingController _messageController = TextEditingController();
+
+  /// Tipo de contato selecionado
+  String _contactType = 'Sugestão';
 
   /// Controle de loading do botão
   bool _isLoading = false;
@@ -28,12 +30,24 @@ class _SuggestionPageState extends State<SuggestionPage> {
   /// Envia a sugestão utilizando o service
   /// --------------------------------------------------------------------------
   Future<void> _submitSuggestion() async {
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
+    
+    if (_messageController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, escreva sua mensagem.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final success = await SugestaoService.enviar(
-      email: _emailController.text.trim(),
-      titulo: _titleController.text.trim(),
-      mensagem: _messageController.text.trim(),
+    final success = await SuggestionService.send(
+      email: email,
+      title: _contactType,
+      message: _messageController.text.trim(),
     );
 
     setState(() => _isLoading = false);
@@ -44,8 +58,8 @@ class _SuggestionPageState extends State<SuggestionPage> {
       SnackBar(
         content: Text(
           success
-              ? 'Sugestão enviada com sucesso!'
-              : 'Erro ao enviar sugestão.',
+              ? 'Mensagem enviada com sucesso!'
+              : 'Erro ao enviar mensagem.',
         ),
         backgroundColor: success ? Colors.green : Colors.red,
       ),
@@ -82,18 +96,59 @@ class _SuggestionPageState extends State<SuggestionPage> {
             ),
             const SizedBox(height: 24),
 
-            _buildField(
-              controller: _emailController,
-              label: 'Seu e-mail',
-              icon: Icons.email_outlined,
+            /// Dropdown de tipo de contato
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _contactType,
+                  isExpanded: true,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Sugestão',
+                      child: Row(
+                        children: [
+                          Icon(Icons.lightbulb_outline, size: 20),
+                          SizedBox(width: 12),
+                          Text('Sugestão'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Crítica',
+                      child: Row(
+                        children: [
+                          Icon(Icons.feedback_outlined, size: 20),
+                          SizedBox(width: 12),
+                          Text('Crítica'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Elogio',
+                      child: Row(
+                        children: [
+                          Icon(Icons.favorite_outline, size: 20),
+                          SizedBox(width: 12),
+                          Text('Elogio'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _contactType = value);
+                    }
+                  },
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
 
-            _buildField(
-              controller: _titleController,
-              label: 'Título da sugestão',
-              icon: Icons.title,
-            ),
             const SizedBox(height: 16),
 
             _buildField(
@@ -125,7 +180,7 @@ class _SuggestionPageState extends State<SuggestionPage> {
                         ),
                       )
                     : const Text(
-                        'Enviar Sugestão',
+                        'Enviar',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

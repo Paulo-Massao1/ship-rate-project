@@ -7,11 +7,28 @@ import 'rating_detail_page.dart';
 /// ============================================================================
 /// MY RATINGS PAGE
 /// ============================================================================
-/// Exibe todas as avaliações realizadas pelo usuário autenticado,
-/// ordenadas da mais recente para a mais antiga.
+/// Tela que exibe todas as avaliações realizadas pelo usuário autenticado.
 ///
-/// A busca percorre todos os navios e filtra apenas as avaliações
-/// pertencentes ao usuário logado.
+/// Funcionalidades:
+/// ----------------
+/// • Lista todas as avaliações do usuário logado
+/// • Ordenação da mais recente para a mais antiga
+/// • Navegação para detalhes de cada avaliação
+/// • Busca distribuída (percorre todos os navios)
+///
+/// Lógica de Busca:
+/// ----------------
+/// 1. Busca todos os navios da coleção `navios`
+/// 2. Para cada navio, busca subcoleção `avaliacoes`
+/// 3. Filtra avaliações pelo usuário atual (por UID ou nome de guerra)
+/// 4. Ordena por data de criação (mais recente primeiro)
+///
+/// Compatibilidade:
+/// ----------------
+/// • Avaliações antigas: usa campo `data` (legado)
+/// • Avaliações novas: usa campo `createdAt` (servidor)
+/// • Identifica usuário por `usuarioId` ou `nomeGuerra` (fallback)
+///
 class MyRatingsPage extends StatefulWidget {
   const MyRatingsPage({super.key});
 
@@ -20,119 +37,158 @@ class MyRatingsPage extends StatefulWidget {
 }
 
 class _MyRatingsPageState extends State<MyRatingsPage> {
-  bool _estaCarregando = true;
-  final List<_ItemAvaliacao> _avaliacoes = [];
+  /// Estado de carregamento
+  bool _isLoading = true;
 
+  /// Lista de avaliações do usuário
+  final List<_RatingItem> _ratings = [];
+
+  /// --------------------------------------------------------------------------
+  /// Inicialização
+  /// --------------------------------------------------------------------------
   @override
   void initState() {
     super.initState();
-    _carregarAvaliacoesUsuario();
+    _loadUserRatings();
   }
 
   /// --------------------------------------------------------------------------
   /// Carrega todas as avaliações do usuário autenticado
   /// --------------------------------------------------------------------------
-  Future<void> _carregarAvaliacoesUsuario() async {
+  /// Fluxo de execução:
+  ///   1. Verifica autenticação do usuário
+  ///   2. Busca nome de guerra do usuário no Firestore
+  ///   3. Percorre todos os navios
+  ///   4. Para cada navio, busca subcoleção de avaliações
+  ///   5. Filtra avaliações do usuário atual
+  ///   6. Ordena por data (mais recente primeiro)
+  ///
+  /// Critério de Filtro:
+  ///   • Por UID: usuarioId == uid (método preferencial)
+  ///   • Por nome de guerra: fallback para avaliações antigas
+  ///
+  /// Observações:
+  ///   • Operação distribuída (não há índice centralizado)
+  ///   • Pode ser lenta com muitos navios cadastrados
+  ///   • TODO: Implementar paginação se necessário
+  Future<void> _loadUserRatings() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        setState(() => _estaCarregando = false);
+        setState(() => _isLoading = false);
         return;
       }
 
       final uid = user.uid;
 
+      /// Busca nome de guerra do usuário
       final userSnapshot = await FirebaseFirestore.instance
           .collection('usuarios')
           .doc(uid)
           .get();
 
-      final String? nomeGuerra = userSnapshot.data()?['nomeGuerra'];
+      final String? callSign = userSnapshot.data()?['nomeGuerra'];
 
-      final List<_ItemAvaliacao> resultado = [];
+      final List<_RatingItem> results = [];
 
-      final naviosSnapshot =
+      /// Busca todos os navios
+      final shipsSnapshot =
           await FirebaseFirestore.instance.collection('navios').get();
 
-      for (final navio in naviosSnapshot.docs) {
-        final nomeNavio = navio.data()['nome'] ?? 'Navio';
+      /// Percorre cada navio
+      for (final ship in shipsSnapshot.docs) {
+        final shipName = ship.data()['nome'] ?? 'Navio';
 
-        final avaliacoesSnapshot =
-            await navio.reference.collection('avaliacoes').get();
+        /// Busca avaliações do navio
+        final ratingsSnapshot =
+            await ship.reference.collection('avaliacoes').get();
 
-        for (final avaliacao in avaliacoesSnapshot.docs) {
-          final data = avaliacao.data();
+        /// Filtra avaliações do usuário atual
+        for (final rating in ratingsSnapshot.docs) {
+          final data = rating.data();
 
+          final ratingUserId = data['usuarioId'];
+          final ratingCallSign = data['nomeGuerra'];
 
+          /// Critério de filtro:
+          /// 1. Preferência: usuarioId == uid
+          /// 2. Fallback: nomeGuerra == callSign (avaliações antigas)
+          final belongsToUser =
+              (ratingUserId != null && ratingUserId == uid) ||
+              (ratingUserId == null &&
+                  callSign != null &&
+                  ratingCallSign == callSign);
 
-          final usuarioId = data['usuarioId'];
-          final nomeGuerraAvaliacao = data['nomeGuerra'];
+          if (!belongsToUser) continue;
 
-          final pertenceAoUsuario =
-              (usuarioId != null && usuarioId == uid) ||
-              (usuarioId == null &&
-                  nomeGuerra != null &&
-                  nomeGuerraAvaliacao == nomeGuerra);
-
-          if (!pertenceAoUsuario) continue;
-
-          resultado.add(
-            _ItemAvaliacao(
-              nomeNavio: nomeNavio,
-              avaliacao: avaliacao,
+          results.add(
+            _RatingItem(
+              shipName: shipName,
+              rating: rating,
             ),
           );
         }
       }
 
-      /// Ordenação robusta:
-      /// prioridade para createdAt, com fallback para data (legado)
-      resultado.sort((a, b) {
-        final aData = _resolverDataAvaliacao(
-          a.avaliacao.data() as Map<String, dynamic>,
+      /// Ordenação robusta por data (mais recente primeiro)
+      /// Prioridade: createdAt > data (legado)
+      results.sort((a, b) {
+        final aDate = _resolveRatingDate(
+          a.rating.data() as Map<String, dynamic>,
         );
-        final bData = _resolverDataAvaliacao(
-          b.avaliacao.data() as Map<String, dynamic>,
+        final bDate = _resolveRatingDate(
+          b.rating.data() as Map<String, dynamic>,
         );
-        return bData.compareTo(aData);
+        return bDate.compareTo(aDate);
       });
 
       setState(() {
-        _avaliacoes
+        _ratings
           ..clear()
-          ..addAll(resultado);
-        _estaCarregando = false;
+          ..addAll(results);
+        _isLoading = false;
       });
-    } catch (e) {
-      debugPrint('Erro ao carregar avaliações: $e');
-      setState(() => _estaCarregando = false);
+    } catch (error) {
+      debugPrint('❌ Erro ao carregar avaliações: $error');
+      setState(() => _isLoading = false);
     }
   }
 
   /// --------------------------------------------------------------------------
-  /// Resolve a data correta da avaliação
-  /// Prioridade:
-  /// 1) createdAt
-  /// 2) data (legado)
+  /// Resolve data correta da avaliação
   /// --------------------------------------------------------------------------
-  DateTime _resolverDataAvaliacao(Map<String, dynamic> data) {
+  /// Prioridade de campos:
+  ///   1. createdAt (timestamp do servidor - preferencial)
+  ///   2. data (campo legado - fallback)
+  ///
+  /// Retorno:
+  ///   • DateTime da avaliação
+  ///   • DateTime epoch (1970) se não encontrar data válida
+  DateTime _resolveRatingDate(Map<String, dynamic> data) {
     final ts = data['createdAt'] ?? data['data'];
 
     if (ts is Timestamp) {
       return ts.toDate();
     }
 
+    /// Fallback: data inválida retorna epoch
     return DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   /// --------------------------------------------------------------------------
-  /// Formata data para exibição (dd/MM/yyyy)
+  /// Formata data para exibição
   /// --------------------------------------------------------------------------
-  String _formatarData(DateTime data) {
-    return '${data.day.toString().padLeft(2, '0')}/'
-        '${data.month.toString().padLeft(2, '0')}/${data.year}';
+  /// Formato: dd/MM/yyyy
+  ///
+  /// Exemplo: 29/12/2025
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  /// --------------------------------------------------------------------------
+  /// Build principal
+  /// --------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,9 +198,9 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: _estaCarregando
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _avaliacoes.isEmpty
+          : _ratings.isEmpty
               ? const Center(
                   child: Text(
                     'Você ainda não avaliou nenhum navio.',
@@ -154,6 +210,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    /// Hint de ordenação
                     const Padding(
                       padding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -165,22 +222,23 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                         ),
                       ),
                     ),
+
+                    /// Lista de avaliações
                     Expanded(
                       child: ListView.separated(
                         padding: const EdgeInsets.all(16),
-                        itemCount: _avaliacoes.length,
+                        itemCount: _ratings.length,
                         separatorBuilder: (_, __) => const Divider(
                           height: 28,
                           thickness: 1,
                           color: Colors.black12,
                         ),
                         itemBuilder: (_, index) {
-                          final item = _avaliacoes[index];
+                          final item = _ratings[index];
                           final data =
-                              item.avaliacao.data() as Map<String, dynamic>;
+                              item.rating.data() as Map<String, dynamic>;
 
-                          final dataAvaliacao =
-                              _resolverDataAvaliacao(data);
+                          final ratingDate = _resolveRatingDate(data);
 
                           return Card(
                             elevation: 2,
@@ -193,25 +251,24 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                                 color: Colors.indigo,
                               ),
                               title: Text(
-                                item.nomeNavio,
+                                item.shipName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               subtitle: Text(
-                                'Avaliado em ${_formatarData(dataAvaliacao)}',
+                                'Avaliado em ${_formatDate(ratingDate)}',
                                 style: const TextStyle(
                                   color: Colors.black54,
                                 ),
                               ),
-                              trailing:
-                                  const Icon(Icons.chevron_right),
+                              trailing: const Icon(Icons.chevron_right),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => RatingDetailPage(
-                                      rating: item.avaliacao,
+                                      rating: item.rating,
                                     ),
                                   ),
                                 );
@@ -228,14 +285,23 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
 }
 
 /// ============================================================================
-/// MODELO INTERNO DE ITEM DE AVALIAÇÃO
+/// RATING ITEM (Modelo Interno)
 /// ============================================================================
-class _ItemAvaliacao {
-  final String nomeNavio;
-  final QueryDocumentSnapshot avaliacao;
+/// Modelo de dados interno para representar item da lista de avaliações.
+///
+/// Campos:
+///   • [shipName] - Nome do navio avaliado
+///   • [rating] - Documento da avaliação no Firestore
+///
+class _RatingItem {
+  /// Nome do navio
+  final String shipName;
 
-  _ItemAvaliacao({
-    required this.nomeNavio,
-    required this.avaliacao,
+  /// Documento da avaliação
+  final QueryDocumentSnapshot rating;
+
+  _RatingItem({
+    required this.shipName,
+    required this.rating,
   });
 }

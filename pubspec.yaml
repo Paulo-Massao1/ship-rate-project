@@ -20,7 +20,7 @@ dependencies:
 
   # Armazenamento local (web + mobile)
   shared_preferences: ^2.2.2
-
+  shared_preferences_web: ^2.2.1
   # Web / PWA utilities (cross-platform)
   universal_html: ^2.2.4
 
@@ -36,4 +36,4 @@ flutter:
   assets:
     - assets/images/navio.jpg
     - assets/images/navio2.png
-    - assets/images/navio4.png
+    - assets/images/navio3.jpg

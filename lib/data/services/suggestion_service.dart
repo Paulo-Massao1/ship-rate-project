@@ -41,34 +41,27 @@ import 'package:flutter/foundation.dart';
 /// if (ok) showSuccess();
 /// else showError();
 /// ```
-class SugestaoService {
-  /// Envia uma sugestão para o Firestore.
-  ///
-  /// Parâmetros obrigatórios:
-  ///   • [email] — contato do usuário (quem enviou)
-  ///   • [titulo] — assunto resumido da sugestão
-  ///   • [mensagem] — descrição detalhada
-  ///
-  /// Retorno:
-  ///   • true → sugestão salva com sucesso
-  ///   • false → ocorreu erro no Firestore
-  static Future<bool> enviar({
+class SuggestionService {
+  /// Nome da coleção no Firestore
+  /// Mantido como 'sugestoes' para compatibilidade com dados existentes
+  static const String _collectionName = 'sugestoes';
+
+  static Future<bool> send({
     required String email,
-    required String titulo,
-    required String mensagem,
+    required String title,
+    required String message,
   }) async {
     try {
-      await FirebaseFirestore.instance.collection('sugestoes').add({
+      await FirebaseFirestore.instance.collection(_collectionName).add({
         'email': email,
-        'titulo': titulo,
-        'mensagem': mensagem,
+        'title': title,
+        'message': message,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       return true;
-    } catch (e) {
-      // Log simples para depuração (não quebra a UI)
-      debugPrint('Erro ao salvar sugestão: $e');
+    } catch (error) {
+      debugPrint('❌ Erro ao salvar sugestão: $error');
       return false;
     }
   }
