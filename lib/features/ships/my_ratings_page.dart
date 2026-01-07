@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'rating_detail_page.dart';
+import 'edit_rating_page.dart';
 import '../../data/services/pdf_service.dart';
 
 /// ============================================================================
@@ -19,6 +20,7 @@ import '../../data/services/pdf_service.dart';
 /// • Pull-to-refresh para recarregar dados
 /// • Tratamento robusto de erros
 /// • Exportação rápida de avaliações para PDF
+/// • Edição de avaliações (sempre permitido com aviso educativo)
 ///
 /// Lógica de Busca:
 /// ----------------
@@ -62,21 +64,6 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   /// --------------------------------------------------------------------------
   /// Carrega todas as avaliações do usuário autenticado
   /// --------------------------------------------------------------------------
-  /// Fluxo de execução:
-  ///   1. Verifica autenticação do usuário
-  ///   2. Busca nome de guerra do usuário no Firestore
-  ///   3. Percorre todos os navios
-  ///   4. Para cada navio, busca subcoleção de avaliações
-  ///   5. Filtra avaliações do usuário atual
-  ///   6. Ordena por data (mais recente primeiro)
-  ///
-  /// Critério de Filtro:
-  ///   • Por UID: usuarioId == uid (método preferencial)
-  ///   • Por nome de guerra: fallback para avaliações antigas
-  ///
-  /// Observações:
-  ///   • Operação distribuída (não há índice centralizado)
-  ///   • Pode ser lenta com muitos navios cadastrados
   Future<void> _loadUserRatings() async {
     setState(() {
       _isLoading = true;
@@ -134,9 +121,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
           final ratingUserId = data['usuarioId'];
           final ratingCallSign = data['nomeGuerra'];
 
-          /// Critério de filtro:
-          /// 1. Preferência: usuarioId == uid
-          /// 2. Fallback: nomeGuerra == callSign (avaliações antigas)
+          /// Critério de filtro
           final belongsToUser =
               (ratingUserId != null && ratingUserId == uid) ||
               (ratingUserId == null &&
@@ -155,8 +140,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         }
       }
 
-      /// Ordenação robusta por data (mais recente primeiro)
-      /// Prioridade: createdAt > data (legado)
+      /// Ordenação por data
       results.sort((a, b) {
         final aDate = _resolveRatingDate(
           a.rating.data() as Map<String, dynamic>,
@@ -189,13 +173,6 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   /// --------------------------------------------------------------------------
   /// Resolve data correta da avaliação
   /// --------------------------------------------------------------------------
-  /// Prioridade de campos:
-  ///   1. createdAt (timestamp do servidor - preferencial)
-  ///   2. data (campo legado - fallback)
-  ///
-  /// Retorno:
-  ///   • DateTime da avaliação
-  ///   • DateTime epoch (1970) se não encontrar data válida
   DateTime _resolveRatingDate(Map<String, dynamic> data) {
     final ts = data['createdAt'] ?? data['data'];
 
@@ -203,16 +180,12 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
       return ts.toDate();
     }
 
-    /// Fallback: data inválida retorna epoch
     return DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   /// --------------------------------------------------------------------------
   /// Formata data para exibição
   /// --------------------------------------------------------------------------
-  /// Formato: dd/MM/yyyy
-  ///
-  /// Exemplo: 29/12/2025
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -242,92 +215,190 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   /// --------------------------------------------------------------------------
-/// Exporta avaliação para PDF (atalho rápido)
-/// --------------------------------------------------------------------------
-Future<void> _exportRatingToPdf(_RatingItem item) async {
-  try {
-    // Mostra loading
-    showDialog(
+  /// Mostra popup de aviso antes de editar
+  /// --------------------------------------------------------------------------
+  Future<void> _showEditWarning(BuildContext context, _RatingItem item) async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF3F51B5),
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.warning_amber, color: Colors.orange, size: 28),
+            SizedBox(width: 8),
+            Text('Atenção'),
+          ],
         ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Edite apenas para corrigir erros',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Esta função serve para corrigir erros de digitação ou informações incorretas.',
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '⚠️ Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.',
+              style: TextStyle(
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withAlpha(26),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withAlpha(77)),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Manter histórico ajuda outros práticos!',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Entendi, quero editar'),
+          ),
+        ],
       ),
     );
 
-    final data = item.rating.data() as Map<String, dynamic>;
-
-    // Extrai dados
-    final evaluatorName = data['nomeGuerra'] ?? 'Anônimo';
-    final evaluationDate = (data['createdAt'] as Timestamp?)?.toDate() ?? 
-                          (data['data'] as Timestamp?)?.toDate() ?? 
-                          DateTime.now();
-    final cabinType = data['tipoCabine'] ?? 'N/A';
-    final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
-    
-    final itensData = data['itens'] as Map<String, dynamic>? ?? {};
-    final ratings = <String, Map<String, dynamic>>{};
-    
-    itensData.forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        ratings[key] = {
-          'nota': (value['nota'] as num?)?.toDouble() ?? 0.0,
-          'observacao': value['observacao'] ?? '',
-        };
-      }
-    });
-    
-    final generalObservation = data['observacaoGeral'];
-    final shipInfo = data['infoNavio'] as Map<String, dynamic>?;
-
-    // Gera PDF
-    final pdf = await PdfService.generateRatingPdf(
-      shipName: item.shipName,
-      shipImo: item.shipImo.isNotEmpty ? item.shipImo : null,
-      evaluatorName: evaluatorName,
-      evaluationDate: evaluationDate,
-      cabinType: cabinType,
-      disembarkationDate: disembarkationDate,
-      ratings: ratings,
-      generalObservation: generalObservation,
-      shipInfo: shipInfo,
-    );
-
-    if (mounted) {
-      Navigator.pop(context);
-    }
-
-    // Nome do arquivo - SIMPLIFICADO
-    final primeiroNome = item.shipName.split(' ').first.replaceAll(RegExp(r'[^\w]'), '');
-    final fileName = 'ShipRate_$primeiroNome';
-    
-    await PdfService.saveAndSharePdf(pdf, fileName);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PDF gerado com sucesso!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+    if (confirmed == true && mounted) {
+      // Navega para tela de edição
+      final edited = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => EditRatingPage(rating: item.rating),
         ),
       );
-    }
-  } catch (e) {
-    if (mounted) {
-      Navigator.of(context, rootNavigator: true).pop();
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao gerar PDF: $e'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      // Se editou, recarrega lista
+      if (edited == true) {
+        _loadUserRatings();
+      }
     }
   }
-}
+
+  /// --------------------------------------------------------------------------
+  /// Exporta avaliação para PDF
+  /// --------------------------------------------------------------------------
+  Future<void> _exportRatingToPdf(_RatingItem item) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF3F51B5),
+          ),
+        ),
+      );
+
+      final data = item.rating.data() as Map<String, dynamic>;
+
+      final evaluatorName = data['nomeGuerra'] ?? 'Anônimo';
+      final evaluationDate = (data['createdAt'] as Timestamp?)?.toDate() ?? 
+                            (data['data'] as Timestamp?)?.toDate() ?? 
+                            DateTime.now();
+      final cabinType = data['tipoCabine'] ?? 'N/A';
+      final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
+      
+      final itensData = data['itens'] as Map<String, dynamic>? ?? {};
+      final ratings = <String, Map<String, dynamic>>{};
+      
+      itensData.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          ratings[key] = {
+            'nota': (value['nota'] as num?)?.toDouble() ?? 0.0,
+            'observacao': value['observacao'] ?? '',
+          };
+        }
+      });
+      
+      final generalObservation = data['observacaoGeral'];
+      final shipInfo = data['infoNavio'] as Map<String, dynamic>?;
+
+      final pdf = await PdfService.generateRatingPdf(
+        shipName: item.shipName,
+        shipImo: item.shipImo.isNotEmpty ? item.shipImo : null,
+        evaluatorName: evaluatorName,
+        evaluationDate: evaluationDate,
+        cabinType: cabinType,
+        disembarkationDate: disembarkationDate,
+        ratings: ratings,
+        generalObservation: generalObservation,
+        shipInfo: shipInfo,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      final primeiroNome = item.shipName.split(' ').first.replaceAll(RegExp(r'[^\w]'), '');
+      final fileName = 'ShipRate_$primeiroNome';
+      
+      await PdfService.saveAndSharePdf(pdf, fileName);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('PDF gerado com sucesso!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao gerar PDF: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 
   /// --------------------------------------------------------------------------
   /// Build principal
@@ -354,29 +425,22 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
   /// Constrói corpo da página baseado no estado
   /// --------------------------------------------------------------------------
   Widget _buildBody() {
-    /// Estado: Carregando
     if (_isLoading) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              color: Color(0xFF3F51B5),
-            ),
+            CircularProgressIndicator(color: Color(0xFF3F51B5)),
             SizedBox(height: 16),
             Text(
               'Carregando suas avaliações...',
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.black54, fontSize: 14),
             ),
           ],
         ),
       );
     }
 
-    /// Estado: Erro
     if (_errorMessage != null) {
       return Center(
         child: Padding(
@@ -384,19 +448,12 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.black87),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -406,13 +463,8 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3F51B5),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ],
@@ -421,7 +473,6 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
       );
     }
 
-    /// Estado: Vazio
     if (_ratings.isEmpty) {
       return Center(
         child: Padding(
@@ -454,10 +505,7 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
               const Text(
                 'Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
             ],
           ),
@@ -465,7 +513,6 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
       );
     }
 
-    /// Estado: Lista de avaliações
     return RefreshIndicator(
       onRefresh: _loadUserRatings,
       color: const Color(0xFF3F51B5),
@@ -487,11 +534,7 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.analytics_outlined,
-                  color: Color(0xFF3F51B5),
-                  size: 20,
-                ),
+                const Icon(Icons.analytics_outlined, color: Color(0xFF3F51B5), size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Total: ${_ratings.length} ${_ratings.length == 1 ? 'avaliação' : 'avaliações'}',
@@ -502,18 +545,11 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                   ),
                 ),
                 const Spacer(),
-                const Icon(
-                  Icons.schedule,
-                  color: Colors.black54,
-                  size: 16,
-                ),
+                const Icon(Icons.schedule, color: Colors.black54, size: 16),
                 const SizedBox(width: 4),
                 const Text(
                   'Mais recentes primeiro',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],
             ),
@@ -544,9 +580,7 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => RatingDetailPage(
-                              rating: item.rating,
-                            ),
+                            builder: (_) => RatingDetailPage(rating: item.rating),
                           ),
                         );
                       },
@@ -611,7 +645,6 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                             /// Informações da avaliação
                             Row(
                               children: [
-                                /// Nota média
                                 Expanded(
                                   child: _buildInfoChip(
                                     icon: Icons.star,
@@ -621,8 +654,6 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-
-                                /// Data de avaliação
                                 Expanded(
                                   child: _buildInfoChip(
                                     icon: Icons.calendar_today,
@@ -644,11 +675,41 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
                               ),
                             ],
 
-                            /// Botão de exportar PDF
+                            /// Botões de ação
                             const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                /// Botão de Editar (SEMPRE VISÍVEL)
+                                TextButton.icon(
+                                  onPressed: () => _showEditWarning(context, item),
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    size: 18,
+                                    color: Colors.orange,
+                                  ),
+                                  label: const Text(
+                                    'Editar',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    backgroundColor: Colors.orange.withAlpha(26),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                
+                                /// Botão de Exportar PDF
                                 TextButton.icon(
                                   onPressed: () => _exportRatingToPdf(item),
                                   icon: const Icon(
@@ -744,21 +805,9 @@ Future<void> _exportRatingToPdf(_RatingItem item) async {
 /// ============================================================================
 /// RATING ITEM (Modelo Interno)
 /// ============================================================================
-/// Modelo de dados interno para representar item da lista de avaliações.
-///
-/// Campos:
-///   • [shipName] - Nome do navio avaliado
-///   • [shipImo] - IMO do navio avaliado
-///   • [rating] - Documento da avaliação no Firestore
-///
 class _RatingItem {
-  /// Nome do navio
   final String shipName;
-
-  /// IMO do navio
   final String shipImo;
-
-  /// Documento da avaliação
   final QueryDocumentSnapshot rating;
 
   _RatingItem({
