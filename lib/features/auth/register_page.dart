@@ -1,39 +1,19 @@
-import 'package:flutter/material.dart';
-import 'auth_controller.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
+// lib/features/auth/register_page.dart
 
-/// ============================================================================
-/// REGISTER PAGE
-/// ============================================================================
-/// Tela de criação de conta no ShipRate.
+import 'package:flutter/material.dart';
+
+import '../../controllers/auth_controller.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+
+/// Registration screen for new ShipRate users.
 ///
-/// Objetivo Principal:
-/// -------------------
-/// Permitir que um novo usuário se registre fornecendo:
-///   • Nome de guerra (identificação do prático)
-///   • E-mail
-///   • Senha e confirmação
+/// Collects:
+/// - Call sign (public identifier for the pilot)
+/// - Email
+/// - Password and confirmation
 ///
-/// Funcionalidades:
-/// ----------------
-/// 1. Validação de campos executada no [AuthController.register]
-/// 2. Após criação bem-sucedida:
-///      - Usuário é cadastrado via Firebase Auth
-///      - Dados complementares (nomeGuerra e email) são salvos no Firestore
-/// 3. Em caso de sucesso:
-///      - SnackBar positiva é exibida
-///      - Retorna para tela de Login [Navigator.pop]
-/// 4. Em caso de erro:
-///      - Mensagens amigáveis via [AuthException] são exibidas
-///
-/// UX/UI:
-/// ------
-/// • Fundo com imagem + overlay escuro para contraste
-/// • Card centralizado com formulário estilizado
-/// • Botão com indicador de carregamento (evita múltiplos submits)
-/// • Suporte responsivo (mobile e web) através de constraints
-///
+/// On success, navigates back to login screen.
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -42,38 +22,43 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  /// Controller do campo de nome de guerra
+  // ===========================================================================
+  // CONTROLLERS & STATE
+  // ===========================================================================
+
   final _callSignController = TextEditingController();
-
-  /// Controller do campo de e-mail
   final _emailController = TextEditingController();
-
-  /// Controller do campo de senha
   final _passwordController = TextEditingController();
-
-  /// Controller do campo de confirmação de senha
   final _confirmPasswordController = TextEditingController();
-
-  /// Controlador de autenticação (Firebase Auth + Firestore)
   final _authController = AuthController();
 
-  /// Flag para controlar estado de carregamento e desabilitar botão durante operação
   bool _isLoading = false;
 
-  /// --------------------------------------------------------------------------
-  /// Realiza cadastro de novo usuário
-  /// --------------------------------------------------------------------------
-  /// Fluxo de execução:
-  ///   1. Ativa loading (desabilita botão)
-  ///   2. Chama [AuthController.register] com dados do formulário
-  ///   3. Exibe feedback de sucesso via SnackBar
-  ///   4. Retorna para tela anterior (LoginPage)
-  ///   5. Em caso de erro, exibe mensagem clara ao usuário
+  // ===========================================================================
+  // LIFECYCLE
+  // ===========================================================================
+
+  @override
+  void dispose() {
+    _callSignController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  // ===========================================================================
+  // ACTIONS
+  // ===========================================================================
+
+  /// Registers a new user.
   ///
-  /// Observações:
-  ///   • Validações são executadas no AuthController
-  ///   • Navigator.pop remove tela de registro da pilha
-  ///   • Erros são capturados como [AuthException] com mensagens amigáveis
+  /// Flow:
+  /// 1. Activates loading state
+  /// 2. Calls [AuthController.register]
+  /// 3. Shows success feedback
+  /// 4. Navigates back to login screen
+  /// 5. On error, shows error message
   Future<void> _register() async {
     setState(() => _isLoading = true);
 
@@ -87,31 +72,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (!mounted) return;
 
-      _showSnackBar(
-        'Cadastro realizado com sucesso',
-        color: AppColors.success,
-      );
-
-      /// Retorna para tela de login após cadastro bem-sucedido
+      _showSnackBar('Cadastro realizado com sucesso', color: AppColors.success);
       Navigator.pop(context);
     } catch (error) {
-      _showSnackBar(
-        error.toString(),
-        color: AppColors.danger,
-      );
+      _showSnackBar(error.toString(), color: AppColors.danger);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  /// --------------------------------------------------------------------------
-  /// Exibe Snackbar padronizada
-  /// --------------------------------------------------------------------------
-  /// Mostra feedback visual flutuante com mensagem e cor customizável.
-  ///
-  /// Parâmetros:
-  ///   • [message] - Texto a ser exibido
-  ///   • [color] - Cor de fundo (sucesso/erro)
+  /// Shows a floating snackbar.
   void _showSnackBar(String message, {required Color color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -122,183 +92,181 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          /// -------------------------------------------------------------------
-          /// Imagem de fundo
-          /// -------------------------------------------------------------------
-          /// Reforça identidade visual do aplicativo
-          Image.asset(
-            'assets/images/navio.jpg',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+          _buildBackgroundImage(),
+          _buildOverlay(),
+          _buildRegisterCard(),
+        ],
+      ),
+    );
+  }
 
-          /// -------------------------------------------------------------------
-          /// Overlay escuro
-          /// -------------------------------------------------------------------
-          /// Garante contraste e legibilidade do conteúdo
-          Container(color: Colors.black.withAlpha(130)),
+  /// Background image for branding.
+  Widget _buildBackgroundImage() {
+    return Image.asset(
+      'assets/images/navio.jpg',
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+    );
+  }
 
-          /// -------------------------------------------------------------------
-          /// Card de cadastro centralizado
-          /// -------------------------------------------------------------------
-          /// SingleChildScrollView permite scroll em telas menores
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Card(
-                  elevation: 10,
-                  shadowColor: Colors.black26,
-                  surfaceTintColor: AppColors.primary.withAlpha(40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        /// Ícone de identificação visual
-                        const Icon(
-                          Icons.person_add_alt_1,
-                          size: 54,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(height: 16),
+  /// Dark overlay for better contrast.
+  Widget _buildOverlay() {
+    return Container(color: Colors.black.withAlpha(130));
+  }
 
-                        /// Título da página
-                        Text(
-                          'Criar conta',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.title.copyWith(fontSize: 28),
-                        ),
-
-                        const SizedBox(height: 6),
-
-                        /// Subtítulo com instrução ao usuário
-                        const Text(
-                          'Preencha os dados para continuar',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.subtitle,
-                        ),
-
-                        const SizedBox(height: 32),
-
-                        /// Campo de entrada de nome de guerra
-                        /// Identificador público usado nas avaliações
-                        TextField(
-                          controller: _callSignController,
-                          decoration: InputDecoration(
-                            labelText: 'Nome de guerra',
-                            prefixIcon: const Icon(Icons.account_circle),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Campo de entrada de e-mail
-                        /// Usado para autenticação no Firebase Auth
-                        TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            labelText: 'E-mail',
-                            prefixIcon: const Icon(Icons.email),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Campo de entrada de senha
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'Senha',
-                            prefixIcon: const Icon(Icons.lock),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Campo de confirmação de senha
-                        /// Validado no AuthController
-                        TextField(
-                          controller: _confirmPasswordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: 'Confirmar senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        /// Botão principal de cadastro
-                        /// Substituído por CircularProgressIndicator durante processamento
-                        ElevatedButton(
-                          onPressed: _isLoading ? null : _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 22,
-                                  width: 22,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text(
-                                  'Cadastrar',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// Link de retorno para tela de login
-                        /// Para usuários que já possuem conta
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'Já tenho uma conta',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+  /// Centered registration card with form.
+  Widget _buildRegisterCard() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Card(
+            elevation: 10,
+            shadowColor: Colors.black26,
+            surfaceTintColor: AppColors.primary.withAlpha(40),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 32),
+                  _buildCallSignField(),
+                  const SizedBox(height: 16),
+                  _buildEmailField(),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(),
+                  const SizedBox(height: 16),
+                  _buildConfirmPasswordField(),
+                  const SizedBox(height: 28),
+                  _buildRegisterButton(),
+                  const SizedBox(height: 16),
+                  _buildLoginLink(),
+                ],
               ),
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  /// Header with icon and title.
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        const Icon(Icons.person_add_alt_1, size: 54, color: AppColors.primary),
+        const SizedBox(height: 16),
+        Text(
+          'Criar conta',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.title.copyWith(fontSize: 28),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Preencha os dados para continuar',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.subtitle,
+        ),
+      ],
+    );
+  }
+
+  /// Call sign input field (public identifier).
+  Widget _buildCallSignField() {
+    return TextField(
+      controller: _callSignController,
+      decoration: InputDecoration(
+        labelText: 'Nome de guerra',
+        prefixIcon: const Icon(Icons.account_circle),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Email input field.
+  Widget _buildEmailField() {
+    return TextField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: 'E-mail',
+        prefixIcon: const Icon(Icons.email),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Password input field.
+  Widget _buildPasswordField() {
+    return TextField(
+      controller: _passwordController,
+      obscureText: true,
+      decoration: InputDecoration(
+        labelText: 'Senha',
+        prefixIcon: const Icon(Icons.lock),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Confirm password input field.
+  Widget _buildConfirmPasswordField() {
+    return TextField(
+      controller: _confirmPasswordController,
+      obscureText: true,
+      decoration: InputDecoration(
+        labelText: 'Confirmar senha',
+        prefixIcon: const Icon(Icons.lock_outline),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// Register button with loading indicator.
+  Widget _buildRegisterButton() {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : _register,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: _isLoading
+          ? const SizedBox(
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          : const Text('Cadastrar', style: TextStyle(fontSize: 18)),
+    );
+  }
+
+  /// Link to return to login screen.
+  Widget _buildLoginLink() {
+    return TextButton(
+      onPressed: () => Navigator.pop(context),
+      child: const Text(
+        'Já tenho uma conta',
+        style: TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }

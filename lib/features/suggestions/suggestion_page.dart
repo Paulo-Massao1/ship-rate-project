@@ -1,14 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ship_rate/data/services/suggestion_service.dart';
+import '../../controllers/suggestion_controller.dart';
 
-/// ============================================================================
-/// SUGGESTION PAGE
-/// ============================================================================
-/// Tela responsável por permitir que o usuário envie sugestões
-/// e feedbacks para melhoria do aplicativo ShipRate.
+/// Screen for submitting user suggestions and feedback.
 ///
-/// A sugestão é enviada utilizando o [SuggestionService].
+/// Allows users to send:
+/// - Suggestions for improvements
+/// - Complaints about issues
+/// - Compliments and positive feedback
 class SuggestionPage extends StatefulWidget {
   const SuggestionPage({super.key});
 
@@ -17,58 +15,91 @@ class SuggestionPage extends StatefulWidget {
 }
 
 class _SuggestionPageState extends State<SuggestionPage> {
-  /// Controller do campo de mensagem
-  final TextEditingController _messageController = TextEditingController();
+  // ===========================================================================
+  // CONSTANTS
+  // ===========================================================================
 
-  /// Tipo de contato selecionado
-  String _contactType = 'Sugestão';
+  static const _feedbackTypes = [
+    _FeedbackType(
+      value: 'Sugestão',
+      icon: Icons.lightbulb_outline,
+      label: 'Sugestão',
+    ),
+    _FeedbackType(
+      value: 'Crítica',
+      icon: Icons.feedback_outlined,
+      label: 'Crítica',
+    ),
+    _FeedbackType(
+      value: 'Elogio',
+      icon: Icons.favorite_outline,
+      label: 'Elogio',
+    ),
+  ];
 
-  /// Controle de loading do botão
+  // ===========================================================================
+  // CONTROLLER & STATE
+  // ===========================================================================
+
+  final _controller = SuggestionController();
+  final _messageController = TextEditingController();
+
+  String _selectedType = 'Sugestão';
   bool _isLoading = false;
 
-  /// --------------------------------------------------------------------------
-  /// Envia a sugestão utilizando o service
-  /// --------------------------------------------------------------------------
+  // ===========================================================================
+  // LIFECYCLE
+  // ===========================================================================
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  // ===========================================================================
+  // ACTIONS
+  // ===========================================================================
+
   Future<void> _submitSuggestion() async {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    
-    if (_messageController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, escreva sua mensagem.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+    final message = _messageController.text;
+
+    // Validate using controller
+    final validationError = _controller.validateMessage(message);
+    if (validationError != null) {
+      _showSnackBar(validationError, backgroundColor: Colors.orange);
       return;
     }
 
     setState(() => _isLoading = true);
 
-    final success = await SuggestionService.send(
-      email: email,
-      title: _contactType,
-      message: _messageController.text.trim(),
+    // Submit using controller
+    final success = await _controller.submitSuggestion(
+      type: _selectedType,
+      message: message,
     );
 
     setState(() => _isLoading = false);
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          success
-              ? 'Mensagem enviada com sucesso!'
-              : 'Erro ao enviar mensagem.',
-        ),
-        backgroundColor: success ? Colors.green : Colors.red,
-      ),
-    );
-
     if (success) {
+      _showSnackBar('Mensagem enviada com sucesso!', backgroundColor: Colors.green);
       Navigator.pop(context);
+    } else {
+      _showSnackBar('Erro ao enviar mensagem.', backgroundColor: Colors.red);
     }
   }
+
+  void _showSnackBar(String message, {required Color backgroundColor}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+    );
+  }
+
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -85,130 +116,77 @@ class _SuggestionPageState extends State<SuggestionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sua opinião é importante',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Ajude a melhorar o ShipRate com sugestões e ideias.',
-              style: TextStyle(color: Colors.grey[700]),
-            ),
+            _buildHeader(),
             const SizedBox(height: 24),
-
-            /// Dropdown de tipo de contato
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _contactType,
-                  isExpanded: true,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'Sugestão',
-                      child: Row(
-                        children: [
-                          Icon(Icons.lightbulb_outline, size: 20),
-                          SizedBox(width: 12),
-                          Text('Sugestão'),
-                        ],
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Crítica',
-                      child: Row(
-                        children: [
-                          Icon(Icons.feedback_outlined, size: 20),
-                          SizedBox(width: 12),
-                          Text('Crítica'),
-                        ],
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Elogio',
-                      child: Row(
-                        children: [
-                          Icon(Icons.favorite_outline, size: 20),
-                          SizedBox(width: 12),
-                          Text('Elogio'),
-                        ],
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _contactType = value);
-                    }
-                  },
-                ),
-              ),
-            ),
-
+            _buildFeedbackTypeDropdown(),
             const SizedBox(height: 16),
-
-            _buildField(
-              controller: _messageController,
-              label: 'Mensagem',
-              icon: Icons.message_outlined,
-              maxLines: 5,
-            ),
-
+            _buildMessageField(),
             const SizedBox(height: 32),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _submitSuggestion,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Enviar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ),
+            _buildSubmitButton(),
           ],
         ),
       ),
     );
   }
 
-  /// --------------------------------------------------------------------------
-  /// Campo padrão de formulário
-  /// --------------------------------------------------------------------------
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int maxLines = 1,
-  }) {
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Sua opinião é importante',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Ajude a melhorar o ShipRate com sugestões e ideias.',
+          style: TextStyle(color: Colors.grey[700]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeedbackTypeDropdown() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedType,
+          isExpanded: true,
+          icon: const Icon(Icons.arrow_drop_down),
+          items: _feedbackTypes
+              .map((type) => DropdownMenuItem(
+                    value: type.value,
+                    child: Row(
+                      children: [
+                        Icon(type.icon, size: 20),
+                        const SizedBox(width: 12),
+                        Text(type.label),
+                      ],
+                    ),
+                  ))
+              .toList(),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _selectedType = value);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageField() {
     return TextField(
-      controller: controller,
-      maxLines: maxLines,
+      controller: _messageController,
+      maxLines: 5,
       decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
+        labelText: 'Mensagem',
+        prefixIcon: const Icon(Icons.message_outlined),
         filled: true,
         fillColor: Colors.grey[100],
         border: OutlineInputBorder(
@@ -218,4 +196,48 @@ class _SuggestionPageState extends State<SuggestionPage> {
       ),
     );
   }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _submitSuggestion,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Text(
+                'Enviar',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// PRIVATE DATA CLASS
+// =============================================================================
+
+class _FeedbackType {
+  final String value;
+  final IconData icon;
+  final String label;
+
+  const _FeedbackType({
+    required this.value,
+    required this.icon,
+    required this.label,
+  });
 }

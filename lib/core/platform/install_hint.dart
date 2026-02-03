@@ -1,40 +1,25 @@
-// Export condicional para resolução automática de implementação
-// do serviço `InstallHintService`.
-//
-// Este mecanismo utiliza uma feature do Dart chamada
-// **Conditional Imports/Exports**, que permite selecionar
-// dinamicamente qual arquivo será utilizado dependendo do
-// ambiente de execução.
-//
-// Funcionamento:
-// --------------
-// • Em plataformas que NÃO possuem `dart:html`
-//     → será exportado `install_hint_mobile.dart`
-//
-// • Em plataformas que possuem `dart:html` (Web)
-//     → será exportado `install_hint_web.dart`
-//
-// Com isso:
-//   - A UI pode importar APENAS este arquivo.
-//   - E receberá automaticamente a implementação correta.
-//   - Sem precisar alterar código em outras partes.
-//
-// Exemplo de uso:
-// ```dart
-// import 'install_hint.dart';
-// final service = getInstallHintService();
-// if (service.shouldShowInstallHint()) {
-//   showInstallBanner();
-// }
-// ```
-//
-// Benefícios:
-// -----------
-// ✔ evita `kIsWeb` nos widgets  
-// ✔ separa responsabilidades por plataforma  
-// ✔ reduz duplicação de código  
-// ✔ mantém o design limpo e escalável
-//
-
-export 'install_hint_mobile.dart'
-    if (dart.library.html) 'install_hint_web.dart';
+/// Conditional export for automatic platform-specific implementation.
+///
+/// This mechanism uses Dart's **Conditional Imports/Exports** feature
+/// to select the appropriate file based on the execution environment.
+///
+/// Resolution:
+/// - Platforms WITHOUT `dart:html` → exports `install_hint_mobile.dart`
+/// - Platforms WITH `dart:html` (Web) → exports `install_hint_web.dart`
+///
+/// Usage:
+/// ```dart
+/// import 'install_hint.dart';
+///
+/// final service = getInstallHintService();
+/// if (service.shouldShowInstallHint()) {
+///   showInstallBanner();
+/// }
+/// ```
+///
+/// Benefits:
+/// - Avoids `kIsWeb` checks in widgets
+/// - Separates platform responsibilities
+/// - Reduces code duplication
+/// - Maintains clean, scalable design
+export 'install_hint_mobile.dart' if (dart.library.html) 'install_hint_web.dart';

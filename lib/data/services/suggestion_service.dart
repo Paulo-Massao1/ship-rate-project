@@ -1,51 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-/// Serviço responsável pelo envio e registro de sugestões no Firestore.
+/// Service responsible for saving user suggestions to Firestore.
 ///
-/// Função e objetivo:
-/// -------------------
-/// Este serviço abstrai o processo de salvar sugestões dos usuários
-/// em uma coleção dedicada no Firestore chamada `sugestoes`.
+/// Abstracts the process of persisting user feedback, suggestions,
+/// and complaints to a dedicated Firestore collection.
 ///
-/// Ele permite que o app:
-///   • colete feedback de pilotos/usuários
-///   • registre melhorias solicitadas
-///   • tenha histórico de pedidos
-///   • consulte posteriormente no painel Firebase
-///
-/// Não existe resposta por e-mail aqui — o envio é apenas persistido
-/// para posterior leitura e análise.
-///
-/// Modelo salvo no Firestore:
+/// Firestore document structure:
 /// ```json
 /// {
-///   "email": "usuario@exemplo.com",
-///   "titulo": "Melhorar UI",
-///   "mensagem": "A busca poderia ser mais rápida",
-///   "createdAt": <timestamp>
+///   "email": "user@example.com",
+///   "title": "Suggestion",
+///   "message": "The search could be faster",
+///   "createdAt": <server_timestamp>
 /// }
 /// ```
-///
-/// Detalhes técnicos:
-/// ------------------
-/// • Usa `FieldValue.serverTimestamp()` para garantir horário oficial.
-/// • Em caso de erro:
-///   - não lança exceção
-///   - retorna `false`
-///   - loga no console (útil para debug)
-///
-/// Este design simplifica o uso no front-end ― permitindo:
-/// ```dart
-/// final ok = await SugestaoService.enviar(...);
-/// if (ok) showSuccess();
-/// else showError();
-/// ```
 class SuggestionService {
-  /// Nome da coleção no Firestore
-  /// Mantido como 'sugestoes' para compatibilidade com dados existentes
+  // ===========================================================================
+  // CONSTANTS
+  // ===========================================================================
+
+  /// Firestore collection name for suggestions.
+  /// Kept as 'sugestoes' for backwards compatibility.
   static const String _collectionName = 'sugestoes';
 
+  // ===========================================================================
+  // PUBLIC METHODS
+  // ===========================================================================
+
+  /// Sends a suggestion to Firestore.
+  ///
+  /// Parameters:
+  /// - [email]: User's email address
+  /// - [title]: Type of feedback (Sugestão, Crítica, Elogio)
+  /// - [message]: The actual feedback content
+  ///
+  /// Returns `true` if saved successfully, `false` otherwise.
   static Future<bool> send({
     required String email,
     required String title,
@@ -61,7 +51,7 @@ class SuggestionService {
 
       return true;
     } catch (error) {
-      debugPrint('❌ Erro ao salvar sugestão: $error');
+      debugPrint('❌ Error saving suggestion: $error');
       return false;
     }
   }

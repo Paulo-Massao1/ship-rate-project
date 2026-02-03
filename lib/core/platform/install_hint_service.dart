@@ -1,31 +1,23 @@
-/// Define a interface para serviços responsáveis por determinar
-/// se o aplicativo deve exibir ou não uma dica de instalação.
+/// Abstract interface for PWA installation hint detection.
 ///
-/// Esta abstração é usada para suportar múltiplas plataformas.
+/// This abstraction supports multiple platforms through conditional imports.
 ///
-/// Exemplos de implementações:
-///   • Web: pode retornar `true` para sugerir instalação como PWA
-///   • Mobile (Android/iOS): normalmente retorna `false`
+/// Implementations:
+/// - Web: Returns `true` to suggest PWA installation
+/// - Mobile (Android/iOS): Returns `false` (app is already native/installed)
 ///
-/// Com interface separada, garantimos:
-///   • desacoplamento entre UI e lógica de plataforma
-///   • possibilidade de usar `conditional import`
-///   • substituição de comportamento sem alterar a UI
-///
-/// Uso típico:
+/// Usage:
 /// ```dart
 /// final hintService = getInstallHintService();
 /// if (hintService.shouldShowInstallHint()) {
-///   // mostrar banner de instalação
+///   showInstallBanner();
 /// }
 /// ```
 abstract class InstallHintService {
-  
-  /// Método que sinaliza se o app deve exibir um aviso
-  /// sugerindo instalação (ex: "Adicionar à tela inicial").
+  /// Determines if the app should show an installation hint.
   ///
-  /// Retorno:
-  ///   • `true` → sugere exibir aviso
-  ///   • `false` → não exibir aviso
+  /// Returns:
+  /// - `true`: Suggest showing "Add to Home Screen" banner
+  /// - `false`: Don't show installation hint
   bool shouldShowInstallHint();
 }

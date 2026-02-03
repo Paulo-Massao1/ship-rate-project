@@ -1,55 +1,33 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
+
+// ignore_for_file: avoid_web_libraries_in_flutter
 
 import 'dart:html' as html;
+
 import 'install_hint_service.dart';
 
-/// Implementação Web do serviço de exibição de aviso de instalação.
+/// Web implementation of the installation hint service.
 ///
-/// Esta classe utiliza recursos do `dart:html`, portanto
-/// é destinada exclusivamente a rodar em ambiente Web.
-/// Por isso usamos:
-///   • ignore: avoid_web_libraries_in_flutter
-/// 
-/// O objetivo é detectar se o PWA está sendo executado:
-///   • como PWA instalado (tela cheia / standalone)
-///   • ou dentro do navegador comum.
+/// Uses the Web API `MediaQuery` to detect if the PWA is running:
+/// - As an installed PWA (standalone mode)
+/// - In the browser (not installed)
 ///
-/// A detecção ocorre via `MediaQuery` Web API:
+/// Detection method: `(display-mode: standalone)`
 ///
-///   `(display-mode: standalone)`
-///
-/// Retornos:
-///   • `false` → já instalado como PWA → não mostrar aviso
-///   • `true` → rodando no navegador → sugerir instalação
-///
-/// Esta implementação complementa a versão Mobile, mantendo
-/// o comportamento multiplataforma via interface `InstallHintService`.
+/// Returns:
+/// - `false`: Already installed as PWA → don't show hint
+/// - `true`: Running in browser → suggest installation
 class InstallHintWebService implements InstallHintService {
+  /// Checks if PWA is running in browser (not installed).
+  ///
+  /// Uses CSS media query to detect display mode.
   @override
   bool shouldShowInstallHint() {
-    // Verifica o modo de exibição:
-    // standalone → PWA instalado
-    // browser → não instalado
-    final mq = html.window.matchMedia('(display-mode: standalone)');
-
-    // Caso não esteja no modo standalone, sugerimos exibir o banner.
-    return !mq.matches;
+    final mediaQuery = html.window.matchMedia('(display-mode: standalone)');
+    return !mediaQuery.matches;
   }
 }
 
-/// Factory global
+/// Factory function for web platform.
 ///
-/// Em ambiente Web, esta função retorna `InstallHintWebService`.
-/// No ambiente Mobile, outra implementação será usada.
-///
-/// Ela permite que a UI utilize:
-///
-/// ```dart
-/// final service = getInstallHintService();
-/// if (service.shouldShowInstallHint()) {
-///   showBanner();
-/// }
-/// ```
-InstallHintService getInstallHintService() {
-  return InstallHintWebService();
-}
+/// Returns the web implementation which checks for PWA installation status.
+InstallHintService getInstallHintService() => InstallHintWebService();

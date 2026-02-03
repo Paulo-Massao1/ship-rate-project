@@ -1,43 +1,23 @@
 import 'install_hint_service.dart';
 
-/// Implementação específica para ambiente mobile.
+/// Mobile implementation of the installation hint service.
 ///
-/// Este serviço faz parte da lógica de detecção de instalação PWA.
-/// Em plataformas Web, o app pode exibir um banner orientando o usuário
-/// a "Adicionar à tela inicial".
+/// On mobile platforms (Android/iOS running as Flutter app or installed PWA),
+/// the installation hint is never needed.
 ///
-/// Já em dispositivos mobile (Android/iOS rodando como app Flutter ou
-/// instalado como PWA), essa dica não é necessária.
-///
-/// Portanto:
-///   • No Mobile → nunca exibimos o aviso.
-///   • No Web → outra implementação cuidará disso.
-///
-/// Esta classe implementa a interface `InstallHintService`
-/// garantindo padronização entre plataformas.
+/// This class implements [InstallHintService] to ensure cross-platform
+/// consistency via conditional imports.
 class InstallHintMobileService implements InstallHintService {
-  
-  /// Retorna `false` porque em dispositivos móveis
-  /// não queremos exibir dica de instalação da PWA.
+  /// Always returns `false` on mobile platforms.
   ///
-  /// Caso o app esteja empacotado como nativo (APK, IPA)
-  /// ou já instalado via PWA, esse aviso seria redundante.
+  /// Mobile apps don't need PWA installation prompts since they're
+  /// either native apps or already installed PWAs.
   @override
-  bool shouldShowInstallHint() {
-    return false;
-  }
+  bool shouldShowInstallHint() => false;
 }
 
-/// Factory para retornar a implementação correta.
-/// 
-/// Na plataforma mobile, sempre retornamos a implementação
-/// `InstallHintMobileService`.
+/// Factory function for mobile platform.
 ///
-/// No Web (em outro arquivo), essa função será sobrescrita via `conditional import`, 
-/// permitindo retornar a implementação Web que mostra o banner.
-///
-/// Exemplo:
-///   getInstallHintService().shouldShowInstallHint();
-InstallHintService getInstallHintService() {
-  return InstallHintMobileService();
-}
+/// Returns the mobile implementation which always reports
+/// no installation hint needed.
+InstallHintService getInstallHintService() => InstallHintMobileService();
