@@ -1,16 +1,37 @@
-# ship_rate
+# 🚢 ShipRate
 
-A new Flutter project.
+Professional ship evaluation platform for maritime pilots.
 
-## Getting Started
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=flat-square)](https://shiprate-daf18.web.app/)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
 
-This project is a starting point for a Flutter application.
+## About
 
-A few resources to get you started if this is your first Flutter project:
+ShipRate enables maritime pilots to evaluate ships and share experiences with the professional community. Currently serving **36 active pilots** in production.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Ship Search** — Find ships by name or IMO number
+- **Rating System** — Evaluate cabin, bridge, food, and crew conditions
+- **PDF Reports** — Generate professional evaluation reports
+- **MarineTraffic Integration** — Quick access to ship details
+- **Cross-platform** — Web, Android, and iOS support
+
+## Tech Stack
+
+- Flutter & Dart
+- Firebase (Auth, Firestore, Hosting)
+- PDF Generation
+- PWA Support
+
+## AI Disclosure
+
+This project was developed with assistance from Claude AI (Anthropic) for architecture design, code refactoring, and documentation. All final decisions, testing, and deployment were performed by the developer.
+
+## Author
+
+**Paulo** — IT Student at SAIT, Calgary  
+Seeking co-op opportunities in software development.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/paulo-massao-santos-07009a2a4/)
