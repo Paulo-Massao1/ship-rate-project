@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/services/pdf_service.dart';
+import '../../data/services/pdf_labels_factory.dart';
 
 /// Screen for viewing detailed information of a ship rating.
 ///
@@ -48,11 +50,37 @@ class RatingDetailPage extends StatelessWidget {
   ];
 
   // ===========================================================================
+  // HELPERS
+  // ===========================================================================
+
+  /// Maps Firestore criteria keys to translated display names.
+  String _criteriaLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Temperatura da Cabine': return l10n.criteriaCabinTemp;
+      case 'Limpeza da Cabine': return l10n.criteriaCabinCleanliness;
+      case 'Passadiço – Equipamentos': return l10n.criteriaBridgeEquipment;
+      case 'Passadiço – Temperatura': return l10n.criteriaBridgeTemp;
+      case 'Dispositivo de Embarque/Desembarque': return l10n.criteriaDevice;
+      case 'Comida': return l10n.criteriaFood;
+      case 'Relacionamento com comandante/tripulação': return l10n.criteriaRelationship;
+      default: return key;
+    }
+  }
+
+  /// Converts boolean to translated "Yes"/"No".
+  String _boolToYesNo(BuildContext context, bool? value) {
+    final l10n = AppLocalizations.of(context)!;
+    return value == true ? l10n.yes : l10n.no;
+  }
+
+  // ===========================================================================
   // BUILD
   // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final data = rating.data() as Map<String, dynamic>;
     final shipRef = rating.reference.parent.parent!;
 
@@ -66,18 +94,18 @@ class RatingDetailPage extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return const Scaffold(
-            body: Center(child: Text('Erro ao carregar dados do navio')),
+          return Scaffold(
+            body: Center(child: Text(l10n.errorLoadingShipData)),
           );
         }
 
         final shipData = snapshot.data?.data() as Map<String, dynamic>?;
-        final shipName = shipData?['nome'] ?? 'Navio';
+        final shipName = shipData?['nome'] ?? l10n.defaultShipName;
         final shipImo = shipData?['imo'];
 
         return Scaffold(
           appBar: _buildAppBar(context, shipName, shipImo),
-          body: _buildBody(data, shipName, shipImo),
+          body: _buildBody(context, data, shipName, shipImo),
           floatingActionButton: _buildFab(context, shipName, shipImo),
         );
       },
@@ -89,15 +117,16 @@ class RatingDetailPage extends StatelessWidget {
     String shipName,
     String? shipImo,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
-      title: const Text('Detalhes da Avaliação'),
+      title: Text(l10n.ratingDetailTitle),
       backgroundColor: _primaryColor,
       foregroundColor: Colors.white,
       centerTitle: true,
       actions: [
         IconButton(
           icon: const Icon(Icons.picture_as_pdf),
-          tooltip: 'Exportar PDF',
+          tooltip: l10n.exportPdf,
           onPressed: () => _exportToPdf(context, shipName, shipImo),
         ),
       ],
@@ -105,11 +134,13 @@ class RatingDetailPage extends StatelessWidget {
   }
 
   Widget _buildBody(
+    BuildContext context,
     Map<String, dynamic> data,
     String shipName,
     String? shipImo,
   ) {
-    final callSign = data['nomeGuerra'] ?? 'Prático';
+    final l10n = AppLocalizations.of(context)!;
+    final callSign = data['nomeGuerra'] ?? l10n.pilot;
     final ratingDate = data['data'] as Timestamp?;
     final disembarkationDate = data['dataDesembarque'] as Timestamp?;
     final cabinType = data['tipoCabine'] ?? '';
@@ -125,6 +156,7 @@ class RatingDetailPage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _buildHeaderCard(
+          context,
           shipName: shipName,
           shipImo: shipImo,
           ratingDate: ratingDate,
@@ -134,31 +166,32 @@ class RatingDetailPage extends StatelessWidget {
         ),
         if (_hasShipInfo(shipInfo, amenities)) ...[
           const SizedBox(height: 16),
-          _buildShipInfoCard(shipInfo, amenities),
+          _buildShipInfoCard(context, shipInfo, amenities),
         ],
         if (generalObservations.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _buildGeneralObservationsCard(generalObservations),
+          _buildGeneralObservationsCard(context, generalObservations),
         ],
         const SizedBox(height: 24),
-        _buildSectionTitle('Cabine'),
-        ..._buildRatingCards(ratingItems, _cabinCriteria),
-        _buildSectionTitle('Passadiço'),
-        ..._buildRatingCards(ratingItems, _bridgeCriteria),
-        _buildSectionTitle('Outros'),
-        ..._buildRatingCards(ratingItems, _otherCriteria),
+        _buildSectionTitle(context, l10n.cabinSection),
+        ..._buildRatingCards(context, ratingItems, _cabinCriteria),
+        _buildSectionTitle(context, l10n.bridgeSection),
+        ..._buildRatingCards(context, ratingItems, _bridgeCriteria),
+        _buildSectionTitle(context, l10n.otherSection),
+        ..._buildRatingCards(context, ratingItems, _otherCriteria),
         const SizedBox(height: 32),
       ],
     );
   }
 
   Widget _buildFab(BuildContext context, String shipName, String? shipImo) {
+    final l10n = AppLocalizations.of(context)!;
     return FloatingActionButton.extended(
       onPressed: () => _exportToPdf(context, shipName, shipImo),
       backgroundColor: _primaryColor,
       foregroundColor: Colors.white,
       icon: const Icon(Icons.picture_as_pdf),
-      label: const Text('Exportar PDF'),
+      label: Text(l10n.exportPdf),
     );
   }
 
@@ -166,7 +199,8 @@ class RatingDetailPage extends StatelessWidget {
   // BUILD - CARDS
   // ===========================================================================
 
-  Widget _buildHeaderCard({
+  Widget _buildHeaderCard(
+    BuildContext context, {
     required String shipName,
     String? shipImo,
     Timestamp? ratingDate,
@@ -174,6 +208,7 @@ class RatingDetailPage extends StatelessWidget {
     required String cabinType,
     required String callSign,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -185,21 +220,21 @@ class RatingDetailPage extends StatelessWidget {
               shipName,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            if (shipImo?.isNotEmpty == true) Text('IMO: $shipImo'),
+            if (shipImo?.isNotEmpty == true) Text(l10n.imoValue(shipImo!)),
             if (ratingDate != null)
               Text(
-                'Avaliado em: ${_formatTimestamp(ratingDate)}',
+                l10n.ratedOn(_formatTimestamp(ratingDate)),
                 style: const TextStyle(color: Colors.black54),
               ),
             if (disembarkationDate != null)
               Text(
-                'Data de desembarque: ${_formatTimestamp(disembarkationDate)}',
+                l10n.disembarkationDateValue(_formatTimestamp(disembarkationDate)),
                 style: const TextStyle(color: Colors.black54),
               ),
-            if (cabinType.isNotEmpty) Text('Tipo da cabine: $cabinType'),
+            if (cabinType.isNotEmpty) Text(l10n.cabinTypeValue(cabinType)),
             const SizedBox(height: 6),
             Text(
-              'Prático: $callSign',
+              l10n.pilotCallSign(callSign),
               style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
@@ -209,9 +244,11 @@ class RatingDetailPage extends StatelessWidget {
   }
 
   Widget _buildShipInfoCard(
+    BuildContext context,
     Map<String, dynamic> shipInfo,
     Map<String, bool?> amenities,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -219,9 +256,9 @@ class RatingDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Informações do Navio',
-              style: TextStyle(
+            Text(
+              l10n.shipInfo,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
                 color: _primaryColor,
@@ -229,23 +266,24 @@ class RatingDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (shipInfo['nacionalidadeTripulacao'] != null)
-              _buildInfoRow('Tripulação', shipInfo['nacionalidadeTripulacao']),
+              _buildInfoRow(l10n.crew, shipInfo['nacionalidadeTripulacao']),
             if (shipInfo['numeroCabines'] != null &&
                 shipInfo['numeroCabines'] > 0)
-              _buildInfoRow('Cabines', shipInfo['numeroCabines'].toString()),
+              _buildInfoRow(l10n.cabins, shipInfo['numeroCabines'].toString()),
             if (amenities['frigobar'] != null)
-              _buildInfoRow('Frigobar', _boolToYesNo(amenities['frigobar'])),
+              _buildInfoRow(l10n.minibar, _boolToYesNo(context, amenities['frigobar'])),
             if (amenities['pia'] != null)
-              _buildInfoRow('Pia', _boolToYesNo(amenities['pia'])),
+              _buildInfoRow(l10n.sink, _boolToYesNo(context, amenities['pia'])),
             if (amenities['microondas'] != null)
-              _buildInfoRow('Micro-ondas', _boolToYesNo(amenities['microondas'])),
+              _buildInfoRow(l10n.microwave, _boolToYesNo(context, amenities['microondas'])),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGeneralObservationsCard(String observations) {
+  Widget _buildGeneralObservationsCard(BuildContext context, String observations) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -253,9 +291,9 @@ class RatingDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Observações Gerais',
-              style: TextStyle(
+            Text(
+              l10n.generalObservations,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
                 color: _primaryColor,
@@ -269,7 +307,7 @@ class RatingDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 8),
       child: Text(
@@ -284,9 +322,11 @@ class RatingDetailPage extends StatelessWidget {
   }
 
   List<Widget> _buildRatingCards(
+    BuildContext context,
     Map<String, dynamic> items,
     List<String> criteriaOrder,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return criteriaOrder.where(items.containsKey).map((name) {
       final item = Map<String, dynamic>.from(items[name]);
       final score = item['nota'];
@@ -301,12 +341,12 @@ class RatingDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                name,
+                _criteriaLabel(context, name),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
               const SizedBox(height: 6),
               Text(
-                'Nota: ${score ?? '-'}',
+                l10n.scoreLabel(score?.toString() ?? '-'),
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   color: _primaryColor,
@@ -347,11 +387,12 @@ class RatingDetailPage extends StatelessWidget {
     String shipName,
     String? shipImo,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       _showLoadingDialog(context);
 
       final data = rating.data() as Map<String, dynamic>;
-      final pdf = await _generatePdf(data, shipName, shipImo);
+      final pdf = await _generatePdf(data, shipName, shipImo, l10n);
 
       if (context.mounted) {
         Navigator.pop(context);
@@ -361,12 +402,12 @@ class RatingDetailPage extends StatelessWidget {
       await PdfService.saveAndSharePdf(pdf, fileName);
 
       if (context.mounted) {
-        _showSuccessSnackBar(context, 'PDF gerado com sucesso!');
+        _showSuccessSnackBar(context, l10n.pdfGeneratedSuccess);
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        _showErrorSnackBar(context, 'Erro ao gerar PDF: $e');
+        _showErrorSnackBar(context, l10n.errorGeneratingPdf(e.toString()));
       }
     }
   }
@@ -375,10 +416,11 @@ class RatingDetailPage extends StatelessWidget {
     Map<String, dynamic> data,
     String shipName,
     String? shipImo,
+    AppLocalizations l10n,
   ) async {
-    final evaluatorName = data['nomeGuerra'] ?? 'Anônimo';
+    final evaluatorName = data['nomeGuerra'] ?? l10n.anonymous;
     final evaluationDate = _resolveEvaluationDate(data);
-    final cabinType = data['tipoCabine'] ?? 'N/A';
+    final cabinType = data['tipoCabine'] ?? l10n.notAvailable;
     final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
     final ratings = _extractRatings(data);
     final generalObservation = data['observacaoGeral'];
@@ -394,6 +436,7 @@ class RatingDetailPage extends StatelessWidget {
       ratings: ratings,
       generalObservation: generalObservation,
       shipInfo: shipInfo,
+      labels: buildPdfLabels(l10n),
     );
   }
 
@@ -434,9 +477,6 @@ class RatingDetailPage extends StatelessWidget {
     return '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
-
-  /// Converts boolean to "Sim"/"Não".
-  String _boolToYesNo(bool? value) => value == true ? 'Sim' : 'Não';
 
   /// Merges amenities from shipInfo and bridgeInfo (legacy support).
   Map<String, bool?> _mergeAmenities(

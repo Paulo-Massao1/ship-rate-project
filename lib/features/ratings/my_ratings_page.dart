@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/my_ratings_controller.dart';
+import '../../data/services/pdf_labels_factory.dart';
 import 'rating_detail_page.dart';
 import 'edit_rating_page.dart';
 
@@ -111,28 +112,30 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Future<void> _deleteRating(RatingWithShipInfo item) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       _showLoadingDialog();
       await _controller.deleteRating(item.rating.reference);
 
       if (mounted) {
         Navigator.pop(context);
-        _showSuccessSnackBar('Avaliação excluída com sucesso!');
+        _showSuccessSnackBar(l10n.ratingDeletedSuccess);
         _loadRatings();
       }
     } catch (e) {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        _showErrorSnackBar('Erro ao excluir: $e');
+        _showErrorSnackBar(l10n.errorDeleting(e.toString()));
       }
     }
   }
 
   Future<void> _exportRatingToPdf(RatingWithShipInfo item) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       _showLoadingDialog();
 
-      final pdf = await _controller.generateRatingPdf(item);
+      final pdf = await _controller.generateRatingPdf(item, buildPdfLabels(l10n));
 
       if (mounted) {
         Navigator.pop(context);
@@ -141,12 +144,12 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
       await _controller.saveAndSharePdf(pdf, item.shipName);
 
       if (mounted) {
-        _showSuccessSnackBar('PDF gerado com sucesso!');
+        _showSuccessSnackBar(l10n.pdfGeneratedSuccess);
       }
     } catch (e) {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
-        _showErrorSnackBar('Erro ao gerar PDF: $e');
+        _showErrorSnackBar(l10n.errorGeneratingPdf(e.toString()));
       }
     }
   }
@@ -164,12 +167,13 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
-        title: const Text(
-          'Minhas Avaliações',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.myRatingsTitle,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
@@ -197,15 +201,16 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: _primaryColor),
-          SizedBox(height: 16),
+          const CircularProgressIndicator(color: _primaryColor),
+          const SizedBox(height: 16),
           Text(
-            'Carregando suas avaliações...',
-            style: TextStyle(color: Colors.black54, fontSize: 14),
+            l10n.loadingRatings,
+            style: const TextStyle(color: Colors.black54, fontSize: 14),
           ),
         ],
       ),
@@ -213,6 +218,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Widget _buildErrorState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -230,7 +236,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
             ElevatedButton.icon(
               onPressed: _loadRatings,
               icon: const Icon(Icons.refresh),
-              label: const Text('Tentar Novamente'),
+              label: Text(l10n.tryAgain),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _primaryColor,
                 foregroundColor: Colors.white,
@@ -247,6 +253,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -266,19 +273,19 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Nenhuma avaliação ainda',
-              style: TextStyle(
+            Text(
+              l10n.noRatingsYet,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!',
+            Text(
+              l10n.noRatingsSubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.black54),
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
           ],
         ),
@@ -306,8 +313,8 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Widget _buildListHeader() {
+    final l10n = AppLocalizations.of(context)!;
     final count = _ratings.length;
-    final label = count == 1 ? 'avaliação' : 'avaliações';
 
     return Container(
       width: double.infinity,
@@ -327,7 +334,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
           const Icon(Icons.analytics_outlined, color: _primaryColor, size: 20),
           const SizedBox(width: 8),
           Text(
-            'Total: $count $label',
+            l10n.totalRatings(count),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -337,9 +344,9 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
           const Spacer(),
           const Icon(Icons.schedule, color: Colors.black54, size: 16),
           const SizedBox(width: 4),
-          const Text(
-            'Mais recentes primeiro',
-            style: TextStyle(fontSize: 12, color: Colors.black54),
+          Text(
+            l10n.newestFirst,
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
           ),
         ],
       ),
@@ -431,6 +438,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
     String cabinType,
     String? cabinDeck,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
@@ -438,7 +446,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
             Expanded(
               child: _InfoChip(
                 icon: Icons.star,
-                label: 'Nota Média',
+                label: l10n.averageScore,
                 value: averageRating.toStringAsFixed(1),
                 color: const Color(0xFFFF9800),
               ),
@@ -447,7 +455,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
             Expanded(
               child: _InfoChip(
                 icon: Icons.calendar_today,
-                label: 'Data de Avaliação',
+                label: l10n.ratingDate,
                 value: _controller.formatDate(ratingDate),
                 color: _primaryColor,
               ),
@@ -461,7 +469,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
               Expanded(
                 child: _InfoChip(
                   icon: Icons.bed,
-                  label: 'Cabine',
+                  label: l10n.cabin,
                   value: cabinType,
                   color: const Color(0xFF4CAF50),
                 ),
@@ -472,7 +480,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                   child: _InfoChip(
                     icon: Icons.layers,
                     label: 'Deck',
-                    value: 'Deck $cabinDeck',
+                    value: l10n.deckLabel(cabinDeck),
                     color: const Color(0xFF9C27B0),
                   ),
                 ),
@@ -485,19 +493,20 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   }
 
   Widget _buildCardActions(RatingWithShipInfo item) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         _ActionButton(
           icon: Icons.delete_outline,
-          label: 'Excluir',
+          label: l10n.deleteLabel,
           color: Colors.red,
           onTap: () => _showDeleteConfirmation(item),
         ),
         const SizedBox(width: 8),
         _ActionButton(
           icon: Icons.edit,
-          label: 'Editar',
+          label: l10n.editLabel,
           color: Colors.orange,
           onTap: () => _showEditWarning(item),
         ),
@@ -647,35 +656,34 @@ class _EditWarningDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.warning_amber, color: Colors.orange, size: 28),
-          SizedBox(width: 8),
-          Text('Atenção'),
+          const Icon(Icons.warning_amber, color: Colors.orange, size: 28),
+          const SizedBox(width: 8),
+          Text(l10n.editWarningTitle),
         ],
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Edite apenas para corrigir erros',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          Text(
+            l10n.editWarningCorrectionsOnly,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Esta função serve para corrigir erros de digitação ou informações incorretas.',
-          ),
+          Text(l10n.editWarningDescription),
           const SizedBox(height: 8),
-          const Text(
-            '⚠️ Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.',
-            style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+          Text(
+            l10n.editWarningImportant,
+            style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.',
-            style: TextStyle(fontWeight: FontWeight.w600),
+          Text(
+            l10n.editWarningNewRating,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
           Container(
@@ -685,14 +693,14 @@ class _EditWarningDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.withAlpha(77)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.orange, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Manter histórico ajuda outros práticos!',
-                    style: TextStyle(
+                    l10n.editWarningHistory,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Colors.orange,
                       fontWeight: FontWeight.w600,
@@ -707,7 +715,7 @@ class _EditWarningDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancelar'),
+          child: Text(l10n.cancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
@@ -715,7 +723,7 @@ class _EditWarningDialog extends StatelessWidget {
             backgroundColor: Colors.orange,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Entendi, quero editar'),
+          child: Text(l10n.editWarningConfirm),
         ),
       ],
     );
@@ -729,12 +737,13 @@ class _DeleteConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.delete_forever, color: Colors.red, size: 28),
-          SizedBox(width: 8),
-          Text('Excluir Avaliação'),
+          const Icon(Icons.delete_forever, color: Colors.red, size: 28),
+          const SizedBox(width: 8),
+          Text(l10n.deleteRatingTitle),
         ],
       ),
       content: Column(
@@ -742,7 +751,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tem certeza que deseja excluir a avaliação do navio "$shipName"?',
+            l10n.deleteRatingConfirm(shipName),
             style: const TextStyle(fontSize: 15),
           ),
           const SizedBox(height: 16),
@@ -753,14 +762,14 @@ class _DeleteConfirmationDialog extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.red.withAlpha(77)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.warning_amber, color: Colors.red, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.warning_amber, color: Colors.red, size: 20),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Esta ação não pode ser desfeita!',
-                    style: TextStyle(
+                    l10n.deleteWarning,
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Colors.red,
                       fontWeight: FontWeight.w600,
@@ -775,7 +784,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancelar'),
+          child: Text(l10n.cancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
@@ -783,7 +792,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Excluir'),
+          child: Text(l10n.deleteButton),
         ),
       ],
     );

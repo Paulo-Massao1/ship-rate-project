@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../auth/login_page.dart';
@@ -10,6 +11,7 @@ import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
 import '../../controllers/home_controller.dart';
 import '../../data/services/version_service.dart';
+import '../../main.dart';
 
 /// Main screen of the ShipRate application.
 ///
@@ -120,11 +122,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     if (result['shouldShow'] == true) {
       setState(() {
         _showUpdateBanner = true;
         _updateMessage = result['message'] ??
-            'Nova atualização disponível. Por favor, feche e reabra o app.';
+            l10n.updateAvailable;
       });
     }
   }
@@ -149,6 +153,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (_) => false,
     );
+  }
+
+  /// Toggles between PT and EN locales.
+  void _toggleLocale() {
+    Navigator.pop(context);
+    final next = localeController.locale.languageCode == 'pt'
+        ? const Locale('en')
+        : const Locale('pt');
+    localeController.changeLocale(next);
   }
 
   /// Dismisses the update banner.
@@ -185,11 +198,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Link copiado para a área de transferência!'),
+      SnackBar(
+        content: Text(l10n.linkCopied),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -248,6 +263,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawer() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -257,31 +274,38 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             const SizedBox(height: 20),
             _DrawerItem(
               icon: Icons.search,
-              label: 'Buscar / Avaliar Navios',
+              label: l10n.drawerSearchRate,
               onTap: () => Navigator.pop(context),
             ),
             _DrawerItem(
               icon: Icons.assignment_turned_in_outlined,
-              label: 'Minhas Avaliações',
+              label: l10n.drawerMyRatings,
               onTap: _navigateToMyRatings,
             ),
             _DrawerItem(
               icon: Icons.lightbulb_outline,
-              label: 'Enviar Sugestão',
+              label: l10n.drawerSendSuggestion,
               onTap: _navigateToSuggestions,
             ),
             _DrawerItem(
               icon: Icons.share,
-              label: 'Compartilhar App',
+              label: l10n.drawerShareApp,
               onTap: () {
                 Navigator.pop(context);
                 _shareApp();
               },
             ),
+            _DrawerItem(
+              icon: Icons.language,
+              label: localeController.locale.languageCode == 'pt'
+                  ? 'English'
+                  : 'Português',
+              onTap: _toggleLocale,
+            ),
             const Divider(height: 32, thickness: 1),
             _DrawerItem(
               icon: Icons.logout,
-              label: 'Sair',
+              label: l10n.drawerLogout,
               color: Colors.redAccent,
               onTap: _handleLogout,
             ),
@@ -292,6 +316,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawerHeader() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
@@ -307,10 +333,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Icon(Icons.directions_boat_filled, size: 48, color: Colors.white),
-          SizedBox(height: 14),
-          Text(
+        children: [
+          const Icon(Icons.directions_boat_filled, size: 48, color: Colors.white),
+          const SizedBox(height: 14),
+          const Text(
             'ShipRate',
             style: TextStyle(
               color: Colors.white,
@@ -319,10 +345,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               letterSpacing: 0.2,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            'Avaliação profissional de navios',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            l10n.appSubtitle,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
         ],
       ),
@@ -338,6 +364,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// - OK button aligned to the right
   Widget _buildUpdateBanner() {
     if (!_showUpdateBanner) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -358,9 +386,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Atualização Disponível',
-                  style: TextStyle(
+                Text(
+                  l10n.updateAvailable,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -435,15 +463,17 @@ class _ShareBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Compartilhar ShipRate',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.shareShipRate,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             Row(
@@ -457,7 +487,7 @@ class _ShareBottomSheet extends StatelessWidget {
                 ),
                 _ShareOption(
                   icon: Icons.link,
-                  label: 'Copiar Link',
+                  label: l10n.copyLink,
                   color: _primaryColor,
                   onTap: onCopyLinkTap,
                 ),

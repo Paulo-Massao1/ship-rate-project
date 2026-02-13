@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/auth_controller.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/app_colors.dart';
 import '../home/main_screen_page.dart';
+import '../../main.dart';
 
 /// Login screen for ShipRate app.
 ///
@@ -56,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
   /// 4. Navigates to MainScreen using pushReplacement
   /// 5. On error, shows error message
   Future<void> _login() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
@@ -64,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      _showSnackBar('Login realizado com sucesso', color: AppColors.success);
+      _showSnackBar(l10n.loginSuccess, color: AppColors.success);
 
       if (!mounted) return;
 
@@ -78,6 +81,14 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Toggles between PT and EN locales.
+  void _toggleLocale() {
+    final next = localeController.locale.languageCode == 'pt'
+        ? const Locale('en')
+        : const Locale('pt');
+    localeController.changeLocale(next);
   }
 
   /// Navigates to forgot password screen.
@@ -120,6 +131,7 @@ class _LoginPageState extends State<LoginPage> {
           _buildBackgroundImage(),
           _buildOverlay(),
           _buildLoginCard(),
+          _buildLocaleToggle(),
         ],
       ),
     );
@@ -179,8 +191,43 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// Language toggle button positioned at top-right.
+  Widget _buildLocaleToggle() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 8,
+      right: 12,
+      child: Material(
+        color: Colors.black.withAlpha(60),
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: _toggleLocale,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.language, color: Colors.white70, size: 18),
+                const SizedBox(width: 4),
+                Text(
+                  localeController.locale.languageCode == 'pt' ? 'EN' : 'PT',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Header with logo and title.
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         const Icon(
@@ -195,8 +242,8 @@ class _LoginPageState extends State<LoginPage> {
           style: AppTextStyles.title.copyWith(fontSize: 30),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Entre com seu e-mail e senha para continuar',
+        Text(
+          l10n.loginSubtitle,
           textAlign: TextAlign.center,
           style: AppTextStyles.subtitle,
         ),
@@ -206,11 +253,12 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Email input field.
   Widget _buildEmailField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        labelText: 'E-mail',
+        labelText: l10n.email,
         prefixIcon: const Icon(Icons.email),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -219,11 +267,12 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Password input field.
   Widget _buildPasswordField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Senha',
+        labelText: l10n.password,
         prefixIcon: const Icon(Icons.lock),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -232,6 +281,7 @@ class _LoginPageState extends State<LoginPage> {
 
   /// Login button with loading indicator.
   Widget _buildLoginButton() {
+    final l10n = AppLocalizations.of(context)!;
     return ElevatedButton(
       onPressed: _isLoading ? null : _login,
       style: ElevatedButton.styleFrom(
@@ -248,25 +298,27 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.white,
               ),
             )
-          : const Text('Entrar', style: TextStyle(fontSize: 18)),
+          : Text(l10n.loginButton, style: const TextStyle(fontSize: 18)),
     );
   }
 
   /// Forgot password link.
   Widget _buildForgotPasswordLink() {
+    final l10n = AppLocalizations.of(context)!;
     return TextButton(
       onPressed: _navigateToForgotPassword,
-      child: const Text('Esqueci minha senha'),
+      child: Text(l10n.forgotPassword),
     );
   }
 
   /// Register link.
   Widget _buildRegisterLink() {
+    final l10n = AppLocalizations.of(context)!;
     return TextButton(
       onPressed: _navigateToRegister,
-      child: const Text(
-        'Criar nova conta',
-        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      child: Text(
+        l10n.createAccount,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
     );
   }

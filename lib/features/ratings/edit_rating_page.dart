@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/edit_rating_controller.dart';
 /// Screen for editing an existing ship rating.
 ///
@@ -162,8 +163,27 @@ class _EditRatingPageState extends State<EditRatingPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        _showErrorSnackBar('Erro ao carregar dados: $e');
+        _showErrorSnackBar(AppLocalizations.of(context)!.errorLoadingData(e.toString()));
       }
+    }
+  }
+
+  // ===========================================================================
+  // HELPERS
+  // ===========================================================================
+
+  /// Maps Firestore criteria keys to translated display names.
+  String _criteriaLabel(String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Temperatura da Cabine': return l10n.criteriaCabinTemp;
+      case 'Limpeza da Cabine': return l10n.criteriaCabinCleanliness;
+      case 'Passadiço – Equipamentos': return l10n.criteriaBridgeEquipment;
+      case 'Passadiço – Temperatura': return l10n.criteriaBridgeTemp;
+      case 'Dispositivo de Embarque/Desembarque': return l10n.criteriaDevice;
+      case 'Comida': return l10n.criteriaFood;
+      case 'Relacionamento com comandante/tripulação': return l10n.criteriaRelationship;
+      default: return key;
     }
   }
 
@@ -247,12 +267,13 @@ class _EditRatingPageState extends State<EditRatingPage> {
       );
 
       if (mounted) {
-        _showSuccessSnackBar('Avaliação atualizada com sucesso!');
+        final l10n = AppLocalizations.of(context)!;
+        _showSuccessSnackBar(l10n.ratingUpdatedSuccess);
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Erro ao salvar: $e');
+        _showErrorSnackBar(AppLocalizations.of(context)!.errorSaving(e.toString()));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -291,11 +312,13 @@ class _EditRatingPageState extends State<EditRatingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFFF5F5F7),
         appBar: AppBar(
-          title: const Text('Editar Avaliação'),
+          title: Text(l10n.editRatingTitle),
           backgroundColor: _primaryColor,
           foregroundColor: Colors.white,
         ),
@@ -306,9 +329,9 @@ class _EditRatingPageState extends State<EditRatingPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
-        title: const Text(
-          'Editar Avaliação',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.editRatingTitle,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
@@ -340,6 +363,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildSaveButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -373,9 +397,9 @@ class _EditRatingPageState extends State<EditRatingPage> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : const Text(
-                  'Salvar Alterações',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              : Text(
+                  l10n.saveChanges,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
         ),
       ),
@@ -383,6 +407,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildWarningBanner() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -390,14 +415,14 @@ class _EditRatingPageState extends State<EditRatingPage> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: _primaryColor.withAlpha(77)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.info_outline, color: _primaryColor, size: 24),
-          SizedBox(width: 12),
+          const Icon(Icons.info_outline, color: _primaryColor, size: 24),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.',
-              style: TextStyle(
+              l10n.editWarningBanner,
+              style: const TextStyle(
                 fontSize: 13,
                 color: _primaryColor,
                 fontWeight: FontWeight.w600,
@@ -410,28 +435,29 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildShipInfoCard() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.directions_boat,
-      title: 'Dados do Navio',
+      title: l10n.shipData,
       color: _primaryColor,
       children: [
         TextFormField(
           controller: _shipNameController,
           decoration: InputDecoration(
-            labelText: 'Nome do navio *',
+            labelText: l10n.shipNameRequired,
             prefixIcon: const Icon(Icons.directions_boat, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: Colors.white,
           ),
           validator: (v) =>
-              v == null || v.isEmpty ? 'Informe o nome do navio' : null,
+              v == null || v.isEmpty ? l10n.enterShipName : null,
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _shipImoController,
           decoration: InputDecoration(
-            labelText: 'IMO (opcional)',
+            labelText: l10n.imoOptional,
             prefixIcon: const Icon(Icons.numbers, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -444,7 +470,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
         TextFormField(
           controller: _crewNationalityController,
           decoration: InputDecoration(
-            labelText: 'Nacionalidade da tripulação',
+            labelText: l10n.crewNationality,
             prefixIcon: const Icon(Icons.flag, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -456,6 +482,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildDisembarkationDatePicker() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
@@ -470,13 +497,13 @@ class _EditRatingPageState extends State<EditRatingPage> {
           ),
           child: const Icon(Icons.event, color: _primaryColor),
         ),
-        title: const Text(
-          'Data de desembarque *',
-          style: TextStyle(fontWeight: FontWeight.w500),
+        title: Text(
+          l10n.disembarkationDateRequired,
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           _disembarkationDate == null
-              ? 'Toque para selecionar'
+              ? l10n.tapToSelect
               : _formatDate(_disembarkationDate!),
           style: TextStyle(
             color: _disembarkationDate == null ? Colors.grey : _primaryColor,
@@ -492,16 +519,17 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildCabinSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.bed,
-      title: 'Cabine',
+      title: l10n.cabin,
       color: _cabinSectionColor,
       children: [
         TextFormField(
           controller: _cabinCountController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            labelText: 'Quantidade de cabines',
+            labelText: l10n.cabinCount,
             prefixIcon: const Icon(Icons.meeting_room, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -513,7 +541,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
         const SizedBox(height: 12),
         _buildCabinDeckDropdown(),
         const SizedBox(height: 24),
-        _buildSubsectionHeader('Avaliações'),
+        _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
         ...EditRatingController.cabinCriteria.map(
           (c) => Padding(
@@ -526,10 +554,11 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildCabinTypeDropdown() {
+    final l10n = AppLocalizations.of(context)!;
     return DropdownButtonFormField<String>(
       value: _cabinType,
       decoration: InputDecoration(
-        labelText: 'Tipo da cabine *',
+        labelText: l10n.cabinTypeRequired,
         prefixIcon: const Icon(Icons.king_bed, size: 20),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
@@ -543,31 +572,33 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildCabinDeckDropdown() {
+    final l10n = AppLocalizations.of(context)!;
     return DropdownButtonFormField<String>(
       value: _cabinDeck,
       decoration: InputDecoration(
-        labelText: 'Deck da cabine',
+        labelText: l10n.cabinDeck,
         prefixIcon: const Icon(Icons.layers, size: 20),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
       ),
       items: _cabinDecks
-          .map((e) => DropdownMenuItem(value: e, child: Text('Deck $e')))
+          .map((e) => DropdownMenuItem(value: e, child: Text(l10n.deckLabel(e))))
           .toList(),
       onChanged: (v) => setState(() => _cabinDeck = v),
     );
   }
 
   Widget _buildBridgeSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.navigation,
-      title: 'Passadiço',
+      title: l10n.bridge,
       color: _bridgeSectionColor,
       children: [
         _buildAmenitiesContainer(),
         const SizedBox(height: 24),
-        _buildSubsectionHeader('Avaliações'),
+        _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
         ...EditRatingController.bridgeCriteria.map(
           (c) => Padding(
@@ -580,6 +611,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildAmenitiesContainer() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
@@ -588,21 +620,21 @@ class _EditRatingPageState extends State<EditRatingPage> {
       child: Column(
         children: [
           _buildAmenitySwitch(
-            title: 'Possui frigobar',
+            title: l10n.hasMinibar,
             icon: Icons.kitchen,
             value: _bridgeHasMinibar,
             onChanged: (v) => setState(() => _bridgeHasMinibar = v),
           ),
           const Divider(height: 1),
           _buildAmenitySwitch(
-            title: 'Possui pia',
+            title: l10n.hasSink,
             icon: Icons.water_drop,
             value: _bridgeHasSink,
             onChanged: (v) => setState(() => _bridgeHasSink = v),
           ),
           const Divider(height: 1),
           _buildAmenitySwitch(
-            title: 'Possui micro-ondas',
+            title: l10n.hasMicrowave,
             icon: Icons.microwave,
             value: _bridgeHasMicrowave,
             onChanged: (v) => setState(() => _bridgeHasMicrowave = v),
@@ -628,9 +660,10 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildOtherRatingsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.star,
-      title: 'Outras Avaliações',
+      title: l10n.otherRatings,
       color: _otherSectionColor,
       children: EditRatingController.otherCriteria
           .map(
@@ -644,17 +677,17 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildGeneralObservationCard() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.notes,
-      title: 'Observação Geral',
+      title: l10n.generalObservation,
       color: const Color(0xFF607D8B),
       children: [
         TextFormField(
           controller: _observacaoGeralController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText:
-                'Comentários adicionais sobre a experiência geral no navio...',
+            hintText: l10n.generalObservationHint,
             hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -690,6 +723,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   }
 
   Widget _buildRatingItem(String item) {
+    final l10n = AppLocalizations.of(context)!;
     final score = _ratings[item]!;
     final icon = _criteriaIcons[item] ?? Icons.star;
     final color = _criteriaColors[item] ?? _primaryColor;
@@ -710,7 +744,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  item,
+                  _criteriaLabel(item),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -729,7 +763,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
             maxLines: 2,
             style: const TextStyle(fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Observações (opcional)',
+              hintText: l10n.observationsOptional,
               hintStyle: TextStyle(fontSize: 13, color: Colors.grey[400]),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,

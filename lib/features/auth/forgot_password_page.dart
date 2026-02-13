@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/auth_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -47,6 +48,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   /// 4. Navigates back to login screen
   /// 5. On error, shows error message
   Future<void> _sendResetEmail() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
@@ -55,7 +57,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (!mounted) return;
 
       _showSnackBar(
-        'Enviamos um link de recuperação para o seu e-mail.',
+        l10n.resetEmailSent,
         color: AppColors.success,
       );
 
@@ -143,18 +145,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildHeader() {
-    return const Column(
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
       children: [
-        Icon(Icons.lock_reset, size: 48, color: AppColors.primary),
-        SizedBox(height: 16),
+        const Icon(Icons.lock_reset, size: 48, color: AppColors.primary),
+        const SizedBox(height: 16),
         Text(
-          'Recuperar senha',
+          l10n.recoverPassword,
           textAlign: TextAlign.center,
           style: AppTextStyles.title,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
-          'Informe seu e-mail para receber o link de redefinição',
+          l10n.recoverPasswordSubtitle,
           textAlign: TextAlign.center,
           style: AppTextStyles.subtitle,
         ),
@@ -163,14 +166,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildEmailField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      decoration: const InputDecoration(labelText: 'E-mail'),
+      decoration: InputDecoration(labelText: l10n.email),
     );
   }
 
   Widget _buildSendButton() {
+    final l10n = AppLocalizations.of(context)!;
     return ElevatedButton(
       onPressed: _isLoading ? null : _sendResetEmail,
       child: _isLoading
@@ -182,22 +187,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 color: Colors.white,
               ),
             )
-          : const Text('Enviar link'),
+          : Text(l10n.sendLink),
     );
   }
 
   Widget _buildSpamNotice() {
-    return const Text(
-      'Caso não encontre o e-mail, verifique também sua caixa de SPAM ou Lixo Eletrônico.',
+    final l10n = AppLocalizations.of(context)!;
+    return Text(
+      l10n.spamNotice,
       textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.black54, fontSize: 13),
+      style: const TextStyle(color: Colors.black54, fontSize: 13),
     );
   }
 
   Widget _buildBackToLoginLink() {
+    final l10n = AppLocalizations.of(context)!;
     return TextButton(
       onPressed: () => Navigator.pop(context),
-      child: const Text('Voltar para o login'),
+      child: Text(l10n.backToLogin),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/ship_search_controller.dart';
+import '../home/widgets/dashboard_widget.dart';
 import '../ratings/add_rating_page.dart';
 import '../ratings/rating_detail_page.dart';
 
@@ -74,6 +76,8 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       color: const Color(0xFFF7F7F9),
@@ -81,9 +85,9 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Avaliação de Navios',
-            style: TextStyle(
+          Text(
+            l10n.shipRatingTitle,
+            style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
               height: 1.1,
@@ -91,9 +95,9 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Pesquise avaliações ou registre sua experiência',
-            style: TextStyle(
+          Text(
+            l10n.searchSubtitle,
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 14,
               height: 1.3,
@@ -107,6 +111,8 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
   }
 
   Widget _buildTabBar() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       height: 42,
       padding: const EdgeInsets.all(4),
@@ -136,9 +142,9 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
           fontWeight: FontWeight.w600,
           fontSize: 14,
         ),
-        tabs: const [
-          Tab(text: 'Buscar'),
-          Tab(text: 'Avaliar'),
+        tabs: [
+          Tab(text: l10n.searchTab),
+          Tab(text: l10n.rateTab),
         ],
       ),
     );
@@ -239,11 +245,13 @@ class _SearchShipTabState extends State<_SearchShipTab>
   }
 
   Widget _buildSearchField() {
+    final l10n = AppLocalizations.of(context)!;
+
     return TextField(
       controller: _searchTextController,
       onChanged: _updateSuggestions,
       decoration: InputDecoration(
-        hintText: 'Buscar por nome do navio ou IMO',
+        hintText: l10n.searchHint,
         prefixIcon: const Icon(Icons.search),
         filled: true,
         fillColor: Colors.grey[100],
@@ -290,23 +298,14 @@ class _SearchShipTabState extends State<_SearchShipTab>
   }
 
   Widget _buildContent() {
-    // No search yet - show background image
+    // No search yet - show dashboard
     if (_selectedShip == null && _suggestions.isEmpty) {
-      return Expanded(
-        child: Opacity(
-          opacity: 0.95,
-          child: SizedBox.expand(
-            child: Image.asset(
-              'assets/images/navio3.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      );
+      return const Expanded(child: DashboardWidget());
     }
 
     // Ship selected - show details and ratings
     if (_selectedShip != null) {
+      final l10n = AppLocalizations.of(context)!;
       return Expanded(
         child: ListView(
           children: [
@@ -317,9 +316,9 @@ class _SearchShipTabState extends State<_SearchShipTab>
             ),
             if (_ratings != null && _ratings!.isNotEmpty) ...[
               const SizedBox(height: 20),
-              const Text(
-                'Avaliações',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Text(
+                l10n.ratings,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               _RatingsList(controller: _controller, ratings: _ratings!),
@@ -355,16 +354,18 @@ class _RateShipTab extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Nova Avaliação de Navio',
+            Text(
+              l10n.newShipRating,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
@@ -372,10 +373,10 @@ class _RateShipTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Registre sua avaliação técnica de forma rápida e segura',
+            Text(
+              l10n.rateSubtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 14,
                 height: 1.4,
@@ -390,6 +391,8 @@ class _RateShipTab extends StatelessWidget {
   }
 
   Widget _buildStartButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SizedBox(
       width: 240,
       height: 50,
@@ -404,14 +407,14 @@ class _RateShipTab extends StatelessWidget {
           ),
         ),
         onPressed: () => _navigateToAddRating(context),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.assignment_turned_in_outlined, size: 18),
-            SizedBox(width: 10),
+            const Icon(Icons.assignment_turned_in_outlined, size: 18),
+            const SizedBox(width: 10),
             Text(
-              'Iniciar avaliação',
-              style: TextStyle(
+              l10n.startRating,
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
@@ -450,6 +453,7 @@ class _ShipSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final data = ship.data() as Map<String, dynamic>;
     final shipData = controller.extractShipData(ship);
     final infoItems = _buildInfoItems(context, shipData.info);
@@ -469,21 +473,21 @@ class _ShipSummaryCard extends StatelessWidget {
             _buildMarineTrafficButton(context, data),
             if (infoItems.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text(
-                'Informações Gerais',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                l10n.generalInfo,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               _buildInfoGrid(context, infoItems),
             ],
             if (shipData.averages.isNotEmpty) ...[
               const Divider(height: 32),
-              const Text(
-                'Médias das Avaliações',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                l10n.ratingAverages,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              _buildAveragesList(shipData.averages),
+              _buildAveragesList(context, shipData.averages),
             ],
           ],
         ),
@@ -495,14 +499,16 @@ class _ShipSummaryCard extends StatelessWidget {
     BuildContext context,
     Map<String, dynamic> data,
   ) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () => _openMarineTraffic(context, data),
         icon: const Icon(Icons.waves, size: 20),
-        label: const Text(
-          'Ver Detalhes no MarineTraffic',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        label: Text(
+          l10n.viewOnMarineTraffic,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue.shade700,
@@ -520,6 +526,8 @@ class _ShipSummaryCard extends StatelessWidget {
     BuildContext context,
     Map<String, dynamic> data,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
+
     final success = await controller.openMarineTraffic(
       shipName: data['nome'],
       imo: data['imo'],
@@ -527,8 +535,8 @@ class _ShipSummaryCard extends StatelessWidget {
 
     if (!success && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível abrir MarineTraffic'),
+        SnackBar(
+          content: Text(l10n.marineTrafficError),
           backgroundColor: Colors.red,
         ),
       );
@@ -539,6 +547,7 @@ class _ShipSummaryCard extends StatelessWidget {
     BuildContext context,
     Map<String, dynamic> info,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final items = <Widget>[];
 
     // Crew nationality
@@ -546,7 +555,7 @@ class _ShipSummaryCard extends StatelessWidget {
         info['nacionalidadeTripulacao'].toString().isNotEmpty) {
       items.add(_buildInfoItem(
         Icons.groups,
-        'Tripulação',
+        l10n.crew,
         info['nacionalidadeTripulacao'],
       ));
     }
@@ -555,7 +564,7 @@ class _ShipSummaryCard extends StatelessWidget {
     if (info['numeroCabines'] != null && info['numeroCabines'] != 0) {
       items.add(_buildInfoItem(
         Icons.bed,
-        'Cabines',
+        l10n.cabins,
         info['numeroCabines'].toString(),
       ));
     }
@@ -566,24 +575,24 @@ class _ShipSummaryCard extends StatelessWidget {
     if (amenities['frigobar'] != null) {
       items.add(_buildInfoItem(
         Icons.kitchen,
-        'Frigobar',
-        amenities['frigobar']! ? 'Sim' : 'Não',
+        l10n.minibar,
+        amenities['frigobar']! ? l10n.yes : l10n.no,
       ));
     }
 
     if (amenities['pia'] != null) {
       items.add(_buildInfoItem(
         Icons.water_drop,
-        'Pia',
-        amenities['pia']! ? 'Sim' : 'Não',
+        l10n.sink,
+        amenities['pia']! ? l10n.yes : l10n.no,
       ));
     }
 
     if (amenities['microondas'] != null) {
       items.add(_buildInfoItem(
         Icons.microwave,
-        'Micro-ondas',
-        amenities['microondas']! ? 'Sim' : 'Não',
+        l10n.microwave,
+        amenities['microondas']! ? l10n.yes : l10n.no,
       ));
     }
 
@@ -637,49 +646,51 @@ class _ShipSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAveragesList(Map<String, dynamic> averages) {
+  Widget _buildAveragesList(BuildContext context, Map<String, dynamic> averages) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         if (averages['temp_cabine'] != null)
           _buildAverageItem(
             Icons.thermostat,
-            'Temp. Cabine',
+            l10n.avgCabinTemp,
             averages['temp_cabine'].toString(),
           ),
         if (averages['limpeza_cabine'] != null)
           _buildAverageItem(
             Icons.cleaning_services,
-            'Limpeza Cabine',
+            l10n.avgCabinCleanliness,
             averages['limpeza_cabine'].toString(),
           ),
         if (averages['passadico_equip'] != null)
           _buildAverageItem(
             Icons.control_camera,
-            'Equip. Passadiço',
+            l10n.avgBridgeEquipment,
             averages['passadico_equip'].toString(),
           ),
         if (averages['passadico_temp'] != null)
           _buildAverageItem(
             Icons.device_thermostat,
-            'Temp. Passadiço',
+            l10n.avgBridgeTemp,
             averages['passadico_temp'].toString(),
           ),
         if (averages['comida'] != null)
           _buildAverageItem(
             Icons.restaurant,
-            'Alimentação',
+            l10n.avgFood,
             averages['comida'].toString(),
           ),
         if (averages['relacionamento'] != null)
           _buildAverageItem(
             Icons.handshake,
-            'Relacionamento',
+            l10n.avgRelationship,
             averages['relacionamento'].toString(),
           ),
         if (averages['dispositivo'] != null)
           _buildAverageItem(
             Icons.transfer_within_a_station,
-            'Dispositivo',
+            l10n.avgDevice,
             averages['dispositivo'].toString(),
           ),
       ],
@@ -745,8 +756,9 @@ class _RatingsList extends StatelessWidget {
   }
 
   Widget _buildRatingCard(BuildContext context, QueryDocumentSnapshot doc) {
+    final l10n = AppLocalizations.of(context)!;
     final data = doc.data() as Map<String, dynamic>;
-    final callSign = data['nomeGuerra'] ?? 'Prático';
+    final callSign = data['nomeGuerra'] ?? l10n.pilot;
     final timestamp = data['createdAt'] as Timestamp?;
     final relativeTime = controller.getRelativeTime(timestamp);
 
@@ -756,15 +768,15 @@ class _RatingsList extends StatelessWidget {
       child: ListTile(
         leading: const Icon(Icons.person, color: Colors.indigo),
         title: Text(
-          'Prático: $callSign',
+          l10n.pilotCallSign(callSign),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Visualizar avaliação',
-              style: TextStyle(
+            Text(
+              l10n.viewRating,
+              style: const TextStyle(
                 color: Colors.indigo,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,

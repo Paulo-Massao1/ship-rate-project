@@ -52,6 +52,7 @@ class PdfService {
   /// - [ratings]: Map of criteria with scores and observations
   /// - [generalObservation]: Optional general comments
   /// - [shipInfo]: Optional additional ship information
+  /// - [labels]: Translated labels for PDF content
   ///
   /// Returns a [pw.Document] ready for saving or sharing.
   static Future<pw.Document> generateRatingPdf({
@@ -64,6 +65,7 @@ class PdfService {
     required Map<String, Map<String, dynamic>> ratings,
     String? generalObservation,
     Map<String, dynamic>? shipInfo,
+    required PdfLabels labels,
   }) async {
     final pdf = pw.Document();
     final averageRating = _calculateAverageRating(ratings);
@@ -73,7 +75,7 @@ class PdfService {
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
         build: (context) => [
-          _buildHeader(shipName, shipImo),
+          _buildHeader(shipName, shipImo, labels),
           pw.SizedBox(height: 20),
           _buildInfoSection(
             evaluatorName: evaluatorName,
@@ -81,20 +83,21 @@ class PdfService {
             cabinType: cabinType,
             disembarkationDate: disembarkationDate,
             averageRating: averageRating,
+            labels: labels,
           ),
           pw.SizedBox(height: 20),
           if (shipInfo != null) ...[
-            _buildShipInfoSection(shipInfo),
+            _buildShipInfoSection(shipInfo, labels),
             pw.SizedBox(height: 20),
           ],
-          _buildRatingsSection(ratings),
+          _buildRatingsSection(ratings, labels),
           pw.SizedBox(height: 20),
           if (generalObservation?.isNotEmpty == true) ...[
-            _buildGeneralObservationSection(generalObservation!),
+            _buildGeneralObservationSection(generalObservation!, labels),
             pw.SizedBox(height: 20),
           ],
           pw.Spacer(),
-          _buildFooter(),
+          _buildFooter(labels),
         ],
       ),
     );
@@ -141,7 +144,11 @@ class PdfService {
   // ===========================================================================
 
   /// Builds the header section with branding and ship info.
-  static pw.Widget _buildHeader(String shipName, String? shipImo) {
+  static pw.Widget _buildHeader(
+    String shipName,
+    String? shipImo,
+    PdfLabels labels,
+  ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(16),
       decoration: pw.BoxDecoration(
@@ -161,7 +168,7 @@ class PdfService {
           ),
           pw.SizedBox(height: 8),
           pw.Text(
-            'Relatório de Avaliação de Navio',
+            labels.reportTitle,
             style: const pw.TextStyle(color: PdfColors.white, fontSize: 14),
           ),
           pw.SizedBox(height: 16),
@@ -197,6 +204,7 @@ class PdfService {
     required String cabinType,
     required DateTime disembarkationDate,
     required double averageRating,
+    required PdfLabels labels,
   }) {
     final dateFormat = DateFormat('dd/MM/yyyy');
 
@@ -210,7 +218,7 @@ class PdfService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'Informações da Avaliação',
+            labels.evaluationInfo,
             style: pw.TextStyle(
               fontSize: 16,
               fontWeight: pw.FontWeight.bold,
@@ -221,11 +229,11 @@ class PdfService {
           pw.Row(
             children: [
               pw.Expanded(
-                child: _buildInfoItem('Prático Avaliador', evaluatorName),
+                child: _buildInfoItem(labels.evaluator, evaluatorName),
               ),
               pw.Expanded(
                 child: _buildInfoItem(
-                  'Data da Avaliação',
+                  labels.evaluationDate,
                   dateFormat.format(evaluationDate),
                 ),
               ),
@@ -234,17 +242,22 @@ class PdfService {
           pw.SizedBox(height: 8),
           pw.Row(
             children: [
-              pw.Expanded(child: _buildInfoItem('Tipo de Cabine', cabinType)),
+              pw.Expanded(
+                child: _buildInfoItem(labels.cabinType, cabinType),
+              ),
               pw.Expanded(
                 child: _buildInfoItem(
-                  'Data de Desembarque',
+                  labels.disembarkationDate,
                   dateFormat.format(disembarkationDate),
                 ),
               ),
             ],
           ),
           pw.SizedBox(height: 8),
-          _buildInfoItem('Nota Média Geral', averageRating.toStringAsFixed(1)),
+          _buildInfoItem(
+            labels.overallAverage,
+            averageRating.toStringAsFixed(1),
+          ),
         ],
       ),
     );
@@ -269,7 +282,10 @@ class PdfService {
   }
 
   /// Builds the ship information section.
-  static pw.Widget _buildShipInfoSection(Map<String, dynamic> shipInfo) {
+  static pw.Widget _buildShipInfoSection(
+    Map<String, dynamic> shipInfo,
+    PdfLabels labels,
+  ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(16),
       decoration: pw.BoxDecoration(
@@ -280,7 +296,7 @@ class PdfService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'Informações do Navio',
+            labels.shipInfo,
             style: pw.TextStyle(
               fontSize: 14,
               fontWeight: pw.FontWeight.bold,
@@ -292,13 +308,13 @@ class PdfService {
             children: [
               pw.Expanded(
                 child: pw.Text(
-                  'Nacionalidade da Tripulação: ${shipInfo['nacionalidadeTripulacao'] ?? 'N/A'}',
+                  '${labels.crewNationality}: ${shipInfo['nacionalidadeTripulacao'] ?? labels.notAvailable}',
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ),
               pw.Expanded(
                 child: pw.Text(
-                  'Quantidade de Cabines: ${shipInfo['numeroCabines'] ?? 'N/A'}',
+                  '${labels.cabinCount}: ${shipInfo['numeroCabines'] ?? labels.notAvailable}',
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ),
@@ -308,12 +324,12 @@ class PdfService {
           pw.Row(
             children: [
               pw.Text(
-                'Frigobar: ${_boolToYesNo(shipInfo['frigobar'])}',
+                '${labels.minibar}: ${_boolToLabel(shipInfo['frigobar'], labels)}',
                 style: const pw.TextStyle(fontSize: 11),
               ),
               pw.SizedBox(width: 20),
               pw.Text(
-                'Pia: ${_boolToYesNo(shipInfo['pia'])}',
+                '${labels.sink}: ${_boolToLabel(shipInfo['pia'], labels)}',
                 style: const pw.TextStyle(fontSize: 11),
               ),
             ],
@@ -326,12 +342,13 @@ class PdfService {
   /// Builds the ratings section with all criteria.
   static pw.Widget _buildRatingsSection(
     Map<String, Map<String, dynamic>> ratings,
+    PdfLabels labels,
   ) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'Avaliações por Critério',
+          labels.ratingsByCriteria,
           style: pw.TextStyle(
             fontSize: 16,
             fontWeight: pw.FontWeight.bold,
@@ -339,7 +356,9 @@ class PdfService {
           ),
         ),
         pw.SizedBox(height: 12),
-        ...ratings.entries.map(_buildRatingCard),
+        ...ratings.entries.map(
+          (entry) => _buildRatingCard(entry, labels),
+        ),
       ],
     );
   }
@@ -347,8 +366,9 @@ class PdfService {
   /// Builds a single rating card.
   static pw.Widget _buildRatingCard(
     MapEntry<String, Map<String, dynamic>> entry,
+    PdfLabels labels,
   ) {
-    final criteriaName = entry.key;
+    final criteriaName = labels.criteriaLabels[entry.key] ?? entry.key;
     final score = entry.value['nota'] as double;
     final observation = entry.value['observacao'] as String;
 
@@ -407,7 +427,10 @@ class PdfService {
   }
 
   /// Builds the general observation section.
-  static pw.Widget _buildGeneralObservationSection(String observation) {
+  static pw.Widget _buildGeneralObservationSection(
+    String observation,
+    PdfLabels labels,
+  ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(16),
       decoration: pw.BoxDecoration(
@@ -419,7 +442,7 @@ class PdfService {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
-            'Observação Geral',
+            labels.generalObservation,
             style: pw.TextStyle(
               fontSize: 14,
               fontWeight: pw.FontWeight.bold,
@@ -434,7 +457,7 @@ class PdfService {
   }
 
   /// Builds the footer with generation timestamp.
-  static pw.Widget _buildFooter() {
+  static pw.Widget _buildFooter(PdfLabels labels) {
     final timestamp = DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
 
     return pw.Container(
@@ -446,11 +469,11 @@ class PdfService {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            'Gerado por ShipRate',
+            labels.generatedBy,
             style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
           ),
           pw.Text(
-            'Data: $timestamp',
+            '${labels.dateLabel}: $timestamp',
             style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
           ),
         ],
@@ -553,8 +576,62 @@ class PdfService {
     return PdfColor.fromHex(_colorPoor);
   }
 
-  /// Converts boolean to "Sim"/"Não" string.
-  static String _boolToYesNo(dynamic value) {
-    return value == true ? 'Sim' : 'Não';
+  /// Converts boolean to translated yes/no label.
+  static String _boolToLabel(dynamic value, PdfLabels labels) {
+    return value == true ? labels.yes : labels.no;
   }
+}
+
+// =============================================================================
+// DATA CLASS
+// =============================================================================
+
+/// Translated labels for PDF content.
+///
+/// Constructed by the UI layer from [AppLocalizations] and passed
+/// through controllers to [PdfService].
+class PdfLabels {
+  final String reportTitle;
+  final String evaluationInfo;
+  final String evaluator;
+  final String evaluationDate;
+  final String cabinType;
+  final String disembarkationDate;
+  final String overallAverage;
+  final String shipInfo;
+  final String crewNationality;
+  final String cabinCount;
+  final String minibar;
+  final String sink;
+  final String notAvailable;
+  final String ratingsByCriteria;
+  final String generalObservation;
+  final String generatedBy;
+  final String dateLabel;
+  final String yes;
+  final String no;
+  final Map<String, String> criteriaLabels;
+
+  const PdfLabels({
+    required this.reportTitle,
+    required this.evaluationInfo,
+    required this.evaluator,
+    required this.evaluationDate,
+    required this.cabinType,
+    required this.disembarkationDate,
+    required this.overallAverage,
+    required this.shipInfo,
+    required this.crewNationality,
+    required this.cabinCount,
+    required this.minibar,
+    required this.sink,
+    required this.notAvailable,
+    required this.ratingsByCriteria,
+    required this.generalObservation,
+    required this.generatedBy,
+    required this.dateLabel,
+    required this.yes,
+    required this.no,
+    required this.criteriaLabels,
+  });
 }
