@@ -1,16 +1,22 @@
 # 🚢 ShipRate
 
-Professional ship evaluation platform for maritime pilots.
+Professional ship evaluation platform for maritime pilots in Brazil.
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=flat-square)](https://shiprate-daf18.web.app/)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
 
 ## About
 
-ShipRate enables maritime pilots to evaluate ships and share experiences with the professional community. Currently serving **36 active pilots** in production.
+ShipRate enables maritime pilots to evaluate ships and share experiences with the professional community. Currently serving **40 active pilots** in production.
 
 ## Features
 
 - **Ship Search** — Find ships by name or IMO number
 - **Rating System** — Evaluate cabin, bridge, food, and crew conditions
-- **PDF Reports** — Generate professional evaluation reports
+- **Dashboard** — Statistics overview with total ships, ratings, and user contribution
+- **PDF Reports** — Generate professional evaluation reports in PT or EN
+- **Multi-language** — Full support for Portuguese and English
 - **MarineTraffic Integration** — Quick access to ship details
 - **Cross-platform** — Web, Android, and iOS support
 
@@ -19,6 +25,7 @@ ShipRate enables maritime pilots to evaluate ships and share experiences with th
 - Flutter & Dart
 - Firebase (Auth, Firestore, Hosting)
 - PDF Generation
+- i18n (Internationalization)
 - PWA Support
 
 ## AI Disclosure
