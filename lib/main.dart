@@ -1,31 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'app/auth_gate.dart';
 import 'core/theme/app_theme.dart';
+import 'controllers/locale_controller.dart';
 
-/// Entry point for the ShipRate application.
-///
-/// Responsibilities:
-/// - Initialize Flutter binding
-/// - Initialize Firebase with platform-specific options
-/// - Launch the root widget
-///
-/// Initialization flow:
-/// 1. WidgetsFlutterBinding.ensureInitialized()
-///    - Ensures Flutter binding is ready before async operations
-///
-/// 2. Firebase.initializeApp(...)
-///    - Initializes Firebase with current platform configuration
-///    - App does NOT continue until Firebase is fully initialized
-///
-/// 3. runApp(ShipRateApp)
-///    - Starts the main application widget
-///
-/// Future extensions:
-/// - Crashlytics / Logging setup
-/// - Remote Config initialization
-/// - Dependency injection container (GetIt, Riverpod, etc.)
+final localeController = LocaleController();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -33,22 +16,34 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await localeController.loadSavedLocale();
+
   runApp(const ShipRateApp());
 }
 
-/// Root widget for the ShipRate application.
-///
-/// Responsibilities:
-/// - Declare MaterialApp configuration
-/// - Register global theme (light/dark)
-/// - Define authentication flow via AuthGate
-///
-/// AuthGate behavior:
-/// - Listens to FirebaseAuth state
-/// - Redirects to LoginPage when logged out
-/// - Redirects to MainScreen when authenticated
-class ShipRateApp extends StatelessWidget {
+class ShipRateApp extends StatefulWidget {
   const ShipRateApp({super.key});
+
+  @override
+  State<ShipRateApp> createState() => _ShipRateAppState();
+}
+
+class _ShipRateAppState extends State<ShipRateApp> {
+  @override
+  void initState() {
+    super.initState();
+    localeController.addListener(_onLocaleChanged);
+  }
+
+  @override
+  void dispose() {
+    localeController.removeListener(_onLocaleChanged);
+    super.dispose();
+  }
+
+  void _onLocaleChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +51,14 @@ class ShipRateApp extends StatelessWidget {
       title: 'ShipRate',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      locale: localeController.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: const AuthGate(),
     );
   }

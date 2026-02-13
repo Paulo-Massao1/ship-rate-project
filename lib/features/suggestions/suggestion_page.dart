@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/suggestion_controller.dart';
 
 /// Screen for submitting user suggestions and feedback.
@@ -83,11 +84,12 @@ class _SuggestionPageState extends State<SuggestionPage> {
 
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
     if (success) {
-      _showSnackBar('Mensagem enviada com sucesso!', backgroundColor: Colors.green);
+      _showSnackBar(l10n.messageSentSuccess, backgroundColor: Colors.green);
       Navigator.pop(context);
     } else {
-      _showSnackBar('Erro ao enviar mensagem.', backgroundColor: Colors.red);
+      _showSnackBar(l10n.errorSendingMessage, backgroundColor: Colors.red);
     }
   }
 
@@ -98,16 +100,31 @@ class _SuggestionPageState extends State<SuggestionPage> {
   }
 
   // ===========================================================================
+  // HELPERS
+  // ===========================================================================
+
+  String _feedbackLabel(String value) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (value) {
+      case 'Sugestão': return l10n.suggestionType;
+      case 'Crítica': return l10n.complaintType;
+      case 'Elogio': return l10n.complimentType;
+      default: return value;
+    }
+  }
+
+  // ===========================================================================
   // BUILD
   // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Enviar Sugestão',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.sendSuggestionTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -130,16 +147,17 @@ class _SuggestionPageState extends State<SuggestionPage> {
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Sua opinião é importante',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Text(
+          l10n.yourOpinionMatters,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
         Text(
-          'Ajude a melhorar o ShipRate com sugestões e ideias.',
+          l10n.helpImproveApp,
           style: TextStyle(color: Colors.grey[700]),
         ),
       ],
@@ -165,7 +183,7 @@ class _SuggestionPageState extends State<SuggestionPage> {
                       children: [
                         Icon(type.icon, size: 20),
                         const SizedBox(width: 12),
-                        Text(type.label),
+                        Text(_feedbackLabel(type.value)),
                       ],
                     ),
                   ))
@@ -181,11 +199,12 @@ class _SuggestionPageState extends State<SuggestionPage> {
   }
 
   Widget _buildMessageField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _messageController,
       maxLines: 5,
       decoration: InputDecoration(
-        labelText: 'Mensagem',
+        labelText: l10n.messageLabel,
         prefixIcon: const Icon(Icons.message_outlined),
         filled: true,
         fillColor: Colors.grey[100],
@@ -198,6 +217,7 @@ class _SuggestionPageState extends State<SuggestionPage> {
   }
 
   Widget _buildSubmitButton() {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -217,9 +237,9 @@ class _SuggestionPageState extends State<SuggestionPage> {
                   color: Colors.white,
                 ),
               )
-            : const Text(
-                'Enviar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            : Text(
+                l10n.sendButton,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
       ),
     );

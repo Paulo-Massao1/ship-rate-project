@@ -1,0 +1,263 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "ShipRate",
+  "email": "Email",
+  "password": "Password",
+  "yes": "Yes",
+  "no": "No",
+  "cancel": "Cancel",
+  "ratings": "Ratings",
+  "cabin": "Cabin",
+  "bridge": "Bridge",
+  "pilot": "Pilot",
+
+  "loginSubtitle": "Enter your email and password to continue",
+  "loginButton": "Log in",
+  "loginSuccess": "Login successful",
+  "forgotPassword": "Forgot my password",
+  "createAccount": "Create new account",
+
+  "createAccountTitle": "Create account",
+  "registerSubtitle": "Fill in the details to continue",
+  "callSign": "Call sign",
+  "confirmPassword": "Confirm password",
+  "registerButton": "Register",
+  "registerSuccess": "Registration successful",
+  "alreadyHaveAccount": "I already have an account",
+
+  "recoverPassword": "Recover password",
+  "recoverPasswordSubtitle": "Enter your email to receive the reset link",
+  "sendLink": "Send link",
+  "resetEmailSent": "We sent a recovery link to your email.",
+  "spamNotice": "If you can't find the email, also check your SPAM or Junk folder.",
+  "backToLogin": "Back to login",
+
+  "appSubtitle": "Professional ship evaluation",
+  "drawerSearchRate": "Search / Rate Ships",
+  "drawerMyRatings": "My Ratings",
+  "drawerSendSuggestion": "Send Suggestion",
+  "drawerShareApp": "Share App",
+  "drawerLogout": "Log out",
+  "linkCopied": "Link copied to clipboard!",
+  "updateAvailable": "Update Available",
+  "shareShipRate": "Share ShipRate",
+  "copyLink": "Copy Link",
+  "shareText": "Check out ShipRate! The professional ship evaluation app for pilots. Visit: https://shiprate-daf18.web.app/",
+
+  "shipRatingTitle": "Ship Rating",
+  "searchSubtitle": "Search ratings or register your experience",
+  "searchTab": "Search",
+  "rateTab": "Rate",
+  "searchHint": "Search by ship name or IMO",
+  "newShipRating": "New Ship Rating",
+  "rateSubtitle": "Register your technical evaluation quickly and safely",
+  "startRating": "Start rating",
+  "generalInfo": "General Information",
+  "ratingAverages": "Rating Averages",
+  "viewOnMarineTraffic": "View Details on MarineTraffic",
+  "marineTrafficError": "Could not open MarineTraffic",
+  "crew": "Crew",
+  "cabins": "Cabins",
+  "minibar": "Minibar",
+  "sink": "Sink",
+  "microwave": "Microwave",
+  "avgCabinTemp": "Cabin Temp.",
+  "avgCabinCleanliness": "Cabin Cleanliness",
+  "avgBridgeEquipment": "Bridge Equip.",
+  "avgBridgeTemp": "Bridge Temp.",
+  "avgFood": "Food",
+  "avgRelationship": "Relationship",
+  "avgDevice": "Device",
+  "pilotCallSign": "Pilot: {callSign}",
+  "@pilotCallSign": {
+    "placeholders": {
+      "callSign": { "type": "String" }
+    }
+  },
+  "viewRating": "View rating",
+
+  "rateShipTitle": "Rate Ship",
+  "saveRating": "Save Rating",
+  "shipData": "Ship Data",
+  "shipName": "Ship name",
+  "enterShipName": "Enter the ship name",
+  "imoOptional": "IMO (optional)",
+  "disembarkationDate": "Disembarkation date",
+  "tapToSelect": "Tap to select",
+  "crewNationality": "Crew nationality",
+  "cabinCount": "Number of cabins",
+  "cabinType": "Cabin type",
+  "cabinDeck": "Cabin deck",
+  "deckLabel": "Deck {deck}",
+  "@deckLabel": {
+    "placeholders": {
+      "deck": { "type": "String" }
+    }
+  },
+  "hasMinibar": "Has minibar",
+  "hasSink": "Has sink",
+  "hasMicrowave": "Has microwave",
+  "otherRatings": "Other Ratings",
+  "generalObservation": "General Observation",
+  "generalObservationHint": "Additional comments about the overall experience on the ship...",
+  "observationsOptional": "Observations (optional)",
+  "fillRequiredFields": "Fill in all required fields",
+
+  "editRatingTitle": "Edit Rating",
+  "saveChanges": "Save Changes",
+  "editWarningBanner": "Edit only typos. For ship changes, create a new rating.",
+  "ratingUpdatedSuccess": "Rating updated successfully!",
+  "errorLoadingData": "Error loading data: {error}",
+  "@errorLoadingData": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "errorSaving": "Error saving: {error}",
+  "@errorSaving": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "shipNameRequired": "Ship name *",
+  "disembarkationDateRequired": "Disembarkation date *",
+  "cabinTypeRequired": "Cabin type *",
+
+  "myRatingsTitle": "My Ratings",
+  "loadingRatings": "Loading your ratings...",
+  "tryAgain": "Try Again",
+  "noRatingsYet": "No ratings yet",
+  "noRatingsSubtitle": "You haven't rated any ships yet.\nStart rating your next voyage!",
+  "totalRatings": "{count, plural, =1{Total: 1 rating} other{Total: {count} ratings}}",
+  "@totalRatings": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "newestFirst": "Newest first",
+  "averageScore": "Average Score",
+  "ratingDate": "Rating Date",
+  "deleteLabel": "Delete",
+  "editLabel": "Edit",
+  "ratingDeletedSuccess": "Rating deleted successfully!",
+  "errorDeleting": "Error deleting: {error}",
+  "@errorDeleting": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "pdfGeneratedSuccess": "PDF generated successfully!",
+  "errorGeneratingPdf": "Error generating PDF: {error}",
+  "@errorGeneratingPdf": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "editWarningTitle": "Warning",
+  "editWarningCorrectionsOnly": "Edit only to correct errors",
+  "editWarningDescription": "This feature is for correcting typos or incorrect information.",
+  "editWarningImportant": "Important: Use only for corrections, not to update ship changes over time.",
+  "editWarningNewRating": "If the ship's condition has changed since your last rating, create a NEW rating instead of editing this one.",
+  "editWarningHistory": "Keeping history helps other pilots!",
+  "editWarningConfirm": "I understand, I want to edit",
+
+  "deleteRatingTitle": "Delete Rating",
+  "deleteRatingConfirm": "Are you sure you want to delete the rating for ship \"{shipName}\"?",
+  "@deleteRatingConfirm": {
+    "placeholders": {
+      "shipName": { "type": "String" }
+    }
+  },
+  "deleteWarning": "This action cannot be undone!",
+  "deleteButton": "Delete",
+
+  "ratingDetailTitle": "Rating Details",
+  "exportPdf": "Export PDF",
+  "errorLoadingShipData": "Error loading ship data",
+  "defaultShipName": "Ship",
+  "ratedOn": "Rated on: {date}",
+  "@ratedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "disembarkationDateValue": "Disembarkation date: {date}",
+  "@disembarkationDateValue": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "cabinTypeValue": "Cabin type: {type}",
+  "@cabinTypeValue": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "imoValue": "IMO: {imo}",
+  "@imoValue": {
+    "placeholders": {
+      "imo": { "type": "String" }
+    }
+  },
+  "shipInfo": "Ship Information",
+  "generalObservations": "General Observations",
+  "cabinSection": "Cabin",
+  "bridgeSection": "Bridge",
+  "otherSection": "Other",
+  "scoreLabel": "Score: {score}",
+  "@scoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "anonymous": "Anonymous",
+  "notAvailable": "N/A",
+
+  "criteriaCabinTemp": "Cabin Temperature",
+  "criteriaCabinCleanliness": "Cabin Cleanliness",
+  "criteriaBridgeEquipment": "Bridge – Equipment",
+  "criteriaBridgeTemp": "Bridge – Temperature",
+  "criteriaDevice": "Boarding/Disembarking Device",
+  "criteriaFood": "Food",
+  "criteriaRelationship": "Relationship with captain/crew",
+
+  "sendSuggestionTitle": "Send Suggestion",
+  "yourOpinionMatters": "Your opinion matters",
+  "helpImproveApp": "Help improve ShipRate with suggestions and ideas.",
+  "suggestionType": "Suggestion",
+  "complaintType": "Complaint",
+  "complimentType": "Compliment",
+  "messageLabel": "Message",
+  "sendButton": "Send",
+  "messageSentSuccess": "Message sent successfully!",
+  "errorSendingMessage": "Error sending message.",
+
+  "totalShipsLabel": "Ships",
+  "totalRatingsLabel": "Ratings",
+  "yourRatingsLabel": "Your Ratings",
+  "yourContribution": "Your Contribution",
+  "contributionProgress": "{percent}% of ratings",
+  "@contributionProgress": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "recentActivity": "Recent Activity",
+  "noRecentActivity": "No recent activity",
+
+  "pdfReportTitle": "Ship Rating Report",
+  "pdfEvaluationInfo": "Evaluation Information",
+  "pdfEvaluator": "Evaluator Pilot",
+  "pdfEvaluationDate": "Evaluation Date",
+  "pdfCabinType": "Cabin Type",
+  "pdfDisembarkationDate": "Disembarkation Date",
+  "pdfOverallAverage": "Overall Average Score",
+  "pdfCrewNationality": "Crew Nationality",
+  "pdfCabinCount": "Number of Cabins",
+  "pdfRatingsByCriteria": "Ratings by Criteria",
+  "pdfGeneralObservation": "General Observation",
+  "pdfGeneratedBy": "Generated by ShipRate",
+  "pdfDateLabel": "Date"
+}

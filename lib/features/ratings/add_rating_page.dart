@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/rating_controller.dart';
 /// Screen for adding a new ship rating.
 ///
@@ -143,6 +144,25 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   // ===========================================================================
+  // HELPERS
+  // ===========================================================================
+
+  /// Maps Firestore criteria keys to translated display names.
+  String _criteriaLabel(String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Temperatura da Cabine': return l10n.criteriaCabinTemp;
+      case 'Limpeza da Cabine': return l10n.criteriaCabinCleanliness;
+      case 'Passadiço – Equipamentos': return l10n.criteriaBridgeEquipment;
+      case 'Passadiço – Temperatura': return l10n.criteriaBridgeTemp;
+      case 'Dispositivo de Embarque/Desembarque': return l10n.criteriaDevice;
+      case 'Comida': return l10n.criteriaFood;
+      case 'Relacionamento com comandante/tripulação': return l10n.criteriaRelationship;
+      default: return key;
+    }
+  }
+
+  // ===========================================================================
   // ACTIONS
   // ===========================================================================
 
@@ -191,9 +211,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
   /// Validates required fields.
   bool _validateRequiredFields() {
     if (_disembarkationDate == null || _selectedCabinType == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Preencha todos os campos obrigatórios'),
+        SnackBar(
+          content: Text(l10n.fillRequiredFields),
           backgroundColor: Colors.orange,
         ),
       );
@@ -249,12 +270,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
-        title: const Text(
-          'Avaliar Navio',
-          style: TextStyle(fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.rateShipTitle,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: _primaryColor,
         foregroundColor: Colors.white,
@@ -287,6 +309,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildSaveButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -320,9 +343,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : const Text(
-                  'Salvar Avaliação',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              : Text(
+                  l10n.saveRating,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
         ),
       ),
@@ -334,9 +357,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildShipInfoCard() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.directions_boat,
-      title: 'Dados do Navio',
+      title: l10n.shipData,
       color: _primaryColor,
       children: [
         _buildShipAutocomplete(),
@@ -349,7 +373,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
           controller: _crewNationalityController,
           enabled: !_shipAlreadyExists,
           decoration: InputDecoration(
-            labelText: 'Nacionalidade da tripulação',
+            labelText: l10n.crewNationality,
             prefixIcon: const Icon(Icons.flag, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -361,6 +385,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildShipAutocomplete() {
+    final l10n = AppLocalizations.of(context)!;
     return RawAutocomplete<QueryDocumentSnapshot>(
       textEditingController: _shipNameController,
       focusNode: _shipNameFocusNode,
@@ -379,13 +404,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
           controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
-            labelText: 'Nome do navio',
+            labelText: l10n.shipName,
             prefixIcon: const Icon(Icons.directions_boat, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
             fillColor: Colors.white,
           ),
-          validator: (v) => v == null || v.isEmpty ? 'Informe o nome do navio' : null,
+          validator: (v) => v == null || v.isEmpty ? l10n.enterShipName : null,
           onChanged: (v) {
             _currentShipName = v;
             setState(() => _shipAlreadyExists = false);
@@ -430,11 +455,12 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildImoField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _imoController,
       enabled: !_shipAlreadyExists,
       decoration: InputDecoration(
-        labelText: 'IMO (opcional)',
+        labelText: l10n.imoOptional,
         prefixIcon: const Icon(Icons.numbers, size: 20),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
@@ -444,6 +470,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildDisembarkationDatePicker() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
@@ -458,13 +485,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
           ),
           child: const Icon(Icons.event, color: _primaryColor),
         ),
-        title: const Text(
-          'Data de desembarque',
-          style: TextStyle(fontWeight: FontWeight.w500),
+        title: Text(
+          l10n.disembarkationDate,
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           _disembarkationDate == null
-              ? 'Toque para selecionar'
+              ? l10n.tapToSelect
               : _formatDate(_disembarkationDate!),
           style: TextStyle(
             color: _disembarkationDate == null ? Colors.grey : _primaryColor,
@@ -484,16 +511,17 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildCabinSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.bed,
-      title: 'Cabine',
+      title: l10n.cabin,
       color: _cabinSectionColor,
       children: [
         TextFormField(
           controller: _cabinCountController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            labelText: 'Quantidade de cabines',
+            labelText: l10n.cabinCount,
             prefixIcon: const Icon(Icons.meeting_room, size: 20),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -505,7 +533,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
         const SizedBox(height: 12),
         _buildCabinDeckDropdown(),
         const SizedBox(height: 24),
-        _buildSubsectionHeader('Avaliações'),
+        _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
         ..._cabinCriteria.map((c) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -516,10 +544,11 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildCabinTypeDropdown() {
+    final l10n = AppLocalizations.of(context)!;
     return DropdownButtonFormField<String>(
       value: _selectedCabinType,
       decoration: InputDecoration(
-        labelText: 'Tipo da cabine',
+        labelText: l10n.cabinType,
         prefixIcon: const Icon(Icons.king_bed, size: 20),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
@@ -533,17 +562,18 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildCabinDeckDropdown() {
+    final l10n = AppLocalizations.of(context)!;
     return DropdownButtonFormField<String>(
       value: _selectedCabinDeck,
       decoration: InputDecoration(
-        labelText: 'Deck da cabine',
+        labelText: l10n.cabinDeck,
         prefixIcon: const Icon(Icons.layers, size: 20),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Colors.white,
       ),
       items: _cabinDecks
-          .map((e) => DropdownMenuItem(value: e, child: Text('Deck $e')))
+          .map((e) => DropdownMenuItem(value: e, child: Text(l10n.deckLabel(e))))
           .toList(),
       onChanged: (v) => setState(() => _selectedCabinDeck = v),
     );
@@ -554,14 +584,15 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildBridgeSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.navigation,
-      title: 'Passadiço',
+      title: l10n.bridge,
       color: _bridgeSectionColor,
       children: [
         _buildAmenitiesContainer(),
         const SizedBox(height: 24),
-        _buildSubsectionHeader('Avaliações'),
+        _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
         ..._bridgeCriteria.map((c) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -572,6 +603,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildAmenitiesContainer() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
@@ -580,21 +612,21 @@ class _AddRatingPageState extends State<AddRatingPage> {
       child: Column(
         children: [
           _buildAmenitySwitch(
-            title: 'Possui frigobar',
+            title: l10n.hasMinibar,
             icon: Icons.kitchen,
             value: _bridgeHasMinibar,
             onChanged: (v) => setState(() => _bridgeHasMinibar = v),
           ),
           const Divider(height: 1),
           _buildAmenitySwitch(
-            title: 'Possui pia',
+            title: l10n.hasSink,
             icon: Icons.water_drop,
             value: _bridgeHasSink,
             onChanged: (v) => setState(() => _bridgeHasSink = v),
           ),
           const Divider(height: 1),
           _buildAmenitySwitch(
-            title: 'Possui micro-ondas',
+            title: l10n.hasMicrowave,
             icon: Icons.microwave,
             value: _bridgeHasMicrowave,
             onChanged: (v) => setState(() => _bridgeHasMicrowave = v),
@@ -624,9 +656,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildOtherRatingsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.star,
-      title: 'Outras Avaliações',
+      title: l10n.otherRatings,
       color: _primaryColor,
       children: _otherCriteria
           .map((c) => Padding(
@@ -642,16 +675,17 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // ===========================================================================
 
   Widget _buildGeneralObservationCard() {
+    final l10n = AppLocalizations.of(context)!;
     return _SectionCard(
       icon: Icons.notes,
-      title: 'Observação Geral',
+      title: l10n.generalObservation,
       color: _otherSectionColor,
       children: [
         TextFormField(
           controller: _generalObservationController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: 'Comentários adicionais sobre a experiência geral no navio...',
+            hintText: l10n.generalObservationHint,
             hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             filled: true,
@@ -691,6 +725,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   }
 
   Widget _buildRatingItem(String item) {
+    final l10n = AppLocalizations.of(context)!;
     final score = _ratingsByItem[item]!;
     final icon = _criteriaIcons[item] ?? Icons.star;
     final color = _criteriaColors[item] ?? _primaryColor;
@@ -712,7 +747,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  item,
+                  _criteriaLabel(item),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -735,7 +770,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
             maxLines: 2,
             style: const TextStyle(fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Observações (opcional)',
+              hintText: l10n.observationsOptional,
               hintStyle: TextStyle(fontSize: 13, color: Colors.grey[400]),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,

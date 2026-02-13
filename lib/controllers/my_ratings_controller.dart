@@ -82,12 +82,15 @@ class MyRatingsController {
   }
 
   /// Generates a PDF for a rating.
-  Future<dynamic> generateRatingPdf(RatingWithShipInfo item) async {
+  Future<dynamic> generateRatingPdf(
+    RatingWithShipInfo item,
+    PdfLabels labels,
+  ) async {
     final data = item.rating.data() as Map<String, dynamic>;
 
-    final evaluatorName = data['nomeGuerra'] ?? 'Anônimo';
+    final evaluatorName = data['nomeGuerra'] ?? labels.notAvailable;
     final evaluationDate = resolveEvaluationDate(data);
-    final cabinType = data['tipoCabine'] ?? 'N/A';
+    final cabinType = data['tipoCabine'] ?? labels.notAvailable;
     final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
     final ratings = _extractRatings(data);
     final generalObservation = data['observacaoGeral'];
@@ -103,6 +106,7 @@ class MyRatingsController {
       ratings: ratings,
       generalObservation: generalObservation,
       shipInfo: shipInfo,
+      labels: labels,
     );
   }
 

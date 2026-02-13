@@ -1,6 +1,7 @@
 // lib/features/auth/register_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_colors.dart';
@@ -60,6 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
   /// 4. Navigates back to login screen
   /// 5. On error, shows error message
   Future<void> _register() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
@@ -72,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (!mounted) return;
 
-      _showSnackBar('Cadastro realizado com sucesso', color: AppColors.success);
+      _showSnackBar(l10n.registerSuccess, color: AppColors.success);
       Navigator.pop(context);
     } catch (error) {
       _showSnackBar(error.toString(), color: AppColors.danger);
@@ -168,18 +170,19 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Header with icon and title.
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         const Icon(Icons.person_add_alt_1, size: 54, color: AppColors.primary),
         const SizedBox(height: 16),
         Text(
-          'Criar conta',
+          l10n.createAccountTitle,
           textAlign: TextAlign.center,
           style: AppTextStyles.title.copyWith(fontSize: 28),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Preencha os dados para continuar',
+        Text(
+          l10n.registerSubtitle,
           textAlign: TextAlign.center,
           style: AppTextStyles.subtitle,
         ),
@@ -189,10 +192,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Call sign input field (public identifier).
   Widget _buildCallSignField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _callSignController,
       decoration: InputDecoration(
-        labelText: 'Nome de guerra',
+        labelText: l10n.callSign,
         prefixIcon: const Icon(Icons.account_circle),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -201,11 +205,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Email input field.
   Widget _buildEmailField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        labelText: 'E-mail',
+        labelText: l10n.email,
         prefixIcon: const Icon(Icons.email),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -214,11 +219,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Password input field.
   Widget _buildPasswordField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _passwordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Senha',
+        labelText: l10n.password,
         prefixIcon: const Icon(Icons.lock),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -227,11 +233,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Confirm password input field.
   Widget _buildConfirmPasswordField() {
+    final l10n = AppLocalizations.of(context)!;
     return TextField(
       controller: _confirmPasswordController,
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'Confirmar senha',
+        labelText: l10n.confirmPassword,
         prefixIcon: const Icon(Icons.lock_outline),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -240,6 +247,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Register button with loading indicator.
   Widget _buildRegisterButton() {
+    final l10n = AppLocalizations.of(context)!;
     return ElevatedButton(
       onPressed: _isLoading ? null : _register,
       style: ElevatedButton.styleFrom(
@@ -256,17 +264,18 @@ class _RegisterPageState extends State<RegisterPage> {
                 strokeWidth: 2,
               ),
             )
-          : const Text('Cadastrar', style: TextStyle(fontSize: 18)),
+          : Text(l10n.registerButton, style: const TextStyle(fontSize: 18)),
     );
   }
 
   /// Link to return to login screen.
   Widget _buildLoginLink() {
+    final l10n = AppLocalizations.of(context)!;
     return TextButton(
       onPressed: () => Navigator.pop(context),
-      child: const Text(
-        'Já tenho uma conta',
-        style: TextStyle(fontWeight: FontWeight.w600),
+      child: Text(
+        l10n.alreadyHaveAccount,
+        style: const TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }

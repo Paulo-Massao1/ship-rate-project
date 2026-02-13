@@ -1,0 +1,263 @@
+{
+  "@@locale": "pt",
+
+  "appTitle": "ShipRate",
+  "email": "E-mail",
+  "password": "Senha",
+  "yes": "Sim",
+  "no": "Não",
+  "cancel": "Cancelar",
+  "ratings": "Avaliações",
+  "cabin": "Cabine",
+  "bridge": "Passadiço",
+  "pilot": "Prático",
+
+  "loginSubtitle": "Entre com seu e-mail e senha para continuar",
+  "loginButton": "Entrar",
+  "loginSuccess": "Login realizado com sucesso",
+  "forgotPassword": "Esqueci minha senha",
+  "createAccount": "Criar nova conta",
+
+  "createAccountTitle": "Criar conta",
+  "registerSubtitle": "Preencha os dados para continuar",
+  "callSign": "Nome de guerra",
+  "confirmPassword": "Confirmar senha",
+  "registerButton": "Cadastrar",
+  "registerSuccess": "Cadastro realizado com sucesso",
+  "alreadyHaveAccount": "Já tenho uma conta",
+
+  "recoverPassword": "Recuperar senha",
+  "recoverPasswordSubtitle": "Informe seu e-mail para receber o link de redefinição",
+  "sendLink": "Enviar link",
+  "resetEmailSent": "Enviamos um link de recuperação para o seu e-mail.",
+  "spamNotice": "Caso não encontre o e-mail, verifique também sua caixa de SPAM ou Lixo Eletrônico.",
+  "backToLogin": "Voltar para o login",
+
+  "appSubtitle": "Avaliação profissional de navios",
+  "drawerSearchRate": "Buscar / Avaliar Navios",
+  "drawerMyRatings": "Minhas Avaliações",
+  "drawerSendSuggestion": "Enviar Sugestão",
+  "drawerShareApp": "Compartilhar App",
+  "drawerLogout": "Sair",
+  "linkCopied": "Link copiado para a área de transferência!",
+  "updateAvailable": "Atualização Disponível",
+  "shareShipRate": "Compartilhar ShipRate",
+  "copyLink": "Copiar Link",
+  "shareText": "Conheça o ShipRate! O app de avaliação profissional de navios para práticos. Acesse: https://shiprate-daf18.web.app/",
+
+  "shipRatingTitle": "Avaliação de Navios",
+  "searchSubtitle": "Pesquise avaliações ou registre sua experiência",
+  "searchTab": "Buscar",
+  "rateTab": "Avaliar",
+  "searchHint": "Buscar por nome do navio ou IMO",
+  "newShipRating": "Nova Avaliação de Navio",
+  "rateSubtitle": "Registre sua avaliação técnica de forma rápida e segura",
+  "startRating": "Iniciar avaliação",
+  "generalInfo": "Informações Gerais",
+  "ratingAverages": "Médias das Avaliações",
+  "viewOnMarineTraffic": "Ver Detalhes no MarineTraffic",
+  "marineTrafficError": "Não foi possível abrir MarineTraffic",
+  "crew": "Tripulação",
+  "cabins": "Cabines",
+  "minibar": "Frigobar",
+  "sink": "Pia",
+  "microwave": "Micro-ondas",
+  "avgCabinTemp": "Temp. Cabine",
+  "avgCabinCleanliness": "Limpeza Cabine",
+  "avgBridgeEquipment": "Equip. Passadiço",
+  "avgBridgeTemp": "Temp. Passadiço",
+  "avgFood": "Alimentação",
+  "avgRelationship": "Relacionamento",
+  "avgDevice": "Dispositivo",
+  "pilotCallSign": "Prático: {callSign}",
+  "@pilotCallSign": {
+    "placeholders": {
+      "callSign": { "type": "String" }
+    }
+  },
+  "viewRating": "Visualizar avaliação",
+
+  "rateShipTitle": "Avaliar Navio",
+  "saveRating": "Salvar Avaliação",
+  "shipData": "Dados do Navio",
+  "shipName": "Nome do navio",
+  "enterShipName": "Informe o nome do navio",
+  "imoOptional": "IMO (opcional)",
+  "disembarkationDate": "Data de desembarque",
+  "tapToSelect": "Toque para selecionar",
+  "crewNationality": "Nacionalidade da tripulação",
+  "cabinCount": "Quantidade de cabines",
+  "cabinType": "Tipo da cabine",
+  "cabinDeck": "Deck da cabine",
+  "deckLabel": "Deck {deck}",
+  "@deckLabel": {
+    "placeholders": {
+      "deck": { "type": "String" }
+    }
+  },
+  "hasMinibar": "Possui frigobar",
+  "hasSink": "Possui pia",
+  "hasMicrowave": "Possui micro-ondas",
+  "otherRatings": "Outras Avaliações",
+  "generalObservation": "Observação Geral",
+  "generalObservationHint": "Comentários adicionais sobre a experiência geral no navio...",
+  "observationsOptional": "Observações (opcional)",
+  "fillRequiredFields": "Preencha todos os campos obrigatórios",
+
+  "editRatingTitle": "Editar Avaliação",
+  "saveChanges": "Salvar Alterações",
+  "editWarningBanner": "Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.",
+  "ratingUpdatedSuccess": "Avaliação atualizada com sucesso!",
+  "errorLoadingData": "Erro ao carregar dados: {error}",
+  "@errorLoadingData": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "errorSaving": "Erro ao salvar: {error}",
+  "@errorSaving": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "shipNameRequired": "Nome do navio *",
+  "disembarkationDateRequired": "Data de desembarque *",
+  "cabinTypeRequired": "Tipo da cabine *",
+
+  "myRatingsTitle": "Minhas Avaliações",
+  "loadingRatings": "Carregando suas avaliações...",
+  "tryAgain": "Tentar Novamente",
+  "noRatingsYet": "Nenhuma avaliação ainda",
+  "noRatingsSubtitle": "Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!",
+  "totalRatings": "{count, plural, =1{Total: 1 avaliação} other{Total: {count} avaliações}}",
+  "@totalRatings": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "newestFirst": "Mais recentes primeiro",
+  "averageScore": "Nota Média",
+  "ratingDate": "Data de Avaliação",
+  "deleteLabel": "Excluir",
+  "editLabel": "Editar",
+  "ratingDeletedSuccess": "Avaliação excluída com sucesso!",
+  "errorDeleting": "Erro ao excluir: {error}",
+  "@errorDeleting": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "pdfGeneratedSuccess": "PDF gerado com sucesso!",
+  "errorGeneratingPdf": "Erro ao gerar PDF: {error}",
+  "@errorGeneratingPdf": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "editWarningTitle": "Atenção",
+  "editWarningCorrectionsOnly": "Edite apenas para corrigir erros",
+  "editWarningDescription": "Esta função serve para corrigir erros de digitação ou informações incorretas.",
+  "editWarningImportant": "Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.",
+  "editWarningNewRating": "Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.",
+  "editWarningHistory": "Manter histórico ajuda outros práticos!",
+  "editWarningConfirm": "Entendi, quero editar",
+
+  "deleteRatingTitle": "Excluir Avaliação",
+  "deleteRatingConfirm": "Tem certeza que deseja excluir a avaliação do navio \"{shipName}\"?",
+  "@deleteRatingConfirm": {
+    "placeholders": {
+      "shipName": { "type": "String" }
+    }
+  },
+  "deleteWarning": "Esta ação não pode ser desfeita!",
+  "deleteButton": "Excluir",
+
+  "ratingDetailTitle": "Detalhes da Avaliação",
+  "exportPdf": "Exportar PDF",
+  "errorLoadingShipData": "Erro ao carregar dados do navio",
+  "defaultShipName": "Navio",
+  "ratedOn": "Avaliado em: {date}",
+  "@ratedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "disembarkationDateValue": "Data de desembarque: {date}",
+  "@disembarkationDateValue": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "cabinTypeValue": "Tipo da cabine: {type}",
+  "@cabinTypeValue": {
+    "placeholders": {
+      "type": { "type": "String" }
+    }
+  },
+  "imoValue": "IMO: {imo}",
+  "@imoValue": {
+    "placeholders": {
+      "imo": { "type": "String" }
+    }
+  },
+  "shipInfo": "Informações do Navio",
+  "generalObservations": "Observações Gerais",
+  "cabinSection": "Cabine",
+  "bridgeSection": "Passadiço",
+  "otherSection": "Outros",
+  "scoreLabel": "Nota: {score}",
+  "@scoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "anonymous": "Anônimo",
+  "notAvailable": "N/A",
+
+  "criteriaCabinTemp": "Temperatura da Cabine",
+  "criteriaCabinCleanliness": "Limpeza da Cabine",
+  "criteriaBridgeEquipment": "Passadiço – Equipamentos",
+  "criteriaBridgeTemp": "Passadiço – Temperatura",
+  "criteriaDevice": "Dispositivo de Embarque/Desembarque",
+  "criteriaFood": "Comida",
+  "criteriaRelationship": "Relacionamento com comandante/tripulação",
+
+  "sendSuggestionTitle": "Enviar Sugestão",
+  "yourOpinionMatters": "Sua opinião é importante",
+  "helpImproveApp": "Ajude a melhorar o ShipRate com sugestões e ideias.",
+  "suggestionType": "Sugestão",
+  "complaintType": "Crítica",
+  "complimentType": "Elogio",
+  "messageLabel": "Mensagem",
+  "sendButton": "Enviar",
+  "messageSentSuccess": "Mensagem enviada com sucesso!",
+  "errorSendingMessage": "Erro ao enviar mensagem.",
+
+  "totalShipsLabel": "Navios",
+  "totalRatingsLabel": "Avaliações",
+  "yourRatingsLabel": "Suas Avaliações",
+  "yourContribution": "Sua Contribuição",
+  "contributionProgress": "{percent}% das avaliações",
+  "@contributionProgress": {
+    "placeholders": {
+      "percent": { "type": "String" }
+    }
+  },
+  "recentActivity": "Atividade Recente",
+  "noRecentActivity": "Nenhuma atividade recente",
+
+  "pdfReportTitle": "Relatório de Avaliação de Navio",
+  "pdfEvaluationInfo": "Informações da Avaliação",
+  "pdfEvaluator": "Prático Avaliador",
+  "pdfEvaluationDate": "Data da Avaliação",
+  "pdfCabinType": "Tipo de Cabine",
+  "pdfDisembarkationDate": "Data de Desembarque",
+  "pdfOverallAverage": "Nota Média Geral",
+  "pdfCrewNationality": "Nacionalidade da Tripulação",
+  "pdfCabinCount": "Quantidade de Cabines",
+  "pdfRatingsByCriteria": "Avaliações por Critério",
+  "pdfGeneralObservation": "Observação Geral",
+  "pdfGeneratedBy": "Gerado por ShipRate",
+  "pdfDateLabel": "Data"
+}
