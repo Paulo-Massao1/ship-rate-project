@@ -26,7 +26,7 @@ ShipRate enables maritime pilots to evaluate ships and share experiences with th
 
 ## AI Disclosure
 
-This project was developed with assistance from Claude AI (Anthropic) for architecture design, code refactoring, and documentation. All final decisions, testing, and deployment were performed by the developer.
+This project was developed with assistance from Claude AI (Anthropic) for architecture design, code refactoring, and documentation. All final decisions, testing, and deployment were performed by me.
 
 ## Author
 
