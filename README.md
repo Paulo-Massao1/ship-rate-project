@@ -4,7 +4,7 @@ Professional ship evaluation platform for maritime pilots in Brazil.
 
 ## About
 
-ShipRate enables maritime pilots to evaluate ships and share experiences with the professional community. Currently serving **40 active pilots** in production.
+ShipRate enables maritime pilots to evaluate ships and share experiences with the professional community. Currently serving **50 active pilots** in production.
 
 ## Features
 
