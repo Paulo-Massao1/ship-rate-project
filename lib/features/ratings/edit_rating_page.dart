@@ -358,7 +358,13 @@ class _EditRatingPageState extends State<EditRatingPage> {
     );
 
     if (validationError != null) {
-      _showWarningSnackBar(validationError);
+      final l10n = AppLocalizations.of(context)!;
+      final message = switch (validationError) {
+        ValidationError.emptyShipName => l10n.enterShipName,
+        ValidationError.missingDate => l10n.fillRequiredFields,
+        ValidationError.missingCabinType => l10n.fillRequiredFields,
+      };
+      _showWarningSnackBar(message);
       return;
     }
 

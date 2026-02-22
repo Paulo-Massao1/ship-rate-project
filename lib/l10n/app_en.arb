@@ -213,6 +213,12 @@
       "type": { "type": "String" }
     }
   },
+  "cabinDeckValue": "Cabin deck: {deck}",
+  "@cabinDeckValue": {
+    "placeholders": {
+      "deck": { "type": "String" }
+    }
+  },
   "imoValue": "IMO: {imo}",
   "@imoValue": {
     "placeholders": {
@@ -235,8 +241,8 @@
 
   "criteriaCabinTemp": "Cabin Temperature",
   "criteriaCabinCleanliness": "Cabin Cleanliness",
-  "criteriaBridgeEquipment": "Bridge – Equipment",
-  "criteriaBridgeTemp": "Bridge – Temperature",
+  "criteriaBridgeEquipment": "Bridge - Equipment",
+  "criteriaBridgeTemp": "Bridge - Temperature",
   "criteriaDevice": "Boarding/Disembarking Device",
   "criteriaFood": "Food",
   "criteriaRelationship": "Relationship with captain/crew",

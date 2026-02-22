@@ -1,12 +1,27 @@
+Create a Dart script to backup all Firestore data:
 
-Change crew nationality field in add_rating_page.dart and edit_rating_page.dart:
+File: lib/scripts/backup_firestore.dart
 
-From text input to multi-select chips with options:
-- Filipino, Russian, Ukrainian, Indian, Chinese, Brazilian
-- "Other" option that opens a text field to specify
+Requirements:
+1. Read ALL documents from 'navios' collection
+2. For each ship, read ALL documents from its 'avaliacoes' subcollection
+3. Save everything to a JSON file: backup_YYYYMMDD_HHMMSS.json
+4. Include document IDs in the backup
+5. Print summary: total ships, total ratings, file path
 
-Allow selecting multiple nationalities.
-Save to Firestore as list of strings.
-Update rating_detail_page.dart and search_ship_page.dart to display correctly.
-Add PT and EN translations to .arb files.
-Run flutter analyze after changes.
+Structure:
+{
+  "timestamp": "2024-02-20T10:30:00",
+  "ships": [
+    {
+      "id": "doc_id",
+      "data": { "nome": "...", "imo": "...", ... },
+      "avaliacoes": [
+        { "id": "rating_id", "data": { ... } }
+      ]
+    }
+  ]
+}
+
+This is READ-ONLY, does not modify any data.
+Make it runnable with: dart run lib/scripts/backup_firestore.dart

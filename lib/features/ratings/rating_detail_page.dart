@@ -68,12 +68,26 @@ class RatingDetailPage extends StatelessWidget {
     }
   }
 
-  /// Formats nationality value for display (backward compatible).
-  String _formatNationality(dynamic value) {
-    if (value is List) {
-      return value.map((e) => e.toString()).join(', ');
+  /// Maps a nationality key to its localized label.
+  String _nationalityLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'Filipino': return l10n.nationalityFilipino;
+      case 'Russian': return l10n.nationalityRussian;
+      case 'Ukrainian': return l10n.nationalityUkrainian;
+      case 'Indian': return l10n.nationalityIndian;
+      case 'Chinese': return l10n.nationalityChinese;
+      case 'Brazilian': return l10n.nationalityBrazilian;
+      default: return key;
     }
-    return value.toString();
+  }
+
+  /// Formats nationality value for display with i18n (backward compatible).
+  String _formatNationality(BuildContext context, dynamic value) {
+    final l10n = AppLocalizations.of(context)!;
+    if (value is List) {
+      return value.map((e) => _nationalityLabel(l10n, e.toString())).join(', ');
+    }
+    return _nationalityLabel(l10n, value.toString());
   }
 
   /// Converts boolean to translated "Yes"/"No".
@@ -170,6 +184,7 @@ class RatingDetailPage extends StatelessWidget {
     final ratingDate = data['data'] as Timestamp?;
     final disembarkationDate = data['dataDesembarque'] as Timestamp?;
     final cabinType = data['tipoCabine'] ?? '';
+    final cabinDeck = data['deckCabine'] as String?;
     final generalObservations = (data['observacaoGeral'] ?? '').toString();
     final ratingItems = Map<String, dynamic>.from(data['itens'] ?? {});
     final shipInfo = Map<String, dynamic>.from(data['infoNavio'] ?? {});
@@ -188,6 +203,7 @@ class RatingDetailPage extends StatelessWidget {
           ratingDate: ratingDate,
           disembarkationDate: disembarkationDate,
           cabinType: cabinType,
+          cabinDeck: cabinDeck,
           callSign: callSign,
         ),
         if (_hasShipInfo(shipInfo, amenities)) ...[
@@ -225,6 +241,18 @@ class RatingDetailPage extends StatelessWidget {
   // BUILD - CARDS
   // ===========================================================================
 
+  /// Returns localized label for a deck key.
+  String _deckLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'bridge': return l10n.deckBridge;
+      case '1_below': return l10n.deck1Below;
+      case '2_below': return l10n.deck2Below;
+      case '3_below': return l10n.deck3Below;
+      case '4+_below': return l10n.deck4PlusBelow;
+      default: return l10n.deckLabel(key);
+    }
+  }
+
   Widget _buildHeaderCard(
     BuildContext context, {
     required String shipName,
@@ -232,6 +260,7 @@ class RatingDetailPage extends StatelessWidget {
     Timestamp? ratingDate,
     Timestamp? disembarkationDate,
     required String cabinType,
+    String? cabinDeck,
     required String callSign,
   }) {
     final l10n = AppLocalizations.of(context)!;
@@ -258,6 +287,11 @@ class RatingDetailPage extends StatelessWidget {
                 style: const TextStyle(color: Colors.black54),
               ),
             if (cabinType.isNotEmpty) Text(l10n.cabinTypeValue(cabinType)),
+            if (cabinDeck != null)
+              Text(
+                l10n.cabinDeckValue(_deckLabel(l10n, cabinDeck)),
+                style: const TextStyle(color: Colors.black54),
+              ),
             const SizedBox(height: 6),
             Text(
               l10n.pilotCallSign(callSign),
@@ -292,7 +326,7 @@ class RatingDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (shipInfo['nacionalidadeTripulacao'] != null)
-              _buildInfoRow(l10n.crew, _formatNationality(shipInfo['nacionalidadeTripulacao'])),
+              _buildInfoRow(l10n.crew, _formatNationality(context, shipInfo['nacionalidadeTripulacao'])),
             if (_formatCabinCount(shipInfo['numeroCabines'], l10n) != null)
               _buildInfoRow(l10n.cabins, _formatCabinCount(shipInfo['numeroCabines'], l10n)!),
             if (amenities['frigobar'] != null)
@@ -446,6 +480,7 @@ class RatingDetailPage extends StatelessWidget {
     final evaluatorName = data['nomeGuerra'] ?? l10n.anonymous;
     final evaluationDate = _resolveEvaluationDate(data);
     final cabinType = data['tipoCabine'] ?? l10n.notAvailable;
+    final cabinDeckKey = data['deckCabine'] as String?;
     final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
     final ratings = _extractRatings(data);
     final generalObservation = data['observacaoGeral'];
@@ -457,6 +492,7 @@ class RatingDetailPage extends StatelessWidget {
       evaluatorName: evaluatorName,
       evaluationDate: evaluationDate,
       cabinType: cabinType,
+      cabinDeck: cabinDeckKey != null ? _deckLabel(l10n, cabinDeckKey) : null,
       disembarkationDate: disembarkationDate,
       ratings: ratings,
       generalObservation: generalObservation,

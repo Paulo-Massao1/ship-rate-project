@@ -15,7 +15,10 @@
       "Bash(find:*)",
       "Bash(du:*)",
       "Bash(flutter build:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git:*)",
+      "Bash(cd C:/personal_projects/ShipRate/ship_rate && flutter clean 2>&1)",
+      "Bash(cd C:/personal_projects/ShipRate/ship_rate && flutter devices 2>&1)"
     ]
   }
 }
