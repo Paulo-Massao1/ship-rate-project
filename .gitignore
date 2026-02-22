@@ -1,13 +1,12 @@
 # Flutter/Dart/Pub
 .dart_tool/
 .packages
- .flutter-plugins
+.flutter-plugins
 .flutter-plugins-dependencies
 pubspec.lock
 
 # Build
 /build/
-.dart_tool/
 
 # Firebase local files
 android/app/google-services.json
@@ -16,3 +15,8 @@ ios/Runner/GoogleService-Info.plist
 # VS Code / IntelliJ
 .idea/
 .vscode/
+
+# Project files to ignore
+prompt.md
+CLAUDE.md
+backup_*.json
