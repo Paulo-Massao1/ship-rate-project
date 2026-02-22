@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/ship_search_controller.dart';
 import '../../core/events/data_change_notifier.dart';
@@ -245,6 +246,7 @@ class _SearchShipTabState extends State<_SearchShipTab>
     return TextField(
       controller: _searchTextController,
       textCapitalization: TextCapitalization.characters,
+      inputFormatters: [_UpperCaseTextFormatter()],
       onChanged: _updateSuggestions,
       decoration: InputDecoration(
         hintText: l10n.searchHint,
@@ -832,5 +834,16 @@ class _HighlightedText extends StatelessWidget {
         }).toList(),
       ),
     );
+  }
+}
+
+/// Forces all text input to uppercase.
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
   }
 }

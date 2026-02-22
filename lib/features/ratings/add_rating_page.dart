@@ -94,6 +94,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   DateTime? _disembarkationDate;
   bool _isSaving = false;
   bool _shipAlreadyExists = false;
+  bool _hasExactMatch = false;
 
   // Bridge amenities
   bool _bridgeHasMinibar = false;
@@ -290,15 +291,18 @@ class _AddRatingPageState extends State<AddRatingPage> {
           padding: const EdgeInsets.all(16),
           children: [
             _buildShipInfoCard(),
-            const SizedBox(height: 16),
-            _buildCabinSection(),
-            const SizedBox(height: 16),
-            _buildBridgeSection(),
-            const SizedBox(height: 16),
-            _buildOtherRatingsSection(),
-            const SizedBox(height: 16),
-            _buildGeneralObservationCard(),
-            const SizedBox(height: 80),
+            // Hide remaining fields until user selects from dropdown
+            if (!_hasExactMatch || _shipAlreadyExists) ...[
+              const SizedBox(height: 16),
+              _buildCabinSection(),
+              const SizedBox(height: 16),
+              _buildBridgeSection(),
+              const SizedBox(height: 16),
+              _buildOtherRatingsSection(),
+              const SizedBox(height: 16),
+              _buildGeneralObservationCard(),
+              const SizedBox(height: 80),
+            ],
           ],
         ),
       ),
@@ -325,7 +329,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
       ),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed: _isSaving ? null : _saveRating,
+          onPressed: _isSaving || (_hasExactMatch && !_shipAlreadyExists)
+              ? null
+              : _saveRating,
           style: ElevatedButton.styleFrom(
             backgroundColor: _primaryColor,
             foregroundColor: Colors.white,
@@ -359,28 +365,52 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildShipInfoCard() {
     final l10n = AppLocalizations.of(context)!;
+    final showFoundHint = _hasExactMatch && !_shipAlreadyExists;
+
     return _SectionCard(
       icon: Icons.directions_boat,
       title: l10n.shipData,
       color: _primaryColor,
       children: [
         _buildShipAutocomplete(),
-        const SizedBox(height: 16),
-        _buildImoField(),
-        const SizedBox(height: 16),
-        _buildDisembarkationDatePicker(),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: _crewNationalityController,
-          enabled: !_shipAlreadyExists,
-          decoration: InputDecoration(
-            labelText: l10n.crewNationality,
-            prefixIcon: const Icon(Icons.flag, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            filled: true,
-            fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
+        if (showFoundHint) ...[
+          const SizedBox(height: 24),
+          Center(
+            child: Column(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.green, size: 40),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.shipFoundTapToRate,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
+        if (!showFoundHint) ...[
+          const SizedBox(height: 16),
+          _buildImoField(),
+          const SizedBox(height: 16),
+          _buildDisembarkationDatePicker(),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _crewNationalityController,
+            enabled: !_shipAlreadyExists,
+            decoration: InputDecoration(
+              labelText: l10n.crewNationality,
+              prefixIcon: const Icon(Icons.flag, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              filled: true,
+              fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -401,13 +431,31 @@ class _AddRatingPageState extends State<AddRatingPage> {
         });
       },
       fieldViewBuilder: (context, controller, focusNode, onSubmit) {
+        final showFoundHint = _hasExactMatch && !_shipAlreadyExists;
         return TextFormField(
           controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
             labelText: l10n.shipName,
             prefixIcon: const Icon(Icons.directions_boat, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: showFoundHint
+                  ? const BorderSide(color: Colors.green, width: 2)
+                  : BorderSide.none,
+            ),
+            enabledBorder: showFoundHint
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.green, width: 2),
+                  )
+                : OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            focusedBorder: showFoundHint
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.green, width: 2),
+                  )
+                : null,
             filled: true,
             fillColor: Colors.white,
           ),
@@ -416,7 +464,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
           inputFormatters: [_UpperCaseTextFormatter()],
           onChanged: (v) {
             _currentShipName = v;
-            setState(() => _shipAlreadyExists = false);
+            final upperInput = v.trim().toUpperCase();
+            final exactMatch = upperInput.isNotEmpty && _registeredShips.any(
+              (doc) => (doc['nome'] as String).toUpperCase() == upperInput,
+            );
+            setState(() {
+              _shipAlreadyExists = false;
+              _hasExactMatch = exactMatch;
+            });
           },
         );
       },

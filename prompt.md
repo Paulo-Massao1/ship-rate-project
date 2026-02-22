@@ -1,9 +1,13 @@
-2. Apply uppercase formatter to search_ship_page.dart (same _UpperCaseTextFormatter pattern used in add_rating_page.dart)
+Fix UX in add_rating_page.dart when ship already exists:
 
-3. Improve UX in add_rating_page.dart for existing ships:
-- When user types a ship name that ALREADY EXISTS in database, show message below field: "✓ Ship found - tap to rate"
-- Highlight dropdown with green border when there's a match
-- Block saving if ship name exists but user didn't select from dropdown (show error)
-- Add PT and EN translations to .arb files
+Current problem: IMO, date, and nationality fields still showing. Confusing.
 
+Better approach:
+- When _hasExactMatch is true AND user hasn't selected from dropdown:
+  - Hide the ENTIRE "Dados do Navio" card except the ship name field
+  - Show a centered, larger message: "Ship found — tap to select from the list"
+  - Maybe add an icon (checkmark or info) to make it clearer
+  - Save button stays disabled
+
+Only show full form after user selects from dropdown.
 Run flutter analyze after changes.
