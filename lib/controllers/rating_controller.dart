@@ -257,8 +257,13 @@ class RatingController {
 
     if (info['numeroCabines'] != null) {
       final cabinCount = info['numeroCabines'];
-      normalized['numeroCabines'] =
-          cabinCount is int ? cabinCount : int.tryParse(cabinCount.toString()) ?? 0;
+      if (cabinCount is int) {
+        if (cabinCount > 0) {
+          normalized['numeroCabines'] = cabinCount >= 3 ? '3+' : cabinCount.toString();
+        }
+      } else if (cabinCount is String && ['1', '2', '3+'].contains(cabinCount)) {
+        normalized['numeroCabines'] = cabinCount;
+      }
     }
 
     if (info['frigobar'] != null) {

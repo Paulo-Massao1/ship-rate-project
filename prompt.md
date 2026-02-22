@@ -1,13 +1,12 @@
-Fix UX in add_rating_page.dart when ship already exists:
 
-Current problem: IMO, date, and nationality fields still showing. Confusing.
+Change crew nationality field in add_rating_page.dart and edit_rating_page.dart:
 
-Better approach:
-- When _hasExactMatch is true AND user hasn't selected from dropdown:
-  - Hide the ENTIRE "Dados do Navio" card except the ship name field
-  - Show a centered, larger message: "Ship found — tap to select from the list"
-  - Maybe add an icon (checkmark or info) to make it clearer
-  - Save button stays disabled
+From text input to multi-select chips with options:
+- Filipino, Russian, Ukrainian, Indian, Chinese, Brazilian
+- "Other" option that opens a text field to specify
 
-Only show full form after user selects from dropdown.
+Allow selecting multiple nationalities.
+Save to Firestore as list of strings.
+Update rating_detail_page.dart and search_ship_page.dart to display correctly.
+Add PT and EN translations to .arb files.
 Run flutter analyze after changes.

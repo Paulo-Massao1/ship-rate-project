@@ -563,11 +563,12 @@ class _ShipSummaryCard extends StatelessWidget {
     }
 
     // Cabin count
-    if (info['numeroCabines'] != null && info['numeroCabines'] != 0) {
+    final cabinLabel = _formatCabinCount(info['numeroCabines'], l10n);
+    if (cabinLabel != null) {
       items.add(_buildInfoItem(
         Icons.bed,
         l10n.cabins,
-        info['numeroCabines'].toString(),
+        cabinLabel,
       ));
     }
 
@@ -599,6 +600,24 @@ class _ShipSummaryCard extends StatelessWidget {
     }
 
     return items;
+  }
+
+  /// Converts cabin count value to localized display label.
+  String? _formatCabinCount(dynamic value, AppLocalizations l10n) {
+    if (value == null) return null;
+    String key;
+    if (value is int) {
+      if (value <= 0) return null;
+      key = value >= 3 ? '3+' : value.toString();
+    } else {
+      key = value.toString();
+    }
+    switch (key) {
+      case '1': return l10n.cabinCountOne;
+      case '2': return l10n.cabinCountTwo;
+      case '3+': return l10n.cabinCountMoreThanTwo;
+      default: return null;
+    }
   }
 
   Widget _buildInfoItem(IconData icon, String label, String value) {

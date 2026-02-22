@@ -62,7 +62,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   late TextEditingController _shipImoController;
   late TextEditingController _observacaoGeralController;
   late TextEditingController _crewNationalityController;
-  late TextEditingController _cabinCountController;
+  String? _selectedCabinCount;
 
   DateTime? _disembarkationDate;
   String? _cabinType;
@@ -95,7 +95,6 @@ class _EditRatingPageState extends State<EditRatingPage> {
     _shipImoController.dispose();
     _observacaoGeralController.dispose();
     _crewNationalityController.dispose();
-    _cabinCountController.dispose();
     for (final controller in _observationControllers.values) {
       controller.dispose();
     }
@@ -107,7 +106,22 @@ class _EditRatingPageState extends State<EditRatingPage> {
     _shipImoController = TextEditingController();
     _observacaoGeralController = TextEditingController();
     _crewNationalityController = TextEditingController();
-    _cabinCountController = TextEditingController();
+  }
+
+  /// Converts legacy int or string cabin count to dropdown value.
+  String? _normalizeCabinCount(dynamic value) {
+    if (value == null) return null;
+    if (value is String) {
+      if (['1', '2', '3+'].contains(value)) return value;
+      return null;
+    }
+    if (value is int) {
+      if (value <= 0) return null;
+      if (value == 1) return '1';
+      if (value == 2) return '2';
+      return '3+';
+    }
+    return null;
   }
 
   void _initializeRatings() {
@@ -134,8 +148,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
           // Load ship info
           _crewNationalityController.text =
               data.shipInfo['nacionalidadeTripulacao'] ?? '';
-          final cabinCount = data.shipInfo['numeroCabines'];
-          _cabinCountController.text = cabinCount?.toString() ?? '';
+          _selectedCabinCount = _normalizeCabinCount(data.shipInfo['numeroCabines']);
 
           // Load bridge info
           _bridgeHasMinibar = data.bridgeInfo['frigobar'] ?? false;
@@ -233,8 +246,6 @@ class _EditRatingPageState extends State<EditRatingPage> {
     setState(() => _isSaving = true);
 
     try {
-      final cabinCountText = _cabinCountController.text.trim();
-
       await _controller.saveChanges(
         ratingRef: widget.rating.reference,
         shipRef: _shipRef!,
@@ -255,8 +266,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
                 _crewNationalityController.text.trim().isNotEmpty
                     ? _crewNationalityController.text.trim()
                     : null,
-            'numeroCabines':
-                cabinCountText.isNotEmpty ? int.tryParse(cabinCountText) : null,
+            'numeroCabines': _selectedCabinCount,
           },
           bridgeInfo: {
             'frigobar': _bridgeHasMinibar,
@@ -526,9 +536,8 @@ class _EditRatingPageState extends State<EditRatingPage> {
       title: l10n.cabin,
       color: _cabinSectionColor,
       children: [
-        TextFormField(
-          controller: _cabinCountController,
-          keyboardType: TextInputType.number,
+        DropdownButtonFormField<String>(
+          value: _selectedCabinCount,
           decoration: InputDecoration(
             labelText: l10n.cabinCount,
             prefixIcon: const Icon(Icons.meeting_room, size: 20),
@@ -536,6 +545,12 @@ class _EditRatingPageState extends State<EditRatingPage> {
             filled: true,
             fillColor: Colors.white,
           ),
+          items: [
+            DropdownMenuItem(value: '1', child: Text(l10n.cabinCountOne)),
+            DropdownMenuItem(value: '2', child: Text(l10n.cabinCountTwo)),
+            DropdownMenuItem(value: '3+', child: Text(l10n.cabinCountMoreThanTwo)),
+          ],
+          onChanged: (v) => setState(() => _selectedCabinCount = v),
         ),
         const SizedBox(height: 12),
         _buildCabinTypeDropdown(),

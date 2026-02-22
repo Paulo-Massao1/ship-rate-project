@@ -84,7 +84,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   final _imoController = TextEditingController();
   final _generalObservationController = TextEditingController();
   final _crewNationalityController = TextEditingController();
-  final _cabinCountController = TextEditingController();
+  String? _selectedCabinCount;
   final _shipNameFocusNode = FocusNode();
 
   List<QueryDocumentSnapshot> _registeredShips = [];
@@ -122,7 +122,6 @@ class _AddRatingPageState extends State<AddRatingPage> {
     _imoController.dispose();
     _generalObservationController.dispose();
     _crewNationalityController.dispose();
-    _cabinCountController.dispose();
     for (final controller in _observationControllers.values) {
       controller.dispose();
     }
@@ -188,7 +187,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
         observacaoGeral: _generalObservationController.text.trim(),
         infoNavio: {
           'nacionalidadeTripulacao': _crewNationalityController.text.trim(),
-          'numeroCabines': int.tryParse(_cabinCountController.text) ?? 0,
+          'numeroCabines': _selectedCabinCount,
           'frigobar': _bridgeHasMinibar,
           'pia': _bridgeHasSink,
           'microondas': _bridgeHasMicrowave,
@@ -251,6 +250,22 @@ class _AddRatingPageState extends State<AddRatingPage> {
     }
   }
 
+  /// Converts legacy int or string cabin count to dropdown value.
+  String? _normalizeCabinCount(dynamic value) {
+    if (value == null) return null;
+    if (value is String) {
+      if (['1', '2', '3+'].contains(value)) return value;
+      return null;
+    }
+    if (value is int) {
+      if (value <= 0) return null;
+      if (value == 1) return '1';
+      if (value == 2) return '2';
+      return '3+';
+    }
+    return null;
+  }
+
   /// Handles ship selection from autocomplete.
   void _onShipSelected(QueryDocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -262,7 +277,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
       _currentShipName = data['nome'];
       _imoController.text = data['imo'] ?? '';
       _crewNationalityController.text = info['nacionalidadeTripulacao'] ?? '';
-      _cabinCountController.text = info['numeroCabines']?.toString() ?? '';
+      _selectedCabinCount = _normalizeCabinCount(info['numeroCabines']);
     });
   }
 
@@ -578,9 +593,8 @@ class _AddRatingPageState extends State<AddRatingPage> {
       title: l10n.cabin,
       color: _cabinSectionColor,
       children: [
-        TextFormField(
-          controller: _cabinCountController,
-          keyboardType: TextInputType.number,
+        DropdownButtonFormField<String>(
+          value: _selectedCabinCount,
           decoration: InputDecoration(
             labelText: l10n.cabinCount,
             prefixIcon: const Icon(Icons.meeting_room, size: 20),
@@ -588,6 +602,12 @@ class _AddRatingPageState extends State<AddRatingPage> {
             filled: true,
             fillColor: Colors.white,
           ),
+          items: [
+            DropdownMenuItem(value: '1', child: Text(l10n.cabinCountOne)),
+            DropdownMenuItem(value: '2', child: Text(l10n.cabinCountTwo)),
+            DropdownMenuItem(value: '3+', child: Text(l10n.cabinCountMoreThanTwo)),
+          ],
+          onChanged: (v) => setState(() => _selectedCabinCount = v),
         ),
         const SizedBox(height: 12),
         _buildCabinTypeDropdown(),

@@ -314,7 +314,7 @@ class PdfService {
               ),
               pw.Expanded(
                 child: pw.Text(
-                  '${labels.cabinCount}: ${shipInfo['numeroCabines'] ?? labels.notAvailable}',
+                  '${labels.cabinCount}: ${_formatCabinCount(shipInfo['numeroCabines'], labels)}',
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ),
@@ -580,6 +580,24 @@ class PdfService {
   static String _boolToLabel(dynamic value, PdfLabels labels) {
     return value == true ? labels.yes : labels.no;
   }
+
+  /// Converts cabin count value to localized display label for PDF.
+  static String _formatCabinCount(dynamic value, PdfLabels labels) {
+    if (value == null) return labels.notAvailable;
+    String key;
+    if (value is int) {
+      if (value <= 0) return labels.notAvailable;
+      key = value >= 3 ? '3+' : value.toString();
+    } else {
+      key = value.toString();
+    }
+    switch (key) {
+      case '1': return labels.cabinCountOne;
+      case '2': return labels.cabinCountTwo;
+      case '3+': return labels.cabinCountMoreThanTwo;
+      default: return labels.notAvailable;
+    }
+  }
 }
 
 // =============================================================================
@@ -601,6 +619,9 @@ class PdfLabels {
   final String shipInfo;
   final String crewNationality;
   final String cabinCount;
+  final String cabinCountOne;
+  final String cabinCountTwo;
+  final String cabinCountMoreThanTwo;
   final String minibar;
   final String sink;
   final String notAvailable;
@@ -623,6 +644,9 @@ class PdfLabels {
     required this.shipInfo,
     required this.crewNationality,
     required this.cabinCount,
+    required this.cabinCountOne,
+    required this.cabinCountTwo,
+    required this.cabinCountMoreThanTwo,
     required this.minibar,
     required this.sink,
     required this.notAvailable,
