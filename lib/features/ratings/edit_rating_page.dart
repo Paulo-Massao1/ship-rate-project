@@ -220,7 +220,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final validationError = _controller.validateFields(
-      shipName: _shipNameController.text.trim(),
+      shipName: _shipNameController.text.trim().toUpperCase(),
       disembarkationDate: _disembarkationDate,
       cabinType: _cabinType,
     );
@@ -239,7 +239,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
         ratingRef: widget.rating.reference,
         shipRef: _shipRef!,
         updateData: RatingUpdateData(
-          shipName: _shipNameController.text.trim(),
+          shipName: _shipNameController.text.trim().toUpperCase(),
           shipImo: _shipImoController.text.trim(),
           disembarkationDate: _disembarkationDate!,
           cabinType: _cabinType!,
@@ -443,6 +443,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
       children: [
         TextFormField(
           controller: _shipNameController,
+          textCapitalization: TextCapitalization.characters,
           decoration: InputDecoration(
             labelText: l10n.shipNameRequired,
             prefixIcon: const Icon(Icons.directions_boat, size: 20),

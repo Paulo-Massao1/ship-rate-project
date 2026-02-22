@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 import '../../data/services/pdf_service.dart';
 
@@ -43,7 +44,7 @@ class MyRatingsController {
   Future<List<RatingWithShipInfo>> loadUserRatings() async {
     final userId = currentUserId;
     if (userId == null) {
-      throw Exception('Usuário não autenticado');
+      throw Exception('User not authenticated');
     }
 
     final callSign = await _getUserCallSign(userId);
@@ -51,16 +52,29 @@ class MyRatingsController {
 
     final shipsSnapshot = await _firestore.collection(_shipsCollection).get();
 
-    for (final ship in shipsSnapshot.docs) {
-      final shipData = ship.data();
+    // Fetch all ship ratings in parallel (same pattern as DashboardController)
+    final ratingsFutures = shipsSnapshot.docs.map((ship) {
+      return ship.reference
+          .collection(_ratingsSubcollection)
+          .get()
+          .then((snapshot) => _ShipRatingsResult(ship: ship, ratings: snapshot))
+          .catchError((e) {
+        debugPrint('[MyRatings] Error loading ratings for ${ship.id}: $e');
+        return _ShipRatingsResult(ship: ship, ratings: null);
+      });
+    }).toList();
+
+    final allResults = await Future.wait(ratingsFutures);
+
+    for (final result in allResults) {
+      if (result.ratings == null) continue;
+
+      final shipData = result.ship.data() as Map<String, dynamic>;
       final shipName = shipData['nome'] ?? 'Navio sem nome';
       final shipImo = shipData['imo'] ?? '';
 
-      final ratingsSnapshot =
-          await ship.reference.collection(_ratingsSubcollection).get();
-
-      for (final rating in ratingsSnapshot.docs) {
-        final data = rating.data();
+      for (final rating in result.ratings!.docs) {
+        final data = rating.data() as Map<String, dynamic>;
 
         if (_ratingBelongsToUser(data, userId, callSign)) {
           results.add(RatingWithShipInfo(
@@ -175,7 +189,7 @@ class MyRatingsController {
         await _firestore.collection(_usersCollection).doc(userId).get();
 
     if (!userSnapshot.exists) {
-      throw Exception('Dados do usuário não encontrados');
+      throw Exception('User data not found');
     }
 
     return userSnapshot.data()?['nomeGuerra'];
@@ -223,6 +237,14 @@ class MyRatingsController {
 // =============================================================================
 // DATA CLASS
 // =============================================================================
+
+/// Internal helper to hold the result of a parallel ship ratings query.
+class _ShipRatingsResult {
+  final QueryDocumentSnapshot ship;
+  final QuerySnapshot? ratings;
+
+  _ShipRatingsResult({required this.ship, required this.ratings});
+}
 
 /// Data class holding a rating with its ship information.
 class RatingWithShipInfo {

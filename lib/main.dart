@@ -33,6 +33,10 @@ import 'controllers/locale_controller.dart';
 /// - Crashlytics / Logging setup
 /// - Remote Config initialization
 /// - Dependency injection container (GetIt, Riverpod, etc.)
+
+/// Global locale controller instance, accessible across the app.
+final localeController = LocaleController();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,7 +44,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final localeController = LocaleController();
   await localeController.loadSavedLocale();
 
   runApp(ShipRateApp(localeController: localeController));

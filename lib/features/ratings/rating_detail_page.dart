@@ -100,7 +100,7 @@ class RatingDetailPage extends StatelessWidget {
         }
 
         final shipData = snapshot.data?.data() as Map<String, dynamic>?;
-        final shipName = shipData?['nome'] ?? l10n.defaultShipName;
+        final shipName = (shipData?['nome'] ?? l10n.defaultShipName).toString().toUpperCase();
         final shipImo = shipData?['imo'];
 
         return Scaffold(
