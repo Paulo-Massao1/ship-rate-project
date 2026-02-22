@@ -102,6 +102,8 @@
   "generalObservation": "Observação Geral",
   "generalObservationHint": "Comentários adicionais sobre a experiência geral no navio...",
   "observationsOptional": "Observações (opcional)",
+  "shipFoundTapToRate": "Navio encontrado — toque para selecionar da lista",
+  "shipExistsSelectFromList": "Este navio já existe. Selecione-o na lista suspensa.",
   "fillRequiredFields": "Preencha todos os campos obrigatórios",
 
   "editRatingTitle": "Editar Avaliação",

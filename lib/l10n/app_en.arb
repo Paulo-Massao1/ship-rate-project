@@ -102,6 +102,8 @@
   "generalObservation": "General Observation",
   "generalObservationHint": "Additional comments about the overall experience on the ship...",
   "observationsOptional": "Observations (optional)",
+  "shipFoundTapToRate": "Ship found — tap to select from the list",
+  "shipExistsSelectFromList": "This ship already exists. Please select it from the dropdown list.",
   "fillRequiredFields": "Fill in all required fields",
 
   "editRatingTitle": "Edit Rating",
