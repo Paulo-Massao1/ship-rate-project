@@ -32,7 +32,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   static const _otherSectionColor = Color(0xFF607D8B);
 
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
-  static const List<String> _cabinDecks = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
 
   /// Rating criteria organized by section.
   static const List<String> _cabinCriteria = [
@@ -769,10 +769,22 @@ class _AddRatingPageState extends State<AddRatingPage> {
         fillColor: Colors.white,
       ),
       items: _cabinDecks
-          .map((e) => DropdownMenuItem(value: e, child: Text(l10n.deckLabel(e))))
+          .map((e) => DropdownMenuItem(value: e, child: Text(_deckLabel(l10n, e))))
           .toList(),
       onChanged: (v) => setState(() => _selectedCabinDeck = v),
     );
+  }
+
+  /// Returns localized label for a deck key.
+  String _deckLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'bridge': return l10n.deckBridge;
+      case '1_below': return l10n.deck1Below;
+      case '2_below': return l10n.deck2Below;
+      case '3_below': return l10n.deck3Below;
+      case '4+_below': return l10n.deck4PlusBelow;
+      default: return key;
+    }
   }
 
   // ===========================================================================

@@ -100,6 +100,11 @@
   "cabinCountMoreThanTwo": "Mais de duas",
   "cabinType": "Tipo da cabine",
   "cabinDeck": "Deck da cabine",
+  "deckBridge": "Deck do passadiço",
+  "deck1Below": "1 deck abaixo do passadiço",
+  "deck2Below": "2 decks abaixo do passadiço",
+  "deck3Below": "3 decks abaixo do passadiço",
+  "deck4PlusBelow": "4+ decks abaixo do passadiço",
   "deckLabel": "Deck {deck}",
   "@deckLabel": {
     "placeholders": {

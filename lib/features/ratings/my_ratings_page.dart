@@ -483,7 +483,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                   child: _InfoChip(
                     icon: Icons.layers,
                     label: 'Deck',
-                    value: l10n.deckLabel(cabinDeck),
+                    value: _formatDeckLabel(l10n, cabinDeck),
                     color: const Color(0xFF9C27B0),
                   ),
                 ),
@@ -493,6 +493,18 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         ],
       ],
     );
+  }
+
+  /// Returns localized label for a deck key (backward compatible).
+  String _formatDeckLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'bridge': return l10n.deckBridge;
+      case '1_below': return l10n.deck1Below;
+      case '2_below': return l10n.deck2Below;
+      case '3_below': return l10n.deck3Below;
+      case '4+_below': return l10n.deck4PlusBelow;
+      default: return l10n.deckLabel(key);
+    }
   }
 
   Widget _buildCardActions(RatingWithShipInfo item) {
