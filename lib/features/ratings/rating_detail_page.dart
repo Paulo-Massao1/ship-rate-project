@@ -68,6 +68,14 @@ class RatingDetailPage extends StatelessWidget {
     }
   }
 
+  /// Formats nationality value for display (backward compatible).
+  String _formatNationality(dynamic value) {
+    if (value is List) {
+      return value.map((e) => e.toString()).join(', ');
+    }
+    return value.toString();
+  }
+
   /// Converts boolean to translated "Yes"/"No".
   String _boolToYesNo(BuildContext context, bool? value) {
     final l10n = AppLocalizations.of(context)!;
@@ -284,7 +292,7 @@ class RatingDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             if (shipInfo['nacionalidadeTripulacao'] != null)
-              _buildInfoRow(l10n.crew, shipInfo['nacionalidadeTripulacao']),
+              _buildInfoRow(l10n.crew, _formatNationality(shipInfo['nacionalidadeTripulacao'])),
             if (_formatCabinCount(shipInfo['numeroCabines'], l10n) != null)
               _buildInfoRow(l10n.cabins, _formatCabinCount(shipInfo['numeroCabines'], l10n)!),
             if (amenities['frigobar'] != null)
