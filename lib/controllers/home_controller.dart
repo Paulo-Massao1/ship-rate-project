@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/platform/install_hint.dart';
 
 /// Controller responsible for MainScreen business logic.
@@ -61,7 +62,6 @@ class MainScreenController {
   /// await authController.logout();
   /// ```
   Future<void> logout() async {
-    // Delegated to AuthController in the UI layer
-    // Kept here for future enhancements (cleanup, analytics, etc.)
+    await FirebaseAuth.instance.signOut();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/my_ratings_controller.dart';
+import '../../core/events/data_change_notifier.dart';
 import '../../data/services/pdf_labels_factory.dart';
 import 'rating_detail_page.dart';
 import 'edit_rating_page.dart';
@@ -96,6 +97,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
 
       if (edited == true) {
         _loadRatings();
+        notifyDataChanged();
       }
     }
   }
@@ -121,6 +123,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         Navigator.pop(context);
         _showSuccessSnackBar(l10n.ratingDeletedSuccess);
         _loadRatings();
+        notifyDataChanged();
       }
     } catch (e) {
       if (mounted) {
@@ -410,7 +413,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.shipName,
+                item.shipName.toUpperCase(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

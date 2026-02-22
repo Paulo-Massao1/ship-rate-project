@@ -13,4 +13,9 @@ class AppColors {
 
   static const danger = Color(0xFFDC2626);
   static const success = Color(0xFF16A34A);
+
+  // Dashboard gradient (navy → ocean)
+  static const dashboardGradientStart = Color(0xFF0F2A5E);
+  static const dashboardGradientMid = Color(0xFF1A3F7A);
+  static const dashboardGradientEnd = Color(0xFF1E5FAA);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/rating_controller.dart';
@@ -178,7 +179,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
       final allCriteria = [..._cabinCriteria, ..._bridgeCriteria, ..._otherCriteria];
 
       await _ratingController.salvarAvaliacao(
-        nomeNavio: _currentShipName.trim(),
+        nomeNavio: _currentShipName.trim().toUpperCase(),
         imoInicial: _imoController.text.trim(),
         dataDesembarque: _disembarkationDate!,
         tipoCabine: _selectedCabinType!,
@@ -389,7 +390,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
     return RawAutocomplete<QueryDocumentSnapshot>(
       textEditingController: _shipNameController,
       focusNode: _shipNameFocusNode,
-      displayStringForOption: (opt) => opt['nome'],
+      displayStringForOption: (opt) => (opt['nome'] as String).toUpperCase(),
       optionsBuilder: (value) {
         if (value.text.isEmpty) {
           return const Iterable<QueryDocumentSnapshot>.empty();
@@ -411,6 +412,8 @@ class _AddRatingPageState extends State<AddRatingPage> {
             fillColor: Colors.white,
           ),
           validator: (v) => v == null || v.isEmpty ? l10n.enterShipName : null,
+          textCapitalization: TextCapitalization.characters,
+          inputFormatters: [_UpperCaseTextFormatter()],
           onChanged: (v) {
             _currentShipName = v;
             setState(() => _shipAlreadyExists = false);
@@ -440,7 +443,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   child: const Icon(Icons.directions_boat, color: _primaryColor),
                 ),
                 title: RichText(
-                  text: _highlightMatch(data['nome'], _shipNameController.text),
+                  text: _highlightMatch(
+                    (data['nome'] as String).toUpperCase(),
+                    _shipNameController.text,
+                  ),
                 ),
                 onTap: () {
                   onSelected(opt);
@@ -940,5 +946,16 @@ class _SectionCard extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Forces all text input to uppercase.
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
   }
 }

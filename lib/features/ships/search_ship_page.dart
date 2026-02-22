@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../controllers/ship_search_controller.dart';
+import '../../core/events/data_change_notifier.dart';
 import '../home/widgets/dashboard_widget.dart';
 import '../ratings/add_rating_page.dart';
 import '../ratings/rating_detail_page.dart';
@@ -165,12 +166,6 @@ class _SearchShipTab extends StatefulWidget {
 class _SearchShipTabState extends State<_SearchShipTab>
     with AutomaticKeepAliveClientMixin {
   // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  static const _primaryColor = Color(0xFF3F51B5);
-
-  // ===========================================================================
   // CONTROLLER & STATE
   // ===========================================================================
 
@@ -219,7 +214,7 @@ class _SearchShipTabState extends State<_SearchShipTab>
       _selectedShip = doc;
       _ratings = ratings;
       _suggestions = [];
-      _searchTextController.text = (doc.data() as Map)['nome'];
+      _searchTextController.text = ((doc.data() as Map)['nome'] as String).toUpperCase();
     });
   }
 
@@ -249,6 +244,7 @@ class _SearchShipTabState extends State<_SearchShipTab>
 
     return TextField(
       controller: _searchTextController,
+      textCapitalization: TextCapitalization.characters,
       onChanged: _updateSuggestions,
       decoration: InputDecoration(
         hintText: l10n.searchHint,
@@ -286,7 +282,7 @@ class _SearchShipTabState extends State<_SearchShipTab>
             return ListTile(
               leading: const Icon(Icons.directions_boat),
               title: _HighlightedText(
-                text: data['nome'],
+                text: (data['nome'] as String).toUpperCase(),
                 query: _searchTextController.text,
               ),
               onTap: () => _selectShip(doc),
@@ -426,11 +422,15 @@ class _RateShipTab extends StatelessWidget {
     );
   }
 
-  void _navigateToAddRating(BuildContext context) {
-    Navigator.push(
+  Future<void> _navigateToAddRating(BuildContext context) async {
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (_) => const AddRatingPage(imo: '')),
     );
+
+    if (result == true) {
+      notifyDataChanged();
+    }
   }
 }
 
@@ -466,7 +466,7 @@ class _ShipSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              shipData.name,
+              shipData.name.toUpperCase(),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),

@@ -41,7 +41,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   // CONSTANTS
   // ===========================================================================
 
-  static const _primaryColor = Color(0xFF3F51B5);
   static const _gradientStart = Color(0xFF3F51B5);
   static const _gradientEnd = Color(0xFF2F3E9E);
   static const _shareUrl = 'https://shiprate-daf18.web.app/';
@@ -59,10 +58,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// Custom message displayed in banner (from Firestore).
   String _updateMessage = '';
 
-  /// Key used to force complete widget tree rebuild.
-  /// Useful for clearing caches and reloading Firestore data.
-  Key _rebuildKey = UniqueKey();
-
   // ===========================================================================
   // LIFECYCLE
   // ===========================================================================
@@ -71,7 +66,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _forceRefresh();
     _checkForUpdates();
   }
 
@@ -90,7 +84,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _forceRefresh();
       _checkForUpdates();
     }
   }
@@ -98,20 +91,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
-
-  /// Forces complete data refresh.
-  ///
-  /// Generates new Key to force complete KeyedSubtree rebuild.
-  /// This clears caches and forces Firestore data reload.
-  ///
-  /// Called:
-  /// - Automatically on app open
-  /// - Automatically when returning to app (resumed)
-  /// - Manually when needed
-  Future<void> _forceRefresh() async {
-    if (!mounted) return;
-    setState(() => _rebuildKey = UniqueKey());
-  }
 
   /// Checks if an update is available.
   ///
@@ -238,14 +217,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return Scaffold(
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
-      body: KeyedSubtree(
-        key: _rebuildKey,
-        child: Column(
-          children: [
-            _buildUpdateBanner(),
-            const Expanded(child: SearchAndRateShipPage()),
-          ],
-        ),
+      body: Column(
+        children: [
+          _buildUpdateBanner(),
+          const Expanded(child: SearchAndRateShipPage()),
+        ],
       ),
     );
   }
