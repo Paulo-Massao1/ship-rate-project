@@ -553,12 +553,12 @@ class _ShipSummaryCard extends StatelessWidget {
     final items = <Widget>[];
 
     // Crew nationality
-    if (info['nacionalidadeTripulacao'] != null &&
-        info['nacionalidadeTripulacao'].toString().isNotEmpty) {
+    final nationalityDisplay = _formatNationality(info['nacionalidadeTripulacao']);
+    if (nationalityDisplay.isNotEmpty) {
       items.add(_buildInfoItem(
         Icons.groups,
         l10n.crew,
-        info['nacionalidadeTripulacao'],
+        nationalityDisplay,
       ));
     }
 
@@ -600,6 +600,16 @@ class _ShipSummaryCard extends StatelessWidget {
     }
 
     return items;
+  }
+
+  /// Formats nationality value for display (backward compatible).
+  String _formatNationality(dynamic value) {
+    if (value == null) return '';
+    if (value is List) {
+      final joined = value.map((e) => e.toString()).join(', ');
+      return joined;
+    }
+    return value.toString();
   }
 
   /// Converts cabin count value to localized display label.

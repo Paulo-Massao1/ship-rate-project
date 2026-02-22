@@ -251,8 +251,21 @@ class RatingController {
     final normalized = <String, dynamic>{};
 
     if (info['nacionalidadeTripulacao'] != null) {
-      normalized['nacionalidadeTripulacao'] =
-          info['nacionalidadeTripulacao'].toString().trim();
+      final nationality = info['nacionalidadeTripulacao'];
+      if (nationality is List) {
+        final filtered = nationality
+            .map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        if (filtered.isNotEmpty) {
+          normalized['nacionalidadeTripulacao'] = filtered;
+        }
+      } else {
+        final value = nationality.toString().trim();
+        if (value.isNotEmpty) {
+          normalized['nacionalidadeTripulacao'] = [value];
+        }
+      }
     }
 
     if (info['numeroCabines'] != null) {

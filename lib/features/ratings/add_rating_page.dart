@@ -83,7 +83,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
   final _shipNameController = TextEditingController();
   final _imoController = TextEditingController();
   final _generalObservationController = TextEditingController();
-  final _crewNationalityController = TextEditingController();
+  final _otherNationalityController = TextEditingController();
+  final Set<String> _selectedNationalities = {};
+  bool _showOtherNationalityField = false;
   String? _selectedCabinCount;
   final _shipNameFocusNode = FocusNode();
 
@@ -121,7 +123,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
     _shipNameController.dispose();
     _imoController.dispose();
     _generalObservationController.dispose();
-    _crewNationalityController.dispose();
+    _otherNationalityController.dispose();
     for (final controller in _observationControllers.values) {
       controller.dispose();
     }
@@ -186,7 +188,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
         deckCabine: _selectedCabinDeck,
         observacaoGeral: _generalObservationController.text.trim(),
         infoNavio: {
-          'nacionalidadeTripulacao': _crewNationalityController.text.trim(),
+          'nacionalidadeTripulacao': _buildNationalityList(),
           'numeroCabines': _selectedCabinCount,
           'frigobar': _bridgeHasMinibar,
           'pia': _bridgeHasSink,
@@ -276,9 +278,132 @@ class _AddRatingPageState extends State<AddRatingPage> {
       _shipNameController.text = data['nome'];
       _currentShipName = data['nome'];
       _imoController.text = data['imo'] ?? '';
-      _crewNationalityController.text = info['nacionalidadeTripulacao'] ?? '';
+      _loadNationalitiesFromData(info['nacionalidadeTripulacao']);
       _selectedCabinCount = _normalizeCabinCount(info['numeroCabines']);
     });
+  }
+
+  // ===========================================================================
+  // NATIONALITY HELPERS
+  // ===========================================================================
+
+  static const List<String> _nationalityKeys = [
+    'Filipino', 'Russian', 'Ukrainian', 'Indian', 'Chinese', 'Brazilian',
+  ];
+
+  /// Returns localized label for a nationality key.
+  String _nationalityLabel(String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'Filipino': return l10n.nationalityFilipino;
+      case 'Russian': return l10n.nationalityRussian;
+      case 'Ukrainian': return l10n.nationalityUkrainian;
+      case 'Indian': return l10n.nationalityIndian;
+      case 'Chinese': return l10n.nationalityChinese;
+      case 'Brazilian': return l10n.nationalityBrazilian;
+      default: return key;
+    }
+  }
+
+  /// Builds the final list of nationalities to save.
+  List<String> _buildNationalityList() {
+    final list = <String>[..._selectedNationalities];
+    if (_showOtherNationalityField) {
+      final other = _otherNationalityController.text.trim();
+      if (other.isNotEmpty) list.add(other);
+    }
+    return list;
+  }
+
+  /// Loads nationalities from Firestore data (backward compatible).
+  void _loadNationalitiesFromData(dynamic value) {
+    _selectedNationalities.clear();
+    _showOtherNationalityField = false;
+    _otherNationalityController.clear();
+
+    if (value == null) return;
+
+    List<String> nationalities;
+    if (value is List) {
+      nationalities = value.map((e) => e.toString()).toList();
+    } else {
+      nationalities = [value.toString()];
+    }
+
+    for (final n in nationalities) {
+      if (_nationalityKeys.contains(n)) {
+        _selectedNationalities.add(n);
+      } else if (n.isNotEmpty) {
+        _showOtherNationalityField = true;
+        _otherNationalityController.text = n;
+      }
+    }
+  }
+
+  /// Builds the multi-select nationality chips widget.
+  Widget _buildNationalityChips() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.crewNationality,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ..._nationalityKeys.map((key) => FilterChip(
+              label: Text(_nationalityLabel(key)),
+              selected: _selectedNationalities.contains(key),
+              onSelected: _shipAlreadyExists ? null : (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedNationalities.add(key);
+                  } else {
+                    _selectedNationalities.remove(key);
+                  }
+                });
+              },
+              selectedColor: _primaryColor.withAlpha(51),
+              checkmarkColor: _primaryColor,
+            )),
+            FilterChip(
+              label: Text(l10n.nationalityOther),
+              selected: _showOtherNationalityField,
+              onSelected: _shipAlreadyExists ? null : (selected) {
+                setState(() {
+                  _showOtherNationalityField = selected;
+                  if (!selected) _otherNationalityController.clear();
+                });
+              },
+              selectedColor: _primaryColor.withAlpha(51),
+              checkmarkColor: _primaryColor,
+            ),
+          ],
+        ),
+        if (_showOtherNationalityField) ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _otherNationalityController,
+            enabled: !_shipAlreadyExists,
+            decoration: InputDecoration(
+              labelText: l10n.specifyNationality,
+              prefixIcon: const Icon(Icons.edit, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              filled: true,
+              fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   // ===========================================================================
@@ -414,17 +539,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
           const SizedBox(height: 16),
           _buildDisembarkationDatePicker(),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _crewNationalityController,
-            enabled: !_shipAlreadyExists,
-            decoration: InputDecoration(
-              labelText: l10n.crewNationality,
-              prefixIcon: const Icon(Icons.flag, size: 20),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              filled: true,
-              fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
-            ),
-          ),
+          _buildNationalityChips(),
         ],
       ],
     );

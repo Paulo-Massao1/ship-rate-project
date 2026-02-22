@@ -308,7 +308,7 @@ class PdfService {
             children: [
               pw.Expanded(
                 child: pw.Text(
-                  '${labels.crewNationality}: ${shipInfo['nacionalidadeTripulacao'] ?? labels.notAvailable}',
+                  '${labels.crewNationality}: ${_formatNationality(shipInfo['nacionalidadeTripulacao'], labels)}',
                   style: const pw.TextStyle(fontSize: 11),
                 ),
               ),
@@ -574,6 +574,17 @@ class PdfService {
       return PdfColor.fromHex(_colorBelowAverage);
     }
     return PdfColor.fromHex(_colorPoor);
+  }
+
+  /// Formats nationality value for PDF display (backward compatible).
+  static String _formatNationality(dynamic value, PdfLabels labels) {
+    if (value == null) return labels.notAvailable;
+    if (value is List) {
+      if (value.isEmpty) return labels.notAvailable;
+      return value.map((e) => e.toString()).join(', ');
+    }
+    final str = value.toString();
+    return str.isEmpty ? labels.notAvailable : str;
   }
 
   /// Converts boolean to translated yes/no label.
