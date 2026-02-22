@@ -26,7 +26,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   static const _otherSectionColor = Color(0xFF3F51B5);
 
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
-  static const List<String> _cabinDecks = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
 
   static const Map<String, IconData> _criteriaIcons = {
     'Temperatura da Cabine': Icons.thermostat,
@@ -144,7 +144,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
           _shipImoController.text = data.shipImo;
           _disembarkationDate = data.disembarkationDate;
           _cabinType = data.cabinType;
-          _cabinDeck = data.cabinDeck;
+          _cabinDeck = _cabinDecks.contains(data.cabinDeck) ? data.cabinDeck : null;
           _observacaoGeralController.text = data.generalObservation;
 
           // Load ship info
@@ -706,10 +706,22 @@ class _EditRatingPageState extends State<EditRatingPage> {
         fillColor: Colors.white,
       ),
       items: _cabinDecks
-          .map((e) => DropdownMenuItem(value: e, child: Text(l10n.deckLabel(e))))
+          .map((e) => DropdownMenuItem(value: e, child: Text(_deckLabel(l10n, e))))
           .toList(),
       onChanged: (v) => setState(() => _cabinDeck = v),
     );
+  }
+
+  /// Returns localized label for a deck key.
+  String _deckLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'bridge': return l10n.deckBridge;
+      case '1_below': return l10n.deck1Below;
+      case '2_below': return l10n.deck2Below;
+      case '3_below': return l10n.deck3Below;
+      case '4+_below': return l10n.deck4PlusBelow;
+      default: return key;
+    }
   }
 
   Widget _buildBridgeSection() {

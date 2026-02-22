@@ -100,6 +100,11 @@
   "cabinCountMoreThanTwo": "More than two",
   "cabinType": "Cabin type",
   "cabinDeck": "Cabin deck",
+  "deckBridge": "Bridge deck",
+  "deck1Below": "1 deck below bridge",
+  "deck2Below": "2 decks below bridge",
+  "deck3Below": "3 decks below bridge",
+  "deck4PlusBelow": "4+ decks below bridge",
   "deckLabel": "Deck {deck}",
   "@deckLabel": {
     "placeholders": {
