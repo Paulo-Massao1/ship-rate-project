@@ -37,6 +37,10 @@ class ShipSearchController {
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
+
+      // Skip merged ships
+      if (data['merged'] == true) continue;
+
       final name = (data['nome'] as String? ?? '').toLowerCase();
       final imo = (data['imo'] as String? ?? '').toLowerCase();
 

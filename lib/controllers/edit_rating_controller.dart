@@ -108,20 +108,17 @@ class EditRatingController {
   }
 
   /// Validates required fields.
-  String? validateFields({
+  ///
+  /// Returns a [ValidationError] if validation fails, or null if valid.
+  /// The UI layer is responsible for translating the error to a user message.
+  ValidationError? validateFields({
     required String shipName,
     required DateTime? disembarkationDate,
     required String? cabinType,
   }) {
-    if (shipName.isEmpty) {
-      return 'Digite o nome do navio';
-    }
-    if (disembarkationDate == null) {
-      return 'Selecione a data de desembarque';
-    }
-    if (cabinType == null) {
-      return 'Selecione o tipo de cabine';
-    }
+    if (shipName.isEmpty) return ValidationError.emptyShipName;
+    if (disembarkationDate == null) return ValidationError.missingDate;
+    if (cabinType == null) return ValidationError.missingCabinType;
     return null;
   }
 
@@ -139,6 +136,13 @@ class EditRatingController {
 // =============================================================================
 // DATA CLASSES
 // =============================================================================
+
+/// Validation error types for edit rating form.
+enum ValidationError {
+  emptyShipName,
+  missingDate,
+  missingCabinType,
+}
 
 /// Data class for loaded rating edit data.
 class RatingEditData {

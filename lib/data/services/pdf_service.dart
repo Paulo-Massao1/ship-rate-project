@@ -61,6 +61,7 @@ class PdfService {
     required String evaluatorName,
     required DateTime evaluationDate,
     required String cabinType,
+    String? cabinDeck,
     required DateTime disembarkationDate,
     required Map<String, Map<String, dynamic>> ratings,
     String? generalObservation,
@@ -81,6 +82,7 @@ class PdfService {
             evaluatorName: evaluatorName,
             evaluationDate: evaluationDate,
             cabinType: cabinType,
+            cabinDeck: cabinDeck,
             disembarkationDate: disembarkationDate,
             averageRating: averageRating,
             labels: labels,
@@ -202,6 +204,7 @@ class PdfService {
     required String evaluatorName,
     required DateTime evaluationDate,
     required String cabinType,
+    String? cabinDeck,
     required DateTime disembarkationDate,
     required double averageRating,
     required PdfLabels labels,
@@ -253,6 +256,10 @@ class PdfService {
               ),
             ],
           ),
+          if (cabinDeck != null) ...[
+            pw.SizedBox(height: 8),
+            _buildInfoItem(labels.cabinDeck, cabinDeck),
+          ],
           pw.SizedBox(height: 8),
           _buildInfoItem(
             labels.overallAverage,
@@ -323,16 +330,24 @@ class PdfService {
           pw.SizedBox(height: 4),
           pw.Row(
             children: [
-              pw.Text(
-                '${labels.minibar}: ${_boolToLabel(shipInfo['frigobar'], labels)}',
-                style: const pw.TextStyle(fontSize: 11),
+              pw.Expanded(
+                child: pw.Text(
+                  '${labels.minibar}: ${_boolToLabel(shipInfo['frigobar'], labels)}',
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
               ),
-              pw.SizedBox(width: 20),
-              pw.Text(
-                '${labels.sink}: ${_boolToLabel(shipInfo['pia'], labels)}',
-                style: const pw.TextStyle(fontSize: 11),
+              pw.Expanded(
+                child: pw.Text(
+                  '${labels.sink}: ${_boolToLabel(shipInfo['pia'], labels)}',
+                  style: const pw.TextStyle(fontSize: 11),
+                ),
               ),
             ],
+          ),
+          pw.SizedBox(height: 4),
+          pw.Text(
+            '${labels.microwave}: ${_boolToLabel(shipInfo['microondas'], labels)}',
+            style: const pw.TextStyle(fontSize: 11),
           ),
         ],
       ),
@@ -581,10 +596,14 @@ class PdfService {
     if (value == null) return labels.notAvailable;
     if (value is List) {
       if (value.isEmpty) return labels.notAvailable;
-      return value.map((e) => e.toString()).join(', ');
+      return value.map((e) {
+        final key = e.toString();
+        return labels.nationalityLabels[key] ?? key;
+      }).join(', ');
     }
     final str = value.toString();
-    return str.isEmpty ? labels.notAvailable : str;
+    if (str.isEmpty) return labels.notAvailable;
+    return labels.nationalityLabels[str] ?? str;
   }
 
   /// Converts boolean to translated yes/no label.
@@ -635,6 +654,9 @@ class PdfLabels {
   final String cabinCountMoreThanTwo;
   final String minibar;
   final String sink;
+  final String microwave;
+  final String cabinDeck;
+  final Map<String, String> deckLabels;
   final String notAvailable;
   final String ratingsByCriteria;
   final String generalObservation;
@@ -643,6 +665,7 @@ class PdfLabels {
   final String yes;
   final String no;
   final Map<String, String> criteriaLabels;
+  final Map<String, String> nationalityLabels;
 
   const PdfLabels({
     required this.reportTitle,
@@ -660,6 +683,9 @@ class PdfLabels {
     required this.cabinCountMoreThanTwo,
     required this.minibar,
     required this.sink,
+    required this.microwave,
+    required this.cabinDeck,
+    required this.deckLabels,
     required this.notAvailable,
     required this.ratingsByCriteria,
     required this.generalObservation,
@@ -668,5 +694,6 @@ class PdfLabels {
     required this.yes,
     required this.no,
     required this.criteriaLabels,
+    required this.nationalityLabels,
   });
 }

@@ -553,7 +553,7 @@ class _ShipSummaryCard extends StatelessWidget {
     final items = <Widget>[];
 
     // Crew nationality
-    final nationalityDisplay = _formatNationality(info['nacionalidadeTripulacao']);
+    final nationalityDisplay = _formatNationality(l10n, info['nacionalidadeTripulacao']);
     if (nationalityDisplay.isNotEmpty) {
       items.add(_buildInfoItem(
         Icons.groups,
@@ -602,14 +602,27 @@ class _ShipSummaryCard extends StatelessWidget {
     return items;
   }
 
-  /// Formats nationality value for display (backward compatible).
-  String _formatNationality(dynamic value) {
+  /// Maps a nationality key to its localized label.
+  String _nationalityLabel(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'Filipino': return l10n.nationalityFilipino;
+      case 'Russian': return l10n.nationalityRussian;
+      case 'Ukrainian': return l10n.nationalityUkrainian;
+      case 'Indian': return l10n.nationalityIndian;
+      case 'Chinese': return l10n.nationalityChinese;
+      case 'Brazilian': return l10n.nationalityBrazilian;
+      default: return key;
+    }
+  }
+
+  /// Formats nationality value for display with i18n (backward compatible).
+  String _formatNationality(AppLocalizations l10n, dynamic value) {
     if (value == null) return '';
     if (value is List) {
-      final joined = value.map((e) => e.toString()).join(', ');
+      final joined = value.map((e) => _nationalityLabel(l10n, e.toString())).join(', ');
       return joined;
     }
-    return value.toString();
+    return _nationalityLabel(l10n, value.toString());
   }
 
   /// Converts cabin count value to localized display label.

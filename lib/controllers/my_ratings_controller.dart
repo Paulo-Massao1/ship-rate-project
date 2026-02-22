@@ -105,6 +105,7 @@ class MyRatingsController {
     final evaluatorName = data['nomeGuerra'] ?? labels.notAvailable;
     final evaluationDate = resolveEvaluationDate(data);
     final cabinType = data['tipoCabine'] ?? labels.notAvailable;
+    final cabinDeckKey = data['deckCabine'] as String?;
     final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
     final ratings = _extractRatings(data);
     final generalObservation = data['observacaoGeral'];
@@ -116,6 +117,7 @@ class MyRatingsController {
       evaluatorName: evaluatorName,
       evaluationDate: evaluationDate,
       cabinType: cabinType,
+      cabinDeck: cabinDeckKey != null ? _formatDeckLabel(cabinDeckKey, labels) : null,
       disembarkationDate: disembarkationDate,
       ratings: ratings,
       generalObservation: generalObservation,
@@ -183,6 +185,11 @@ class MyRatingsController {
   // ===========================================================================
   // PRIVATE METHODS
   // ===========================================================================
+
+  /// Returns localized deck label from PdfLabels.
+  String _formatDeckLabel(String key, PdfLabels labels) {
+    return labels.deckLabels[key] ?? key;
+  }
 
   Future<String?> _getUserCallSign(String userId) async {
     final userSnapshot =
