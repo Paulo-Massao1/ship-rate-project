@@ -20,3 +20,4 @@ ios/Runner/GoogleService-Info.plist
 prompt.md
 CLAUDE.md
 backup_*.json
+.claude
