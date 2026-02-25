@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/rating_controller.dart';
 /// Screen for adding a new ship rating.
 ///
@@ -26,10 +26,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // CONSTANTS
   // ===========================================================================
 
-  static const _primaryColor = Color(0xFF3F51B5);
-  static const _cabinSectionColor = Color(0xFF4CAF50);
-  static const _bridgeSectionColor = Color(0xFFFF9800);
-  static const _otherSectionColor = Color(0xFF607D8B);
+  // Deep Ocean theme colors
+  static const _accentBlue = Color(0xFF64B5F6);
+  static const _fieldBg = Color(0x0FFFFFFF);
+  static const _fieldBorder = Color(0x1F64B5F6);
+  static const _hintColor = Color(0x59FFFFFF);
+  static const _labelColor = Color(0x99FFFFFF);
+  static const _iconBg = Color(0x2664B5F6);
 
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
   static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
@@ -143,12 +146,43 @@ class _AddRatingPageState extends State<AddRatingPage> {
   Future<void> _loadShips() async {
     final snapshot = await FirebaseFirestore.instance.collection('navios').get();
     if (!mounted) return;
-    setState(() => _registeredShips = snapshot.docs);
+    // Skip merged ships
+    final filtered = snapshot.docs
+        .where((doc) => doc.data()['merged'] != true)
+        .toList();
+    setState(() => _registeredShips = filtered);
   }
 
   // ===========================================================================
   // HELPERS
   // ===========================================================================
+
+  /// Common InputDecoration for dark-themed text fields.
+  InputDecoration _darkInputDecoration({
+    required String labelText,
+    required IconData prefixIcon,
+    bool enabled = true,
+  }) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: _labelColor),
+      prefixIcon: Icon(prefixIcon, size: 20, color: _accentBlue),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _fieldBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _fieldBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: _accentBlue, width: 1.5),
+      ),
+      filled: true,
+      fillColor: enabled ? _fieldBg : const Color(0x08FFFFFF),
+    );
+  }
 
   /// Maps Firestore criteria keys to translated display names.
   String _criteriaLabel(String key) {
@@ -235,11 +269,12 @@ class _AddRatingPageState extends State<AddRatingPage> {
       lastDate: DateTime.now().add(const Duration(days: 100)),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: _primaryColor,
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: _accentBlue,
               onPrimary: Colors.white,
-              onSurface: Colors.black,
+              surface: Color(0xFF0D2137),
+              onSurface: Colors.white,
             ),
           ),
           child: child!,
@@ -348,10 +383,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
       children: [
         Text(
           l10n.crewNationality,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[700],
+            color: _labelColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -359,33 +394,63 @@ class _AddRatingPageState extends State<AddRatingPage> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            ..._nationalityKeys.map((key) => FilterChip(
-              label: Text(_nationalityLabel(key)),
-              selected: _selectedNationalities.contains(key),
-              onSelected: _shipAlreadyExists ? null : (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedNationalities.add(key);
-                  } else {
-                    _selectedNationalities.remove(key);
-                  }
-                });
-              },
-              selectedColor: _primaryColor.withAlpha(51),
-              checkmarkColor: _primaryColor,
-            )),
-            FilterChip(
-              label: Text(l10n.nationalityOther),
-              selected: _showOtherNationalityField,
-              onSelected: _shipAlreadyExists ? null : (selected) {
-                setState(() {
-                  _showOtherNationalityField = selected;
-                  if (!selected) _otherNationalityController.clear();
-                });
-              },
-              selectedColor: _primaryColor.withAlpha(51),
-              checkmarkColor: _primaryColor,
-            ),
+            ..._nationalityKeys.map((key) {
+              final selected = _selectedNationalities.contains(key);
+              return FilterChip(
+                label: Text(
+                  _nationalityLabel(key),
+                  style: TextStyle(
+                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                  ),
+                ),
+                selected: selected,
+                onSelected: _shipAlreadyExists ? null : (sel) {
+                  setState(() {
+                    if (sel) {
+                      _selectedNationalities.add(key);
+                    } else {
+                      _selectedNationalities.remove(key);
+                    }
+                  });
+                },
+                backgroundColor: _fieldBg,
+                selectedColor: _iconBg,
+                side: BorderSide(
+                  color: selected ? _accentBlue : _fieldBorder,
+                ),
+                checkmarkColor: _accentBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              );
+            }),
+            Builder(builder: (_) {
+              final selected = _showOtherNationalityField;
+              return FilterChip(
+                label: Text(
+                  l10n.nationalityOther,
+                  style: TextStyle(
+                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                  ),
+                ),
+                selected: selected,
+                onSelected: _shipAlreadyExists ? null : (sel) {
+                  setState(() {
+                    _showOtherNationalityField = sel;
+                    if (!sel) _otherNationalityController.clear();
+                  });
+                },
+                backgroundColor: _fieldBg,
+                selectedColor: _iconBg,
+                side: BorderSide(
+                  color: selected ? _accentBlue : _fieldBorder,
+                ),
+                checkmarkColor: _accentBlue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              );
+            }),
           ],
         ),
         if (_showOtherNationalityField) ...[
@@ -393,12 +458,11 @@ class _AddRatingPageState extends State<AddRatingPage> {
           TextFormField(
             controller: _otherNationalityController,
             enabled: !_shipAlreadyExists,
-            decoration: InputDecoration(
+            style: const TextStyle(color: Colors.white),
+            decoration: _darkInputDecoration(
               labelText: l10n.specifyNationality,
-              prefixIcon: const Icon(Icons.edit, size: 20),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              filled: true,
-              fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
+              prefixIcon: Icons.edit,
+              enabled: !_shipAlreadyExists,
             ),
           ),
         ],
@@ -414,36 +478,45 @@ class _AddRatingPageState extends State<AddRatingPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: const Color(0xFF0A1628),
       appBar: AppBar(
         title: Text(
           l10n.rateShipTitle,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: _primaryColor,
+        backgroundColor: const Color(0xFF0A1628),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       bottomNavigationBar: _buildSaveButton(),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildShipInfoCard(),
-            // Hide remaining fields until user selects from dropdown
-            if (!_hasExactMatch || _shipAlreadyExists) ...[
-              const SizedBox(height: 16),
-              _buildCabinSection(),
-              const SizedBox(height: 16),
-              _buildBridgeSection(),
-              const SizedBox(height: 16),
-              _buildOtherRatingsSection(),
-              const SizedBox(height: 16),
-              _buildGeneralObservationCard(),
-              const SizedBox(height: 80),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
+          ),
+        ),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              _buildShipInfoCard(),
+              // Hide remaining fields until user selects from dropdown
+              if (!_hasExactMatch || _shipAlreadyExists) ...[
+                const SizedBox(height: 16),
+                _buildCabinSection(),
+                const SizedBox(height: 16),
+                _buildBridgeSection(),
+                const SizedBox(height: 16),
+                _buildOtherRatingsSection(),
+                const SizedBox(height: 16),
+                _buildGeneralObservationCard(),
+                const SizedBox(height: 80),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -457,43 +530,58 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: Color(0xFF0A1628),
       ),
       child: SafeArea(
-        child: ElevatedButton(
-          onPressed: _isSaving || (_hasExactMatch && !_shipAlreadyExists)
-              ? null
-              : _saveRating,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment(-1, -1),
+              end: Alignment(1, 1),
+              colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
             ),
-            elevation: 2,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x661565C0),
+                blurRadius: 16,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
-          child: _isSaving
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          child: ElevatedButton(
+            onPressed: _isSaving || (_hasExactMatch && !_shipAlreadyExists)
+                ? null
+                : _saveRating,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: _isSaving
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    l10n.saveRating,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                )
-              : Text(
-                  l10n.saveRating,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+          ),
         ),
       ),
     );
@@ -507,10 +595,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final l10n = AppLocalizations.of(context)!;
     final showFoundHint = _hasExactMatch && !_shipAlreadyExists;
 
-    return _SectionCard(
+    return _DeepOceanSectionCard(
       icon: Icons.directions_boat,
       title: l10n.shipData,
-      color: _primaryColor,
       children: [
         _buildShipAutocomplete(),
         if (showFoundHint) ...[
@@ -565,29 +652,31 @@ class _AddRatingPageState extends State<AddRatingPage> {
         return TextFormField(
           controller: controller,
           focusNode: focusNode,
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             labelText: l10n.shipName,
-            prefixIcon: const Icon(Icons.directions_boat, size: 20),
+            labelStyle: const TextStyle(color: _labelColor),
+            prefixIcon: const Icon(Icons.directions_boat, size: 20, color: _accentBlue),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               borderSide: showFoundHint
                   ? const BorderSide(color: Colors.green, width: 2)
-                  : BorderSide.none,
+                  : const BorderSide(color: _fieldBorder),
             ),
-            enabledBorder: showFoundHint
-                ? OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.green, width: 2),
-                  )
-                : OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            focusedBorder: showFoundHint
-                ? OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.green, width: 2),
-                  )
-                : null,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: showFoundHint
+                  ? const BorderSide(color: Colors.green, width: 2)
+                  : const BorderSide(color: _fieldBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: showFoundHint
+                  ? const BorderSide(color: Colors.green, width: 2)
+                  : const BorderSide(color: _accentBlue, width: 1.5),
+            ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: _fieldBg,
           ),
           validator: (v) => v == null || v.isEmpty ? l10n.enterShipName : null,
           textCapitalization: TextCapitalization.characters,
@@ -611,6 +700,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
         return Material(
           elevation: 8,
           borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFF0D2137),
           child: ListView.builder(
             padding: EdgeInsets.zero,
             itemCount: options.length,
@@ -622,10 +712,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: _primaryColor.withAlpha(26),
+                    color: _iconBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.directions_boat, color: _primaryColor),
+                  child: const Icon(Icons.directions_boat, color: _accentBlue),
                 ),
                 title: RichText(
                   text: _highlightMatch(
@@ -650,12 +740,11 @@ class _AddRatingPageState extends State<AddRatingPage> {
     return TextFormField(
       controller: _imoController,
       enabled: !_shipAlreadyExists,
-      decoration: InputDecoration(
+      style: const TextStyle(color: Colors.white),
+      decoration: _darkInputDecoration(
         labelText: l10n.imoOptional,
-        prefixIcon: const Icon(Icons.numbers, size: 20),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: _shipAlreadyExists ? Colors.grey[100] : Colors.white,
+        prefixIcon: Icons.numbers,
+        enabled: !_shipAlreadyExists,
       ),
     );
   }
@@ -664,34 +753,40 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
+        color: _fieldBg,
+        border: Border.all(color: _fieldBorder),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _primaryColor.withAlpha(26),
+            color: _iconBg,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.event, color: _primaryColor),
+          child: const Icon(Icons.event, color: _accentBlue),
         ),
         title: Text(
           l10n.disembarkationDate,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Color(0xD9FFFFFF),
+          ),
         ),
         subtitle: Text(
           _disembarkationDate == null
               ? l10n.tapToSelect
               : _formatDate(_disembarkationDate!),
           style: TextStyle(
-            color: _disembarkationDate == null ? Colors.grey : _primaryColor,
+            color: _disembarkationDate == null
+                ? const Color(0x66FFFFFF)
+                : _accentBlue,
             fontWeight: _disembarkationDate == null
                 ? FontWeight.normal
                 : FontWeight.w600,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: _primaryColor),
+        trailing: const Icon(Icons.chevron_right, color: Color(0x66FFFFFF)),
         onTap: _selectDisembarkationDate,
       ),
     );
@@ -703,20 +798,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildCabinSection() {
     final l10n = AppLocalizations.of(context)!;
-    return _SectionCard(
+    return _DeepOceanSectionCard(
       icon: Icons.bed,
       title: l10n.cabin,
-      color: _cabinSectionColor,
       children: [
-        DropdownButtonFormField<String>(
+        _buildDarkDropdown(
           value: _selectedCabinCount,
-          decoration: InputDecoration(
-            labelText: l10n.cabinCount,
-            prefixIcon: const Icon(Icons.meeting_room, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            filled: true,
-            fillColor: Colors.white,
-          ),
+          labelText: l10n.cabinCount,
+          prefixIcon: Icons.meeting_room,
           items: [
             DropdownMenuItem(value: '1', child: Text(l10n.cabinCountOne)),
             DropdownMenuItem(value: '2', child: Text(l10n.cabinCountTwo)),
@@ -739,17 +828,33 @@ class _AddRatingPageState extends State<AddRatingPage> {
     );
   }
 
+  Widget _buildDarkDropdown({
+    required String? value,
+    required String labelText,
+    required IconData prefixIcon,
+    required List<DropdownMenuItem<String>> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      dropdownColor: const Color(0xFF0D2137),
+      style: const TextStyle(color: Colors.white),
+      iconEnabledColor: const Color(0x66FFFFFF),
+      decoration: _darkInputDecoration(
+        labelText: labelText,
+        prefixIcon: prefixIcon,
+      ),
+      items: items,
+      onChanged: onChanged,
+    );
+  }
+
   Widget _buildCabinTypeDropdown() {
     final l10n = AppLocalizations.of(context)!;
-    return DropdownButtonFormField<String>(
+    return _buildDarkDropdown(
       value: _selectedCabinType,
-      decoration: InputDecoration(
-        labelText: l10n.cabinType,
-        prefixIcon: const Icon(Icons.king_bed, size: 20),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Colors.white,
-      ),
+      labelText: l10n.cabinType,
+      prefixIcon: Icons.king_bed,
       items: _cabinTypes
           .map((e) => DropdownMenuItem(value: e, child: Text(e)))
           .toList(),
@@ -759,15 +864,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildCabinDeckDropdown() {
     final l10n = AppLocalizations.of(context)!;
-    return DropdownButtonFormField<String>(
+    return _buildDarkDropdown(
       value: _selectedCabinDeck,
-      decoration: InputDecoration(
-        labelText: l10n.cabinDeck,
-        prefixIcon: const Icon(Icons.layers, size: 20),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Colors.white,
-      ),
+      labelText: l10n.cabinDeck,
+      prefixIcon: Icons.layers,
       items: _cabinDecks
           .map((e) => DropdownMenuItem(value: e, child: Text(_deckLabel(l10n, e))))
           .toList(),
@@ -793,10 +893,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildBridgeSection() {
     final l10n = AppLocalizations.of(context)!;
-    return _SectionCard(
+    return _DeepOceanSectionCard(
       icon: Icons.navigation,
       title: l10n.bridge,
-      color: _bridgeSectionColor,
       children: [
         _buildAmenitiesContainer(),
         const SizedBox(height: 24),
@@ -814,7 +913,8 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
+        color: _fieldBg,
+        border: Border.all(color: _fieldBorder),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -825,14 +925,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
             value: _bridgeHasMinibar,
             onChanged: (v) => setState(() => _bridgeHasMinibar = v),
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: _fieldBorder),
           _buildAmenitySwitch(
             title: l10n.hasSink,
             icon: Icons.water_drop,
             value: _bridgeHasSink,
             onChanged: (v) => setState(() => _bridgeHasSink = v),
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: _fieldBorder),
           _buildAmenitySwitch(
             title: l10n.hasMicrowave,
             icon: Icons.microwave,
@@ -851,10 +951,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
     required ValueChanged<bool> onChanged,
   }) {
     return SwitchListTile(
-      title: Text(title),
-      secondary: Icon(icon, color: _bridgeSectionColor),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      secondary: Icon(icon, color: _accentBlue),
       value: value,
-      activeColor: _bridgeSectionColor,
+      activeColor: _accentBlue,
       onChanged: onChanged,
     );
   }
@@ -865,10 +965,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildOtherRatingsSection() {
     final l10n = AppLocalizations.of(context)!;
-    return _SectionCard(
+    return _DeepOceanSectionCard(
       icon: Icons.star,
       title: l10n.otherRatings,
-      color: _primaryColor,
       children: _otherCriteria
           .map((c) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -884,20 +983,31 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildGeneralObservationCard() {
     final l10n = AppLocalizations.of(context)!;
-    return _SectionCard(
+    return _DeepOceanSectionCard(
       icon: Icons.notes,
       title: l10n.generalObservation,
-      color: _otherSectionColor,
       children: [
         TextFormField(
           controller: _generalObservationController,
           maxLines: 4,
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: l10n.generalObservationHint,
-            hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            hintStyle: const TextStyle(fontSize: 14, color: _hintColor),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _fieldBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _fieldBorder),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _accentBlue, width: 1.5),
+            ),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: _fieldBg,
           ),
         ),
       ],
@@ -915,17 +1025,17 @@ class _AddRatingPageState extends State<AddRatingPage> {
           width: 4,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.grey[400],
+            color: _accentBlue,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 10),
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
+            color: _labelColor,
           ),
         ),
       ],
@@ -936,14 +1046,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final l10n = AppLocalizations.of(context)!;
     final score = _ratingsByItem[item]!;
     final icon = _criteriaIcons[item] ?? Icons.star;
-    final color = _criteriaColors[item] ?? _primaryColor;
+    final color = _criteriaColors[item] ?? _accentBlue;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: _fieldBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: _fieldBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -959,7 +1069,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C3E50),
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -976,28 +1086,28 @@ class _AddRatingPageState extends State<AddRatingPage> {
           TextField(
             controller: _observationControllers[item],
             maxLines: 2,
-            style: const TextStyle(fontSize: 13),
+            style: const TextStyle(fontSize: 13, color: Colors.white),
             decoration: InputDecoration(
               hintText: l10n.observationsOptional,
-              hintStyle: TextStyle(fontSize: 13, color: Colors.grey[400]),
+              hintStyle: const TextStyle(fontSize: 13, color: _hintColor),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide: const BorderSide(color: _fieldBorder),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide: const BorderSide(color: _fieldBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: color, width: 1.5),
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: _fieldBg,
             ),
           ),
         ],
@@ -1009,7 +1119,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withAlpha(26),
+        color: color.withAlpha(38),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -1033,7 +1143,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   Widget _buildRatingSlider(String item, double score, Color color) {
     return Row(
       children: [
-        const Text('1.0', style: TextStyle(fontSize: 11, color: Colors.grey)),
+        const Text('1.0', style: TextStyle(fontSize: 11, color: _labelColor)),
         Expanded(
           child: SliderTheme(
             data: SliderTheme.of(context).copyWith(
@@ -1053,7 +1163,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
             ),
           ),
         ),
-        const Text('5.0', style: TextStyle(fontSize: 11, color: Colors.grey)),
+        const Text('5.0', style: TextStyle(fontSize: 11, color: _labelColor)),
       ],
     );
   }
@@ -1074,7 +1184,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
           text: char,
           style: TextStyle(
             fontWeight: isMatch ? FontWeight.bold : FontWeight.normal,
-            color: Colors.black,
+            color: isMatch ? _accentBlue : Colors.white,
           ),
         );
       }).toList(),
@@ -1089,39 +1199,37 @@ class _AddRatingPageState extends State<AddRatingPage> {
 }
 
 // =============================================================================
-// SECTION CARD WIDGET
+// DEEP OCEAN SECTION CARD WIDGET
 // =============================================================================
 
-/// Reusable card widget for form sections.
-class _SectionCard extends StatelessWidget {
+/// Reusable card widget for form sections with Deep Ocean theme.
+class _DeepOceanSectionCard extends StatelessWidget {
   final IconData icon;
   final String title;
-  final Color color;
   final List<Widget> children;
 
-  const _SectionCard({
+  const _DeepOceanSectionCard({
     required this.icon,
     required this.title,
-    required this.color,
     required this.children,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 20),
-            ...children,
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0x1A64B5F6)),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 20),
+          ...children,
+        ],
       ),
     );
   }
@@ -1132,18 +1240,18 @@ class _SectionCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withAlpha(26),
+            color: const Color(0x2664B5F6),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: color, size: 24),
+          child: Icon(icon, color: const Color(0xFF64B5F6), size: 24),
         ),
         const SizedBox(width: 12),
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: color,
+            color: Colors.white,
           ),
         ),
       ],

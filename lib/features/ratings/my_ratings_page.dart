@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/my_ratings_controller.dart';
 import '../../core/events/data_change_notifier.dart';
 import '../../data/services/pdf_labels_factory.dart';
@@ -27,7 +27,15 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   // CONSTANTS
   // ===========================================================================
 
-  static const _primaryColor = Color(0xFF3F51B5);
+  // Deep Ocean theme colors
+  static const _accentBlue = Color(0xFF64B5F6);
+  static const _cardBg = Color(0x0DFFFFFF);
+  static const _cardBorder = Color(0x1A64B5F6);
+  static const _iconBg = Color(0x1A64B5F6);
+  static const _bodyText = Color(0xD9FFFFFF);
+  static const _subtitleText = Color(0x99FFFFFF);
+  static const _secondaryText = Color(0x59FFFFFF);
+  static const _dividerColor = Color(0x0DFFFFFF);
 
   // ===========================================================================
   // CONTROLLER & STATE
@@ -172,18 +180,27 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: const Color(0xFF0A1628),
       appBar: AppBar(
         title: Text(
           l10n.myRatingsTitle,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: _primaryColor,
+        backgroundColor: const Color(0xFF0A1628),
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
       ),
-      body: _buildBody(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
+          ),
+        ),
+        child: _buildBody(),
+      ),
     );
   }
 
@@ -209,11 +226,11 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: _primaryColor),
+          const CircularProgressIndicator(color: _accentBlue),
           const SizedBox(height: 16),
           Text(
             l10n.loadingRatings,
-            style: const TextStyle(color: Colors.black54, fontSize: 14),
+            style: const TextStyle(color: _subtitleText, fontSize: 14),
           ),
         ],
       ),
@@ -233,19 +250,37 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: const TextStyle(fontSize: 16, color: _bodyText),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: _loadRatings,
-              icon: const Icon(Icons.refresh),
-              label: Text(l10n.tryAgain),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment(-1, -1),
+                  end: Alignment(1, 1),
+                  colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x661565C0),
+                    blurRadius: 16,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _loadRatings,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.tryAgain),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -265,14 +300,14 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: _primaryColor.withAlpha(26),
+              decoration: const BoxDecoration(
+                color: _iconBg,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.rate_review_outlined,
                 size: 64,
-                color: _primaryColor,
+                color: _accentBlue,
               ),
             ),
             const SizedBox(height: 24),
@@ -281,14 +316,14 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.noRatingsSubtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: const TextStyle(fontSize: 14, color: _subtitleText),
             ),
           ],
         ),
@@ -299,7 +334,8 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   Widget _buildRatingsList() {
     return RefreshIndicator(
       onRefresh: _loadRatings,
-      color: _primaryColor,
+      color: _accentBlue,
+      backgroundColor: const Color(0xFF0D2137),
       child: Column(
         children: [
           _buildListHeader(),
@@ -322,34 +358,28 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: _cardBg,
+        border: Border(bottom: BorderSide(color: _dividerColor)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.analytics_outlined, color: _primaryColor, size: 20),
+          const Icon(Icons.analytics_outlined, color: _accentBlue, size: 20),
           const SizedBox(width: 8),
           Text(
             l10n.totalRatings(count),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: _primaryColor,
+              color: _accentBlue,
             ),
           ),
           const Spacer(),
-          const Icon(Icons.schedule, color: Colors.black54, size: 16),
+          const Icon(Icons.schedule, color: _secondaryText, size: 16),
           const SizedBox(width: 4),
           Text(
             l10n.newestFirst,
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
+            style: const TextStyle(fontSize: 12, color: _secondaryText),
           ),
         ],
       ),
@@ -365,13 +395,15 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        elevation: 2,
-        shadowColor: Colors.black12,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _cardBorder),
+        ),
         child: InkWell(
           onTap: () => _navigateToDetail(item),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -379,7 +411,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
               children: [
                 _buildCardHeader(item),
                 const SizedBox(height: 16),
-                const Divider(height: 1),
+                Divider(height: 1, color: _dividerColor),
                 const SizedBox(height: 12),
                 _buildCardInfo(ratingDate, averageRating, cabinType, cabinDeck),
                 const SizedBox(height: 12),
@@ -398,12 +430,12 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: _primaryColor.withAlpha(26),
+            color: _iconBg,
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
             Icons.directions_boat,
-            color: _primaryColor,
+            color: _accentBlue,
             size: 24,
           ),
         ),
@@ -417,20 +449,20 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
+                  color: Colors.white,
                 ),
               ),
               if (item.shipImo.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(
                   'IMO: ${item.shipImo}',
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  style: const TextStyle(fontSize: 12, color: _secondaryText),
                 ),
               ],
             ],
           ),
         ),
-        const Icon(Icons.chevron_right, color: _primaryColor),
+        const Icon(Icons.chevron_right, color: _accentBlue),
       ],
     );
   }
@@ -460,7 +492,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
                 icon: Icons.calendar_today,
                 label: l10n.ratingDate,
                 value: _controller.formatDate(ratingDate),
-                color: _primaryColor,
+                color: _accentBlue,
               ),
             ),
           ],
@@ -529,7 +561,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         _ActionButton(
           icon: Icons.picture_as_pdf,
           label: 'PDF',
-          color: _primaryColor,
+          color: _accentBlue,
           onTap: () => _exportRatingToPdf(item),
         ),
       ],
@@ -545,7 +577,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(
-        child: CircularProgressIndicator(color: _primaryColor),
+        child: CircularProgressIndicator(color: _accentBlue),
       ),
     );
   }
@@ -595,6 +627,7 @@ class _InfoChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withAlpha(38)),
       ),
       child: Row(
         children: [

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/suggestion_controller.dart';
 
 /// Screen for submitting user suggestions and feedback.
@@ -19,6 +19,13 @@ class _SuggestionPageState extends State<SuggestionPage> {
   // ===========================================================================
   // CONSTANTS
   // ===========================================================================
+
+  // Deep Ocean theme colors
+  static const _accentBlue = Color(0xFF64B5F6);
+  static const _fieldBg = Color(0x0FFFFFFF);
+  static const _fieldBorder = Color(0x1F64B5F6);
+  static const _hintColor = Color(0x59FFFFFF);
+  static const _subtitleText = Color(0x99FFFFFF);
 
   static const _feedbackTypes = [
     _FeedbackType(
@@ -121,26 +128,39 @@ class _SuggestionPageState extends State<SuggestionPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      backgroundColor: const Color(0xFF0A1628),
       appBar: AppBar(
         title: Text(
           l10n.sendSuggestionTitle,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
+        backgroundColor: const Color(0xFF0A1628),
+        foregroundColor: Colors.white,
+        elevation: 0,
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildFeedbackTypeDropdown(),
-            const SizedBox(height: 16),
-            _buildMessageField(),
-            const SizedBox(height: 32),
-            _buildSubmitButton(),
-          ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildFeedbackTypeDropdown(),
+              const SizedBox(height: 16),
+              _buildMessageField(),
+              const SizedBox(height: 32),
+              _buildSubmitButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -153,12 +173,16 @@ class _SuggestionPageState extends State<SuggestionPage> {
       children: [
         Text(
           l10n.yourOpinionMatters,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           l10n.helpImproveApp,
-          style: TextStyle(color: Colors.grey[700]),
+          style: const TextStyle(color: _subtitleText),
         ),
       ],
     );
@@ -168,20 +192,23 @@ class _SuggestionPageState extends State<SuggestionPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: _fieldBg,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _fieldBorder),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedType,
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down),
+          dropdownColor: const Color(0xFF0D2137),
+          icon: const Icon(Icons.arrow_drop_down, color: _hintColor),
+          style: const TextStyle(color: Colors.white),
           items: _feedbackTypes
               .map((type) => DropdownMenuItem(
                     value: type.value,
                     child: Row(
                       children: [
-                        Icon(type.icon, size: 20),
+                        Icon(type.icon, size: 20, color: _accentBlue),
                         const SizedBox(width: 12),
                         Text(_feedbackLabel(type.value)),
                       ],
@@ -203,14 +230,25 @@ class _SuggestionPageState extends State<SuggestionPage> {
     return TextField(
       controller: _messageController,
       maxLines: 5,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: l10n.messageLabel,
-        prefixIcon: const Icon(Icons.message_outlined),
+        labelStyle: const TextStyle(color: _subtitleText),
+        prefixIcon: const Icon(Icons.message_outlined, color: _accentBlue),
+        hintStyle: const TextStyle(color: _hintColor),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: _fieldBg,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: _fieldBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _fieldBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _accentBlue, width: 1.5),
         ),
       ),
     );
@@ -220,27 +258,52 @@ class _SuggestionPageState extends State<SuggestionPage> {
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _submitSuggestion,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment(-1, -1),
+            end: Alignment(1, 1),
+            colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
           ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x661565C0),
+              blurRadius: 16,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
-        child: _isLoading
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _submitSuggestion,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  l10n.sendButton,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              )
-            : Text(
-                l10n.sendButton,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
+        ),
       ),
     );
   }

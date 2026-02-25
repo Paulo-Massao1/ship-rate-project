@@ -1,7 +1,9 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/ship_search_controller.dart';
 import '../../core/events/data_change_notifier.dart';
 import '../home/widgets/dashboard_widget.dart';
@@ -26,8 +28,7 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
   // CONSTANTS
   // ===========================================================================
 
-  static const _primaryColor = Color(0xFF3F51B5);
-  static const _tabBackgroundColor = Color(0xFFE9EAEE);
+  static const _accentBlue = Color(0xFF64B5F6);
 
   // ===========================================================================
   // CONTROLLERS
@@ -57,22 +58,35 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE6E6EA)),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: const [
-                _SearchShipTab(),
-                _RateShipTab(),
-              ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF0A1628),
+            Color(0xFF0D2137),
+            Color(0xFF132D4A),
+          ],
+          stops: [0.0, 0.6, 1.0],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: const [
+                  _SearchShipTab(),
+                  _RateShipTab(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -80,9 +94,7 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
   Widget _buildHeader() {
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFFF7F7F9),
+    return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,14 +105,14 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
               fontSize: 26,
               fontWeight: FontWeight.bold,
               height: 1.1,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             l10n.searchSubtitle,
-            style: const TextStyle(
-              color: Colors.black54,
+            style: TextStyle(
+              color: _accentBlue.withValues(alpha: 0.6),
               fontSize: 14,
               height: 1.3,
             ),
@@ -119,7 +131,7 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
       height: 42,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: _tabBackgroundColor,
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(22),
       ),
       child: TabBar(
@@ -127,18 +139,11 @@ class _SearchAndRateShipPageState extends State<SearchAndRateShipPage>
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         indicator: BoxDecoration(
-          color: Colors.white,
+          color: _accentBlue.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
         ),
-        labelColor: _primaryColor,
-        unselectedLabelColor: Colors.black87,
+        labelColor: _accentBlue,
+        unselectedLabelColor: Colors.white.withValues(alpha: 0.5),
         labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
@@ -248,14 +253,31 @@ class _SearchShipTabState extends State<_SearchShipTab>
       textCapitalization: TextCapitalization.characters,
       inputFormatters: [_UpperCaseTextFormatter()],
       onChanged: _updateSuggestions,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: l10n.searchHint,
-        prefixIcon: const Icon(Icons.search),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35)),
+        prefixIcon: const Icon(Icons.search, color: Color(0xFF64B5F6)),
         filled: true,
-        fillColor: Colors.grey[100],
+        fillColor: Colors.white.withValues(alpha: 0.06),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: Color(0xFF64B5F6),
+            width: 1.5,
+          ),
         ),
       ),
     );
@@ -267,22 +289,25 @@ class _SearchShipTabState extends State<_SearchShipTab>
       child: Container(
         margin: const EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFF132D4A),
           borderRadius: BorderRadius.circular(14),
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 8),
-          ],
+          border: Border.all(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+          ),
         ),
         child: ListView.separated(
           itemCount: _suggestions.length,
           separatorBuilder: (_, __) =>
-              Divider(height: 1, color: Colors.grey[200]),
+              Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
           itemBuilder: (_, index) {
             final doc = _suggestions[index];
             final data = doc.data() as Map;
 
             return ListTile(
-              leading: const Icon(Icons.directions_boat),
+              leading: Icon(
+                Icons.directions_boat,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
               title: _HighlightedText(
                 text: (data['nome'] as String).toUpperCase(),
                 query: _searchTextController.text,
@@ -316,7 +341,11 @@ class _SearchShipTabState extends State<_SearchShipTab>
               const SizedBox(height: 20),
               Text(
                 l10n.ratings,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 12),
               _RatingsList(controller: _controller, ratings: _ratings!),
@@ -337,54 +366,115 @@ class _SearchShipTabState extends State<_SearchShipTab>
 class _RateShipTab extends StatelessWidget {
   const _RateShipTab();
 
-  static const _overlayColor = Color(0xFF2F3E9E);
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset('assets/images/navio2.png', fit: BoxFit.cover),
-        Container(color: Colors.black.withAlpha(115)),
-        _buildContent(context),
+        // Subtle wave decoration at top
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: CustomPaint(
+            size: const Size(double.infinity, 120),
+            painter: _WavePainter(
+              color: const Color(0xFF64B5F6).withValues(alpha: 0.15),
+            ),
+          ),
+        ),
+        // Frosted glass card — centered
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 28,
+                    horizontal: 24,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF64B5F6).withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: _buildCardContent(context),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Bottom wave decoration
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: CustomPaint(
+            size: const Size(double.infinity, 60),
+            painter: _WavePainter(
+              color: const Color(0xFF64B5F6).withValues(alpha: 0.06),
+              flip: true,
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildCardContent(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.newShipRating,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Ship icon in container
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: const Color(0xFF64B5F6).withValues(alpha: 0.2),
             ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.rateSubtitle,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 30),
-            _buildStartButton(context),
-          ],
+          ),
+          child: const Icon(
+            Icons.directions_boat,
+            color: Color(0xFF64B5F6),
+            size: 26,
+          ),
         ),
-      ),
+        const SizedBox(height: 18),
+        // Title
+        Text(
+          l10n.newShipRating,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Subtitle
+        Text(
+          l10n.rateSubtitle,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.5),
+            fontSize: 12,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 24),
+        // CTA button
+        _buildStartButton(context),
+      ],
     );
   }
 
@@ -394,31 +484,47 @@ class _RateShipTab extends StatelessWidget {
     return SizedBox(
       width: 240,
       height: 50,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _overlayColor,
-          foregroundColor: Colors.white,
-          elevation: 3,
-          shadowColor: Colors.black.withAlpha(64),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
           ),
-        ),
-        onPressed: () => _navigateToAddRating(context),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.assignment_turned_in_outlined, size: 18),
-            const SizedBox(width: 10),
-            Text(
-              l10n.startRating,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
-              ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1565C0).withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
+        ),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: () => _navigateToAddRating(context),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.edit_note, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                l10n.startRating,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -858,19 +964,21 @@ class _HighlightedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (query.isEmpty) return Text(text);
+    final defaultColor = Colors.white.withValues(alpha: 0.85);
+    if (query.isEmpty) return Text(text, style: TextStyle(color: defaultColor));
 
     final queryChars = query.toLowerCase().split('');
 
     return RichText(
       text: TextSpan(
-        style: const TextStyle(color: Colors.black),
+        style: TextStyle(color: defaultColor),
         children: text.split('').map((char) {
           final isMatch = queryChars.contains(char.toLowerCase());
           return TextSpan(
             text: char,
             style: TextStyle(
               fontWeight: isMatch ? FontWeight.bold : FontWeight.normal,
+              color: isMatch ? const Color(0xFF64B5F6) : defaultColor,
             ),
           );
         }).toList(),
@@ -888,4 +996,59 @@ class _UpperCaseTextFormatter extends TextInputFormatter {
   ) {
     return newValue.copyWith(text: newValue.text.toUpperCase());
   }
+}
+
+// =============================================================================
+// PAINTERS
+// =============================================================================
+
+/// Paints a subtle wave curve for decorative ocean atmosphere.
+class _WavePainter extends CustomPainter {
+  final Color color;
+  final bool flip;
+
+  _WavePainter({required this.color, this.flip = false});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+
+    if (flip) {
+      path.moveTo(0, size.height);
+      path.lineTo(0, size.height * 0.4);
+      path.quadraticBezierTo(
+        size.width * 0.25, 0,
+        size.width * 0.5, size.height * 0.3,
+      );
+      path.quadraticBezierTo(
+        size.width * 0.75, size.height * 0.6,
+        size.width, size.height * 0.2,
+      );
+      path.lineTo(size.width, size.height);
+      path.close();
+    } else {
+      path.moveTo(0, size.height * 0.6);
+      path.quadraticBezierTo(
+        size.width * 0.25, size.height,
+        size.width * 0.5, size.height * 0.7,
+      );
+      path.quadraticBezierTo(
+        size.width * 0.75, size.height * 0.4,
+        size.width, size.height * 0.8,
+      );
+      path.lineTo(size.width, 0);
+      path.lineTo(0, 0);
+      path.close();
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WavePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.flip != flip;
 }
