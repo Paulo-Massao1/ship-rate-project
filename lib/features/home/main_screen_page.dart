@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../auth/login_page.dart';
@@ -41,8 +41,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   // CONSTANTS
   // ===========================================================================
 
-  static const _gradientStart = Color(0xFF3F51B5);
-  static const _gradientEnd = Color(0xFF2F3E9E);
   static const _shareUrl = 'https://shiprate-daf18.web.app/';
   static const _shareText =
       'Conheça o ShipRate! O app de avaliação profissional de navios para práticos. '
@@ -228,13 +226,55 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: const Text(
-        'ShipRate',
-        style: TextStyle(fontWeight: FontWeight.bold),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.directions_boat,
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.85),
+            size: 24,
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            'SHIPRATE',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ],
       ),
-      backgroundColor: Colors.indigo,
-      foregroundColor: Colors.white,
       centerTitle: true,
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      elevation: 4,
+      shadowColor: Colors.black54,
+      flexibleSpace: Stack(
+        children: [
+          // Gradient background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0A1628),
+                  Color(0xFF1A3A5C),
+                  Color(0xFF0D2137),
+                ],
+                stops: [0.0, 0.5, 1.0],
+              ),
+            ),
+          ),
+          // Subtle horizontal line texture overlay
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _LinePatternPainter(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -242,50 +282,83 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final l10n = AppLocalizations.of(context)!;
 
     return Drawer(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDrawerHeader(),
-            const SizedBox(height: 20),
-            _DrawerItem(
-              icon: Icons.search,
-              label: l10n.drawerSearchRate,
-              onTap: () => Navigator.pop(context),
-            ),
-            _DrawerItem(
-              icon: Icons.assignment_turned_in_outlined,
-              label: l10n.drawerMyRatings,
-              onTap: _navigateToMyRatings,
-            ),
-            _DrawerItem(
-              icon: Icons.lightbulb_outline,
-              label: l10n.drawerSendSuggestion,
-              onTap: _navigateToSuggestions,
-            ),
-            _DrawerItem(
-              icon: Icons.share,
-              label: l10n.drawerShareApp,
-              onTap: () {
-                Navigator.pop(context);
-                _shareApp();
-              },
-            ),
-            _DrawerItem(
-              icon: Icons.language,
-              label: localeController.locale.languageCode == 'pt'
-                  ? 'English'
-                  : 'Português',
-              onTap: _toggleLocale,
-            ),
-            const Divider(height: 32, thickness: 1),
-            _DrawerItem(
-              icon: Icons.logout,
-              label: l10n.drawerLogout,
-              color: Colors.redAccent,
-              onTap: _handleLogout,
-            ),
-          ],
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF0A1628),
+              Color(0xFF0D2137),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDrawerHeader(),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    children: [
+                      _DrawerItem(
+                        icon: Icons.search,
+                        label: l10n.drawerSearchRate,
+                        onTap: () => Navigator.pop(context),
+                      ),
+                      _DrawerItem(
+                        icon: Icons.assignment_turned_in_outlined,
+                        label: l10n.drawerMyRatings,
+                        onTap: _navigateToMyRatings,
+                      ),
+                      _DrawerItem(
+                        icon: Icons.lightbulb_outline,
+                        label: l10n.drawerSendSuggestion,
+                        onTap: _navigateToSuggestions,
+                      ),
+                      _DrawerItem(
+                        icon: Icons.share,
+                        label: l10n.drawerShareApp,
+                        onTap: () {
+                          Navigator.pop(context);
+                          _shareApp();
+                        },
+                      ),
+                      _DrawerItem(
+                        icon: Icons.language,
+                        label: localeController.locale.languageCode == 'pt'
+                            ? 'English'
+                            : 'Português',
+                        onTap: _toggleLocale,
+                      ),
+                      const Spacer(),
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: Color(0x1A64B5F6),
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: _DrawerItem(
+                          icon: Icons.logout,
+                          label: l10n.drawerLogout,
+                          color: const Color(0xFFEF5350),
+                          onTap: _handleLogout,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -294,40 +367,74 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Widget _buildDrawerHeader() {
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_gradientStart, _gradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomRight: Radius.circular(24),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.directions_boat_filled, size: 48, color: Colors.white),
-          const SizedBox(height: 14),
-          const Text(
-            'ShipRate',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.2,
+    return Stack(
+      children: [
+        // Gradient background
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0A1628),
+                Color(0xFF1A3A5C),
+                Color(0xFF0D2137),
+              ],
+              stops: [0.0, 0.5, 1.0],
+            ),
+            border: Border(
+              bottom: BorderSide(
+                color: Color(0x2664B5F6),
+                width: 1,
+              ),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            l10n.appSubtitle,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Ship icon in rounded container
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0x2664B5F6),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.directions_boat,
+                  size: 32,
+                  color: Color(0xFF64B5F6),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                'ShipRate',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.appSubtitle,
+                style: const TextStyle(
+                  color: Color(0xB364B5F6),
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        // Subtle horizontal line texture
+        Positioned.fill(
+          child: CustomPaint(
+            painter: _LinePatternPainter(opacity: 0.04),
+          ),
+        ),
+      ],
     );
   }
 
@@ -392,10 +499,36 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 }
 
 // =============================================================================
+// PAINTERS
+// =============================================================================
+
+/// Draws subtle horizontal lines for texture overlay.
+class _LinePatternPainter extends CustomPainter {
+  final double opacity;
+
+  _LinePatternPainter({this.opacity = 0.06});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: opacity)
+      ..strokeWidth = 1;
+
+    for (double y = 0; y < size.height; y += 4) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _LinePatternPainter oldDelegate) =>
+      oldDelegate.opacity != opacity;
+}
+
+// =============================================================================
 // PRIVATE WIDGETS
 // =============================================================================
 
-/// Drawer navigation item widget.
+/// Drawer navigation item widget with deep ocean theme.
 class _DrawerItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -411,15 +544,38 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemColor = color ?? Colors.black87;
+    final textColor = color ?? const Color(0xD9FFFFFF);
+    final iconColor = color ?? Colors.white.withValues(alpha: 0.7);
 
-    return ListTile(
-      leading: Icon(icon, color: itemColor),
-      title: Text(
-        label,
-        style: TextStyle(fontWeight: FontWeight.w500, color: itemColor),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          hoverColor: const Color(0x1A64B5F6),
+          splashColor: const Color(0x1A64B5F6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            child: Row(
+              children: [
+                Icon(icon, color: iconColor, size: 22),
+                const SizedBox(width: 16),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      onTap: onTap,
     );
   }
 }

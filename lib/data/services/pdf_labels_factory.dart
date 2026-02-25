@@ -1,4 +1,4 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import 'pdf_service.dart';
 
 /// Factory for creating [PdfLabels] from [AppLocalizations].

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../../controllers/dashboard_controller.dart';
 import '../../../core/events/data_change_notifier.dart';
-import '../../../core/theme/app_colors.dart';
 
 /// Dashboard widget with two visual blocks:
 /// - Block 1: App stats (total ships + total ratings)
@@ -82,10 +81,14 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
+          Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: _retry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF64B5F6).withValues(alpha: 0.15),
+              foregroundColor: const Color(0xFF64B5F6),
+            ),
             child: Text(l10n.tryAgain),
           ),
         ],
@@ -96,77 +99,34 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   Widget _buildDashboard(DashboardData data) {
     final l10n = AppLocalizations.of(context)!;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.dashboardGradientStart,
-              AppColors.dashboardGradientMid,
-              AppColors.dashboardGradientEnd,
-            ],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-        child: Stack(
-          children: [
-            ..._buildDecorativeCircles(),
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildAppStatsBlock(data, l10n),
-                  const SizedBox(height: 14),
-                  _buildUserActivityBlock(data, l10n),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAppStatsBlock(data, l10n),
+          const SizedBox(height: 14),
+          _buildUserActivityBlock(data, l10n),
+        ],
       ),
     );
-  }
-
-  /// Subtle translucent circles for visual depth on the gradient background.
-  List<Widget> _buildDecorativeCircles() {
-    return [
-      Positioned(
-        top: -40,
-        right: -30,
-        child: _DecorativeCircle(size: 140, opacity: 10),
-      ),
-      Positioned(
-        bottom: -60,
-        left: -40,
-        child: _DecorativeCircle(size: 180, opacity: 8),
-      ),
-      Positioned(
-        top: 60,
-        left: -20,
-        child: _DecorativeCircle(size: 80, opacity: 6),
-      ),
-    ];
   }
 
   // ===========================================================================
   // BLOCK 1 — APP STATS
   // ===========================================================================
 
-  /// White card with section title + 2 stats side by side.
+  /// Dark card with section title + 2 stats side by side.
   Widget _buildAppStatsBlock(DashboardData data, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-        ],
+        border: Border.all(
+          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +142,11 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                   label: l10n.totalShipsLabel,
                 ),
               ),
-              Container(width: 1, height: 40, color: Colors.grey[200]),
+              Container(
+                width: 1,
+                height: 40,
+                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+              ),
               Expanded(
                 child: _StatItem(
                   icon: Icons.star_outline,
@@ -201,7 +165,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // BLOCK 2 — USER ACTIVITY
   // ===========================================================================
 
-  /// Grey-tinted container with user ratings count, progress bar, and recent.
+  /// Dark card with user ratings count, progress bar, and recent.
   Widget _buildUserActivityBlock(DashboardData data, AppLocalizations l10n) {
     final progress =
         data.totalRatings > 0 ? data.userRatings / data.totalRatings : 0.0;
@@ -210,11 +174,11 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4)),
-        ],
+        border: Border.all(
+          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,17 +207,21 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.person_outline, color: Colors.white, size: 22),
+          Icon(
+            Icons.person_outline,
+            color: Colors.white.withValues(alpha: 0.7),
+            size: 22,
+          ),
           const SizedBox(width: 10),
           Text(
             l10n.yourRatingsLabel,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -262,7 +230,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           Text(
             data.userRatings.toString(),
             style: const TextStyle(
-              color: Colors.white,
+              color: Color(0xFF64B5F6),
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
@@ -283,21 +251,33 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       children: [
         Text(
           l10n.yourContribution,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: Colors.white.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 7,
-            backgroundColor: Colors.grey[300],
-            valueColor:
-                const AlwaysStoppedAnimation<Color>(AppColors.secondary),
+          child: Container(
+            height: 7,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress.clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 6),
@@ -306,7 +286,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             data.userRatings.toString(),
             data.totalRatings.toString(),
           ),
-          style: TextStyle(color: Colors.grey[500], fontSize: 11),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.35),
+            fontSize: 11,
+          ),
         ),
       ],
     );
@@ -319,10 +302,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       children: [
         Text(
           l10n.recentActivity,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: Colors.white.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 8),
@@ -332,7 +315,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             child: Center(
               child: Text(
                 l10n.noRecentActivity,
-                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  fontSize: 12,
+                ),
               ),
             ),
           )
@@ -360,35 +346,42 @@ class _DashboardWidgetState extends State<DashboardWidget> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(20),
+                  color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.directions_boat,
                   size: 16,
-                  color: AppColors.primary,
+                  color: Color(0xFF64B5F6),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   rating.shipName.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withValues(alpha: 0.85),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 dateStr,
-                style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
         ),
-        if (showDivider) Divider(height: 1, color: Colors.grey[200]),
+        if (showDivider)
+          Divider(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.05),
+          ),
       ],
     );
   }
@@ -398,27 +391,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
 // PRIVATE WIDGETS
 // =============================================================================
 
-/// Translucent circle used as background decoration.
-class _DecorativeCircle extends StatelessWidget {
-  final double size;
-  final int opacity;
-
-  const _DecorativeCircle({required this.size, required this.opacity});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withAlpha(opacity),
-      ),
-    );
-  }
-}
-
-/// Section title used in both blocks.
+/// Section title used in both blocks — ocean theme.
 class _SectionTitle extends StatelessWidget {
   final String label;
 
@@ -427,11 +400,12 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      label,
-      style: const TextStyle(
-        fontSize: 15,
+      label.toUpperCase(),
+      style: TextStyle(
+        fontSize: 11,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
+        letterSpacing: 1.0,
+        color: const Color(0xFF64B5F6).withValues(alpha: 0.5),
       ),
     );
   }
@@ -453,20 +427,23 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.secondary, size: 22),
+        Icon(icon, color: const Color(0xFF64B5F6), size: 22),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(color: Colors.grey[600], fontSize: 11),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.4),
+            fontSize: 11,
+          ),
         ),
       ],
     );

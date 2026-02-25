@@ -1,7 +1,7 @@
 // lib/features/auth/register_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../core/theme/app_colors.dart';

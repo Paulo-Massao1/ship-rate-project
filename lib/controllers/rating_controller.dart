@@ -95,6 +95,10 @@ class RatingController {
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
+
+      // Skip merged ships
+      if (data['merged'] == true) continue;
+
       final name = (data['nome'] ?? '').toString().trim();
       final imo = (data['imo'] ?? '').toString().trim();
 
@@ -203,9 +207,16 @@ class RatingController {
       query = await shipsRef.where('nome', isEqualTo: name).limit(1).get();
     }
 
-    // Return existing ship reference
+    // Return existing ship reference, preferring non-merged ships
     if (query.docs.isNotEmpty) {
-      return query.docs.first.reference;
+      final doc = query.docs.first;
+      final data = doc.data();
+
+      // If the found ship is merged, follow the mergedInto reference
+      if (data['merged'] == true && data['mergedInto'] != null) {
+        return _firestore.collection(_shipsCollection).doc(data['mergedInto']);
+      }
+      return doc.reference;
     }
 
     // Create new ship

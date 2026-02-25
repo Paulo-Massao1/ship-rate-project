@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../data/services/pdf_service.dart';
 import '../../data/services/pdf_labels_factory.dart';
 
