@@ -264,7 +264,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
                 label: Text(
                   _nationalityLabel(key),
                   style: TextStyle(
-                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                    color: selected ? const Color(0xFF64B5F6) : const Color(0xFF1E3A5F),
                   ),
                 ),
                 selected: selected,
@@ -294,7 +294,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
                 label: Text(
                   l10n.nationalityOther,
                   style: TextStyle(
-                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                    color: selected ? const Color(0xFF64B5F6) : const Color(0xFF1E3A5F),
                   ),
                 ),
                 selected: selected,

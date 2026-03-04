@@ -143,6 +143,7 @@ class RatingController {
     required Map<String, Map<String, dynamic>> itens,
     Map<String, dynamic>? infoNavio,
     Map<String, dynamic>? infoPassadico,
+    String? existingShipId,
   }) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -153,7 +154,16 @@ class RatingController {
     final normalizedImo = imoInicial.trim();
 
     // Find or create ship
-    final shipRef = await _findOrCreateShip(normalizedName, normalizedImo);
+    final DocumentReference<Map<String, dynamic>> shipRef;
+    if (existingShipId != null) {
+      shipRef = _firestore.collection(_shipsCollection).doc(existingShipId);
+      // Update IMO if user provided one for a ship that didn't have it
+      if (normalizedImo.isNotEmpty) {
+        await shipRef.update({'imo': normalizedImo});
+      }
+    } else {
+      shipRef = await _findOrCreateShip(normalizedName, normalizedImo);
+    }
 
     // Get pilot's call sign
     final callSign = await _getUserCallSign(userId);

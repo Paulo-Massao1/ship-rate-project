@@ -100,6 +100,8 @@ class _AddRatingPageState extends State<AddRatingPage> {
   bool _isSaving = false;
   bool _shipAlreadyExists = false;
   bool _hasExactMatch = false;
+  bool _shipHasImo = false;
+  String? _selectedShipId;
 
   // Bridge amenities
   bool _bridgeHasMinibar = false;
@@ -217,6 +219,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
       await _ratingController.salvarAvaliacao(
         nomeNavio: _currentShipName.trim().toUpperCase(),
         imoInicial: _imoController.text.trim(),
+        existingShipId: _selectedShipId,
         dataDesembarque: _disembarkationDate!,
         tipoCabine: _selectedCabinType!,
         deckCabine: _selectedCabinDeck,
@@ -308,11 +311,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
     final data = doc.data() as Map<String, dynamic>;
     final info = (data['info'] ?? {}) as Map<String, dynamic>;
 
+    final existingImo = (data['imo'] ?? '').toString().trim();
     setState(() {
       _shipAlreadyExists = true;
+      _selectedShipId = doc.id;
+      _shipHasImo = existingImo.isNotEmpty;
       _shipNameController.text = data['nome'];
       _currentShipName = data['nome'];
-      _imoController.text = data['imo'] ?? '';
+      _imoController.text = existingImo;
       _loadNationalitiesFromData(info['nacionalidadeTripulacao']);
       _selectedCabinCount = _normalizeCabinCount(info['numeroCabines']);
     });
@@ -400,7 +406,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                 label: Text(
                   _nationalityLabel(key),
                   style: TextStyle(
-                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                    color: selected ? const Color(0xFF64B5F6) : const Color(0xFF1E3A5F),
                   ),
                 ),
                 selected: selected,
@@ -430,7 +436,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                 label: Text(
                   l10n.nationalityOther,
                   style: TextStyle(
-                    color: selected ? _accentBlue : const Color(0xB3FFFFFF),
+                    color: selected ? const Color(0xFF64B5F6) : const Color(0xFF1E3A5F),
                   ),
                 ),
                 selected: selected,
@@ -737,14 +743,15 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildImoField() {
     final l10n = AppLocalizations.of(context)!;
+    final isLocked = _shipHasImo;
     return TextFormField(
       controller: _imoController,
-      enabled: !_shipAlreadyExists,
+      enabled: !isLocked,
       style: const TextStyle(color: Colors.white),
       decoration: _darkInputDecoration(
         labelText: l10n.imoOptional,
         prefixIcon: Icons.numbers,
-        enabled: !_shipAlreadyExists,
+        enabled: !isLocked,
       ),
     );
   }
