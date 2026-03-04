@@ -30,7 +30,16 @@ class RatingDetailPage extends StatelessWidget {
   // CONSTANTS
   // ===========================================================================
 
-  static const _primaryColor = Colors.indigo;
+  // Deep Ocean theme colors
+  static const _bgTop = Color(0xFF0A1628);
+  static const _bgBottom = Color(0xFF0D2137);
+  static const _accentBlue = Color(0xFF64B5F6);
+  static const _cardBg = Color(0x0DFFFFFF);
+  static const _cardBorder = Color(0x1A64B5F6);
+  static const _secondaryText = Color(0x66FFFFFF);
+  static const _bodyText = Color(0xD9FFFFFF);
+  static const _fabGradientStart = Color(0xFF1565C0);
+  static const _fabGradientEnd = Color(0xFF1976D2);
 
   /// Criteria organized by section for display order.
   static const List<String> _cabinCriteria = [
@@ -128,14 +137,16 @@ class RatingDetailPage extends StatelessWidget {
       future: shipRef.get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: _bgTop,
+            body: const Center(child: CircularProgressIndicator(color: _accentBlue)),
           );
         }
 
         if (snapshot.hasError) {
           return Scaffold(
-            body: Center(child: Text(l10n.errorLoadingShipData)),
+            backgroundColor: _bgTop,
+            body: Center(child: Text(l10n.errorLoadingShipData, style: const TextStyle(color: Colors.white))),
           );
         }
 
@@ -143,10 +154,20 @@ class RatingDetailPage extends StatelessWidget {
         final shipName = (shipData?['nome'] ?? l10n.defaultShipName).toString().toUpperCase();
         final shipImo = shipData?['imo'];
 
-        return Scaffold(
-          appBar: _buildAppBar(context, shipName, shipImo),
-          body: _buildBody(context, data, shipName, shipImo),
-          floatingActionButton: _buildFab(context, shipName, shipImo),
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [_bgTop, _bgBottom],
+            ),
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: _buildAppBar(context, shipName, shipImo),
+            body: _buildBody(context, data, shipName, shipImo),
+            floatingActionButton: _buildFab(context, shipName, shipImo),
+          ),
         );
       },
     );
@@ -160,9 +181,10 @@ class RatingDetailPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return AppBar(
       title: Text(l10n.ratingDetailTitle),
-      backgroundColor: _primaryColor,
+      backgroundColor: _bgTop,
       foregroundColor: Colors.white,
       centerTitle: true,
+      elevation: 0,
       actions: [
         IconButton(
           icon: const Icon(Icons.picture_as_pdf),
@@ -228,12 +250,31 @@ class RatingDetailPage extends StatelessWidget {
 
   Widget _buildFab(BuildContext context, String shipName, String? shipImo) {
     final l10n = AppLocalizations.of(context)!;
-    return FloatingActionButton.extended(
-      onPressed: () => _exportToPdf(context, shipName, shipImo),
-      backgroundColor: _primaryColor,
-      foregroundColor: Colors.white,
-      icon: const Icon(Icons.picture_as_pdf),
-      label: Text(l10n.exportPdf),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment(-1, -1),
+          end: Alignment(1, 1),
+          colors: [_fabGradientStart, _fabGradientEnd],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x661565C0),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: FloatingActionButton.extended(
+        onPressed: () => _exportToPdf(context, shipName, shipImo),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        highlightElevation: 0,
+        icon: const Icon(Icons.picture_as_pdf),
+        label: Text(l10n.exportPdf),
+      ),
     );
   }
 
@@ -253,6 +294,19 @@ class RatingDetailPage extends StatelessWidget {
     }
   }
 
+  /// Reusable Deep Ocean themed card wrapper.
+  Widget _themedCard({required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardBg,
+        border: Border.all(color: _cardBorder),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: child,
+    );
+  }
+
   Widget _buildHeaderCard(
     BuildContext context, {
     required String shipName,
@@ -264,41 +318,43 @@ class RatingDetailPage extends StatelessWidget {
     required String callSign,
   }) {
     final l10n = AppLocalizations.of(context)!;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              shipName,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    return _themedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            shipName,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            if (shipImo?.isNotEmpty == true) Text(l10n.imoValue(shipImo!)),
-            if (ratingDate != null)
-              Text(
-                l10n.ratedOn(_formatTimestamp(ratingDate)),
-                style: const TextStyle(color: Colors.black54),
-              ),
-            if (disembarkationDate != null)
-              Text(
-                l10n.disembarkationDateValue(_formatTimestamp(disembarkationDate)),
-                style: const TextStyle(color: Colors.black54),
-              ),
-            if (cabinType.isNotEmpty) Text(l10n.cabinTypeValue(cabinType)),
-            if (cabinDeck != null)
-              Text(
-                l10n.cabinDeckValue(_deckLabel(l10n, cabinDeck)),
-                style: const TextStyle(color: Colors.black54),
-              ),
-            const SizedBox(height: 6),
+          ),
+          if (shipImo?.isNotEmpty == true)
+            Text(l10n.imoValue(shipImo!), style: const TextStyle(color: _secondaryText)),
+          if (ratingDate != null)
             Text(
-              l10n.pilotCallSign(callSign),
-              style: const TextStyle(fontSize: 13, color: Colors.black54),
+              l10n.ratedOn(_formatTimestamp(ratingDate)),
+              style: const TextStyle(color: _secondaryText),
             ),
-          ],
-        ),
+          if (disembarkationDate != null)
+            Text(
+              l10n.disembarkationDateValue(_formatTimestamp(disembarkationDate)),
+              style: const TextStyle(color: _secondaryText),
+            ),
+          if (cabinType.isNotEmpty)
+            Text(l10n.cabinTypeValue(cabinType), style: const TextStyle(color: _secondaryText)),
+          if (cabinDeck != null)
+            Text(
+              l10n.cabinDeckValue(_deckLabel(l10n, cabinDeck)),
+              style: const TextStyle(color: _secondaryText),
+            ),
+          const SizedBox(height: 6),
+          Text(
+            l10n.pilotCallSign(callSign),
+            style: const TextStyle(fontSize: 13, color: _secondaryText),
+          ),
+        ],
       ),
     );
   }
@@ -309,59 +365,51 @@ class RatingDetailPage extends StatelessWidget {
     Map<String, bool?> amenities,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.shipInfo,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: _primaryColor,
-              ),
+    return _themedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.shipInfo,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: _accentBlue,
             ),
-            const SizedBox(height: 12),
-            if (shipInfo['nacionalidadeTripulacao'] != null)
-              _buildInfoRow(l10n.crew, _formatNationality(context, shipInfo['nacionalidadeTripulacao'])),
-            if (_formatCabinCount(shipInfo['numeroCabines'], l10n) != null)
-              _buildInfoRow(l10n.cabins, _formatCabinCount(shipInfo['numeroCabines'], l10n)!),
-            if (amenities['frigobar'] != null)
-              _buildInfoRow(l10n.minibar, _boolToYesNo(context, amenities['frigobar'])),
-            if (amenities['pia'] != null)
-              _buildInfoRow(l10n.sink, _boolToYesNo(context, amenities['pia'])),
-            if (amenities['microondas'] != null)
-              _buildInfoRow(l10n.microwave, _boolToYesNo(context, amenities['microondas'])),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          if (shipInfo['nacionalidadeTripulacao'] != null)
+            _buildInfoRow(l10n.crew, _formatNationality(context, shipInfo['nacionalidadeTripulacao'])),
+          if (_formatCabinCount(shipInfo['numeroCabines'], l10n) != null)
+            _buildInfoRow(l10n.cabins, _formatCabinCount(shipInfo['numeroCabines'], l10n)!),
+          if (amenities['frigobar'] != null)
+            _buildInfoRow(l10n.minibar, _boolToYesNo(context, amenities['frigobar'])),
+          if (amenities['pia'] != null)
+            _buildInfoRow(l10n.sink, _boolToYesNo(context, amenities['pia'])),
+          if (amenities['microondas'] != null)
+            _buildInfoRow(l10n.microwave, _boolToYesNo(context, amenities['microondas'])),
+        ],
       ),
     );
   }
 
   Widget _buildGeneralObservationsCard(BuildContext context, String observations) {
     final l10n = AppLocalizations.of(context)!;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.generalObservations,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: _primaryColor,
-              ),
+    return _themedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.generalObservations,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: _accentBlue,
             ),
-            const SizedBox(height: 8),
-            Text(observations),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text(observations, style: const TextStyle(color: _bodyText)),
+        ],
       ),
     );
   }
@@ -374,7 +422,7 @@ class RatingDetailPage extends StatelessWidget {
         style: const TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.bold,
-          color: _primaryColor,
+          color: _accentBlue,
         ),
       ),
     );
@@ -391,32 +439,38 @@ class RatingDetailPage extends StatelessWidget {
       final score = item['nota'];
       final observation = (item['observacao'] ?? '').toString();
 
-      return Card(
+      return Container(
         margin: const EdgeInsets.only(bottom: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _criteriaLabel(context, name),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        decoration: BoxDecoration(
+          color: _cardBg,
+          border: Border.all(color: _cardBorder),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _criteriaLabel(context, name),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Colors.white,
               ),
-              const SizedBox(height: 6),
-              Text(
-                l10n.scoreLabel(score?.toString() ?? '-'),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: _primaryColor,
-                ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.scoreLabel(score?.toString() ?? '-'),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: _accentBlue,
               ),
-              if (observation.isNotEmpty) ...[
-                const Divider(height: 24),
-                Text(observation),
-              ],
+            ),
+            if (observation.isNotEmpty) ...[
+              const Divider(height: 24, color: Color(0x1AFFFFFF)),
+              Text(observation, style: const TextStyle(color: _bodyText)),
             ],
-          ),
+          ],
         ),
       );
     }).toList();
@@ -427,8 +481,8 @@ class RatingDetailPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
-          Expanded(child: Text(value)),
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+          Expanded(child: Text(value, style: const TextStyle(color: _bodyText))),
         ],
       ),
     );
@@ -567,7 +621,7 @@ class RatingDetailPage extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(
-        child: CircularProgressIndicator(color: _primaryColor),
+        child: CircularProgressIndicator(color: _accentBlue),
       ),
     );
   }

@@ -557,7 +557,12 @@ class _ShipSummaryCard extends StatelessWidget {
     this.ratings,
   });
 
-  static const _primaryColor = Colors.indigo;
+  static const _accentBlue = Color(0xFF64B5F6);
+  static const _cardBg = Color(0xF20D2137);
+  static const _cardBorder = Color(0x1964B5F6);
+  static const _labelColor = Color(0x80FFFFFF);
+  static const _valueColor = Color(0xD9FFFFFF);
+  static const _dividerColor = Color(0x0DFFFFFF);
 
   @override
   Widget build(BuildContext context) {
@@ -567,7 +572,11 @@ class _ShipSummaryCard extends StatelessWidget {
     final infoItems = _buildInfoItems(context, shipData.info);
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: _cardBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: _cardBorder),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -575,7 +584,11 @@ class _ShipSummaryCard extends StatelessWidget {
           children: [
             Text(
               shipData.name.toUpperCase(),
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 16),
             _buildMarineTrafficButton(context, data),
@@ -583,16 +596,22 @@ class _ShipSummaryCard extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 l10n.generalInfo,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: _accentBlue,
+                ),
               ),
               const SizedBox(height: 12),
               _buildInfoGrid(context, infoItems),
             ],
             if (shipData.averages.isNotEmpty) ...[
-              const Divider(height: 32),
+              const Divider(height: 32, color: _dividerColor),
               Text(
                 l10n.ratingAverages,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: _accentBlue,
+                ),
               ),
               const SizedBox(height: 12),
               _buildAveragesList(context, shipData.averages),
@@ -609,17 +628,33 @@ class _ShipSummaryCard extends StatelessWidget {
   ) {
     final l10n = AppLocalizations.of(context)!;
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x661565C0),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: ElevatedButton.icon(
         onPressed: () => _openMarineTraffic(context, data),
         icon: const Icon(Icons.waves, size: 20),
         label: Text(
           l10n.viewOnMarineTraffic,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue.shade700,
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -753,13 +788,13 @@ class _ShipSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: const Color(0x0FFFFFFF),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: _primaryColor),
+          Icon(icon, size: 18, color: _accentBlue),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -767,7 +802,7 @@ class _ShipSummaryCard extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                  style: const TextStyle(fontSize: 11, color: _labelColor),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -775,6 +810,7 @@ class _ShipSummaryCard extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
+                    color: _valueColor,
                   ),
                 ),
               ],
@@ -853,20 +889,23 @@ class _ShipSummaryCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: const Color(0x0FFFFFFF),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: _primaryColor),
+            Icon(icon, size: 18, color: _accentBlue),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(label, style: const TextStyle(fontSize: 12)),
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: _valueColor),
+              ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: _primaryColor.withAlpha(26),
+                color: _accentBlue.withAlpha(26),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -874,7 +913,7 @@ class _ShipSummaryCard extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
-                  color: _primaryColor,
+                  color: _accentBlue,
                 ),
               ),
             ),
@@ -912,34 +951,53 @@ class _RatingsList extends StatelessWidget {
     final timestamp = data['createdAt'] as Timestamp?;
     final relativeTime = controller.getRelativeTime(timestamp);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ListTile(
-        leading: const Icon(Icons.person, color: Colors.indigo),
-        title: Text(
-          l10n.pilotCallSign(callSign),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () => _navigateToDetail(context, doc),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0x0DFFFFFF),
+          border: Border.all(color: const Color(0x1A64B5F6)),
+          borderRadius: BorderRadius.circular(14),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              l10n.viewRating,
-              style: const TextStyle(
-                color: Colors.indigo,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+            const Icon(Icons.person, color: Color(0xFF64B5F6)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.pilotCallSign(callSign),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.viewRating,
+                    style: const TextStyle(
+                      color: Color(0xFF64B5F6),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    relativeTime,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0x59FFFFFF),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Text(
-              relativeTime,
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
-            ),
+            const Icon(Icons.chevron_right, color: Color(0x99FFFFFF)),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => _navigateToDetail(context, doc),
       ),
     );
   }
