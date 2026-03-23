@@ -633,4 +633,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pdfDateLabel => 'Date';
+
+  @override
+  String get ratingSavedSuccess => 'Rating saved successfully!';
+
+  @override
+  String get rateThisShip => 'Rate This Ship';
 }
