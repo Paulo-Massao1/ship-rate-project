@@ -292,5 +292,7 @@
   "pdfRatingsByCriteria": "Avaliações por Critério",
   "pdfGeneralObservation": "Observação Geral",
   "pdfGeneratedBy": "Gerado por ShipRate",
-  "pdfDateLabel": "Data"
+  "pdfDateLabel": "Data",
+  "ratingSavedSuccess": "Avaliação salva com sucesso!",
+  "rateThisShip": "Avaliar este Navio"
 }

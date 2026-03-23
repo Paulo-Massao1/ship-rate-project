@@ -14,8 +14,15 @@ import '../../controllers/rating_controller.dart';
 /// - General observation field
 class AddRatingPage extends StatefulWidget {
   final String imo;
+  final String? shipName;
+  final String? shipDocId;
 
-  const AddRatingPage({super.key, required this.imo});
+  const AddRatingPage({
+    super.key,
+    required this.imo,
+    this.shipName,
+    this.shipDocId,
+  });
 
   @override
   State<AddRatingPage> createState() => _AddRatingPageState();
@@ -115,11 +122,47 @@ class _AddRatingPageState extends State<AddRatingPage> {
   // LIFECYCLE
   // ===========================================================================
 
+  /// Whether this page was opened from a specific ship's details page.
+  bool get _isPrefilledShip => widget.shipName != null && widget.shipDocId != null;
+
   @override
   void initState() {
     super.initState();
     _loadShips();
     _initializeRatings();
+    _prefillShipIfNeeded();
+  }
+
+  /// Pre-fills ship data when navigating from the ship details page.
+  void _prefillShipIfNeeded() {
+    if (!_isPrefilledShip) return;
+
+    final imo = widget.imo.trim();
+    _shipNameController.text = widget.shipName!;
+    _currentShipName = widget.shipName!;
+    _imoController.text = imo;
+    _selectedShipId = widget.shipDocId;
+    _shipAlreadyExists = true;
+    _shipHasImo = imo.isNotEmpty;
+
+    // Load ship info (nationalities, cabin count) from Firestore
+    _loadPrefilledShipInfo();
+  }
+
+  /// Loads additional ship info for the pre-filled ship.
+  Future<void> _loadPrefilledShipInfo() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('navios')
+        .doc(widget.shipDocId)
+        .get();
+    if (!mounted || !doc.exists) return;
+
+    final data = doc.data()!;
+    final info = (data['info'] ?? {}) as Map<String, dynamic>;
+    setState(() {
+      _loadNationalitiesFromData(info['nacionalidadeTripulacao']);
+      _selectedCabinCount = _normalizeCabinCount(info['numeroCabines']);
+    });
   }
 
   @override
@@ -242,6 +285,13 @@ class _AddRatingPageState extends State<AddRatingPage> {
       );
 
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.ratingSavedSuccess),
+          backgroundColor: const Color(0xFF1B5E20),
+        ),
+      );
       Navigator.pop(context, true);
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -410,7 +460,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   ),
                 ),
                 selected: selected,
-                onSelected: _shipAlreadyExists ? null : (sel) {
+                onSelected: (sel) {
                   setState(() {
                     if (sel) {
                       _selectedNationalities.add(key);
@@ -440,7 +490,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
                   ),
                 ),
                 selected: selected,
-                onSelected: _shipAlreadyExists ? null : (sel) {
+                onSelected: (sel) {
                   setState(() {
                     _showOtherNationalityField = sel;
                     if (!sel) _otherNationalityController.clear();
@@ -463,12 +513,10 @@ class _AddRatingPageState extends State<AddRatingPage> {
           const SizedBox(height: 12),
           TextFormField(
             controller: _otherNationalityController,
-            enabled: !_shipAlreadyExists,
             style: const TextStyle(color: Colors.white),
             decoration: _darkInputDecoration(
               labelText: l10n.specifyNationality,
               prefixIcon: Icons.edit,
-              enabled: !_shipAlreadyExists,
             ),
           ),
         ],
@@ -640,6 +688,25 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   Widget _buildShipAutocomplete() {
     final l10n = AppLocalizations.of(context)!;
+
+    // When ship is pre-filled from navigation, show a read-only field
+    if (_isPrefilledShip) {
+      return TextFormField(
+        controller: _shipNameController,
+        readOnly: true,
+        enabled: false,
+        style: const TextStyle(color: Colors.white),
+        decoration: _darkInputDecoration(
+          labelText: l10n.shipName,
+          prefixIcon: Icons.directions_boat,
+          enabled: false,
+        ).copyWith(
+          suffixIcon: const Icon(Icons.lock_outline, size: 18, color: _hintColor),
+        ),
+        validator: (v) => v == null || v.isEmpty ? l10n.enterShipName : null,
+      );
+    }
+
     return RawAutocomplete<QueryDocumentSnapshot>(
       textEditingController: _shipNameController,
       focusNode: _shipNameFocusNode,

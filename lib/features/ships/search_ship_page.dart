@@ -592,6 +592,8 @@ class _ShipSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildMarineTrafficButton(context, data),
+            const SizedBox(height: 12),
+            _buildRateShipButton(context, data, ship.id),
             if (infoItems.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
@@ -683,6 +685,72 @@ class _ShipSummaryCard extends StatelessWidget {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  Widget _buildRateShipButton(
+    BuildContext context,
+    Map<String, dynamic> data,
+    String shipDocId,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x661565C0),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: () => _navigateToRateShip(context, data, shipDocId),
+        icon: const Icon(Icons.star_rate, size: 20),
+        label: Text(
+          l10n.rateThisShip,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _navigateToRateShip(
+    BuildContext context,
+    Map<String, dynamic> data,
+    String shipDocId,
+  ) async {
+    final imo = (data['imo'] ?? '').toString();
+    final shipName = (data['nome'] ?? '').toString();
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddRatingPage(
+          imo: imo,
+          shipName: shipName,
+          shipDocId: shipDocId,
+        ),
+      ),
+    );
+    if (result == true && context.mounted) {
+      notifyDataChanged();
     }
   }
 

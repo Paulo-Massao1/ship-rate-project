@@ -1270,6 +1270,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Data'**
   String get pdfDateLabel;
+
+  /// No description provided for @ratingSavedSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliação salva com sucesso!'**
+  String get ratingSavedSuccess;
+
+  /// No description provided for @rateThisShip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliar este Navio'**
+  String get rateThisShip;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
