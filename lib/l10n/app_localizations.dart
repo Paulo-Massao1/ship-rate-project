@@ -1282,6 +1282,42 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Avaliar este Navio'**
   String get rateThisShip;
+
+  /// No description provided for @welcomePilot.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bem-vindo, {name}'**
+  String welcomePilot(String name);
+
+  /// No description provided for @selectModule.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione o módulo'**
+  String get selectModule;
+
+  /// No description provided for @shipRatingModule.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliação de Navios'**
+  String get shipRatingModule;
+
+  /// No description provided for @shipRatingDesc.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avalie navios e compartilhe experiências'**
+  String get shipRatingDesc;
+
+  /// No description provided for @navSafetyModule.
+  ///
+  /// In pt, this message translates to:
+  /// **'Segurança da Navegação'**
+  String get navSafetyModule;
+
+  /// No description provided for @navSafetyDesc.
+  ///
+  /// In pt, this message translates to:
+  /// **'Profundidades, calado e condições dos trechos'**
+  String get navSafetyDesc;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

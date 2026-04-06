@@ -639,4 +639,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rateThisShip => 'Rate This Ship';
+
+  @override
+  String welcomePilot(String name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get selectModule => 'Select module';
+
+  @override
+  String get shipRatingModule => 'Ship Rating';
+
+  @override
+  String get shipRatingDesc => 'Rate ships and share experiences';
+
+  @override
+  String get navSafetyModule => 'Navigation Safety';
+
+  @override
+  String get navSafetyDesc => 'Depths, draft and section conditions';
 }
