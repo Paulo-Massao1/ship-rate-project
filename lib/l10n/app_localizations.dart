@@ -1570,6 +1570,96 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Selecione a posição da sonda'**
   String get sonarRequired;
+
+  /// No description provided for @myRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meus Registros'**
+  String get myRecords;
+
+  /// No description provided for @drawerMyRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meus Registros'**
+  String get drawerMyRecords;
+
+  /// No description provided for @yourRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seus Registros'**
+  String get yourRecords;
+
+  /// No description provided for @recordsLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'registros'**
+  String get recordsLabel;
+
+  /// No description provided for @locationsLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'locais'**
+  String get locationsLabel;
+
+  /// No description provided for @contributionLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'contribuição'**
+  String get contributionLabel;
+
+  /// No description provided for @editRecord.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar'**
+  String get editRecord;
+
+  /// No description provided for @deleteRecord.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir'**
+  String get deleteRecord;
+
+  /// No description provided for @deleteRecordTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir Registro'**
+  String get deleteRecordTitle;
+
+  /// No description provided for @deleteRecordConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.'**
+  String get deleteRecordConfirm;
+
+  /// No description provided for @recordDeletedSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registro excluído com sucesso!'**
+  String get recordDeletedSuccess;
+
+  /// No description provided for @recordUpdatedSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registro atualizado com sucesso!'**
+  String get recordUpdatedSuccess;
+
+  /// No description provided for @updatePassage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atualizar Passagem'**
+  String get updatePassage;
+
+  /// No description provided for @noRecordsYet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum registro ainda'**
+  String get noRecordsYet;
+
+  /// No description provided for @noRecordsSubtitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!'**
+  String get noRecordsSubtitle;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

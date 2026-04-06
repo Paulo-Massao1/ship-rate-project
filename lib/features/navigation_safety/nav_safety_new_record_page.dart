@@ -4,9 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/nav_safety_controller.dart';
 
-/// Form screen for registering a new depth/passage record.
+/// Form screen for registering a new depth/passage record,
+/// or editing an existing one when [editLocationId] and [editRecordId] are provided.
 class NavSafetyNewRecordPage extends StatefulWidget {
-  const NavSafetyNewRecordPage({super.key});
+  final String? editLocationId;
+  final String? editRecordId;
+  final Map<String, dynamic>? editData;
+
+  const NavSafetyNewRecordPage({
+    super.key,
+    this.editLocationId,
+    this.editRecordId,
+    this.editData,
+  });
+
+  bool get isEditing => editRecordId != null && editLocationId != null;
 
   @override
   State<NavSafetyNewRecordPage> createState() =>
@@ -104,7 +116,77 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     _arrowAnim = Tween<double>(begin: 0, end: 0.5).animate(
       CurvedAnimation(parent: _arrowAnimController, curve: Curves.easeInOut),
     );
-    _loadLocations();
+    _loadLocations().then((_) => _prefillIfEditing());
+  }
+
+  void _prefillIfEditing() {
+    if (!widget.isEditing || widget.editData == null) return;
+    final d = widget.editData!;
+
+    setState(() {
+      _selectedLocationId = widget.editLocationId;
+      // Find location name from loaded locations
+      final loc = _locations.where((l) => l.id == widget.editLocationId);
+      if (loc.isNotEmpty) _selectedLocationName = loc.first.name;
+
+      // Depth
+      if (d['profundidadeTotal'] != null) {
+        _depthController.text = d['profundidadeTotal'].toString();
+      }
+      // Max draft
+      if (d['caladoMax'] != null) {
+        _maxDraftController.text = d['caladoMax'].toString();
+      }
+      // UKC
+      if (d['ukc'] != null) {
+        _ukcController.text = d['ukc'].toString();
+      }
+      // Direction
+      _direction = d['direcao'] as String?;
+      // Sonar position
+      _sonarPosition = d['posicaoSonda'] as String?;
+      // Ship name
+      if (d['nomeNavio'] != null) {
+        _shipNameController.text = d['nomeNavio'].toString();
+      }
+      // Date
+      final dataField = d['data'];
+      if (dataField is Timestamp) {
+        _selectedDate = dataField.toDate();
+      }
+      // Speed
+      if (d['velocidade'] != null) {
+        _speedController.text = d['velocidade'].toString();
+      }
+      // Squat
+      if (d['squatConsiderado'] != null) {
+        _squatConsidered = d['squatConsiderado'] == true ? 'sim' : 'nao';
+      }
+      // Point
+      if (d['ponto'] != null) {
+        _selectedPoint = d['ponto'] as int?;
+      }
+      // Latitude
+      if (d['latitude'] is Map) {
+        final lat = d['latitude'] as Map;
+        _latDegController.text = (lat['graus'] ?? '').toString();
+        _latMinController.text = (lat['minutos'] ?? '').toString();
+        _latSecController.text = (lat['segundos'] ?? '').toString();
+        _latHemisphere = (lat['hemisferio'] ?? 'S').toString();
+      }
+      // Longitude
+      if (d['longitude'] is Map) {
+        final lon = d['longitude'] as Map;
+        _lonDegController.text = (lon['graus'] ?? '').toString();
+        _lonMinController.text = (lon['minutos'] ?? '').toString();
+        _lonSecController.text = (lon['segundos'] ?? '').toString();
+        _lonHemisphere = (lon['hemisferio'] ?? 'W').toString();
+      }
+      // Observations
+      if (d['observacoes'] != null) {
+        _observationsController.text = d['observacoes'].toString();
+      }
+    });
   }
 
   @override
@@ -257,16 +339,24 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       final obs = _observationsController.text.trim();
       if (obs.isNotEmpty) data['observacoes'] = obs;
 
-      await _controller.saveRecord(_selectedLocationId!, data);
+      if (widget.isEditing) {
+        await _controller.updateRecord(
+            _selectedLocationId!, widget.editRecordId!, data);
+      } else {
+        await _controller.saveRecord(_selectedLocationId!, data);
+      }
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.recordSavedSuccess),
+            content: Text(widget.isEditing
+                ? l10n.recordUpdatedSuccess
+                : l10n.recordSavedSuccess),
             backgroundColor: const Color(0xFF1B5E20),
           ),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
@@ -353,7 +443,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   PreferredSizeWidget _buildAppBar(AppLocalizations l10n) {
     return AppBar(
       title: Text(
-        l10n.newRecord,
+        widget.isEditing ? l10n.editRecord : l10n.newRecord,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           color: _textPrimary,
@@ -1052,7 +1142,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     ),
                   )
                 : Text(
-                    l10n.registerPassage,
+                    widget.isEditing ? l10n.updatePassage : l10n.registerPassage,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

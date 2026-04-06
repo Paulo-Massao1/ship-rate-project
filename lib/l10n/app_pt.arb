@@ -350,5 +350,21 @@
   "draftRequired": "Informe o calado máximo",
   "ukcRequired": "Informe o UKC",
   "directionRequired": "Selecione a direção",
-  "sonarRequired": "Selecione a posição da sonda"
+  "sonarRequired": "Selecione a posição da sonda",
+
+  "myRecords": "Meus Registros",
+  "drawerMyRecords": "Meus Registros",
+  "yourRecords": "Seus Registros",
+  "recordsLabel": "registros",
+  "locationsLabel": "locais",
+  "contributionLabel": "contribuição",
+  "editRecord": "Editar",
+  "deleteRecord": "Excluir",
+  "deleteRecordTitle": "Excluir Registro",
+  "deleteRecordConfirm": "Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.",
+  "recordDeletedSuccess": "Registro excluído com sucesso!",
+  "recordUpdatedSuccess": "Registro atualizado com sucesso!",
+  "updatePassage": "Atualizar Passagem",
+  "noRecordsYet": "Nenhum registro ainda",
+  "noRecordsSubtitle": "Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!"
 }

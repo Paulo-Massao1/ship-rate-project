@@ -785,4 +785,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sonarRequired => 'Select sonar position';
+
+  @override
+  String get myRecords => 'My Records';
+
+  @override
+  String get drawerMyRecords => 'My Records';
+
+  @override
+  String get yourRecords => 'Your Records';
+
+  @override
+  String get recordsLabel => 'records';
+
+  @override
+  String get locationsLabel => 'locations';
+
+  @override
+  String get contributionLabel => 'contribution';
+
+  @override
+  String get editRecord => 'Edit';
+
+  @override
+  String get deleteRecord => 'Delete';
+
+  @override
+  String get deleteRecordTitle => 'Delete Record';
+
+  @override
+  String get deleteRecordConfirm => 'Are you sure you want to delete this record? This action cannot be undone.';
+
+  @override
+  String get recordDeletedSuccess => 'Record deleted successfully!';
+
+  @override
+  String get recordUpdatedSuccess => 'Record updated successfully!';
+
+  @override
+  String get updatePassage => 'Update Passage';
+
+  @override
+  String get noRecordsYet => 'No records yet';
+
+  @override
+  String get noRecordsSubtitle => 'You haven\'t registered any passages yet.\nStart recording your next passage!';
 }

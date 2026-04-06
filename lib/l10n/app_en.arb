@@ -350,5 +350,21 @@
   "draftRequired": "Enter max draft",
   "ukcRequired": "Enter UKC",
   "directionRequired": "Select direction",
-  "sonarRequired": "Select sonar position"
+  "sonarRequired": "Select sonar position",
+
+  "myRecords": "My Records",
+  "drawerMyRecords": "My Records",
+  "yourRecords": "Your Records",
+  "recordsLabel": "records",
+  "locationsLabel": "locations",
+  "contributionLabel": "contribution",
+  "editRecord": "Edit",
+  "deleteRecord": "Delete",
+  "deleteRecordTitle": "Delete Record",
+  "deleteRecordConfirm": "Are you sure you want to delete this record? This action cannot be undone.",
+  "recordDeletedSuccess": "Record deleted successfully!",
+  "recordUpdatedSuccess": "Record updated successfully!",
+  "updatePassage": "Update Passage",
+  "noRecordsYet": "No records yet",
+  "noRecordsSubtitle": "You haven't registered any passages yet.\nStart recording your next passage!"
 }

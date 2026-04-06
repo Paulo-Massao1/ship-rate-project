@@ -11,6 +11,7 @@ import '../ratings/my_ratings_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
+import '../navigation_safety/nav_safety_my_records_page.dart';
 import '../../controllers/home_controller.dart';
 import '../../data/services/version_service.dart';
 import '../../main.dart';
@@ -172,6 +173,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const SuggestionPage()),
+    );
+  }
+
+  void _navigateToMyRecords() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NavSafetyMyRecordsPage()),
     );
   }
 
@@ -423,6 +432,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         icon: Icons.assignment_turned_in_outlined,
                         label: l10n.drawerMyRatings,
                         onTap: _navigateToMyRatings,
+                      ),
+                      _DrawerItem(
+                        icon: Icons.anchor,
+                        label: l10n.drawerMyRecords,
+                        color: const Color(0xFF26A69A),
+                        onTap: _navigateToMyRecords,
                       ),
                       _DrawerItem(
                         icon: Icons.lightbulb_outline,
