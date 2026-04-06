@@ -306,5 +306,18 @@
   "shipRatingModule": "Avaliação de Navios",
   "shipRatingDesc": "Avalie navios e compartilhe experiências",
   "navSafetyModule": "Segurança da Navegação",
-  "navSafetyDesc": "Profundidades, calado e condições dos trechos"
+  "navSafetyDesc": "Profundidades, calado e condições dos trechos",
+
+  "latestDepths": "Últimas Profundidades",
+  "locations": "Locais",
+  "newRecord": "Novo Registro",
+  "latestDepthsRegistered": "Últimas profundidades registradas",
+  "noRecords": "Sem registros",
+  "lastDepth": "ÚLTIMA PROFUNDIDADE",
+  "history": "Histórico",
+  "back": "Voltar",
+  "totalDepth": "PROF. TOTAL",
+  "maxDraft": "CALADO MÁX.",
+  "ukc": "UKC",
+  "direction": "DIREÇÃO"
 }

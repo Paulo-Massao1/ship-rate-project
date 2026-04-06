@@ -10,7 +10,7 @@ import '../auth/login_page.dart';
 import '../ratings/my_ratings_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
-import '../navigation_safety/nav_safety_placeholder_page.dart';
+import '../navigation_safety/nav_safety_page.dart';
 import '../../controllers/home_controller.dart';
 import '../../data/services/version_service.dart';
 import '../../main.dart';
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void _navigateToNavSafety() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const NavSafetyPlaceholderPage()),
+      MaterialPageRoute(builder: (_) => const NavSafetyPage()),
     );
   }
 
