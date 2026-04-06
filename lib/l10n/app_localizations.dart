@@ -1390,6 +1390,186 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'DIREÇÃO'**
   String get direction;
+
+  /// No description provided for @passageData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados da Passagem'**
+  String get passageData;
+
+  /// No description provided for @selectLocation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecionar local'**
+  String get selectLocation;
+
+  /// No description provided for @addNewLocation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar novo local'**
+  String get addNewLocation;
+
+  /// No description provided for @newLocationName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do novo local'**
+  String get newLocationName;
+
+  /// No description provided for @anchoragePt.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ponto (1-15)'**
+  String get anchoragePt;
+
+  /// No description provided for @shipNameOptional.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do navio (opcional)'**
+  String get shipNameOptional;
+
+  /// No description provided for @passageDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data da passagem'**
+  String get passageDate;
+
+  /// No description provided for @goingUp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Subindo'**
+  String get goingUp;
+
+  /// No description provided for @goingDown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixando'**
+  String get goingDown;
+
+  /// No description provided for @totalDepthLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'PROFUNDIDADE TOTAL'**
+  String get totalDepthLabel;
+
+  /// No description provided for @complementaryData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados Complementares'**
+  String get complementaryData;
+
+  /// No description provided for @maxDraftInput.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado Máximo (m)'**
+  String get maxDraftInput;
+
+  /// No description provided for @ukcInput.
+  ///
+  /// In pt, this message translates to:
+  /// **'UKC (m)'**
+  String get ukcInput;
+
+  /// No description provided for @speedOptional.
+  ///
+  /// In pt, this message translates to:
+  /// **'Velocidade (nós)'**
+  String get speedOptional;
+
+  /// No description provided for @optional.
+  ///
+  /// In pt, this message translates to:
+  /// **'opcional'**
+  String get optional;
+
+  /// No description provided for @squatConsidered.
+  ///
+  /// In pt, this message translates to:
+  /// **'Squat considerado?'**
+  String get squatConsidered;
+
+  /// No description provided for @sonarPosition.
+  ///
+  /// In pt, this message translates to:
+  /// **'Posição da Sonda'**
+  String get sonarPosition;
+
+  /// No description provided for @bow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proa'**
+  String get bow;
+
+  /// No description provided for @stern.
+  ///
+  /// In pt, this message translates to:
+  /// **'Popa'**
+  String get stern;
+
+  /// No description provided for @positionLatLong.
+  ///
+  /// In pt, this message translates to:
+  /// **'Posição (LAT/LONG)'**
+  String get positionLatLong;
+
+  /// No description provided for @observations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Observações / Referências'**
+  String get observations;
+
+  /// No description provided for @additionalInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações adicionais...'**
+  String get additionalInfo;
+
+  /// No description provided for @registerPassage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar Passagem'**
+  String get registerPassage;
+
+  /// No description provided for @recordSavedSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registro salvo com sucesso!'**
+  String get recordSavedSuccess;
+
+  /// No description provided for @locationRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione um local'**
+  String get locationRequired;
+
+  /// No description provided for @depthRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe a profundidade total'**
+  String get depthRequired;
+
+  /// No description provided for @draftRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe o calado máximo'**
+  String get draftRequired;
+
+  /// No description provided for @ukcRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe o UKC'**
+  String get ukcRequired;
+
+  /// No description provided for @directionRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione a direção'**
+  String get directionRequired;
+
+  /// No description provided for @sonarRequired.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione a posição da sonda'**
+  String get sonarRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

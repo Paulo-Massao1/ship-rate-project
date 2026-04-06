@@ -116,6 +116,24 @@ class NavSafetyController extends ChangeNotifier {
     }
   }
 
+  /// Creates a new location document and returns its ID.
+  Future<String> addLocation(String name) async {
+    final doc = await _firestore.collection(_locationsCollection).add({
+      'nome': name,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+    return doc.id;
+  }
+
+  /// Saves a new record to the registros subcollection of a location.
+  Future<void> saveRecord(String locationId, Map<String, dynamic> data) async {
+    await _firestore
+        .collection(_locationsCollection)
+        .doc(locationId)
+        .collection(_recordsSubcollection)
+        .add(data);
+  }
+
   /// Clears the selected location and returns to the list view.
   void clearSelection() {
     _selectedLocationId = null;

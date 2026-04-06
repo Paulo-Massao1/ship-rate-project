@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/nav_safety_controller.dart';
+import 'nav_safety_new_record_page.dart';
 
 /// Main screen for the Navigation Safety module.
 ///
@@ -57,6 +58,16 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   void _onBackFromHistory() {
     _controller.clearSelection();
+  }
+
+  void _navigateToNewRecord() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NavSafetyNewRecordPage()),
+    ).then((_) {
+      // Refresh locations after returning from the form
+      _controller.fetchLocationsWithLatestRecord();
+    });
   }
 
   void _toggleLocationsDropdown() {
@@ -128,9 +139,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             ),
             child: IconButton(
               icon: const Icon(Icons.add, color: Color(0xFF26A69A)),
-              onPressed: () {
-                // Placeholder — navigates to new record form (future)
-              },
+              onPressed: _navigateToNewRecord,
             ),
           ),
         ),
@@ -163,9 +172,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           _buildPill(
             label: l10n.newRecord,
             isActive: false,
-            onTap: () {
-              // Placeholder — navigates to new record form (future)
-            },
+            onTap: _navigateToNewRecord,
           ),
         ],
       ),

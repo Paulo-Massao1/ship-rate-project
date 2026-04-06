@@ -695,4 +695,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get direction => 'DIRECTION';
+
+  @override
+  String get passageData => 'Passage Data';
+
+  @override
+  String get selectLocation => 'Select location';
+
+  @override
+  String get addNewLocation => 'Add new location';
+
+  @override
+  String get newLocationName => 'New location name';
+
+  @override
+  String get anchoragePt => 'Point (1-15)';
+
+  @override
+  String get shipNameOptional => 'Ship name (optional)';
+
+  @override
+  String get passageDate => 'Passage date';
+
+  @override
+  String get goingUp => 'Going up';
+
+  @override
+  String get goingDown => 'Going down';
+
+  @override
+  String get totalDepthLabel => 'TOTAL DEPTH';
+
+  @override
+  String get complementaryData => 'Complementary Data';
+
+  @override
+  String get maxDraftInput => 'Max Draft (m)';
+
+  @override
+  String get ukcInput => 'UKC (m)';
+
+  @override
+  String get speedOptional => 'Speed (knots)';
+
+  @override
+  String get optional => 'optional';
+
+  @override
+  String get squatConsidered => 'Squat considered?';
+
+  @override
+  String get sonarPosition => 'Sonar Position';
+
+  @override
+  String get bow => 'Bow';
+
+  @override
+  String get stern => 'Stern';
+
+  @override
+  String get positionLatLong => 'Position (LAT/LONG)';
+
+  @override
+  String get observations => 'Observations / References';
+
+  @override
+  String get additionalInfo => 'Additional information...';
+
+  @override
+  String get registerPassage => 'Register Passage';
+
+  @override
+  String get recordSavedSuccess => 'Record saved successfully!';
+
+  @override
+  String get locationRequired => 'Select a location';
+
+  @override
+  String get depthRequired => 'Enter total depth';
+
+  @override
+  String get draftRequired => 'Enter max draft';
+
+  @override
+  String get ukcRequired => 'Enter UKC';
+
+  @override
+  String get directionRequired => 'Select direction';
+
+  @override
+  String get sonarRequired => 'Select sonar position';
 }
