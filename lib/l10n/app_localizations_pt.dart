@@ -695,4 +695,94 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get direction => 'DIREÇÃO';
+
+  @override
+  String get passageData => 'Dados da Passagem';
+
+  @override
+  String get selectLocation => 'Selecionar local';
+
+  @override
+  String get addNewLocation => 'Adicionar novo local';
+
+  @override
+  String get newLocationName => 'Nome do novo local';
+
+  @override
+  String get anchoragePt => 'Ponto (1-15)';
+
+  @override
+  String get shipNameOptional => 'Nome do navio (opcional)';
+
+  @override
+  String get passageDate => 'Data da passagem';
+
+  @override
+  String get goingUp => 'Subindo';
+
+  @override
+  String get goingDown => 'Baixando';
+
+  @override
+  String get totalDepthLabel => 'PROFUNDIDADE TOTAL';
+
+  @override
+  String get complementaryData => 'Dados Complementares';
+
+  @override
+  String get maxDraftInput => 'Calado Máximo (m)';
+
+  @override
+  String get ukcInput => 'UKC (m)';
+
+  @override
+  String get speedOptional => 'Velocidade (nós)';
+
+  @override
+  String get optional => 'opcional';
+
+  @override
+  String get squatConsidered => 'Squat considerado?';
+
+  @override
+  String get sonarPosition => 'Posição da Sonda';
+
+  @override
+  String get bow => 'Proa';
+
+  @override
+  String get stern => 'Popa';
+
+  @override
+  String get positionLatLong => 'Posição (LAT/LONG)';
+
+  @override
+  String get observations => 'Observações / Referências';
+
+  @override
+  String get additionalInfo => 'Informações adicionais...';
+
+  @override
+  String get registerPassage => 'Registrar Passagem';
+
+  @override
+  String get recordSavedSuccess => 'Registro salvo com sucesso!';
+
+  @override
+  String get locationRequired => 'Selecione um local';
+
+  @override
+  String get depthRequired => 'Informe a profundidade total';
+
+  @override
+  String get draftRequired => 'Informe o calado máximo';
+
+  @override
+  String get ukcRequired => 'Informe o UKC';
+
+  @override
+  String get directionRequired => 'Selecione a direção';
+
+  @override
+  String get sonarRequired => 'Selecione a posição da sonda';
 }
