@@ -294,5 +294,17 @@
   "pdfGeneratedBy": "Gerado por ShipRate",
   "pdfDateLabel": "Data",
   "ratingSavedSuccess": "Avaliação salva com sucesso!",
-  "rateThisShip": "Avaliar este Navio"
+  "rateThisShip": "Avaliar este Navio",
+
+  "welcomePilot": "Bem-vindo, {name}",
+  "@welcomePilot": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "selectModule": "Selecione o módulo",
+  "shipRatingModule": "Avaliação de Navios",
+  "shipRatingDesc": "Avalie navios e compartilhe experiências",
+  "navSafetyModule": "Segurança da Navegação",
+  "navSafetyDesc": "Profundidades, calado e condições dos trechos"
 }

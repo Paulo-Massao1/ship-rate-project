@@ -639,4 +639,24 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get rateThisShip => 'Avaliar este Navio';
+
+  @override
+  String welcomePilot(String name) {
+    return 'Bem-vindo, $name';
+  }
+
+  @override
+  String get selectModule => 'Selecione o módulo';
+
+  @override
+  String get shipRatingModule => 'Avaliação de Navios';
+
+  @override
+  String get shipRatingDesc => 'Avalie navios e compartilhe experiências';
+
+  @override
+  String get navSafetyModule => 'Segurança da Navegação';
+
+  @override
+  String get navSafetyDesc => 'Profundidades, calado e condições dos trechos';
 }

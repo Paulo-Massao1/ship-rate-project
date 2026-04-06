@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../features/home/main_screen_page.dart';
+import '../features/home/home_page.dart';
 import '../features/auth/login_page.dart';
 
 /// Authentication gate that controls app navigation based on auth state.
@@ -38,7 +38,7 @@ class AuthGate extends StatelessWidget {
 
         // Authenticated - show main screen
         if (snapshot.hasData) {
-          return const MainScreen();
+          return const HomePage();
         }
 
         // Not authenticated - show login
