@@ -1318,6 +1318,78 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Profundidades, calado e condições dos trechos'**
   String get navSafetyDesc;
+
+  /// No description provided for @latestDepths.
+  ///
+  /// In pt, this message translates to:
+  /// **'Últimas Profundidades'**
+  String get latestDepths;
+
+  /// No description provided for @locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Locais'**
+  String get locations;
+
+  /// No description provided for @newRecord.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo Registro'**
+  String get newRecord;
+
+  /// No description provided for @latestDepthsRegistered.
+  ///
+  /// In pt, this message translates to:
+  /// **'Últimas profundidades registradas'**
+  String get latestDepthsRegistered;
+
+  /// No description provided for @noRecords.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem registros'**
+  String get noRecords;
+
+  /// No description provided for @lastDepth.
+  ///
+  /// In pt, this message translates to:
+  /// **'ÚLTIMA PROFUNDIDADE'**
+  String get lastDepth;
+
+  /// No description provided for @history.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico'**
+  String get history;
+
+  /// No description provided for @back.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar'**
+  String get back;
+
+  /// No description provided for @totalDepth.
+  ///
+  /// In pt, this message translates to:
+  /// **'PROF. TOTAL'**
+  String get totalDepth;
+
+  /// No description provided for @maxDraft.
+  ///
+  /// In pt, this message translates to:
+  /// **'CALADO MÁX.'**
+  String get maxDraft;
+
+  /// No description provided for @ukc.
+  ///
+  /// In pt, this message translates to:
+  /// **'UKC'**
+  String get ukc;
+
+  /// No description provided for @direction.
+  ///
+  /// In pt, this message translates to:
+  /// **'DIREÇÃO'**
+  String get direction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

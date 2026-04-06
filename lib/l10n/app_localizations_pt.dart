@@ -659,4 +659,40 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get navSafetyDesc => 'Profundidades, calado e condições dos trechos';
+
+  @override
+  String get latestDepths => 'Últimas Profundidades';
+
+  @override
+  String get locations => 'Locais';
+
+  @override
+  String get newRecord => 'Novo Registro';
+
+  @override
+  String get latestDepthsRegistered => 'Últimas profundidades registradas';
+
+  @override
+  String get noRecords => 'Sem registros';
+
+  @override
+  String get lastDepth => 'ÚLTIMA PROFUNDIDADE';
+
+  @override
+  String get history => 'Histórico';
+
+  @override
+  String get back => 'Voltar';
+
+  @override
+  String get totalDepth => 'PROF. TOTAL';
+
+  @override
+  String get maxDraft => 'CALADO MÁX.';
+
+  @override
+  String get ukc => 'UKC';
+
+  @override
+  String get direction => 'DIREÇÃO';
 }

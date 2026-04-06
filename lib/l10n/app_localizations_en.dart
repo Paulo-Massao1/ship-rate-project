@@ -659,4 +659,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navSafetyDesc => 'Depths, draft and section conditions';
+
+  @override
+  String get latestDepths => 'Latest Depths';
+
+  @override
+  String get locations => 'Locations';
+
+  @override
+  String get newRecord => 'New Record';
+
+  @override
+  String get latestDepthsRegistered => 'Latest registered depths';
+
+  @override
+  String get noRecords => 'No records';
+
+  @override
+  String get lastDepth => 'LAST DEPTH';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get totalDepth => 'TOTAL DEPTH';
+
+  @override
+  String get maxDraft => 'MAX DRAFT';
+
+  @override
+  String get ukc => 'UKC';
+
+  @override
+  String get direction => 'DIRECTION';
 }

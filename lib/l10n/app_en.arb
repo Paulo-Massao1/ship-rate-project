@@ -306,5 +306,18 @@
   "shipRatingModule": "Ship Rating",
   "shipRatingDesc": "Rate ships and share experiences",
   "navSafetyModule": "Navigation Safety",
-  "navSafetyDesc": "Depths, draft and section conditions"
+  "navSafetyDesc": "Depths, draft and section conditions",
+
+  "latestDepths": "Latest Depths",
+  "locations": "Locations",
+  "newRecord": "New Record",
+  "latestDepthsRegistered": "Latest registered depths",
+  "noRecords": "No records",
+  "lastDepth": "LAST DEPTH",
+  "history": "History",
+  "back": "Back",
+  "totalDepth": "TOTAL DEPTH",
+  "maxDraft": "MAX DRAFT",
+  "ukc": "UKC",
+  "direction": "DIRECTION"
 }
