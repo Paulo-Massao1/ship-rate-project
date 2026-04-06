@@ -90,9 +90,29 @@ class MyRatingsController {
     return results;
   }
 
-  /// Deletes a rating.
+  /// Deletes a rating and updates the parent ship.
+  ///
+  /// After deleting the rating document:
+  /// - Recalculates the ship's aggregated averages
+  /// - If no ratings remain, deletes the ship document too
   Future<void> deleteRating(DocumentReference ratingRef) async {
+    // Get the ship reference from the rating path (navios/{shipId}/avaliacoes/{ratingId})
+    final shipRef = ratingRef.parent.parent!;
+
+    // Delete the rating document
     await ratingRef.delete();
+
+    // Check remaining ratings
+    final remainingRatings =
+        await shipRef.collection(_ratingsSubcollection).get();
+
+    if (remainingRatings.docs.isEmpty) {
+      // No ratings left — delete the ship document
+      await shipRef.delete();
+    } else {
+      // Recalculate averages
+      await _recalculateAverages(shipRef, remainingRatings.docs);
+    }
   }
 
   /// Generates a PDF for a rating.
@@ -222,6 +242,65 @@ class MyRatingsController {
       final bDate = resolveRatingDate(b.rating.data() as Map<String, dynamic>);
       return bDate.compareTo(aDate);
     });
+  }
+
+  /// Recalculates aggregated ship averages from remaining ratings.
+  ///
+  /// Uses the same criteria and key mapping as [RatingController].
+  Future<void> _recalculateAverages(
+    DocumentReference shipRef,
+    List<QueryDocumentSnapshot> ratingDocs,
+  ) async {
+    const ratingCriteria = [
+      'Dispositivo de Embarque/Desembarque',
+      'Temperatura da Cabine',
+      'Limpeza da Cabine',
+      'Passadiço – Equipamentos',
+      'Passadiço – Temperatura',
+      'Comida',
+      'Relacionamento com comandante/tripulação',
+    ];
+
+    const averageKeyMap = {
+      'Dispositivo de Embarque/Desembarque': 'dispositivo',
+      'Temperatura da Cabine': 'temp_cabine',
+      'Limpeza da Cabine': 'limpeza_cabine',
+      'Passadiço – Equipamentos': 'passadico_equip',
+      'Passadiço – Temperatura': 'passadico_temp',
+      'Comida': 'comida',
+      'Relacionamento com comandante/tripulação': 'relacionamento',
+    };
+
+    final totals = {for (final c in ratingCriteria) c: 0.0};
+    final counts = {for (final c in ratingCriteria) c: 0};
+
+    for (final doc in ratingDocs) {
+      final items = (doc.data() as Map<String, dynamic>)['itens'] as Map?;
+      if (items == null) continue;
+
+      for (final criterion in ratingCriteria) {
+        final value = items[criterion];
+        if (value is Map) {
+          final nota = value['nota'];
+          final score = nota is num ? nota.toDouble() : 0.0;
+          if (score > 0) {
+            totals[criterion] = totals[criterion]! + score;
+            counts[criterion] = counts[criterion]! + 1;
+          }
+        }
+      }
+    }
+
+    final averages = <String, String>{};
+    for (final criterion in ratingCriteria) {
+      if (counts[criterion]! > 0) {
+        final average = totals[criterion]! / counts[criterion]!;
+        averages[averageKeyMap[criterion] ?? criterion.toLowerCase()] =
+            average.toStringAsFixed(1);
+      }
+    }
+
+    await shipRef.update({'medias': averages});
   }
 
   Map<String, Map<String, dynamic>> _extractRatings(Map<String, dynamic> data) {
