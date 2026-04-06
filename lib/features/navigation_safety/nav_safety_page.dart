@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/nav_safety_controller.dart';
 import 'nav_safety_new_record_page.dart';
+import 'nav_safety_my_records_page.dart';
 
 /// Main screen for the Navigation Safety module.
 ///
@@ -68,6 +69,13 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       // Refresh locations after returning from the form
       _controller.fetchLocationsWithLatestRecord();
     });
+  }
+
+  void _navigateToMyRecords() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NavSafetyMyRecordsPage()),
+    );
   }
 
   void _toggleLocationsDropdown() {
@@ -173,6 +181,12 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             label: l10n.newRecord,
             isActive: false,
             onTap: _navigateToNewRecord,
+          ),
+          const SizedBox(width: 8),
+          _buildPill(
+            label: l10n.myRecords,
+            isActive: false,
+            onTap: _navigateToMyRecords,
           ),
         ],
       ),

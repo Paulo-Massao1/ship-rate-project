@@ -785,4 +785,49 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sonarRequired => 'Selecione a posição da sonda';
+
+  @override
+  String get myRecords => 'Meus Registros';
+
+  @override
+  String get drawerMyRecords => 'Meus Registros';
+
+  @override
+  String get yourRecords => 'Seus Registros';
+
+  @override
+  String get recordsLabel => 'registros';
+
+  @override
+  String get locationsLabel => 'locais';
+
+  @override
+  String get contributionLabel => 'contribuição';
+
+  @override
+  String get editRecord => 'Editar';
+
+  @override
+  String get deleteRecord => 'Excluir';
+
+  @override
+  String get deleteRecordTitle => 'Excluir Registro';
+
+  @override
+  String get deleteRecordConfirm => 'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.';
+
+  @override
+  String get recordDeletedSuccess => 'Registro excluído com sucesso!';
+
+  @override
+  String get recordUpdatedSuccess => 'Registro atualizado com sucesso!';
+
+  @override
+  String get updatePassage => 'Atualizar Passagem';
+
+  @override
+  String get noRecordsYet => 'Nenhum registro ainda';
+
+  @override
+  String get noRecordsSubtitle => 'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!';
 }
