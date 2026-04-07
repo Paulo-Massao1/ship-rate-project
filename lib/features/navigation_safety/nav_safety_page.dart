@@ -6,6 +6,7 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../auth/login_page.dart';
 import '../home/home_page.dart';
+import '../settings/settings_page.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
 import 'nav_safety_record_detail_page.dart';
@@ -225,11 +226,26 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                             ),
                           ),
                         ),
-                        child: _buildDrawerItem(
-                          icon: Icons.logout,
-                          label: l10n.drawerLogout,
-                          color: const Color(0xFFEF5350),
-                          onTap: _handleLogout,
+                        child: Column(
+                          children: [
+                            _buildDrawerItem(
+                              icon: Icons.settings,
+                              label: l10n.settings,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                                );
+                              },
+                            ),
+                            _buildDrawerItem(
+                              icon: Icons.logout,
+                              label: l10n.drawerLogout,
+                              color: const Color(0xFFEF5350),
+                              onTap: _handleLogout,
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

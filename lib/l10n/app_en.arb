@@ -417,5 +417,10 @@
   "invalidCredentials": "Invalid email or password",
   "passwordsDoNotMatch": "Passwords do not match",
   "passwordTooShort": "Password must be at least 6 characters",
-  "emailAlreadyRegistered": "This email already has an account. Use the login screen."
+  "emailAlreadyRegistered": "This email already has an account. Use the login screen.",
+
+  "settings": "Settings",
+  "pushNotifications": "Push notifications",
+  "emailNotifications": "Email notifications",
+  "notificationPermissionDenied": "Notification permission denied"
 }

@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../auth/login_page.dart';
+import '../settings/settings_page.dart';
 import 'home_page.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
@@ -358,11 +359,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             ),
                           ),
                         ),
-                        child: _DrawerItem(
-                          icon: Icons.logout,
-                          label: l10n.drawerLogout,
-                          color: const Color(0xFFEF5350),
-                          onTap: _handleLogout,
+                        child: Column(
+                          children: [
+                            _DrawerItem(
+                              icon: Icons.settings,
+                              label: l10n.settings,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                                );
+                              },
+                            ),
+                            _DrawerItem(
+                              icon: Icons.logout,
+                              label: l10n.drawerLogout,
+                              color: const Color(0xFFEF5350),
+                              onTap: _handleLogout,
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

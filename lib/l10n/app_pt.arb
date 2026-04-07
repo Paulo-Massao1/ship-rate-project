@@ -417,5 +417,10 @@
   "invalidCredentials": "Email ou senha incorretos",
   "passwordsDoNotMatch": "As senhas não coincidem",
   "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
-  "emailAlreadyRegistered": "Este email já possui uma conta. Use a tela de login."
+  "emailAlreadyRegistered": "Este email já possui uma conta. Use a tela de login.",
+
+  "settings": "Configurações",
+  "pushNotifications": "Notificações push",
+  "emailNotifications": "Notificações por email",
+  "notificationPermissionDenied": "Permissão de notificação negada"
 }

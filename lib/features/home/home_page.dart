@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../auth/login_page.dart';
+import '../settings/settings_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../controllers/home_controller.dart';
+import '../../data/services/notification_service.dart';
 import '../../data/services/version_service.dart';
 
 /// Home screen displayed after login with module selection cards.
@@ -42,6 +44,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _checkForUpdates();
     _fetchNomeGuerra();
+    _initNotifications();
   }
 
   @override
@@ -60,6 +63,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
+
+  Future<void> _initNotifications() async {
+    await NotificationService.initialize();
+    if (mounted) {
+      NotificationService.listenForegroundMessages(
+        ScaffoldMessenger.of(context),
+      );
+    }
+  }
 
   Future<void> _fetchNomeGuerra() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -375,11 +387,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             ),
                           ),
                         ),
-                        child: _DrawerItem(
-                          icon: Icons.logout,
-                          label: l10n.drawerLogout,
-                          color: const Color(0xFFEF5350),
-                          onTap: _handleLogout,
+                        child: Column(
+                          children: [
+                            _DrawerItem(
+                              icon: Icons.settings,
+                              label: l10n.settings,
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                                );
+                              },
+                            ),
+                            _DrawerItem(
+                              icon: Icons.logout,
+                              label: l10n.drawerLogout,
+                              color: const Color(0xFFEF5350),
+                              onTap: _handleLogout,
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 8),

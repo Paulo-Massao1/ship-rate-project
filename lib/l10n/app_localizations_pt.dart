@@ -925,4 +925,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get emailAlreadyRegistered => 'Este email já possui uma conta. Use a tela de login.';
+
+  @override
+  String get settings => 'Configurações';
+
+  @override
+  String get pushNotifications => 'Notificações push';
+
+  @override
+  String get emailNotifications => 'Notificações por email';
+
+  @override
+  String get notificationPermissionDenied => 'Permissão de notificação negada';
 }
