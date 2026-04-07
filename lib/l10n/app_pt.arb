@@ -24,7 +24,7 @@
   "confirmPassword": "Confirmar senha",
   "registerButton": "Cadastrar",
   "registerSuccess": "Cadastro realizado com sucesso",
-  "alreadyHaveAccount": "Já tenho uma conta",
+  "alreadyHaveAccount": "Já tem conta? Entrar",
 
   "recoverPassword": "Recuperar senha",
   "recoverPasswordSubtitle": "Informe seu e-mail para receber o link de redefinição",
@@ -366,5 +366,56 @@
   "recordUpdatedSuccess": "Registro atualizado com sucesso!",
   "updatePassage": "Atualizar Passagem",
   "noRecordsYet": "Nenhum registro ainda",
-  "noRecordsSubtitle": "Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!"
+  "noRecordsSubtitle": "Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!",
+  "recordDetails": "Detalhes do Registro",
+  "passageInfo": "Informações da Passagem",
+  "by": "Por",
+  "technicalData": "Dados Técnicos",
+  "position": "Posição",
+  "anchoragePoint": "Ponto do Fundeadouro",
+  "totalDepthShort": "Prof. Total",
+  "modules": "Módulos",
+  "lastRecordBy": "Último registro por: {name}",
+  "@lastRecordBy": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "navShipLabel": "Navio: {name}",
+  "@navShipLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "enterEmail": "Entre com seu email",
+  "sendCode": "Enviar código",
+  "emailNotAuthorized": "Email não autorizado. Entre em contato com a ZP01.",
+  "codeSentTo": "Código enviado para {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "enterCode": "Digite o código de 6 dígitos",
+  "verify": "Verificar",
+  "resendCode": "Reenviar código",
+  "invalidCode": "Código inválido",
+  "expiredCode": "Código expirado. Solicite um novo.",
+  "resendIn": "Reenviar em {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": { "type": "String" }
+    }
+  },
+
+  "noAccount": "Não tem conta? Registrar",
+  "register": "Registrar",
+  "createPassword": "Criar senha",
+  "passwordHint": "Mínimo 6 caracteres",
+  "accountCreated": "Conta criada com sucesso!",
+  "invalidCredentials": "Email ou senha incorretos",
+  "passwordsDoNotMatch": "As senhas não coincidem",
+  "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+  "emailAlreadyRegistered": "Este email já possui uma conta. Use a tela de login."
 }

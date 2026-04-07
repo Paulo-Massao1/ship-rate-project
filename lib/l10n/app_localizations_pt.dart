@@ -72,7 +72,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get registerSuccess => 'Cadastro realizado com sucesso';
 
   @override
-  String get alreadyHaveAccount => 'Já tenho uma conta';
+  String get alreadyHaveAccount => 'Já tem conta? Entrar';
 
   @override
   String get recoverPassword => 'Recuperar senha';
@@ -830,4 +830,99 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get noRecordsSubtitle => 'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!';
+
+  @override
+  String get recordDetails => 'Detalhes do Registro';
+
+  @override
+  String get passageInfo => 'Informações da Passagem';
+
+  @override
+  String get by => 'Por';
+
+  @override
+  String get technicalData => 'Dados Técnicos';
+
+  @override
+  String get position => 'Posição';
+
+  @override
+  String get anchoragePoint => 'Ponto do Fundeadouro';
+
+  @override
+  String get totalDepthShort => 'Prof. Total';
+
+  @override
+  String get modules => 'Módulos';
+
+  @override
+  String lastRecordBy(String name) {
+    return 'Último registro por: $name';
+  }
+
+  @override
+  String navShipLabel(String name) {
+    return 'Navio: $name';
+  }
+
+  @override
+  String get enterEmail => 'Entre com seu email';
+
+  @override
+  String get sendCode => 'Enviar código';
+
+  @override
+  String get emailNotAuthorized => 'Email não autorizado. Entre em contato com a ZP01.';
+
+  @override
+  String codeSentTo(String email) {
+    return 'Código enviado para $email';
+  }
+
+  @override
+  String get enterCode => 'Digite o código de 6 dígitos';
+
+  @override
+  String get verify => 'Verificar';
+
+  @override
+  String get resendCode => 'Reenviar código';
+
+  @override
+  String get invalidCode => 'Código inválido';
+
+  @override
+  String get expiredCode => 'Código expirado. Solicite um novo.';
+
+  @override
+  String resendIn(String seconds) {
+    return 'Reenviar em ${seconds}s';
+  }
+
+  @override
+  String get noAccount => 'Não tem conta? Registrar';
+
+  @override
+  String get register => 'Registrar';
+
+  @override
+  String get createPassword => 'Criar senha';
+
+  @override
+  String get passwordHint => 'Mínimo 6 caracteres';
+
+  @override
+  String get accountCreated => 'Conta criada com sucesso!';
+
+  @override
+  String get invalidCredentials => 'Email ou senha incorretos';
+
+  @override
+  String get passwordsDoNotMatch => 'As senhas não coincidem';
+
+  @override
+  String get passwordTooShort => 'A senha deve ter pelo menos 6 caracteres';
+
+  @override
+  String get emailAlreadyRegistered => 'Este email já possui uma conta. Use a tela de login.';
 }

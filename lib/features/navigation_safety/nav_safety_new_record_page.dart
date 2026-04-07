@@ -36,14 +36,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   static const _tealBorder = Color(0x3326A69A);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
-  static const _fieldBg = Color(0x0FFFFFFF);
+  static const _fieldBg = Color(0xFF1A2E45);
   static const _fieldBorder = Color(0x1F64B5F6);
   static const _textPrimary = Colors.white;
   static const _textSecondary = Color(0xD9FFFFFF);
   static const _textMuted = Color(0x66FFFFFF);
   static const _textLabel = Color(0x99FFFFFF);
-  static const _inputBg = Color(0x0FFFFFFF);
-  static const _inputBorder = Color(0x1F26A69A);
+  static const _inputBg = Color(0xFF1A2E45);
+  static const _inputBorder = Color(0x3326A69A);
   static const _dropdownBg = Color(0xFF132D4A);
 
   // ===========================================================================
@@ -214,17 +214,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Future<void> _loadLocations() async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('locais')
-          .orderBy('nome')
-          .get();
-
-      final locs = snapshot.docs
-          .map((doc) => LocationWithLatestRecord(
-                id: doc.id,
-                name: (doc.data()['nome'] ?? '').toString(),
-              ))
-          .toList();
+      final locs = await _controller.getCachedLocations();
 
       if (mounted) {
         setState(() {
@@ -268,7 +258,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   String? _validate() {
     final l10n = AppLocalizations.of(context)!;
-    if (_selectedLocationId == null) return l10n.locationRequired;
+    final hasPendingNewLocation = _newLocationController.text.trim().isNotEmpty;
+    if (widget.isEditing) {
+      if (_selectedLocationId == null) return l10n.locationRequired;
+    } else if (_selectedLocationId == null &&
+        (_selectedLocationName == null || _selectedLocationName!.trim().isEmpty) &&
+        !hasPendingNewLocation) {
+      return l10n.locationRequired;
+    }
     if (_depthController.text.trim().isEmpty) return l10n.depthRequired;
     if (_maxDraftController.text.trim().isEmpty) return l10n.draftRequired;
     if (_ukcController.text.trim().isEmpty) return l10n.ukcRequired;
@@ -293,6 +290,20 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
     try {
       final user = FirebaseAuth.instance.currentUser;
+      final pendingLocationName = _newLocationController.text.trim().isNotEmpty
+          ? _newLocationController.text.trim()
+          : _selectedLocationName?.trim();
+
+      // Fetch nomeGuerra from Firestore usuarios collection
+      String nomeGuerra = '';
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(user.uid)
+            .get();
+        nomeGuerra = (userDoc.data()?['nomeGuerra'] ?? '').toString();
+      }
+
       final data = <String, dynamic>{
         'profundidadeTotal': double.tryParse(_depthController.text.trim()),
         'caladoMax': double.tryParse(_maxDraftController.text.trim()),
@@ -301,7 +312,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         'posicaoSonda': _sonarPosition,
         'data': Timestamp.fromDate(_selectedDate),
         'pilotId': user?.uid ?? '',
-        'nomeGuerra': user?.displayName ?? '',
+        'nomeGuerra': nomeGuerra,
       };
 
       // Optional fields
@@ -339,11 +350,22 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       final obs = _observationsController.text.trim();
       if (obs.isNotEmpty) data['observacoes'] = obs;
 
+      var locationId = _selectedLocationId;
+      if (!widget.isEditing &&
+          locationId == null &&
+          pendingLocationName != null &&
+          pendingLocationName.isNotEmpty) {
+        locationId = await _controller.addLocation(
+          pendingLocationName,
+          createdBy: user?.uid,
+        );
+      }
+
       if (widget.isEditing) {
         await _controller.updateRecord(
             _selectedLocationId!, widget.editRecordId!, data);
       } else {
-        await _controller.saveRecord(_selectedLocationId!, data);
+        await _controller.saveRecord(locationId!, data);
       }
 
       if (mounted) {
@@ -372,32 +394,15 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     }
   }
 
-  Future<void> _addNewLocation() async {
+  Future<void> _selectNewLocation() async {
     final name = _newLocationController.text.trim();
     if (name.isEmpty) return;
 
-    try {
-      final id = await _controller.addLocation(name);
-      final newLoc = LocationWithLatestRecord(id: id, name: name);
-      setState(() {
-        _locations.add(newLoc);
-        _locations.sort(
-            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-        _selectedLocationId = id;
-        _selectedLocationName = name;
-        _showNewLocationInput = false;
-        _newLocationController.clear();
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red.shade800,
-          ),
-        );
-      }
-    }
+    setState(() {
+      _selectedLocationId = null;
+      _selectedLocationName = name;
+      _showNewLocationInput = false;
+    });
   }
 
   // ===========================================================================
@@ -408,7 +413,25 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+          fillColor: Color(0xFF1A2E45),
+          border: InputBorder.none,
+          hintStyle: TextStyle(color: Color(0x66FFFFFF)),
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF26A69A),
+        ),
+        dropdownMenuTheme: const DropdownMenuThemeData(
+          inputDecorationTheme: InputDecorationTheme(
+            fillColor: Color(0xFF132D4A),
+            filled: true,
+          ),
+        ),
+      ),
+      child: Scaffold(
       appBar: _buildAppBar(l10n),
       body: Container(
         decoration: const BoxDecoration(
@@ -418,25 +441,31 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             colors: [_bgDark, _bgMid],
           ),
         ),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-            children: [
-              _buildSection1PassageData(l10n),
-              const SizedBox(height: 16),
-              _buildSection2TotalDepth(l10n),
-              const SizedBox(height: 16),
-              _buildSection3ComplementaryData(l10n),
-              const SizedBox(height: 16),
-              _buildSection4LatLong(l10n),
-              const SizedBox(height: 16),
-              _buildSection5Observations(l10n),
-            ],
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                children: [
+                  _buildSection1PassageData(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection2TotalDepth(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection3ComplementaryData(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection4LatLong(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection5Observations(l10n),
+                  _buildSaveButton(l10n),
+                ],
+              ),
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: _buildSaveButton(l10n),
+    ),
     );
   }
 
@@ -525,7 +554,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             child: DropdownButton<String>(
               value: _selectedLocationId,
               hint: Text(
-                l10n.selectLocation,
+                _selectedLocationId == null &&
+                        _selectedLocationName != null &&
+                        _selectedLocationName!.isNotEmpty
+                    ? '\u{1F4CD} ${_selectedLocationName!}'
+                    : l10n.selectLocation,
                 style: const TextStyle(color: _textMuted, fontSize: 14),
               ),
               isExpanded: true,
@@ -551,6 +584,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _selectedLocationId = loc.id;
                   _selectedLocationName = loc.name;
                   _selectedPoint = null;
+                  _showNewLocationInput = false;
+                  _newLocationController.clear();
                 });
               },
             ),
@@ -568,7 +603,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: _addNewLocation,
+                onTap: _selectNewLocation,
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -749,7 +784,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 width: 120,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0x0FFFFFFF),
+                    color: _inputBg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0x4D26A69A)),
                   ),
@@ -951,7 +986,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Divider(color: Color(0x1AFFFFFF), height: 1),
+                  const Divider(color: Color(0x1A64B5F6), height: 1),
                   const SizedBox(height: 14),
                   const Text('Latitude',
                       style: TextStyle(color: _textLabel, fontSize: 12)),
@@ -1103,14 +1138,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Widget _buildSaveButton(AppLocalizations l10n) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0x000D2137), _bgMid],
-        ),
-      ),
+      margin: const EdgeInsets.only(top: 20, bottom: 24),
       child: GestureDetector(
         onTap: _isSaving ? null : _save,
         child: Container(

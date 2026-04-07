@@ -1,21 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import '../../controllers/auth_controller.dart';
-import 'register_page.dart';
-import 'forgot_password_page.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../core/theme/app_colors.dart';
-import '../home/main_screen_page.dart';
 import '../../main.dart';
+import 'register_page.dart';
 
-/// Login screen for ShipRate app.
+/// Login screen with email + password authentication.
 ///
-/// Responsibilities:
-/// - Collect user credentials (email and password)
-/// - Trigger authentication via [AuthController]
-/// - Display feedback via SnackBar
-/// - Navigate to [MainScreen] on success
-/// - Provide access to password recovery and registration
+/// Existing pilots sign in with email and password.
+/// New pilots tap "Register" to go through OTP registration flow.
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -30,9 +22,8 @@ class _LoginPageState extends State<LoginPage> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authController = AuthController();
-
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   // ===========================================================================
   // LIFECYCLE
@@ -46,44 +37,66 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // ===========================================================================
-  // ACTIONS
+  // METHODS
   // ===========================================================================
 
-  /// Performs user login.
-  ///
-  /// Flow:
-  /// 1. Activates loading state
-  /// 2. Calls [AuthController.login]
-  /// 3. Shows success feedback
-  /// 4. Navigates to MainScreen using pushReplacement
-  /// 5. On error, shows error message
   Future<void> _login() async {
     final l10n = AppLocalizations.of(context)!;
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) return;
+
     setState(() => _isLoading = true);
 
     try {
-      await _authController.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-
-      _showSnackBar(l10n.loginSuccess, color: AppColors.success);
-
-      if (!mounted) return;
-
-      // Replace login screen to prevent back navigation
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
-    } catch (error) {
-      _showSnackBar(error.toString(), color: AppColors.danger);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      // AuthGate handles navigation
+    } on FirebaseAuthException catch (e) {
+      setState(() => _isLoading = false);
+      if (e.code == 'user-not-found' ||
+          e.code == 'wrong-password' ||
+          e.code == 'invalid-credential') {
+        _showSnackBar(l10n.invalidCredentials, color: const Color(0xFFDC2626));
+      } else {
+        _showSnackBar(e.message ?? 'Error', color: const Color(0xFFDC2626));
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showSnackBar(e.toString(), color: const Color(0xFFDC2626));
     }
   }
 
-  /// Toggles between PT and EN locales.
+  void _goToRegister() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const RegisterPage()),
+    );
+  }
+
+  Future<void> _resetPassword() async {
+    final l10n = AppLocalizations.of(context)!;
+    final email = _emailController.text.trim().toLowerCase();
+
+    if (email.isEmpty) {
+      _showSnackBar(l10n.enterEmail, color: const Color(0xFFDC2626));
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (mounted) {
+        _showSnackBar(l10n.resetEmailSent, color: const Color(0xFF26a69a));
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnackBar(e.toString(), color: const Color(0xFFDC2626));
+      }
+    }
+  }
+
   void _toggleLocale() {
     final next = localeController.locale.languageCode == 'pt'
         ? const Locale('en')
@@ -91,23 +104,6 @@ class _LoginPageState extends State<LoginPage> {
     localeController.changeLocale(next);
   }
 
-  /// Navigates to forgot password screen.
-  void _navigateToForgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
-    );
-  }
-
-  /// Navigates to registration screen.
-  void _navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const RegisterPage()),
-    );
-  }
-
-  /// Shows a floating snackbar with message.
   void _showSnackBar(String message, {required Color color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -126,72 +122,236 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          _buildBackgroundImage(),
-          _buildOverlay(),
-          _buildLoginCard(),
-          _buildLocaleToggle(),
-        ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0a1628), Color(0xFF0d2137)],
+          ),
+        ),
+        child: Stack(
+          children: [
+            _buildContent(),
+            _buildLocaleToggle(),
+          ],
+        ),
       ),
     );
   }
 
-  /// Background image for branding.
-  Widget _buildBackgroundImage() {
-    return Image.asset(
-      'assets/images/navio.jpg',
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-    );
-  }
-
-  /// Dark overlay for better contrast.
-  Widget _buildOverlay() {
-    return Container(color: Colors.black.withAlpha(130));
-  }
-
-  /// Centered login card with form.
-  Widget _buildLoginCard() {
+  Widget _buildContent() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: Card(
-            elevation: 10,
-            shadowColor: Colors.black26,
-            surfaceTintColor: AppColors.primary.withAlpha(40),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildEmailField(),
-                  const SizedBox(height: 16),
-                  _buildPasswordField(),
-                  const SizedBox(height: 28),
-                  _buildLoginButton(),
-                  const SizedBox(height: 16),
-                  _buildForgotPasswordLink(),
-                  const Divider(height: 32),
-                  _buildRegisterLink(),
-                ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 40),
+              _buildLoginForm(),
+              const SizedBox(height: 16),
+              // Forgot password
+              Center(
+                child: TextButton(
+                  onPressed: _resetPassword,
+                  child: Text(
+                    l10n.forgotPassword,
+                    style: const TextStyle(
+                      color: Color(0xFF64b5f6),
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              // Register link
+              Center(
+                child: TextButton(
+                  onPressed: _goToRegister,
+                  child: Text(
+                    l10n.noAccount,
+                    style: const TextStyle(
+                      color: Color(0xFF64b5f6),
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// Language toggle button positioned at top-right.
+  Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        const Icon(
+          Icons.directions_boat_filled,
+          size: 64,
+          color: Color(0xFF64b5f6),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'ShipRate',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.loginSubtitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFFD9D9D9),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginForm() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Email field
+        TextField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: l10n.email,
+            hintStyle: const TextStyle(color: Color(0x99FFFFFF)),
+            prefixIcon:
+                const Icon(Icons.email_outlined, color: Color(0x99FFFFFF)),
+            filled: true,
+            fillColor: const Color(0xFF1A2E45),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0x1F64B5F6)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0x1F64B5F6)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF64b5f6), width: 1.5),
+            ),
+          ),
+          onSubmitted: (_) => _isLoading ? null : _login(),
+        ),
+        const SizedBox(height: 16),
+
+        // Password field
+        TextField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: l10n.password,
+            hintStyle: const TextStyle(color: Color(0x99FFFFFF)),
+            prefixIcon:
+                const Icon(Icons.lock_outline, color: Color(0x99FFFFFF)),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: const Color(0x99FFFFFF),
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            filled: true,
+            fillColor: const Color(0xFF1A2E45),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0x1F64B5F6)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0x1F64B5F6)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF64b5f6), width: 1.5),
+            ),
+          ),
+          onSubmitted: (_) => _isLoading ? null : _login(),
+        ),
+        const SizedBox(height: 24),
+
+        // Login button
+        _buildGradientButton(
+          label: l10n.loginButton,
+          onPressed: _isLoading ? null : _login,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGradientButton({
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
+    return Container(
+      height: 52,
+      decoration: BoxDecoration(
+        gradient: onPressed != null
+            ? const LinearGradient(
+                colors: [Color(0xFF1565c0), Color(0xFF1976d2)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: onPressed == null ? const Color(0xFF1A2E45) : null,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Center(
+            child: _isLoading
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLocaleToggle() {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 8,
@@ -221,104 +381,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  /// Header with logo and title.
-  Widget _buildHeader() {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
-      children: [
-        const Icon(
-          Icons.directions_boat_filled,
-          size: 54,
-          color: AppColors.primary,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'ShipRate',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.title.copyWith(fontSize: 30),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.loginSubtitle,
-          textAlign: TextAlign.center,
-          style: AppTextStyles.subtitle,
-        ),
-      ],
-    );
-  }
-
-  /// Email input field.
-  Widget _buildEmailField() {
-    final l10n = AppLocalizations.of(context)!;
-    return TextField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        labelText: l10n.email,
-        prefixIcon: const Icon(Icons.email),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  /// Password input field.
-  Widget _buildPasswordField() {
-    final l10n = AppLocalizations.of(context)!;
-    return TextField(
-      controller: _passwordController,
-      obscureText: true,
-      decoration: InputDecoration(
-        labelText: l10n.password,
-        prefixIcon: const Icon(Icons.lock),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  /// Login button with loading indicator.
-  Widget _buildLoginButton() {
-    final l10n = AppLocalizations.of(context)!;
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _login,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: AppColors.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: _isLoading
-          ? const SizedBox(
-              height: 22,
-              width: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
-          : Text(l10n.loginButton, style: const TextStyle(fontSize: 18)),
-    );
-  }
-
-  /// Forgot password link.
-  Widget _buildForgotPasswordLink() {
-    final l10n = AppLocalizations.of(context)!;
-    return TextButton(
-      onPressed: _navigateToForgotPassword,
-      child: Text(l10n.forgotPassword),
-    );
-  }
-
-  /// Register link.
-  Widget _buildRegisterLink() {
-    final l10n = AppLocalizations.of(context)!;
-    return TextButton(
-      onPressed: _navigateToRegister,
-      child: Text(
-        l10n.createAccount,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
     );
   }

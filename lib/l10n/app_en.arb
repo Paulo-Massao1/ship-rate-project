@@ -24,7 +24,7 @@
   "confirmPassword": "Confirm password",
   "registerButton": "Register",
   "registerSuccess": "Registration successful",
-  "alreadyHaveAccount": "I already have an account",
+  "alreadyHaveAccount": "Already have an account? Sign in",
 
   "recoverPassword": "Recover password",
   "recoverPasswordSubtitle": "Enter your email to receive the reset link",
@@ -366,5 +366,56 @@
   "recordUpdatedSuccess": "Record updated successfully!",
   "updatePassage": "Update Passage",
   "noRecordsYet": "No records yet",
-  "noRecordsSubtitle": "You haven't registered any passages yet.\nStart recording your next passage!"
+  "noRecordsSubtitle": "You haven't registered any passages yet.\nStart recording your next passage!",
+  "recordDetails": "Record Details",
+  "passageInfo": "Passage Information",
+  "by": "By",
+  "technicalData": "Technical Data",
+  "position": "Position",
+  "anchoragePoint": "Anchorage Point",
+  "totalDepthShort": "Total Depth",
+  "modules": "Modules",
+  "lastRecordBy": "Last record by: {name}",
+  "@lastRecordBy": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "navShipLabel": "Ship: {name}",
+  "@navShipLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "enterEmail": "Enter your email",
+  "sendCode": "Send code",
+  "emailNotAuthorized": "Email not authorized. Contact ZP01.",
+  "codeSentTo": "Code sent to {email}",
+  "@codeSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "enterCode": "Enter the 6-digit code",
+  "verify": "Verify",
+  "resendCode": "Resend code",
+  "invalidCode": "Invalid code",
+  "expiredCode": "Code expired. Request a new one.",
+  "resendIn": "Resend in {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": { "type": "String" }
+    }
+  },
+
+  "noAccount": "Don't have an account? Register",
+  "register": "Register",
+  "createPassword": "Create password",
+  "passwordHint": "Minimum 6 characters",
+  "accountCreated": "Account created successfully!",
+  "invalidCredentials": "Invalid email or password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "emailAlreadyRegistered": "This email already has an account. Use the login screen."
 }
