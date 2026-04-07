@@ -60,7 +60,7 @@ void main() async {
 /// AuthGate behavior:
 /// - Listens to FirebaseAuth state
 /// - Redirects to LoginPage when logged out
-/// - Redirects to MainScreen when authenticated
+/// - Redirects to HomePage when authenticated
 class ShipRateApp extends StatelessWidget {
   final LocaleController localeController;
 

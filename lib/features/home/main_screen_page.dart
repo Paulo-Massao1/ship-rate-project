@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
 import '../auth/login_page.dart';
+import 'home_page.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
@@ -305,6 +306,18 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     children: [
+                      _DrawerItem(
+                        icon: Icons.home,
+                        label: l10n.modules,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HomePage()),
+                            (_) => false,
+                          );
+                        },
+                      ),
                       _DrawerItem(
                         icon: Icons.search,
                         label: l10n.drawerSearchRate,

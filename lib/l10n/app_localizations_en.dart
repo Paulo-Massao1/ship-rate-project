@@ -72,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registerSuccess => 'Registration successful';
 
   @override
-  String get alreadyHaveAccount => 'I already have an account';
+  String get alreadyHaveAccount => 'Already have an account? Sign in';
 
   @override
   String get recoverPassword => 'Recover password';
@@ -830,4 +830,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRecordsSubtitle => 'You haven\'t registered any passages yet.\nStart recording your next passage!';
+
+  @override
+  String get recordDetails => 'Record Details';
+
+  @override
+  String get passageInfo => 'Passage Information';
+
+  @override
+  String get by => 'By';
+
+  @override
+  String get technicalData => 'Technical Data';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get anchoragePoint => 'Anchorage Point';
+
+  @override
+  String get totalDepthShort => 'Total Depth';
+
+  @override
+  String get modules => 'Modules';
+
+  @override
+  String lastRecordBy(String name) {
+    return 'Last record by: $name';
+  }
+
+  @override
+  String navShipLabel(String name) {
+    return 'Ship: $name';
+  }
+
+  @override
+  String get enterEmail => 'Enter your email';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get emailNotAuthorized => 'Email not authorized. Contact ZP01.';
+
+  @override
+  String codeSentTo(String email) {
+    return 'Code sent to $email';
+  }
+
+  @override
+  String get enterCode => 'Enter the 6-digit code';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String get invalidCode => 'Invalid code';
+
+  @override
+  String get expiredCode => 'Code expired. Request a new one.';
+
+  @override
+  String resendIn(String seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get noAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get createPassword => 'Create password';
+
+  @override
+  String get passwordHint => 'Minimum 6 characters';
+
+  @override
+  String get accountCreated => 'Account created successfully!';
+
+  @override
+  String get invalidCredentials => 'Invalid email or password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get emailAlreadyRegistered => 'This email already has an account. Use the login screen.';
 }

@@ -1,20 +1,15 @@
 // lib/features/home/home_page.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../auth/login_page.dart';
-import '../ratings/my_ratings_page.dart';
-import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
-import '../navigation_safety/nav_safety_my_records_page.dart';
 import '../../controllers/home_controller.dart';
 import '../../data/services/version_service.dart';
-import '../../main.dart';
 
 /// Home screen displayed after login with module selection cards.
 class HomePage extends StatefulWidget {
@@ -29,17 +24,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // CONSTANTS
   // ===========================================================================
 
-  static const _shareUrl = 'https://shiprate-daf18.web.app/';
-  static const _shareText =
-      'Conheça o ShipRate! O app de avaliação profissional de navios para práticos. '
-      'Acesse: $_shareUrl';
-
   // ===========================================================================
   // STATE
   // ===========================================================================
 
   bool _showUpdateBanner = false;
   String _updateMessage = '';
+  String? _nomeGuerra;
 
   // ===========================================================================
   // LIFECYCLE
@@ -50,6 +41,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _checkForUpdates();
+    _fetchNomeGuerra();
   }
 
   @override
@@ -68,6 +60,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
+
+  Future<void> _fetchNomeGuerra() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final doc =
+        await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+    if (!mounted) return;
+
+    final nome = doc.data()?['nomeGuerra'] as String?;
+    setState(() {
+      _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
+    });
+  }
 
   Future<void> _checkForUpdates() async {
     final result = await VersionService.shouldShowUpdateBanner();
@@ -99,48 +105,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  void _toggleLocale() {
-    Navigator.pop(context);
-    final next = localeController.locale.languageCode == 'pt'
-        ? const Locale('en')
-        : const Locale('pt');
-    localeController.changeLocale(next);
-  }
-
-  void _shareApp() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _ShareBottomSheet(
-        onWhatsAppTap: _shareViaWhatsApp,
-        onCopyLinkTap: _copyLinkToClipboard,
-      ),
-    );
-  }
-
-  void _shareViaWhatsApp() {
-    Navigator.pop(context);
-    final whatsappUrl =
-        'https://wa.me/?text=${Uri.encodeComponent(_shareText)}';
-    html.window.open(whatsappUrl, '_blank');
-  }
-
-  Future<void> _copyLinkToClipboard() async {
-    Navigator.pop(context);
-    await Clipboard.setData(const ClipboardData(text: _shareUrl));
-    if (!mounted) return;
-
-    final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.linkCopied),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
 
   // ===========================================================================
   // NAVIGATION
@@ -160,29 +124,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  void _navigateToMyRatings() {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const MyRatingsPage()),
-    );
-  }
-
-  void _navigateToSuggestions() {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SuggestionPage()),
-    );
-  }
-
-  void _navigateToMyRecords() {
-    Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const NavSafetyMyRecordsPage()),
-    );
-  }
 
   // ===========================================================================
   // BUILD
@@ -252,8 +193,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildWelcomeText() {
     final l10n = AppLocalizations.of(context)!;
-    final displayName =
-        FirebaseAuth.instance.currentUser?.displayName ?? 'Pilot';
+    final displayName = _nomeGuerra ?? 'Prático';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,43 +361,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   child: Column(
                     children: [
                       _DrawerItem(
-                        icon: Icons.search,
-                        label: l10n.drawerSearchRate,
-                        onTap: () {
-                          Navigator.pop(context);
-                          _navigateToShipRating();
-                        },
-                      ),
-                      _DrawerItem(
-                        icon: Icons.assignment_turned_in_outlined,
-                        label: l10n.drawerMyRatings,
-                        onTap: _navigateToMyRatings,
-                      ),
-                      _DrawerItem(
-                        icon: Icons.anchor,
-                        label: l10n.drawerMyRecords,
-                        color: const Color(0xFF26A69A),
-                        onTap: _navigateToMyRecords,
-                      ),
-                      _DrawerItem(
-                        icon: Icons.lightbulb_outline,
-                        label: l10n.drawerSendSuggestion,
-                        onTap: _navigateToSuggestions,
-                      ),
-                      _DrawerItem(
-                        icon: Icons.share,
-                        label: l10n.drawerShareApp,
-                        onTap: () {
-                          Navigator.pop(context);
-                          _shareApp();
-                        },
-                      ),
-                      _DrawerItem(
-                        icon: Icons.language,
-                        label: localeController.locale.languageCode == 'pt'
-                            ? 'English'
-                            : 'Português',
-                        onTap: _toggleLocale,
+                        icon: Icons.home,
+                        label: l10n.modules,
+                        onTap: () => Navigator.pop(context),
                       ),
                       const Spacer(),
                       Container(
@@ -662,98 +568,3 @@ class _DrawerItem extends StatelessWidget {
   }
 }
 
-class _ShareBottomSheet extends StatelessWidget {
-  final VoidCallback onWhatsAppTap;
-  final VoidCallback onCopyLinkTap;
-
-  const _ShareBottomSheet({
-    required this.onWhatsAppTap,
-    required this.onCopyLinkTap,
-  });
-
-  static const _whatsAppColor = Color(0xFF25D366);
-  static const _primaryColor = Color(0xFF3F51B5);
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.shareShipRate,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _ShareOption(
-                  icon: Icons.message,
-                  label: 'WhatsApp',
-                  color: _whatsAppColor,
-                  onTap: onWhatsAppTap,
-                ),
-                _ShareOption(
-                  icon: Icons.link,
-                  label: l10n.copyLink,
-                  color: _primaryColor,
-                  onTap: onCopyLinkTap,
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShareOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ShareOption({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withAlpha(26),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 32),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

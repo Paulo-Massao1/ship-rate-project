@@ -107,6 +107,15 @@ exports.sendOTP = functions.https.onCall(async (data) => {
     throw new functions.https.HttpsError("permission-denied", "not_authorized");
   }
 
+  // Check if a Firebase Auth user already exists with this email
+  try {
+    await admin.auth().getUserByEmail(email);
+    // User exists — return error
+    return { success: false, error: "already-registered" };
+  } catch (e) {
+    // User doesn't exist — proceed with OTP
+  }
+
   // Generate 6-digit code
   const code = String(Math.floor(100000 + Math.random() * 900000));
 
@@ -152,15 +161,11 @@ exports.verifyOTP = functions.https.onCall(async (data) => {
     throw new functions.https.HttpsError("invalid-argument", "Email and code are required.");
   }
 
-  // Find matching OTP
-  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-
+  // Find matching OTP (query only by email + code to avoid composite index)
   const otpSnapshot = await db
     .collection("otp_codes")
     .where("email", "==", email)
     .where("code", "==", code)
-    .where("used", "==", false)
-    .orderBy("createdAt", "desc")
     .limit(1)
     .get();
 
@@ -171,9 +176,15 @@ exports.verifyOTP = functions.https.onCall(async (data) => {
   const otpDoc = otpSnapshot.docs[0];
   const otpData = otpDoc.data();
 
+  // Check if already used
+  if (otpData.used) {
+    return { success: false, error: "invalid" };
+  }
+
   // Check expiration
   const createdAt = otpData.createdAt?.toDate();
-  if (!createdAt || createdAt < tenMinutesAgo) {
+  const now = new Date();
+  if (!createdAt || (now - createdAt) > 10 * 60 * 1000) {
     return { success: false, error: "expired" };
   }
 
@@ -209,6 +220,12 @@ exports.verifyOTP = functions.https.onCall(async (data) => {
       throw new functions.https.HttpsError("internal", "Error creating user.");
     }
   }
+
+  // Create/update usuarios document so home screen can find nomeGuerra
+  await db.collection("usuarios").doc(user.uid).set({
+    nomeGuerra: nomeGuerra,
+    email: email,
+  }, { merge: true });
 
   // Generate custom token
   const token = await admin.auth().createCustomToken(user.uid);

@@ -138,6 +138,12 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     }
   }
 
+  String _formatMeters(dynamic value) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty || text == '—') return '—';
+    return text.endsWith('m') ? text : '${text}m';
+  }
+
   String _formatDate(dynamic data) {
     if (data is Timestamp) {
       final d = data.toDate();
@@ -164,28 +170,33 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
             colors: [_bgDark, _bgMid],
           ),
         ),
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: _teal),
-              )
-            : _records.isEmpty
-                ? _buildEmptyState(l10n)
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                    children: [
-                      _buildSummaryCard(l10n),
-                      const SizedBox(height: 20),
-                      Text(
-                        l10n.yourRecords,
-                        style: const TextStyle(
-                          color: Color(0x99FFFFFF),
-                          fontSize: 12,
-                        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(color: _teal),
+                  )
+                : _records.isEmpty
+                    ? _buildEmptyState(l10n)
+                    : ListView(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                        children: [
+                          _buildSummaryCard(l10n),
+                          const SizedBox(height: 20),
+                          Text(
+                            l10n.yourRecords,
+                            style: const TextStyle(
+                              color: Color(0x99FFFFFF),
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ..._records.map((r) => _buildRecordCard(r, l10n)),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      ..._records.map((r) => _buildRecordCard(r, l10n)),
-                    ],
-                  ),
+          ),
+        ),
       ),
     );
   }
@@ -334,7 +345,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
 
   Widget _buildRecordCard(MyRecord record, AppLocalizations l10n) {
     final data = record.data;
-    final profTotal = data['profundidadeTotal']?.toString() ?? '—';
+    final profTotal = _formatMeters(data['profundidadeTotal']);
     final shipName = (data['nomeNavio'] ?? '').toString();
     final dateStr = _formatDate(data['data']);
 
@@ -375,19 +386,16 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
             ),
             // Ship name
             if (shipName.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  const Text('\u{1F6A2} ',
-                      style: TextStyle(fontSize: 12)),
-                  Text(
-                    shipName,
-                    style: const TextStyle(
-                      color: Color(0xFF64B5F6),
-                      fontSize: 12,
-                    ),
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l10n.navShipLabel(shipName),
+                  style: const TextStyle(
+                    color: Color(0xFF64B5F6),
+                    fontSize: 13,
                   ),
-                ],
+                ),
               ),
             ],
             const SizedBox(height: 10),

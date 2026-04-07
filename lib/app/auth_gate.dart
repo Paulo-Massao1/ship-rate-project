@@ -8,7 +8,7 @@ import '../features/auth/login_page.dart';
 ///
 /// Acts as the entry point that listens to Firebase auth state changes
 /// and automatically redirects users to the appropriate screen:
-/// - [MainScreen]: When authenticated
+/// - [HomePage]: When authenticated
 /// - [LoginPage]: When not authenticated
 ///
 /// Benefits:

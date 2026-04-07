@@ -224,7 +224,7 @@ abstract class AppLocalizations {
   /// No description provided for @alreadyHaveAccount.
   ///
   /// In pt, this message translates to:
-  /// **'Já tenho uma conta'**
+  /// **'Já tem conta? Entrar'**
   String get alreadyHaveAccount;
 
   /// No description provided for @recoverPassword.
@@ -1660,6 +1660,180 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!'**
   String get noRecordsSubtitle;
+
+  /// No description provided for @recordDetails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Detalhes do Registro'**
+  String get recordDetails;
+
+  /// No description provided for @passageInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações da Passagem'**
+  String get passageInfo;
+
+  /// No description provided for @by.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por'**
+  String get by;
+
+  /// No description provided for @technicalData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados Técnicos'**
+  String get technicalData;
+
+  /// No description provided for @position.
+  ///
+  /// In pt, this message translates to:
+  /// **'Posição'**
+  String get position;
+
+  /// No description provided for @anchoragePoint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ponto do Fundeadouro'**
+  String get anchoragePoint;
+
+  /// No description provided for @totalDepthShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prof. Total'**
+  String get totalDepthShort;
+
+  /// No description provided for @modules.
+  ///
+  /// In pt, this message translates to:
+  /// **'Módulos'**
+  String get modules;
+
+  /// No description provided for @lastRecordBy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Último registro por: {name}'**
+  String lastRecordBy(String name);
+
+  /// No description provided for @navShipLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Navio: {name}'**
+  String navShipLabel(String name);
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre com seu email'**
+  String get enterEmail;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar código'**
+  String get sendCode;
+
+  /// No description provided for @emailNotAuthorized.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email não autorizado. Entre em contato com a ZP01.'**
+  String get emailNotAuthorized;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Código enviado para {email}'**
+  String codeSentTo(String email);
+
+  /// No description provided for @enterCode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite o código de 6 dígitos'**
+  String get enterCode;
+
+  /// No description provided for @verify.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verificar'**
+  String get verify;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reenviar código'**
+  String get resendCode;
+
+  /// No description provided for @invalidCode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Código inválido'**
+  String get invalidCode;
+
+  /// No description provided for @expiredCode.
+  ///
+  /// In pt, this message translates to:
+  /// **'Código expirado. Solicite um novo.'**
+  String get expiredCode;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reenviar em {seconds}s'**
+  String resendIn(String seconds);
+
+  /// No description provided for @noAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não tem conta? Registrar'**
+  String get noAccount;
+
+  /// No description provided for @register.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar'**
+  String get register;
+
+  /// No description provided for @createPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar senha'**
+  String get createPassword;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mínimo 6 caracteres'**
+  String get passwordHint;
+
+  /// No description provided for @accountCreated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta criada com sucesso!'**
+  String get accountCreated;
+
+  /// No description provided for @invalidCredentials.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email ou senha incorretos'**
+  String get invalidCredentials;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In pt, this message translates to:
+  /// **'As senhas não coincidem'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'A senha deve ter pelo menos 6 caracteres'**
+  String get passwordTooShort;
+
+  /// No description provided for @emailAlreadyRegistered.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este email já possui uma conta. Use a tela de login.'**
+  String get emailAlreadyRegistered;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
