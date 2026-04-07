@@ -1834,6 +1834,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Este email já possui uma conta. Use a tela de login.'**
   String get emailAlreadyRegistered;
+
+  /// No description provided for @settings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Configurações'**
+  String get settings;
+
+  /// No description provided for @pushNotifications.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificações push'**
+  String get pushNotifications;
+
+  /// No description provided for @emailNotifications.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificações por email'**
+  String get emailNotifications;
+
+  /// No description provided for @notificationPermissionDenied.
+  ///
+  /// In pt, this message translates to:
+  /// **'Permissão de notificação negada'**
+  String get notificationPermissionDenied;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

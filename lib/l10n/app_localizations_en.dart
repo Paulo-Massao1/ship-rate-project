@@ -925,4 +925,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emailAlreadyRegistered => 'This email already has an account. Use the login screen.';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get pushNotifications => 'Push notifications';
+
+  @override
+  String get emailNotifications => 'Email notifications';
+
+  @override
+  String get notificationPermissionDenied => 'Notification permission denied';
 }
