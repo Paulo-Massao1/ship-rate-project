@@ -77,7 +77,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
         });
       }
     } catch (error) {
-      debugPrint('❌ Error loading ratings: $error');
+      debugPrint('[MyRatings] Error loading ratings: $error');
       if (mounted) {
         setState(() {
           _isLoading = false;

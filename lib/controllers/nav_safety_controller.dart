@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 
 /// Controller for the Navigation Safety module.
 ///
-/// Responsibilities:
-/// - Fetch all locations with their most recent registro
-/// - Fetch all registros for a specific location
-/// - Manage selected location state
+/// Manages location data, record history, and user records with
+/// in-memory caching and staleness checks to minimize Firestore reads.
 class NavSafetyController extends ChangeNotifier {
   // ===========================================================================
   // DEPENDENCIES
@@ -21,6 +19,7 @@ class NavSafetyController extends ChangeNotifier {
 
   static const String _locationsCollection = 'locais';
   static const String _recordsSubcollection = 'registros';
+  static const Duration _cacheStaleThreshold = Duration(seconds: 30);
 
   // ===========================================================================
   // CACHE (static — shared across all controller instances)
@@ -37,6 +36,15 @@ class NavSafetyController extends ChangeNotifier {
 
   /// Cached "my records" for the current user.
   static List<MyRecord>? _cachedMyRecords;
+
+  /// Cached total records count.
+  static int? _cachedTotalRecordsCount;
+
+  /// Timestamps for staleness checks.
+  static DateTime? _locationsWithLatestFetchTime;
+  static DateTime? _myRecordsFetchTime;
+  static DateTime? _totalCountFetchTime;
+  static final Map<String, DateTime> _historyFetchTimes = {};
 
   // ===========================================================================
   // STATE
@@ -65,11 +73,9 @@ class NavSafetyController extends ChangeNotifier {
   // ===========================================================================
 
   /// Fetches all locations with their most recent registro.
-  /// Serves from cache if available; only hits Firestore on first call
-  /// or after explicit invalidation.
+  /// Serves from cache if available and not stale.
   Future<void> fetchLocationsWithLatestRecord() async {
-    // Serve from cache instantly
-    if (_cachedLocationsWithLatest != null) {
+    if (_cachedLocationsWithLatest != null && !_isCacheStale(_locationsWithLatestFetchTime)) {
       _locations = _cachedLocationsWithLatest!;
       _isLoading = false;
       notifyListeners();
@@ -119,6 +125,7 @@ class NavSafetyController extends ChangeNotifier {
 
       _locations = await Future.wait(futures);
       _cachedLocationsWithLatest = _locations;
+      _locationsWithLatestFetchTime = DateTime.now();
     } catch (e) {
       debugPrint('[NavSafety] Error fetching locations: $e');
     } finally {
@@ -128,13 +135,13 @@ class NavSafetyController extends ChangeNotifier {
   }
 
   /// Fetches all registros for a specific location.
-  /// Serves from cache if this location was already loaded.
+  /// Serves from cache if available and not stale.
   Future<void> fetchLocationHistory(String locationId, String locationName) async {
     _selectedLocationId = locationId;
     _selectedLocationName = locationName;
 
-    // Serve from cache
-    if (_cachedHistory.containsKey(locationId)) {
+    if (_cachedHistory.containsKey(locationId) &&
+        !_isCacheStale(_historyFetchTimes[locationId])) {
       _locationRecords = _cachedHistory[locationId]!;
       _isLoadingHistory = false;
       notifyListeners();
@@ -159,6 +166,7 @@ class NavSafetyController extends ChangeNotifier {
               })
           .toList();
       _cachedHistory[locationId] = _locationRecords;
+      _historyFetchTimes[locationId] = DateTime.now();
     } catch (e) {
       debugPrint('[NavSafety] Error fetching history: $e');
       _locationRecords = [];
@@ -179,7 +187,6 @@ class NavSafetyController extends ChangeNotifier {
     }
 
     final doc = await _firestore.collection(_locationsCollection).add(payload);
-    // Invalidate caches so new location appears
     _invalidateAllCaches();
     return doc.id;
   }
@@ -221,51 +228,47 @@ class NavSafetyController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fetches all records belonging to the current user across all locations.
-  /// Serves from cache if available.
+  /// Fetches all records belonging to the current user across all locations
+  /// using a collection group query for performance.
+  /// Serves from cache if available and not stale.
   Future<List<MyRecord>> fetchMyRecords() async {
-    if (_cachedMyRecords != null) return _cachedMyRecords!;
+    if (_cachedMyRecords != null && !_isCacheStale(_myRecordsFetchTime)) {
+      return _cachedMyRecords!;
+    }
 
     final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (uid.isEmpty) return [];
 
     try {
-      final locSnapshot = await _firestore
-          .collection(_locationsCollection)
-          .orderBy('nome')
+      // Single collection group query instead of N+1 queries
+      final recordsSnapshot = await _firestore
+          .collectionGroup(_recordsSubcollection)
+          .where('pilotId', isEqualTo: uid)
+          .orderBy('data', descending: true)
           .get();
 
+      // Build a location name lookup from cache or fetch
+      final locationDocs = await getCachedLocations();
+      final locationNameMap = {
+        for (final loc in locationDocs) loc.id: loc.name,
+      };
+
       final results = <MyRecord>[];
+      for (final recDoc in recordsSnapshot.docs) {
+        // Path: locais/{locationId}/registros/{recordId}
+        final locationId = recDoc.reference.parent.parent!.id;
+        final locationName = locationNameMap[locationId] ?? '';
 
-      for (final locDoc in locSnapshot.docs) {
-        final locationName = (locDoc.data()['nome'] ?? '').toString();
-        final recordsSnapshot = await locDoc.reference
-            .collection(_recordsSubcollection)
-            .where('pilotId', isEqualTo: uid)
-            .orderBy('data', descending: true)
-            .get();
-
-        for (final recDoc in recordsSnapshot.docs) {
-          results.add(MyRecord(
-            recordId: recDoc.id,
-            locationId: locDoc.id,
-            locationName: locationName,
-            data: recDoc.data(),
-          ));
-        }
+        results.add(MyRecord(
+          recordId: recDoc.id,
+          locationId: locationId,
+          locationName: locationName,
+          data: recDoc.data(),
+        ));
       }
 
-      // Sort all records by date descending
-      results.sort((a, b) {
-        final aDate = a.data['data'];
-        final bDate = b.data['data'];
-        if (aDate is Timestamp && bDate is Timestamp) {
-          return bDate.compareTo(aDate);
-        }
-        return 0;
-      });
-
       _cachedMyRecords = results;
+      _myRecordsFetchTime = DateTime.now();
       return results;
     } catch (e) {
       debugPrint('[NavSafety] Error fetching my records: $e');
@@ -273,22 +276,21 @@ class NavSafetyController extends ChangeNotifier {
     }
   }
 
-  /// Returns the total number of records across all locations.
+  /// Returns the total number of records across all locations
+  /// using a collection group query.
   Future<int> getTotalRecordsCount() async {
-    try {
-      final locSnapshot = await _firestore
-          .collection(_locationsCollection)
-          .get();
+    if (_cachedTotalRecordsCount != null && !_isCacheStale(_totalCountFetchTime)) {
+      return _cachedTotalRecordsCount!;
+    }
 
-      int total = 0;
-      for (final locDoc in locSnapshot.docs) {
-        final countSnapshot = await locDoc.reference
-            .collection(_recordsSubcollection)
-            .count()
-            .get();
-        total += countSnapshot.count ?? 0;
-      }
-      return total;
+    try {
+      final countSnapshot = await _firestore
+          .collectionGroup(_recordsSubcollection)
+          .count()
+          .get();
+      _cachedTotalRecordsCount = countSnapshot.count ?? 0;
+      _totalCountFetchTime = DateTime.now();
+      return _cachedTotalRecordsCount!;
     } catch (e) {
       debugPrint('[NavSafety] Error counting records: $e');
       return 0;
@@ -308,6 +310,7 @@ class NavSafetyController extends ChangeNotifier {
   }
 
   /// Deletes a record from a location's registros subcollection.
+  /// If the location was user-created and has no remaining records, deletes the location too.
   Future<void> deleteRecord(String locationId, String recordId) async {
     final locationRef =
         _firestore.collection(_locationsCollection).doc(locationId);
@@ -327,12 +330,27 @@ class NavSafetyController extends ChangeNotifier {
     _invalidateAllCaches();
   }
 
+  // ===========================================================================
+  // PRIVATE METHODS
+  // ===========================================================================
+
+  /// Returns true if the cache is stale or has never been fetched.
+  bool _isCacheStale(DateTime? fetchTime) {
+    if (fetchTime == null) return true;
+    return DateTime.now().difference(fetchTime) > _cacheStaleThreshold;
+  }
+
   /// Invalidates all static caches, forcing a fresh fetch next time.
   static void _invalidateAllCaches() {
     _cachedLocationDocs = null;
     _cachedLocationsWithLatest = null;
     _cachedHistory.clear();
     _cachedMyRecords = null;
+    _cachedTotalRecordsCount = null;
+    _locationsWithLatestFetchTime = null;
+    _myRecordsFetchTime = null;
+    _totalCountFetchTime = null;
+    _historyFetchTimes.clear();
   }
 }
 

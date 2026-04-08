@@ -75,7 +75,7 @@ class AuthController {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (error) {
-      debugPrint('🔐 FirebaseAuth login error: ${error.code} - ${error.message}');
+      debugPrint('[Auth] Login error: ${error.code}');
       throw AuthException(_mapLoginError(error.code));
     }
   }

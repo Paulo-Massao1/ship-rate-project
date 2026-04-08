@@ -273,19 +273,12 @@ exports.onNewRecord = functions.firestore
 
     // --- Email Notification ---
     try {
-      const emailsSnapshot = await db.collection("authorized_emails").get();
-      const allEmails = emailsSnapshot.docs
-        .map((doc) => doc.data().email)
-        .filter((e) => !!e);
-
-      // Filter out pilots who disabled email notifications
-      const usuariosSnapshot = await db.collection("usuarios")
-        .where("emailNotifications", "==", false)
-        .get();
-      const optedOutEmails = new Set(
-        usuariosSnapshot.docs.map((doc) => doc.data().email).filter((e) => !!e)
-      );
-      const emails = allEmails.filter((e) => !optedOutEmails.has(e));
+      const usuariosSnapshot = await db.collection("usuarios").get();
+      const pilotEmail = record.email || "";
+      const emails = usuariosSnapshot.docs
+        .map((doc) => doc.data())
+        .filter((u) => u.email && u.emailNotifications !== false && u.email !== pilotEmail)
+        .map((u) => u.email);
 
       if (emails.length > 0) {
         const mailOptions = {
