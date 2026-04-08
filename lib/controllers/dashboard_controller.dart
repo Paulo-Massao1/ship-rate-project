@@ -38,46 +38,33 @@ class DashboardController {
   ///
   /// Returns a [DashboardData] with totals and recent activity.
   /// Returns [DashboardData.empty] if user is not authenticated.
-  /// Returns [DashboardData.empty] on timeout or unrecoverable errors.
   Future<DashboardData> loadDashboardData() async {
     // Use currentUser directly — AuthGate's StreamBuilder guarantees
     // the user is authenticated before this widget is ever mounted.
-    // Do NOT use authStateChanges().firstWhere() here: creating a new
-    // stream subscription may not replay the current state on Flutter Web,
-    // causing an indefinite hang.
     final user = _auth.currentUser;
-    if (user == null) {
-      debugPrint('[Dashboard] No authenticated user, returning empty');
-      return DashboardData.empty();
-    }
+    if (user == null) return DashboardData.empty();
 
     final userId = user.uid;
 
     try {
-      debugPrint('[Dashboard] Loading data for user: $userId');
-
       // Force token validation before Firestore queries.
-      // On Flutter Web, the Firestore JS SDK needs a valid auth token
-      // to execute authenticated queries. getIdToken() ensures the token
-      // is refreshed and propagated to the SDK — no arbitrary delays needed.
+      // On Flutter Web, the Firestore JS SDK needs a valid auth token.
       await user.getIdToken().timeout(_queryTimeout);
 
-      // Step 1: Get user callSign (non-blocking on failure)
-      final callSign = await _getUserCallSign(userId);
-      debugPrint('[Dashboard] CallSign: $callSign');
+      // Fetch callSign and ships in parallel
+      final results = await Future.wait([
+        _getUserCallSign(userId),
+        _firestore.collection(_shipsCollection).get().timeout(_queryTimeout),
+      ]);
 
-      // Step 2: Fetch all ships
-      final shipsSnapshot = await _firestore
-          .collection(_shipsCollection)
-          .get()
-          .timeout(_queryTimeout);
-      debugPrint('[Dashboard] Ships found: ${shipsSnapshot.docs.length}');
+      final callSign = results[0] as String?;
+      final shipsSnapshot = results[1] as QuerySnapshot;
 
       int totalRatings = 0;
       int userRatings = 0;
       final userRatingsList = <_RatingEntry>[];
 
-      // Step 3: Fetch all ship ratings in parallel instead of sequentially
+      // Fetch all ship ratings in parallel
       final ratingsFutures = shipsSnapshot.docs.map((ship) {
         return ship.reference
             .collection(_ratingsSubcollection)
@@ -85,16 +72,13 @@ class DashboardController {
             .timeout(_queryTimeout)
             .then((snapshot) => _ShipRatingsResult(ship: ship, ratings: snapshot))
             .catchError((e) {
-          final shipName = ship.data()['nome'] ?? 'Navio sem nome';
-          debugPrint('[Dashboard] Error loading ratings for $shipName: $e');
           return _ShipRatingsResult(ship: ship, ratings: null);
         });
       }).toList();
 
-      final results = await Future.wait(ratingsFutures);
+      final ratingsResults = await Future.wait(ratingsFutures);
 
-      // Step 4: Process results
-      for (final result in results) {
+      for (final result in ratingsResults) {
         if (result.ratings == null) continue;
 
         final shipData = result.ship.data() as Map<String, dynamic>;
@@ -115,8 +99,6 @@ class DashboardController {
         }
       }
 
-      debugPrint('[Dashboard] Total ratings: $totalRatings, user: $userRatings');
-
       _sortByDateDescending(userRatingsList);
 
       final recentRatings = userRatingsList
@@ -128,17 +110,14 @@ class DashboardController {
               ))
           .toList();
 
-      debugPrint('[Dashboard] Load complete');
-
       return DashboardData(
         totalShips: shipsSnapshot.docs.length,
         totalRatings: totalRatings,
         userRatings: userRatings,
         recentRatings: recentRatings,
       );
-    } catch (e, stack) {
-      debugPrint('[Dashboard] FATAL error: $e');
-      debugPrint('[Dashboard] Stack: $stack');
+    } catch (e) {
+      debugPrint('[Dashboard] Error loading data: $e');
       rethrow;
     }
   }
@@ -147,8 +126,7 @@ class DashboardController {
   // PRIVATE METHODS
   // ===========================================================================
 
-  /// Gets user callSign. Returns null instead of throwing on failure,
-  /// so the dashboard can still load without callSign matching.
+  /// Gets user callSign. Returns null on failure so dashboard can still load.
   Future<String?> _getUserCallSign(String userId) async {
     try {
       final userSnapshot = await _firestore
@@ -157,11 +135,7 @@ class DashboardController {
           .get()
           .timeout(_queryTimeout);
 
-      if (!userSnapshot.exists) {
-        debugPrint('[Dashboard] User doc not found, continuing without callSign');
-        return null;
-      }
-
+      if (!userSnapshot.exists) return null;
       return userSnapshot.data()?['nomeGuerra'];
     } catch (e) {
       debugPrint('[Dashboard] Error fetching callSign: $e');
@@ -169,6 +143,7 @@ class DashboardController {
     }
   }
 
+  /// Checks if a rating belongs to the current user by uid or callSign fallback.
   bool _ratingBelongsToUser(
     Map<String, dynamic> data,
     String userId,
@@ -183,6 +158,7 @@ class DashboardController {
             ratingCallSign == callSign);
   }
 
+  /// Resolves a rating's date from createdAt or data timestamp fields.
   DateTime _resolveRatingDate(Map<String, dynamic> data) {
     final ts = data['createdAt'] ?? data['data'];
     if (ts is Timestamp) {
@@ -191,6 +167,7 @@ class DashboardController {
     return DateTime.fromMillisecondsSinceEpoch(0);
   }
 
+  /// Calculates the average score from rating items.
   double _calculateAverage(Map<String, dynamic> data) {
     final itens = data['itens'] as Map<String, dynamic>?;
     if (itens == null || itens.isEmpty) return 0.0;
@@ -211,6 +188,7 @@ class DashboardController {
     return count > 0 ? total / count : 0.0;
   }
 
+  /// Sorts rating entries by date descending.
   void _sortByDateDescending(List<_RatingEntry> entries) {
     entries.sort((a, b) {
       final aDate = _resolveRatingDate(a.data);
@@ -221,7 +199,7 @@ class DashboardController {
 }
 
 // =============================================================================
-// PRIVATE DATA CLASS
+// PRIVATE DATA CLASSES
 // =============================================================================
 
 /// Internal helper to hold the result of a parallel ship ratings query.

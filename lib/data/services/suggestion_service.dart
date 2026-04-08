@@ -51,7 +51,7 @@ class SuggestionService {
 
       return true;
     } catch (error) {
-      debugPrint('❌ Error saving suggestion: $error');
+      debugPrint('[Suggestion] Error saving: $error');
       return false;
     }
   }
