@@ -39,16 +39,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   // ACTIONS
   // ===========================================================================
 
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
+  bool _isValidEmail(String email) => _emailRegex.hasMatch(email);
+
   /// Sends password reset email.
-  ///
-  /// Flow:
-  /// 1. Activates loading state
-  /// 2. Calls [AuthController.sendPasswordReset]
-  /// 3. Shows success feedback
-  /// 4. Navigates back to login screen
-  /// 5. On error, shows error message
   Future<void> _sendResetEmail() async {
     final l10n = AppLocalizations.of(context)!;
+    final email = _emailController.text.trim().toLowerCase();
+
+    if (email.isEmpty) return;
+
+    if (!_isValidEmail(email)) {
+      _showSnackBar(l10n.invalidEmail, color: AppColors.danger);
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {

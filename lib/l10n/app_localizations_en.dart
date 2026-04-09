@@ -937,4 +937,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationPermissionDenied => 'Notification permission denied';
+
+  @override
+  String get invalidEmail => 'Invalid email';
 }

@@ -1858,6 +1858,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Permissão de notificação negada'**
   String get notificationPermissionDenied;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email inválido'**
+  String get invalidEmail;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

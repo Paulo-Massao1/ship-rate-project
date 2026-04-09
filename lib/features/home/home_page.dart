@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _showUpdateBanner = false;
   String _updateMessage = '';
   String? _nomeGuerra;
+  bool _isCspam = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkUserDomain();
     _checkForUpdates();
     _fetchNomeGuerra();
     _initNotifications();
@@ -63,6 +65,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
+
+  void _checkUserDomain() {
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
+    _isCspam = email.toLowerCase().endsWith('@cspam.com.br');
+  }
 
   Future<void> _initNotifications() async {
     await NotificationService.initialize();
@@ -181,17 +188,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         subtitle: AppLocalizations.of(context)!.shipRatingDesc,
                         onTap: _navigateToShipRating,
                       ),
-                      const SizedBox(height: 16),
-                      _buildModuleCard(
-                        icon: Icons.anchor,
-                        iconBgColor: const Color(0x1F26A69A),
-                        iconBorderColor: const Color(0x4026A69A),
-                        iconColor: const Color(0xFF26A69A),
-                        borderColor: const Color(0x3326A69A),
-                        title: AppLocalizations.of(context)!.navSafetyModule,
-                        subtitle: AppLocalizations.of(context)!.navSafetyDesc,
-                        onTap: _navigateToNavSafety,
-                      ),
+                      if (!_isCspam) ...[
+                        const SizedBox(height: 16),
+                        _buildModuleCard(
+                          icon: Icons.anchor,
+                          iconBgColor: const Color(0x1F26A69A),
+                          iconBorderColor: const Color(0x4026A69A),
+                          iconColor: const Color(0xFF26A69A),
+                          borderColor: const Color(0x3326A69A),
+                          title: AppLocalizations.of(context)!.navSafetyModule,
+                          subtitle: AppLocalizations.of(context)!.navSafetyDesc,
+                          onTap: _navigateToNavSafety,
+                        ),
+                      ],
                     ],
                   ),
                 ),
