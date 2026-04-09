@@ -40,12 +40,27 @@ class _LoginPageState extends State<LoginPage> {
   // METHODS
   // ===========================================================================
 
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
+  bool _isValidEmail(String email) => _emailRegex.hasMatch(email);
+
   Future<void> _login() async {
     final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim().toLowerCase();
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) return;
+
+    if (!_isValidEmail(email)) {
+      _showSnackBar(l10n.invalidEmail, color: const Color(0xFFDC2626));
+      return;
+    }
+    if (password.length < 6) {
+      _showSnackBar(l10n.passwordTooShort, color: const Color(0xFFDC2626));
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -82,6 +97,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (email.isEmpty) {
       _showSnackBar(l10n.enterEmail, color: const Color(0xFFDC2626));
+      return;
+    }
+    if (!_isValidEmail(email)) {
+      _showSnackBar(l10n.invalidEmail, color: const Color(0xFFDC2626));
       return;
     }
 

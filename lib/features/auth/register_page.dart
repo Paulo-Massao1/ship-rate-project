@@ -72,12 +72,23 @@ class _RegisterPageState extends State<RegisterPage> {
   // METHODS
   // ===========================================================================
 
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
+  bool _isValidEmail(String email) => _emailRegex.hasMatch(email);
+
   /// Step 1: Send OTP to entered email.
   Future<void> _sendOtp() async {
     final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim().toLowerCase();
 
     if (email.isEmpty) return;
+
+    if (!_isValidEmail(email)) {
+      _showSnackBar(l10n.invalidEmail, color: const Color(0xFFDC2626));
+      return;
+    }
 
     setState(() => _isLoading = true);
 

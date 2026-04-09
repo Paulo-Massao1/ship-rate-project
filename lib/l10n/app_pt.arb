@@ -422,5 +422,6 @@
   "settings": "Configurações",
   "pushNotifications": "Notificações push",
   "emailNotifications": "Notificações por email",
-  "notificationPermissionDenied": "Permissão de notificação negada"
+  "notificationPermissionDenied": "Permissão de notificação negada",
+  "invalidEmail": "Email inválido"
 }

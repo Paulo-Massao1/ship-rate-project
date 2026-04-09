@@ -422,5 +422,6 @@
   "settings": "Settings",
   "pushNotifications": "Push notifications",
   "emailNotifications": "Email notifications",
-  "notificationPermissionDenied": "Notification permission denied"
+  "notificationPermissionDenied": "Notification permission denied",
+  "invalidEmail": "Invalid email"
 }
