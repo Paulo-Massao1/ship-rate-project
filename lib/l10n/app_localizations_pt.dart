@@ -940,4 +940,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get invalidEmail => 'Email inválido';
+
+  @override
+  String get navSafetyBlocked => 'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.';
 }

@@ -1864,6 +1864,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Email inválido'**
   String get invalidEmail;
+
+  /// No description provided for @navSafetyBlocked.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.'**
+  String get navSafetyBlocked;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

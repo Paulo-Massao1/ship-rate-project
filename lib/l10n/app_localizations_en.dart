@@ -940,4 +940,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidEmail => 'Invalid email';
+
+  @override
+  String get navSafetyBlocked => 'To access the navigation safety area, register again in the app using your Unipilot email.';
 }

@@ -34,6 +34,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   String _updateMessage = '';
   String? _nomeGuerra;
   bool _isCspam = false;
+  bool _isWhitelisted = false;
+  bool _whitelistChecked = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -44,6 +46,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _checkUserDomain();
+    _checkWhitelist();
     _checkForUpdates();
     _fetchNomeGuerra();
     _initNotifications();
@@ -69,6 +72,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void _checkUserDomain() {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
     _isCspam = email.toLowerCase().endsWith('@cspam.com.br');
+  }
+
+  Future<void> _checkWhitelist() async {
+    if (_whitelistChecked) return;
+
+    final email = FirebaseAuth.instance.currentUser?.email?.toLowerCase() ?? '';
+    if (email.isEmpty) return;
+
+    final snapshot = await FirebaseFirestore.instance
+        .collection('authorized_emails')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isWhitelisted = snapshot.docs.isNotEmpty;
+      _whitelistChecked = true;
+    });
   }
 
   Future<void> _initNotifications() async {
@@ -190,16 +213,48 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                       if (!_isCspam) ...[
                         const SizedBox(height: 16),
-                        _buildModuleCard(
-                          icon: Icons.anchor,
-                          iconBgColor: const Color(0x1F26A69A),
-                          iconBorderColor: const Color(0x4026A69A),
-                          iconColor: const Color(0xFF26A69A),
-                          borderColor: const Color(0x3326A69A),
-                          title: AppLocalizations.of(context)!.navSafetyModule,
-                          subtitle: AppLocalizations.of(context)!.navSafetyDesc,
-                          onTap: _navigateToNavSafety,
-                        ),
+                        if (_isWhitelisted)
+                          _buildModuleCard(
+                            icon: Icons.anchor,
+                            iconBgColor: const Color(0x1F26A69A),
+                            iconBorderColor: const Color(0x4026A69A),
+                            iconColor: const Color(0xFF26A69A),
+                            borderColor: const Color(0x3326A69A),
+                            title: AppLocalizations.of(context)!.navSafetyModule,
+                            subtitle: AppLocalizations.of(context)!.navSafetyDesc,
+                            onTap: _navigateToNavSafety,
+                          )
+                        else
+                          Column(
+                            children: [
+                              Opacity(
+                                opacity: 0.5,
+                                child: IgnorePointer(
+                                  child: _buildModuleCard(
+                                    icon: Icons.anchor,
+                                    iconBgColor: const Color(0x1F26A69A),
+                                    iconBorderColor: const Color(0x4026A69A),
+                                    iconColor: const Color(0xFF26A69A),
+                                    borderColor: const Color(0x3326A69A),
+                                    title: AppLocalizations.of(context)!.navSafetyModule,
+                                    subtitle: AppLocalizations.of(context)!.navSafetyDesc,
+                                    onTap: () {},
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10, left: 8, right: 8),
+                                child: Text(
+                                  AppLocalizations.of(context)!.navSafetyBlocked,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Color(0x99FFFFFF),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ],
                   ),
