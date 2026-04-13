@@ -423,5 +423,7 @@
   "pushNotifications": "Push notifications",
   "emailNotifications": "Email notifications",
   "notificationPermissionDenied": "Notification permission denied",
-  "invalidEmail": "Invalid email"
+  "invalidEmail": "Invalid email",
+
+  "navSafetyBlocked": "To access the navigation safety area, register again in the app using your Unipilot email."
 }
