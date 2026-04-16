@@ -305,9 +305,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       }
 
       final data = <String, dynamic>{
-        'profundidadeTotal': double.tryParse(_depthController.text.trim()),
-        'caladoMax': double.tryParse(_maxDraftController.text.trim()),
-        'ukc': double.tryParse(_ukcController.text.trim()),
+        'profundidadeTotal': double.tryParse(_depthController.text.trim().replaceAll(',', '.')),
+        'caladoMax': double.tryParse(_maxDraftController.text.trim().replaceAll(',', '.')),
+        'ukc': double.tryParse(_ukcController.text.trim().replaceAll(',', '.')),
         'direcao': _direction,
         'posicaoSonda': _sonarPosition,
         'data': Timestamp.fromDate(_selectedDate),
@@ -319,7 +319,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       final shipName = _shipNameController.text.trim();
       if (shipName.isNotEmpty) data['nomeNavio'] = shipName;
 
-      final speed = double.tryParse(_speedController.text.trim());
+      final speed = double.tryParse(_speedController.text.trim().replaceAll(',', '.'));
       if (speed != null) data['velocidade'] = speed;
 
       if (_squatConsidered != null) {

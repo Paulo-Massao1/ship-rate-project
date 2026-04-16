@@ -374,12 +374,12 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
       final date = data.toDate();
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
-    return '�';
+    return '—';
   }
 
   String _formatMeters(dynamic value) {
     final text = value?.toString().trim() ?? '';
-    if (text.isEmpty || text == '�') return '�';
+    if (text.isEmpty) return '—';
     return text.endsWith('m') ? text : '${text}m';
   }
 
@@ -424,7 +424,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
       case 'baixando':
         return _DirectionData(Icons.arrow_downward, l10n.goingDown);
       default:
-        return const _DirectionData(Icons.swap_vert, '�');
+        return const _DirectionData(Icons.swap_vert, '—');
     }
   }
 }
