@@ -1775,6 +1775,18 @@ abstract class AppLocalizations {
   /// **'Código expirado. Solicite um novo.'**
   String get expiredCode;
 
+  /// No description provided for @rateLimited.
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitas tentativas. Aguarde 15 minutos.'**
+  String get rateLimited;
+
+  /// No description provided for @tooManyAttempts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitas tentativas incorretas. Aguarde 15 minutos.'**
+  String get tooManyAttempts;
+
   /// No description provided for @resendIn.
   ///
   /// In pt, this message translates to:

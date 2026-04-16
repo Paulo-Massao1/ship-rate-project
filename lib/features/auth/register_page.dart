@@ -106,6 +106,12 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
+      if (data['error'] == 'rate-limited') {
+        setState(() => _isLoading = false);
+        _showSnackBar(l10n.rateLimited, color: const Color(0xFFDC2626));
+        return;
+      }
+
       setState(() {
         _email = email;
         _step = _RegisterStep.otp;
@@ -158,6 +164,9 @@ class _RegisterPageState extends State<RegisterPage> {
         final error = data['error'] as String?;
         if (error == 'expired') {
           _showSnackBar(l10n.expiredCode, color: const Color(0xFFDC2626));
+        } else if (error == 'too-many-attempts') {
+          _showSnackBar(l10n.tooManyAttempts,
+              color: const Color(0xFFDC2626));
         } else {
           _showSnackBar(l10n.invalidCode, color: const Color(0xFFDC2626));
         }
@@ -228,12 +237,20 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _resendOtp() async {
     if (_resendSeconds > 0) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
       final callable =
           FirebaseFunctions.instance.httpsCallable('sendOTP');
-      await callable.call({'email': _email});
+      final result = await callable.call({'email': _email});
+      final data = result.data as Map<String, dynamic>;
+
+      if (data['error'] == 'rate-limited') {
+        setState(() => _isLoading = false);
+        _showSnackBar(l10n.rateLimited, color: const Color(0xFFDC2626));
+        return;
+      }
 
       setState(() => _isLoading = false);
       _startResendTimer();

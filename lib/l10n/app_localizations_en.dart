@@ -895,6 +895,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expiredCode => 'Code expired. Request a new one.';
 
   @override
+  String get rateLimited => 'Too many attempts. Wait 15 minutes.';
+
+  @override
+  String get tooManyAttempts => 'Too many incorrect attempts. Wait 15 minutes.';
+
+  @override
   String resendIn(String seconds) {
     return 'Resend in ${seconds}s';
   }

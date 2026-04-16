@@ -116,6 +116,20 @@ exports.sendOTP = functions.https.onCall(async (data) => {
     // User doesn't exist — proceed with OTP
   }
 
+  // Rate limit: more than 3 OTPs in the last 15 minutes for this email
+  const fifteenMinAgoMs = Date.now() - 15 * 60 * 1000;
+  const recentOtpsSnapshot = await db
+    .collection("otp_codes")
+    .where("email", "==", email)
+    .get();
+  const recentOtpsCount = recentOtpsSnapshot.docs.filter((d) => {
+    const createdAt = d.data().createdAt;
+    return createdAt && createdAt.toMillis() >= fifteenMinAgoMs;
+  }).length;
+  if (recentOtpsCount > 3) {
+    return { success: false, error: "rate-limited" };
+  }
+
   // Generate 6-digit code
   const code = String(Math.floor(100000 + Math.random() * 900000));
 
@@ -125,6 +139,7 @@ exports.sendOTP = functions.https.onCall(async (data) => {
     code: code,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     used: false,
+    failedAttempts: 0,
   });
 
   // Send email
@@ -161,35 +176,61 @@ exports.verifyOTP = functions.https.onCall(async (data) => {
     throw new functions.https.HttpsError("invalid-argument", "Email and code are required.");
   }
 
-  // Find matching OTP (query only by email + code to avoid composite index)
-  const otpSnapshot = await db
+  // Gather recent OTP docs for this email (last 15 minutes) to enforce
+  // rate limits and locate a possible match for the code.
+  const fifteenMinAgoMs = Date.now() - 15 * 60 * 1000;
+  const emailOtpsSnapshot = await db
     .collection("otp_codes")
     .where("email", "==", email)
-    .where("code", "==", code)
-    .limit(1)
     .get();
+  const recentDocs = emailOtpsSnapshot.docs.filter((d) => {
+    const createdAt = d.data().createdAt;
+    return createdAt && createdAt.toMillis() >= fifteenMinAgoMs;
+  });
 
-  if (otpSnapshot.empty) {
+  // Rate limit: more than 5 failed attempts in the last 15 minutes
+  const totalFailedAttempts = recentDocs.reduce(
+    (sum, d) => sum + (d.data().failedAttempts || 0),
+    0
+  );
+  if (totalFailedAttempts > 5) {
+    return { success: false, error: "too-many-attempts" };
+  }
+
+  // Find matching OTP among recent docs
+  const matchingDoc = recentDocs.find((d) => d.data().code === code);
+
+  if (!matchingDoc) {
+    // Wrong code — increment failedAttempts on the most recent OTP doc
+    // for this email so repeated bad guesses accumulate.
+    if (recentDocs.length > 0) {
+      const mostRecent = recentDocs.reduce((a, b) =>
+        a.data().createdAt.toMillis() >= b.data().createdAt.toMillis() ? a : b
+      );
+      await mostRecent.ref.update({
+        failedAttempts: admin.firestore.FieldValue.increment(1),
+      });
+    }
     return { success: false, error: "invalid" };
   }
 
-  const otpDoc = otpSnapshot.docs[0];
-  const otpData = otpDoc.data();
+  // Atomically check expiration / used state and mark the OTP as used.
+  const txResult = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(matchingDoc.ref);
+    if (!snap.exists) return { error: "invalid" };
+    const d = snap.data();
+    if (d.used) return { error: "invalid" };
+    const createdAt = d.createdAt?.toDate();
+    if (!createdAt || (Date.now() - createdAt.getTime()) > 10 * 60 * 1000) {
+      return { error: "expired" };
+    }
+    tx.update(matchingDoc.ref, { used: true });
+    return { ok: true };
+  });
 
-  // Check if already used
-  if (otpData.used) {
-    return { success: false, error: "invalid" };
+  if (txResult.error) {
+    return { success: false, error: txResult.error };
   }
-
-  // Check expiration
-  const createdAt = otpData.createdAt?.toDate();
-  const now = new Date();
-  if (!createdAt || (now - createdAt) > 10 * 60 * 1000) {
-    return { success: false, error: "expired" };
-  }
-
-  // Mark as used
-  await otpDoc.ref.update({ used: true });
 
   // Get nomeGuerra from authorized_emails
   const authorizedSnapshot = await db
@@ -360,6 +401,14 @@ exports.onNewRecord = functions.firestore
 
 exports.recalcularTodasAsMedias = functions.https.onRequest(
   async (req, res) => {
+    const providedKey =
+      req.get("x-admin-api-key") || req.get("x-api-key") || "";
+    const expectedKey = process.env.ADMIN_API_KEY || "";
+    if (!expectedKey || providedKey !== expectedKey) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
+
     try {
       const naviosSnapshot = await db.collection("navios").get();
 

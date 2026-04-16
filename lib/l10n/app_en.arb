@@ -402,6 +402,8 @@
   "resendCode": "Resend code",
   "invalidCode": "Invalid code",
   "expiredCode": "Code expired. Request a new one.",
+  "rateLimited": "Too many attempts. Wait 15 minutes.",
+  "tooManyAttempts": "Too many incorrect attempts. Wait 15 minutes.",
   "resendIn": "Resend in {seconds}s",
   "@resendIn": {
     "placeholders": {
