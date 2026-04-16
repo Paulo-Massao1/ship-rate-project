@@ -178,6 +178,7 @@ class NavSafetyController extends ChangeNotifier {
 
   /// Creates a new location document and returns its ID.
   Future<String> addLocation(String name, {String? createdBy}) async {
+    debugPrint('[NavSafety] addLocation → name=$name, createdBy=$createdBy');
     final payload = <String, dynamic>{
       'nome': name,
       'createdAt': FieldValue.serverTimestamp(),
@@ -187,18 +188,26 @@ class NavSafetyController extends ChangeNotifier {
     }
 
     final doc = await _firestore.collection(_locationsCollection).add(payload);
+    debugPrint('[NavSafety] addLocation OK → docId=${doc.id}');
     _invalidateAllCaches();
     return doc.id;
   }
 
   /// Saves a new record to the registros subcollection of a location.
   Future<void> saveRecord(String locationId, Map<String, dynamic> data) async {
-    await _firestore
-        .collection(_locationsCollection)
-        .doc(locationId)
-        .collection(_recordsSubcollection)
-        .add(data);
-    _invalidateAllCaches();
+    debugPrint('[NavSafety] saveRecord → locationId=$locationId, keys=${data.keys.toList()}');
+    try {
+      final docRef = await _firestore
+          .collection(_locationsCollection)
+          .doc(locationId)
+          .collection(_recordsSubcollection)
+          .add(data);
+      debugPrint('[NavSafety] saveRecord OK → docId=${docRef.id}');
+      _invalidateAllCaches();
+    } catch (e) {
+      debugPrint('[NavSafety] saveRecord FAILED → $e');
+      rethrow;
+    }
   }
 
   /// Returns cached locations if available, otherwise fetches from Firestore.
@@ -312,10 +321,12 @@ class NavSafetyController extends ChangeNotifier {
   /// Deletes a record from a location's registros subcollection.
   /// If the location was user-created and has no remaining records, deletes the location too.
   Future<void> deleteRecord(String locationId, String recordId) async {
+    debugPrint('[NavSafety] deleteRecord → locationId=$locationId, recordId=$recordId');
     final locationRef =
         _firestore.collection(_locationsCollection).doc(locationId);
 
     await locationRef.collection(_recordsSubcollection).doc(recordId).delete();
+    debugPrint('[NavSafety] deleteRecord → record deleted from Firestore');
 
     final locationSnapshot = await locationRef.get();
     final locationData = locationSnapshot.data();
@@ -325,6 +336,7 @@ class NavSafetyController extends ChangeNotifier {
     if ((locationData?['createdBy'] as String?)?.isNotEmpty == true &&
         remainingRecords.docs.isEmpty) {
       await locationRef.delete();
+      debugPrint('[NavSafety] deleteRecord → orphan location deleted');
     }
 
     _invalidateAllCaches();

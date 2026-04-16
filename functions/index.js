@@ -248,6 +248,18 @@ exports.onNewRecord = functions.firestore
       return;
     }
 
+    // Skip notifications for test account
+    try {
+      const pilotDoc = await db.collection("usuarios").doc(record.pilotId).get();
+      const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
+      if (pilotEmail === "gcbrgame@gmail.com") {
+        console.log("Skipping notifications for test account");
+        return;
+      }
+    } catch (err) {
+      console.error("Error checking test account:", err);
+    }
+
     // Read record data
     const profundidadeTotal = record.profundidadeTotal || "N/A";
     const nomeGuerra = record.nomeGuerra || "Prático";

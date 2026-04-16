@@ -71,7 +71,9 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const NavSafetyMyRecordsPage()),
-    );
+    ).then((_) {
+      _controller.fetchLocationsWithLatestRecord();
+    });
   }
 
   void _navigateToRecordDetails(Map<String, dynamic> record) {
@@ -610,7 +612,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final records = _controller.locationRecords;
     final latestDepth = records.isNotEmpty
         ? _formatMeters(records.first['profundidadeTotal'])
-        : '�';
+        : '—';
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -693,8 +695,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final pilotName = (record['nomeGuerra'] ?? '').toString();
     final shipName = (record['nomeNavio'] ?? '').toString();
     final profTotal = record['profundidadeTotal'];
-    final caladoMax = record['caladoMax']?.toString() ?? '�';
-    final ukc = record['ukc']?.toString() ?? '�';
+    final caladoMax = record['caladoMax']?.toString() ?? '—';
+    final ukc = record['ukc']?.toString() ?? '—';
     final direction = _formatDirection(record['direcao']?.toString(), l10n);
     final dateStr = _formatDate(record['data']);
 
@@ -828,12 +830,12 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       final date = data.toDate();
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
-    return '�';
+    return '—';
   }
 
   String _formatMeters(dynamic value) {
     final text = value?.toString().trim() ?? '';
-    if (text.isEmpty || text == '�') return '�';
+    if (text.isEmpty) return '—';
     return text.endsWith('m') ? text : '${text}m';
   }
 
@@ -844,7 +846,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       case 'baixando':
         return l10n.goingDown;
       default:
-        return '�';
+        return '—';
     }
   }
 }
