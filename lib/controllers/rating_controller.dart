@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../data/services/medias_calculator.dart';
+
 /// Controller responsible for ship rating business logic.
 ///
 /// Responsibilities:
@@ -50,31 +52,6 @@ class RatingController {
   static const String _shipsCollection = 'navios';
   static const String _usersCollection = 'usuarios';
   static const String _ratingsSubcollection = 'avaliacoes';
-
-  /// Official order of rating criteria.
-  /// ⚠️ CRITICAL: Do NOT change without migrating existing Firestore data.
-  /// This order defines data structure and average calculations.
-  static const List<String> _ratingCriteria = [
-    'Dispositivo de Embarque/Desembarque',
-    'Temperatura da Cabine',
-    'Limpeza da Cabine',
-    'Passadiço – Equipamentos',
-    'Passadiço – Temperatura',
-    'Comida',
-    'Relacionamento com comandante/tripulação',
-  ];
-
-  /// Maps full criteria names to short keys used in 'medias' field.
-  /// ⚠️ CRITICAL: Do NOT change without migrating existing data.
-  static const Map<String, String> _averageKeyMap = {
-    'Dispositivo de Embarque/Desembarque': 'dispositivo',
-    'Temperatura da Cabine': 'temp_cabine',
-    'Limpeza da Cabine': 'limpeza_cabine',
-    'Passadiço – Equipamentos': 'passadico_equip',
-    'Passadiço – Temperatura': 'passadico_temp',
-    'Comida': 'comida',
-    'Relacionamento com comandante/tripulação': 'relacionamento',
-  };
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -257,7 +234,7 @@ class RatingController {
     Map<String, Map<String, dynamic>> items,
   ) {
     return {
-      for (final criterion in _ratingCriteria)
+      for (final criterion in MediasCalculator.ratingCriteria)
         criterion: {
           'nota': _toDouble(items[criterion]?['nota']),
           'observacao': (items[criterion]?['observacao'] ?? '').toString(),
@@ -338,61 +315,17 @@ class RatingController {
   // PRIVATE METHODS - AVERAGES
   // ===========================================================================
 
-  /// Recalculates aggregated ship averages.
-  ///
-  /// Logic:
-  /// 1. Fetches all ratings for the ship
-  /// 2. Sums scores by criterion
-  /// 3. Calculates average (total / count)
-  /// 4. Saves to main ship document
-  ///
-  /// Notes:
-  /// - Averages are saved as String with 1 decimal place
-  /// - Keys are normalized via [_getAverageKey]
-  /// - Ratings without scores are ignored
+  /// Recalculates aggregated ship averages from all persisted ratings
+  /// and writes the result to the ship document.
   Future<void> _updateAverages(
     DocumentReference<Map<String, dynamic>> shipRef,
   ) async {
     final snapshot = await shipRef.collection(_ratingsSubcollection).get();
     if (snapshot.docs.isEmpty) return;
 
-    // Accumulators for sum and count per criterion
-    final totals = {for (final c in _ratingCriteria) c: 0.0};
-    final counts = {for (final c in _ratingCriteria) c: 0};
-
-    // Sum all ratings
-    for (final doc in snapshot.docs) {
-      final items = doc.data()['itens'] as Map?;
-      if (items == null) continue;
-
-      for (final criterion in _ratingCriteria) {
-        final value = items[criterion];
-        if (value is Map) {
-          final score = _toDouble(value['nota']);
-          if (score > 0) {
-            totals[criterion] = totals[criterion]! + score;
-            counts[criterion] = counts[criterion]! + 1;
-          }
-        }
-      }
-    }
-
-    // Calculate final averages
-    final averages = <String, String>{};
-    for (final criterion in _ratingCriteria) {
-      if (counts[criterion]! > 0) {
-        final average = totals[criterion]! / counts[criterion]!;
-        averages[_getAverageKey(criterion)] = average.toStringAsFixed(1);
-      }
-    }
-
-    // Update ship document
+    final averages =
+        MediasCalculator.calculate(snapshot.docs.map((d) => d.data()));
     await shipRef.update({'medias': averages});
-  }
-
-  /// Gets the short key for a criterion (used in 'medias' field).
-  String _getAverageKey(String criterion) {
-    return _averageKeyMap[criterion] ?? criterion.toLowerCase();
   }
 
   // ===========================================================================

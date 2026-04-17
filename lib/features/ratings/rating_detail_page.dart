@@ -203,7 +203,7 @@ class RatingDetailPage extends StatelessWidget {
   ) {
     final l10n = AppLocalizations.of(context)!;
     final callSign = data['nomeGuerra'] ?? l10n.pilot;
-    final ratingDate = data['data'] as Timestamp?;
+    final ratingDate = _resolveRatingTimestamp(data);
     final disembarkationDate = data['dataDesembarque'] as Timestamp?;
     final cabinType = data['tipoCabine'] ?? '';
     final cabinDeck = data['deckCabine'] as String?;
@@ -556,9 +556,15 @@ class RatingDetailPage extends StatelessWidget {
   }
 
   DateTime _resolveEvaluationDate(Map<String, dynamic> data) {
-    return (data['createdAt'] as Timestamp?)?.toDate() ??
-        (data['data'] as Timestamp?)?.toDate() ??
-        DateTime.now();
+    return _resolveRatingTimestamp(data)?.toDate() ?? DateTime.now();
+  }
+
+  /// Resolves the rating's display timestamp with the same fallback chain
+  /// used for PDF export: dataDesembarque → createdAt → legacy `data`.
+  Timestamp? _resolveRatingTimestamp(Map<String, dynamic> data) {
+    return data['dataDesembarque'] as Timestamp? ??
+        data['createdAt'] as Timestamp? ??
+        data['data'] as Timestamp?;
   }
 
   Map<String, Map<String, dynamic>> _extractRatings(Map<String, dynamic> data) {
