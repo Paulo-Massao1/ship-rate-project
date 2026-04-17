@@ -9,7 +9,7 @@ class NotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   static const String _topic = 'all_pilots';
 
-  /// Request permission, get token, subscribe to topic, store token.
+  /// Request permission, check user preference, subscribe/unsubscribe, store token.
   /// Call this after successful login.
   static Future<void> initialize() async {
     try {
@@ -19,10 +19,18 @@ class NotificationService {
         sound: true,
       );
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional) {
+      if (settings.authorizationStatus != AuthorizationStatus.authorized &&
+          settings.authorizationStatus != AuthorizationStatus.provisional) {
+        return;
+      }
+
+      await _storeFcmToken();
+
+      final wantsPush = await _getUserPushPreference();
+      if (wantsPush) {
         await _subscribeToTopic();
-        await _storeFcmToken();
+      } else {
+        await _messaging.unsubscribeFromTopic(_topic);
       }
     } catch (e) {
       debugPrint('NotificationService.initialize error: $e');
@@ -80,6 +88,20 @@ class NotificationService {
   // ---------------------------------------------------------------------------
   // PRIVATE
   // ---------------------------------------------------------------------------
+
+  static Future<bool> _getUserPushPreference() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return true;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
+
+    final data = doc.data();
+    if (data == null || !data.containsKey('pushNotifications')) return true;
+    return data['pushNotifications'] == true;
+  }
 
   static Future<void> _subscribeToTopic() async {
     try {
