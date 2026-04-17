@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/platform/install_hint.dart';
+import 'nav_safety_controller.dart';
 
 /// Controller responsible for MainScreen business logic.
 ///
@@ -62,6 +63,7 @@ class MainScreenController {
   /// await authController.logout();
   /// ```
   Future<void> logout() async {
+    NavSafetyController.clearAllCaches();
     await FirebaseAuth.instance.signOut();
   }
 }

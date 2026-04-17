@@ -352,6 +352,11 @@ class NavSafetyController extends ChangeNotifier {
     return DateTime.now().difference(fetchTime) > _cacheStaleThreshold;
   }
 
+  /// Clears all static cached data. Call on logout to prevent cross-session leaks.
+  static void clearAllCaches() {
+    _invalidateAllCaches();
+  }
+
   /// Invalidates all static caches, forcing a fresh fetch next time.
   static void _invalidateAllCaches() {
     _cachedLocationDocs = null;

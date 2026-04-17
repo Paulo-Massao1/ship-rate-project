@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'nav_safety_controller.dart';
 
 /// Controller responsible for authentication and user management.
 ///
@@ -84,6 +85,7 @@ class AuthController {
   ///
   /// Invalidates the session. Navigation to login is handled by AuthGate.
   Future<void> logout() async {
+    NavSafetyController.clearAllCaches();
     await _auth.signOut();
   }
 
