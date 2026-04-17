@@ -30,6 +30,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // STATE
   // ===========================================================================
 
+  static bool _notificationsInitialized = false;
+
   bool _showUpdateBanner = false;
   String _updateMessage = '';
   String? _nomeGuerra;
@@ -95,7 +97,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _initNotifications() async {
-    await NotificationService.initialize();
+    if (!_notificationsInitialized) {
+      _notificationsInitialized = true;
+      await NotificationService.initialize();
+    }
     if (mounted) {
       NotificationService.listenForegroundMessages(
         ScaffoldMessenger.of(context),

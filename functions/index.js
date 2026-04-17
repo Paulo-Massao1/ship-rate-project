@@ -39,48 +39,47 @@ exports.recalcularMediasAoExcluirAvaliacao = functions.firestore
   .onDelete(async (_, context) => {
     const navioId = context.params.navioId;
 
-    const avaliacoesRef = db
-      .collection("navios")
-      .doc(navioId)
-      .collection("avaliacoes");
+    try {
+      const avaliacoesRef = db
+        .collection("navios")
+        .doc(navioId)
+        .collection("avaliacoes");
 
-    const snapshot = await avaliacoesRef.get();
+      const snapshot = await avaliacoesRef.get();
 
-    if (snapshot.empty) {
-      await db.collection("navios").doc(navioId).update({
-        medias: {},
+      const soma = {};
+      const contagem = {};
+
+      snapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        const itens = data.itens || {};
+
+        Object.entries(itens).forEach(([chave, valor]) => {
+          const keyPadrao = MAPA_CHAVES[chave];
+          const nota = valor?.nota;
+
+          if (keyPadrao && typeof nota === "number") {
+            soma[keyPadrao] = (soma[keyPadrao] || 0) + nota;
+            contagem[keyPadrao] = (contagem[keyPadrao] || 0) + 1;
+          }
+        });
       });
-      return;
-    }
 
-    const soma = {};
-    const contagem = {};
-
-    snapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      const itens = data.itens || {};
-
-      Object.entries(itens).forEach(([chave, valor]) => {
-        const keyPadrao = MAPA_CHAVES[chave];
-        const nota = valor?.nota;
-
-        if (keyPadrao && typeof nota === "number") {
-          soma[keyPadrao] = (soma[keyPadrao] || 0) + nota;
-          contagem[keyPadrao] = (contagem[keyPadrao] || 0) + 1;
-        }
+      const medias = {};
+      Object.keys(soma).forEach((chave) => {
+        medias[chave] = Number(
+          (soma[chave] / contagem[chave]).toFixed(2)
+        );
       });
-    });
 
-    const medias = {};
-    Object.keys(soma).forEach((chave) => {
-      medias[chave] = Number(
-        (soma[chave] / contagem[chave]).toFixed(2)
+      await db.collection("navios").doc(navioId).update({ medias });
+    } catch (err) {
+      console.error(
+        `recalcularMediasAoExcluirAvaliacao failed for navioId=${navioId}:`,
+        err
       );
-    });
-
-    await db.collection("navios").doc(navioId).update({
-      medias,
-    });
+      throw err;
+    }
   });
 
 /// ---------------------------------------------------------------------------
