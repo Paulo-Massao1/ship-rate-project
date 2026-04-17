@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/services/medias_calculator.dart';
 import '../../data/services/pdf_service.dart';
 
 /// Controller for managing user's ratings list.
@@ -244,62 +245,15 @@ class MyRatingsController {
     });
   }
 
-  /// Recalculates aggregated ship averages from remaining ratings.
-  ///
-  /// Uses the same criteria and key mapping as [RatingController].
+  /// Recalculates aggregated ship averages from remaining ratings
+  /// using the shared [MediasCalculator].
   Future<void> _recalculateAverages(
     DocumentReference shipRef,
     List<QueryDocumentSnapshot> ratingDocs,
   ) async {
-    const ratingCriteria = [
-      'Dispositivo de Embarque/Desembarque',
-      'Temperatura da Cabine',
-      'Limpeza da Cabine',
-      'Passadiço – Equipamentos',
-      'Passadiço – Temperatura',
-      'Comida',
-      'Relacionamento com comandante/tripulação',
-    ];
-
-    const averageKeyMap = {
-      'Dispositivo de Embarque/Desembarque': 'dispositivo',
-      'Temperatura da Cabine': 'temp_cabine',
-      'Limpeza da Cabine': 'limpeza_cabine',
-      'Passadiço – Equipamentos': 'passadico_equip',
-      'Passadiço – Temperatura': 'passadico_temp',
-      'Comida': 'comida',
-      'Relacionamento com comandante/tripulação': 'relacionamento',
-    };
-
-    final totals = {for (final c in ratingCriteria) c: 0.0};
-    final counts = {for (final c in ratingCriteria) c: 0};
-
-    for (final doc in ratingDocs) {
-      final items = (doc.data() as Map<String, dynamic>)['itens'] as Map?;
-      if (items == null) continue;
-
-      for (final criterion in ratingCriteria) {
-        final value = items[criterion];
-        if (value is Map) {
-          final nota = value['nota'];
-          final score = nota is num ? nota.toDouble() : 0.0;
-          if (score > 0) {
-            totals[criterion] = totals[criterion]! + score;
-            counts[criterion] = counts[criterion]! + 1;
-          }
-        }
-      }
-    }
-
-    final averages = <String, String>{};
-    for (final criterion in ratingCriteria) {
-      if (counts[criterion]! > 0) {
-        final average = totals[criterion]! / counts[criterion]!;
-        averages[averageKeyMap[criterion] ?? criterion.toLowerCase()] =
-            average.toStringAsFixed(1);
-      }
-    }
-
+    final averages = MediasCalculator.calculate(
+      ratingDocs.map((d) => d.data() as Map<String, dynamic>),
+    );
     await shipRef.update({'medias': averages});
   }
 

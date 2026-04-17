@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../data/services/medias_calculator.dart';
+
 /// Controller for editing existing ratings.
 ///
 /// Responsibilities:
@@ -13,6 +15,8 @@ class EditRatingController {
   // ===========================================================================
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  static const String _ratingsSubcollection = 'avaliacoes';
 
   // ===========================================================================
   // CONSTANTS
@@ -105,6 +109,14 @@ class EditRatingController {
       'infoPassadico': updateData.bridgeInfo,
       'updatedAt': FieldValue.serverTimestamp(),
     });
+
+    // Recalculate aggregated ship averages so edits stay reflected in medias.
+    final ratingsSnapshot =
+        await shipRef.collection(_ratingsSubcollection).get();
+    final averages = MediasCalculator.calculate(
+      ratingsSnapshot.docs.map((d) => d.data()),
+    );
+    await shipRef.update({'medias': averages});
   }
 
   /// Validates required fields.
