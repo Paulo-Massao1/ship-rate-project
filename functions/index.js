@@ -47,6 +47,11 @@ exports.recalcularMediasAoExcluirAvaliacao = functions.firestore
 
       const snapshot = await avaliacoesRef.get();
 
+      if (snapshot.empty) {
+        await db.collection("navios").doc(navioId).update({ medias: {} });
+        return;
+      }
+
       const soma = {};
       const contagem = {};
 
