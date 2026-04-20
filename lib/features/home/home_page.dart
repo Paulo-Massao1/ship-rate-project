@@ -1,6 +1,7 @@
 // lib/features/home/home_page.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
@@ -79,21 +80,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _checkWhitelist() async {
     if (_whitelistChecked) return;
 
-    final email = FirebaseAuth.instance.currentUser?.email?.toLowerCase() ?? '';
-    if (email.isEmpty) return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-    final snapshot = await FirebaseFirestore.instance
-        .collection('authorized_emails')
-        .where('email', isEqualTo: email)
-        .limit(1)
-        .get();
+    try {
+      final callable = FirebaseFunctions.instance.httpsCallable('checkWhitelist');
+      final result = await callable.call();
+      final whitelisted = result.data['whitelisted'] as bool? ?? false;
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _isWhitelisted = snapshot.docs.isNotEmpty;
-      _whitelistChecked = true;
-    });
+      setState(() {
+        _isWhitelisted = whitelisted;
+        _whitelistChecked = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isWhitelisted = false;
+        _whitelistChecked = true;
+      });
+    }
   }
 
   Future<void> _initNotifications() async {
