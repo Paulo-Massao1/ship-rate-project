@@ -312,6 +312,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         'posicaoSonda': _sonarPosition,
         'data': Timestamp.fromDate(_selectedDate),
         'pilotId': user?.uid ?? '',
+        'email': user?.email ?? '',
         'nomeGuerra': nomeGuerra,
       };
 
