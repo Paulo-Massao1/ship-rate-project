@@ -5,13 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
-import '../auth/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../settings/settings_page.dart';
 import 'home_page.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
-import '../../controllers/home_controller.dart';
+import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/version_service.dart';
 import '../../main.dart';
 
@@ -112,26 +113,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Logs out the user.
-  ///
-  /// Execution flow:
-  /// 1. Calls logout via HomeController (Firebase Auth)
-  /// 2. Removes all screens from navigation stack
-  /// 3. Navigates to LoginPage as new root
-  ///
-  /// Uses pushAndRemoveUntil to completely clear navigation stack,
-  /// preventing user from returning to main screen after logout.
   Future<void> _handleLogout() async {
-    final controller = MainScreenController();
-    await controller.logout();
-
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (_) => false,
-    );
+    NavSafetyController.clearAllCaches();
+    await FirebaseAuth.instance.signOut();
   }
 
   /// Toggles between PT and EN locales.

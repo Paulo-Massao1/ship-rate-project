@@ -1,16 +1,14 @@
 // lib/features/home/home_page.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-import '../auth/login_page.dart';
 import '../settings/settings_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
-import '../../controllers/home_controller.dart';
+import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/notification_service.dart';
 import '../../data/services/version_service.dart';
 
@@ -37,8 +35,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   String _updateMessage = '';
   String? _nomeGuerra;
   bool _isCspam = false;
-  bool _isWhitelisted = false;
-  bool _whitelistChecked = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -49,7 +45,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _checkUserDomain();
-    _checkWhitelist();
     _checkForUpdates();
     _fetchNomeGuerra();
     _initNotifications();
@@ -75,32 +70,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void _checkUserDomain() {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
     _isCspam = email.toLowerCase().endsWith('@cspam.com.br');
-  }
-
-  Future<void> _checkWhitelist() async {
-    if (_whitelistChecked) return;
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    try {
-      final callable = FirebaseFunctions.instance.httpsCallable('checkWhitelist');
-      final result = await callable.call();
-      final whitelisted = result.data['whitelisted'] as bool? ?? false;
-
-      if (!mounted) return;
-
-      setState(() {
-        _isWhitelisted = whitelisted;
-        _whitelistChecked = true;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _isWhitelisted = false;
-        _whitelistChecked = true;
-      });
-    }
   }
 
   Future<void> _initNotifications() async {
@@ -148,15 +117,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _handleLogout() async {
-    final controller = MainScreenController();
-    await controller.logout();
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (_) => false,
-    );
+    NavSafetyController.clearAllCaches();
+    _notificationsInitialized = false;
+    await FirebaseAuth.instance.signOut();
   }
 
 
@@ -225,48 +188,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                       if (!_isCspam) ...[
                         const SizedBox(height: 16),
-                        if (_isWhitelisted)
-                          _buildModuleCard(
-                            icon: Icons.anchor,
-                            iconBgColor: const Color(0x1F26A69A),
-                            iconBorderColor: const Color(0x4026A69A),
-                            iconColor: const Color(0xFF26A69A),
-                            borderColor: const Color(0x3326A69A),
-                            title: AppLocalizations.of(context)!.navSafetyModule,
-                            subtitle: AppLocalizations.of(context)!.navSafetyDesc,
-                            onTap: _navigateToNavSafety,
-                          )
-                        else
-                          Column(
-                            children: [
-                              Opacity(
-                                opacity: 0.5,
-                                child: IgnorePointer(
-                                  child: _buildModuleCard(
-                                    icon: Icons.anchor,
-                                    iconBgColor: const Color(0x1F26A69A),
-                                    iconBorderColor: const Color(0x4026A69A),
-                                    iconColor: const Color(0xFF26A69A),
-                                    borderColor: const Color(0x3326A69A),
-                                    title: AppLocalizations.of(context)!.navSafetyModule,
-                                    subtitle: AppLocalizations.of(context)!.navSafetyDesc,
-                                    onTap: () {},
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 10, left: 8, right: 8),
-                                child: Text(
-                                  AppLocalizations.of(context)!.navSafetyBlocked,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0x99FFFFFF),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        _buildModuleCard(
+                          icon: Icons.anchor,
+                          iconBgColor: const Color(0x1F26A69A),
+                          iconBorderColor: const Color(0x4026A69A),
+                          iconColor: const Color(0xFF26A69A),
+                          borderColor: const Color(0x3326A69A),
+                          title: AppLocalizations.of(context)!.navSafetyModule,
+                          subtitle: AppLocalizations.of(context)!.navSafetyDesc,
+                          onTap: _navigateToNavSafety,
+                        ),
                       ],
                     ],
                   ),

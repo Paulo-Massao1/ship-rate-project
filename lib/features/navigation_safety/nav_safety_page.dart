@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-import '../../controllers/home_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../controllers/nav_safety_controller.dart';
-import '../auth/login_page.dart';
 import '../home/home_page.dart';
 import '../settings/settings_page.dart';
 import 'nav_safety_my_records_page.dart';
@@ -95,15 +95,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   Future<void> _handleLogout() async {
-    final controller = MainScreenController();
-    await controller.logout();
-    if (!mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (_) => false,
-    );
+    NavSafetyController.clearAllCaches();
+    await FirebaseAuth.instance.signOut();
   }
 
   // ===========================================================================
