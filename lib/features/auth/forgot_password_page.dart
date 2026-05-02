@@ -1,13 +1,10 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import '../../controllers/auth_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 
 /// Password recovery screen.
-///
-/// Allows users to request a password reset email via Firebase Authentication.
-/// On success, returns to login screen.
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
@@ -21,7 +18,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   // ===========================================================================
 
   final _emailController = TextEditingController();
-  final _authController = AuthController();
 
   bool _isLoading = false;
   bool _emailSent = false;
@@ -61,7 +57,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     setState(() => _isLoading = true);
 
     try {
-      await _authController.sendPasswordReset(_emailController.text.trim());
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('sendPasswordReset');
+      await callable.call({'email': email});
 
       if (!mounted) return;
 
