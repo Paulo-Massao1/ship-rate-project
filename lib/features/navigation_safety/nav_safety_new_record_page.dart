@@ -642,9 +642,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.anchoragePt,
-          style: const TextStyle(color: _textLabel, fontSize: 12),
+        Row(
+          children: [
+            Text(
+              l10n.anchoragePt,
+              style: const TextStyle(color: _textLabel, fontSize: 12),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '(${l10n.optional})',
+              style: const TextStyle(color: _textMuted, fontSize: 10),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Container(
@@ -729,9 +738,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.direction,
-          style: const TextStyle(color: _textLabel, fontSize: 12),
+        Row(
+          children: [
+            Text(
+              l10n.direction,
+              style: const TextStyle(color: _textLabel, fontSize: 12),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '(${l10n.optional})',
+              style: const TextStyle(color: _textMuted, fontSize: 10),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Row(
@@ -864,9 +882,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.squatConsidered,
-          style: const TextStyle(color: _textLabel, fontSize: 12),
+        Row(
+          children: [
+            Text(
+              l10n.squatConsidered,
+              style: const TextStyle(color: _textLabel, fontSize: 12),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '(${l10n.optional})',
+              style: const TextStyle(color: _textMuted, fontSize: 10),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Row(
@@ -892,9 +919,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.sonarPosition,
-          style: const TextStyle(color: _textLabel, fontSize: 12),
+        Row(
+          children: [
+            Text(
+              l10n.sonarPosition,
+              style: const TextStyle(color: _textLabel, fontSize: 12),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '(${l10n.optional})',
+              style: const TextStyle(color: _textMuted, fontSize: 10),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         Row(
@@ -1106,7 +1142,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   Widget _buildSection5Observations(AppLocalizations l10n) {
     return _buildSectionCard(
       icon: Icons.notes,
-      title: l10n.observations,
+      title: '${l10n.observations} (${l10n.optional})',
       children: [
         Container(
           decoration: BoxDecoration(
