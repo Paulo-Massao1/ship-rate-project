@@ -279,6 +279,7 @@
   },
   "recentActivity": "Recent Activity",
   "noRecentActivity": "No recent activity",
+  "lastRatedShip": "Latest Rating",
 
   "pdfReportTitle": "Ship Rating Report",
   "pdfEvaluationInfo": "Evaluation Information",

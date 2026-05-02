@@ -63,6 +63,9 @@ class DashboardController {
       int totalRatings = 0;
       int userRatings = 0;
       final userRatingsList = <_RatingEntry>[];
+      String? lastRatedShipName;
+      String? lastRatedByPilot;
+      DateTime? lastRatedDate;
 
       // Fetch all ship ratings in parallel
       final ratingsFutures = shipsSnapshot.docs.map((ship) {
@@ -88,6 +91,14 @@ class DashboardController {
 
         for (final rating in result.ratings!.docs) {
           final data = rating.data() as Map<String, dynamic>;
+
+          final ratingDate = _resolveRatingDate(data);
+          if (ratingDate.millisecondsSinceEpoch > 0 &&
+              (lastRatedDate == null || ratingDate.isAfter(lastRatedDate))) {
+            lastRatedDate = ratingDate;
+            lastRatedShipName = shipName;
+            lastRatedByPilot = data['nomeGuerra'] as String?;
+          }
 
           if (_ratingBelongsToUser(data, userId, callSign)) {
             userRatings++;
@@ -115,6 +126,9 @@ class DashboardController {
         totalRatings: totalRatings,
         userRatings: userRatings,
         recentRatings: recentRatings,
+        lastRatedShipName: lastRatedShipName,
+        lastRatedByPilot: lastRatedByPilot,
+        lastRatedDate: lastRatedDate,
       );
     } catch (e) {
       debugPrint('[Dashboard] Error loading data: $e');
@@ -228,12 +242,18 @@ class DashboardData {
   final int totalRatings;
   final int userRatings;
   final List<RecentRating> recentRatings;
+  final String? lastRatedShipName;
+  final String? lastRatedByPilot;
+  final DateTime? lastRatedDate;
 
   DashboardData({
     required this.totalShips,
     required this.totalRatings,
     required this.userRatings,
     required this.recentRatings,
+    this.lastRatedShipName,
+    this.lastRatedByPilot,
+    this.lastRatedDate,
   });
 
   factory DashboardData.empty() => DashboardData(

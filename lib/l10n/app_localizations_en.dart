@@ -596,6 +596,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecentActivity => 'No recent activity';
 
   @override
+  String get lastRatedShip => 'Latest Rating';
+
+  @override
   String get pdfReportTitle => 'Ship Rating Report';
 
   @override

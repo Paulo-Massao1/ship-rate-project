@@ -105,6 +105,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildAppStatsBlock(data, l10n),
+          if (data.lastRatedShipName != null) ...[
+            const SizedBox(height: 14),
+            _buildLastRatedBlock(data, l10n),
+          ],
           const SizedBox(height: 14),
           _buildUserActivityBlock(data, l10n),
         ],
@@ -152,6 +156,87 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                   icon: Icons.star_outline,
                   value: data.totalRatings.toString(),
                   label: l10n.totalRatingsLabel,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // BLOCK — LAST RATED SHIP
+  // ===========================================================================
+
+  Widget _buildLastRatedBlock(DashboardData data, AppLocalizations l10n) {
+    final date = data.lastRatedDate!;
+    final dateStr =
+        '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionTitle(label: l10n.lastRatedShip),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.directions_boat,
+                  size: 20,
+                  color: Color(0xFF64B5F6),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.lastRatedShipName!.toUpperCase(),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (data.lastRatedByPilot != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.pilotCallSign(data.lastRatedByPilot!),
+                        style: const TextStyle(
+                          color: Color(0xFF64B5F6),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Text(
+                dateStr,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  fontSize: 11,
                 ),
               ),
             ],

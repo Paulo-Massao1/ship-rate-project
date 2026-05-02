@@ -596,6 +596,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noRecentActivity => 'Nenhuma atividade recente';
 
   @override
+  String get lastRatedShip => 'Última Avaliação';
+
+  @override
   String get pdfReportTitle => 'Relatório de Avaliação de Navio';
 
   @override

@@ -1193,6 +1193,12 @@ abstract class AppLocalizations {
   /// **'Nenhuma atividade recente'**
   String get noRecentActivity;
 
+  /// No description provided for @lastRatedShip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Última Avaliação'**
+  String get lastRatedShip;
+
   /// No description provided for @pdfReportTitle.
   ///
   /// In pt, this message translates to:
