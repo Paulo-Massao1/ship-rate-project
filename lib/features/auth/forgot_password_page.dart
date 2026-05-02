@@ -24,6 +24,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _authController = AuthController();
 
   bool _isLoading = false;
+  bool _emailSent = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -64,12 +65,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       if (!mounted) return;
 
-      _showSnackBar(
-        l10n.resetEmailSent,
-        color: AppColors.success,
-      );
-
-      Navigator.pop(context);
+      setState(() => _emailSent = true);
     } catch (error) {
       _showSnackBar(error.toString(), color: AppColors.danger);
     } finally {
@@ -119,6 +115,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildResetCard() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -131,20 +128,45 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildEmailField(),
-                  const SizedBox(height: 24),
-                  _buildSendButton(),
-                  const SizedBox(height: 12),
-                  _buildSpamNotice(),
-                  const SizedBox(height: 16),
-                  _buildBackToLoginLink(),
-                ],
-              ),
+              child: _emailSent
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          size: 48,
+                          color: Color(0xFF4CAF50),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.resetEmailSent,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildSpamNotice(),
+                        const SizedBox(height: 24),
+                        _buildBackToLoginLink(),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(),
+                        const SizedBox(height: 32),
+                        _buildEmailField(),
+                        const SizedBox(height: 24),
+                        _buildSendButton(),
+                        const SizedBox(height: 12),
+                        _buildSpamNotice(),
+                        const SizedBox(height: 16),
+                        _buildBackToLoginLink(),
+                      ],
+                    ),
             ),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../main.dart';
+import 'forgot_password_page.dart';
 import 'register_page.dart';
 
 /// Login screen with email + password authentication.
@@ -71,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
       );
       // AuthGate handles navigation
     } on FirebaseAuthException catch (e) {
-      setState(() => _isLoading = false);
       if (e.code == 'user-not-found' ||
           e.code == 'wrong-password' ||
           e.code == 'invalid-credential') {
@@ -80,8 +80,9 @@ class _LoginPageState extends State<LoginPage> {
         _showSnackBar(e.message ?? 'Error', color: const Color(0xFFDC2626));
       }
     } catch (e) {
-      setState(() => _isLoading = false);
       _showSnackBar(e.toString(), color: const Color(0xFFDC2626));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -89,31 +90,6 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const RegisterPage()),
     );
-  }
-
-  Future<void> _resetPassword() async {
-    final l10n = AppLocalizations.of(context)!;
-    final email = _emailController.text.trim().toLowerCase();
-
-    if (email.isEmpty) {
-      _showSnackBar(l10n.enterEmail, color: const Color(0xFFDC2626));
-      return;
-    }
-    if (!_isValidEmail(email)) {
-      _showSnackBar(l10n.invalidEmail, color: const Color(0xFFDC2626));
-      return;
-    }
-
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      if (mounted) {
-        _showSnackBar(l10n.resetEmailSent, color: const Color(0xFF26a69a));
-      }
-    } catch (e) {
-      if (mounted) {
-        _showSnackBar(e.toString(), color: const Color(0xFFDC2626));
-      }
-    }
   }
 
   void _toggleLocale() {
@@ -178,7 +154,12 @@ class _LoginPageState extends State<LoginPage> {
               // Forgot password
               Center(
                 child: TextButton(
-                  onPressed: _resetPassword,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordPage(),
+                    ),
+                  ),
                   child: Text(
                     l10n.forgotPassword,
                     style: const TextStyle(

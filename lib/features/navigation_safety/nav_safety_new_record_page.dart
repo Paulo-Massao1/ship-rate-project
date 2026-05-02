@@ -269,8 +269,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     if (_depthController.text.trim().isEmpty) return l10n.depthRequired;
     if (_maxDraftController.text.trim().isEmpty) return l10n.draftRequired;
     if (_ukcController.text.trim().isEmpty) return l10n.ukcRequired;
-    if (_direction == null) return l10n.directionRequired;
-    if (_sonarPosition == null) return l10n.sonarRequired;
     return null;
   }
 
@@ -308,8 +306,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         'profundidadeTotal': double.tryParse(_depthController.text.trim().replaceAll(',', '.')),
         'caladoMax': double.tryParse(_maxDraftController.text.trim().replaceAll(',', '.')),
         'ukc': double.tryParse(_ukcController.text.trim().replaceAll(',', '.')),
-        'direcao': _direction,
-        'posicaoSonda': _sonarPosition,
         'data': Timestamp.fromDate(_selectedDate),
         'pilotId': user?.uid ?? '',
         'email': user?.email ?? '',
@@ -317,6 +313,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       };
 
       // Optional fields
+      if (_direction != null) data['direcao'] = _direction;
+      if (_sonarPosition != null) data['posicaoSonda'] = _sonarPosition;
+
       final shipName = _shipNameController.text.trim();
       if (shipName.isNotEmpty) data['nomeNavio'] = shipName;
 

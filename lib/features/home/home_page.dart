@@ -47,7 +47,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _checkUserDomain();
     _checkForUpdates();
     _fetchNomeGuerra();
-    _initNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initNotifications();
+    });
   }
 
   @override
@@ -88,14 +90,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final doc =
-        await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
-    if (!mounted) return;
-
-    final nome = doc.data()?['nomeGuerra'] as String?;
-    setState(() {
-      _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
-    });
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get(const GetOptions(source: Source.server));
+      if (!mounted) return;
+      final nome = doc.data()?['nomeGuerra'] as String?;
+      setState(() {
+        _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
+      });
+    } catch (e) {
+      debugPrint('[Home] Error fetching nomeGuerra: $e');
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(uid)
+            .get();
+        if (!mounted) return;
+        final nome = doc.data()?['nomeGuerra'] as String?;
+        setState(() {
+          _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
+        });
+      } catch (_) {}
+    }
   }
 
   Future<void> _checkForUpdates() async {

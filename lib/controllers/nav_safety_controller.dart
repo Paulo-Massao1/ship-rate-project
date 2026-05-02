@@ -124,6 +124,16 @@ class NavSafetyController extends ChangeNotifier {
       });
 
       _locations = await Future.wait(futures);
+
+      _locations.sort((a, b) {
+        final aTs = a.latestRecord?['data'] as Timestamp?;
+        final bTs = b.latestRecord?['data'] as Timestamp?;
+        if (aTs != null && bTs != null) return bTs.compareTo(aTs);
+        if (aTs != null) return -1;
+        if (bTs != null) return 1;
+        return a.name.compareTo(b.name);
+      });
+
       _cachedLocationsWithLatest = _locations;
       _locationsWithLatestFetchTime = DateTime.now();
     } catch (e) {
