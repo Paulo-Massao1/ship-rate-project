@@ -267,8 +267,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       return l10n.locationRequired;
     }
     if (_depthController.text.trim().isEmpty) return l10n.depthRequired;
-    if (_maxDraftController.text.trim().isEmpty) return l10n.draftRequired;
-    if (_ukcController.text.trim().isEmpty) return l10n.ukcRequired;
     return null;
   }
 
@@ -304,13 +302,17 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
       final data = <String, dynamic>{
         'profundidadeTotal': double.tryParse(_depthController.text.trim().replaceAll(',', '.')),
-        'caladoMax': double.tryParse(_maxDraftController.text.trim().replaceAll(',', '.')),
-        'ukc': double.tryParse(_ukcController.text.trim().replaceAll(',', '.')),
         'data': Timestamp.fromDate(_selectedDate),
         'pilotId': user?.uid ?? '',
         'email': user?.email ?? '',
         'nomeGuerra': nomeGuerra,
       };
+
+      final caladoMax = double.tryParse(_maxDraftController.text.trim().replaceAll(',', '.'));
+      if (caladoMax != null) data['caladoMax'] = caladoMax;
+
+      final ukc = double.tryParse(_ukcController.text.trim().replaceAll(',', '.'));
+      if (ukc != null) data['ukc'] = ukc;
 
       // Optional fields
       if (_direction != null) data['direcao'] = _direction;
@@ -854,6 +856,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           label: l10n.maxDraftInput,
           icon: Icons.straighten,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          suffixText: '(${l10n.optional})',
         ),
         const SizedBox(height: 14),
         _buildTextField(
@@ -861,6 +864,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           label: l10n.ukcInput,
           icon: Icons.straighten,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          suffixText: '(${l10n.optional})',
         ),
         const SizedBox(height: 14),
         _buildTextField(
