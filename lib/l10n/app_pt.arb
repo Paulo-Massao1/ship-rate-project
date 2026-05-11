@@ -428,5 +428,9 @@
   "notificationPermissionDenied": "Permissão de notificação negada",
   "invalidEmail": "Email inválido",
 
-  "navSafetyBlocked": "Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot."
+  "navSafetyBlocked": "Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.",
+
+  "photos": "Fotos",
+  "addPhoto": "Adicionar foto",
+  "maxPhotosReached": "Máximo de 3 fotos"
 }

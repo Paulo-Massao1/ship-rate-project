@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/nav_safety_controller.dart';
+import '../../data/services/image_upload_service.dart';
 
 /// Form screen for registering a new depth/passage record,
 /// or editing an existing one when [editLocationId] and [editRecordId] are provided.
@@ -102,6 +106,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // Observations
   final _observationsController = TextEditingController();
 
+  // Images
+  final List<XFile> _selectedImages = [];
+  List<String> _existingImageUrls = [];
+  final List<String> _imagesToDelete = [];
+
   // ===========================================================================
   // LIFECYCLE
   // ===========================================================================
@@ -185,6 +194,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       // Observations
       if (d['observacoes'] != null) {
         _observationsController.text = d['observacoes'].toString();
+      }
+      // Images
+      if (d['imageUrls'] is List) {
+        _existingImageUrls = List<String>.from(d['imageUrls']);
       }
     });
   }
@@ -364,8 +377,41 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       }
 
       if (widget.isEditing) {
+        final allImageUrls = List<String>.from(_existingImageUrls);
+        if (_selectedImages.isNotEmpty) {
+          final newUrls = await ImageUploadService.uploadImages(
+            _selectedImages,
+            _selectedLocationId!,
+            widget.editRecordId!,
+          );
+          allImageUrls.addAll(newUrls);
+        }
+        if (allImageUrls.isNotEmpty) {
+          data['imageUrls'] = allImageUrls;
+        }
         await _controller.updateRecord(
             _selectedLocationId!, widget.editRecordId!, data);
+        if (_imagesToDelete.isNotEmpty) {
+          await ImageUploadService.deleteImages(_imagesToDelete);
+        }
+      } else if (_selectedImages.isNotEmpty) {
+        final docRef = await FirebaseFirestore.instance
+            .collection('locais')
+            .doc(locationId!)
+            .collection('registros')
+            .add(data);
+        final newUrls = await ImageUploadService.uploadImages(
+          _selectedImages,
+          locationId,
+          docRef.id,
+        );
+        if (newUrls.isNotEmpty) {
+          await _controller.updateRecord(
+            locationId,
+            docRef.id,
+            {'imageUrls': newUrls},
+          );
+        }
       } else {
         await _controller.saveRecord(locationId!, data);
       }
@@ -460,6 +506,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _buildSection4LatLong(l10n),
                   const SizedBox(height: 16),
                   _buildSection5Observations(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection6Photos(l10n),
                   _buildSaveButton(l10n),
                 ],
               ),
@@ -1165,6 +1213,154 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               hintStyle: const TextStyle(color: _textMuted, fontSize: 13),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.all(14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ===========================================================================
+  // SECTION 6 — PHOTOS
+  // ===========================================================================
+
+  Future<void> _pickImage() async {
+    final totalImages = _existingImageUrls.length + _selectedImages.length;
+    if (totalImages >= 3) return;
+
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => _selectedImages.add(picked));
+    }
+  }
+
+  Widget _buildSection6Photos(AppLocalizations l10n) {
+    final totalImages = _existingImageUrls.length + _selectedImages.length;
+
+    return _buildSectionCard(
+      icon: Icons.camera_alt,
+      title: '${l10n.photos} (${l10n.optional})',
+      children: [
+        if (totalImages > 0)
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              ..._existingImageUrls.asMap().entries.map((entry) {
+                return _buildImageThumbnail(
+                  child: Image.network(
+                    entry.value,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+                  onRemove: () {
+                    setState(() {
+                      _imagesToDelete.add(entry.value);
+                      _existingImageUrls.removeAt(entry.key);
+                    });
+                  },
+                );
+              }),
+              ..._selectedImages.asMap().entries.map((entry) {
+                return _buildImageThumbnail(
+                  child: FutureBuilder<Uint8List>(
+                    future: entry.value.readAsBytes(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Image.memory(
+                          snapshot.data!,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        );
+                      }
+                      return const SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: _teal,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  onRemove: () {
+                    setState(() => _selectedImages.removeAt(entry.key));
+                  },
+                );
+              }),
+            ],
+          ),
+        if (totalImages > 0) const SizedBox(height: 12),
+        if (totalImages < 3)
+          GestureDetector(
+            onTap: _pickImage,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: _tealLight,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: _tealBorder),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.camera_alt, color: _teal, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.addPhoto,
+                    style: const TextStyle(
+                      color: _teal,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          Text(
+            l10n.maxPhotosReached,
+            style: const TextStyle(color: _textMuted, fontSize: 12),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildImageThumbnail({
+    required Widget child,
+    required VoidCallback onRemove,
+  }) {
+    return Stack(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: _fieldBorder),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: child,
+          ),
+        ),
+        Positioned(
+          top: 2,
+          right: 2,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 14),
             ),
           ),
         ),

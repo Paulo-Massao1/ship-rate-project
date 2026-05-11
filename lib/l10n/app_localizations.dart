@@ -1888,6 +1888,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.'**
   String get navSafetyBlocked;
+
+  /// No description provided for @photos.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fotos'**
+  String get photos;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar foto'**
+  String get addPhoto;
+
+  /// No description provided for @maxPhotosReached.
+  ///
+  /// In pt, this message translates to:
+  /// **'Máximo de 3 fotos'**
+  String get maxPhotosReached;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

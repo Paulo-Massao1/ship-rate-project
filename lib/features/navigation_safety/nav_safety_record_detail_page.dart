@@ -216,6 +216,11 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
                 ),
               ),
             ],
+            if (record['imageUrls'] is List &&
+                (record['imageUrls'] as List).isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildPhotosCard(context, l10n),
+            ],
             ],
           ),
         ),
@@ -415,6 +420,62 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
         : seconds;
 
     return '${degrees.padLeft(degreeWidth, '0')}\u00B0 ${minutes.padLeft(2, '0')}\' $formattedSeconds" $hemisphere';
+  }
+
+  Widget _buildPhotosCard(BuildContext context, AppLocalizations l10n) {
+    final imageUrls = List<String>.from(record['imageUrls'] as List);
+
+    return _buildCard(
+      title: l10n.photos,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: imageUrls.asMap().entries.map((entry) {
+            return Padding(
+              padding: EdgeInsets.only(right: entry.key < imageUrls.length - 1 ? 10 : 0),
+              child: GestureDetector(
+                onTap: () => _showFullScreenImage(context, entry.value),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    entry.value,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showFullScreenImage(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black87,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                child: Image.network(url),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   _DirectionData _directionLabel(String? value, AppLocalizations l10n) {

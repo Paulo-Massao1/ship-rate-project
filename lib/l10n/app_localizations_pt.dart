@@ -952,4 +952,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get navSafetyBlocked => 'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.';
+
+  @override
+  String get photos => 'Fotos';
+
+  @override
+  String get addPhoto => 'Adicionar foto';
+
+  @override
+  String get maxPhotosReached => 'Máximo de 3 fotos';
 }
