@@ -2,9 +2,12 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:universal_html/html.dart' as html;
 import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/image_upload_service.dart';
 
@@ -107,7 +110,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   final _observationsController = TextEditingController();
 
   // Images
-  final List<XFile> _selectedImages = [];
+  final List<PendingImageUpload> _selectedImages = [];
   List<String> _existingImageUrls = [];
   final List<String> _imagesToDelete = [];
 
@@ -286,16 +289,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   Future<void> _save() async {
     final error = _validate();
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red.shade800,
-        ),
-      );
+      _showSnackBar(error, isError: true);
       return;
     }
 
     setState(() => _isSaving = true);
+
+    String? createdLocationId;
+    var recordPersisted = false;
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -366,6 +367,12 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (obs.isNotEmpty) data['observacoes'] = obs;
 
       var locationId = _selectedLocationId;
+      debugPrint(
+        'NavSafetyNewRecordPage._save start: '
+        'isEditing=${widget.isEditing}, selectedImages=${_selectedImages.length}, '
+        'locationId=$locationId, editRecordId=${widget.editRecordId}',
+      );
+
       if (!widget.isEditing &&
           locationId == null &&
           pendingLocationName != null &&
@@ -374,72 +381,130 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           pendingLocationName,
           createdBy: user?.uid,
         );
+        createdLocationId = locationId;
+      }
+
+      if (locationId == null) {
+        throw StateError('Location ID is required to save the record.');
       }
 
       if (widget.isEditing) {
-        final allImageUrls = List<String>.from(_existingImageUrls);
-        if (_selectedImages.isNotEmpty) {
-          final newUrls = await ImageUploadService.uploadImages(
-            _selectedImages,
+        final preservedImageUrls = List<String>.from(_existingImageUrls);
+        final newUrls = _selectedImages.isEmpty
+            ? const <String>[]
+            : await ImageUploadService.uploadImages(
+                _selectedImages,
+                _selectedLocationId!,
+                widget.editRecordId!,
+              );
+
+        data['imageUrls'] = <String>[
+          ...preservedImageUrls,
+          ...newUrls,
+        ];
+
+        try {
+          await _controller.updateRecord(
             _selectedLocationId!,
             widget.editRecordId!,
+            data,
           );
-          allImageUrls.addAll(newUrls);
+          recordPersisted = true;
+        } catch (e, stackTrace) {
+          debugPrint(
+            'NavSafetyNewRecordPage._save failed after uploading edit images: $e',
+          );
+          debugPrint('$stackTrace');
+          await ImageUploadService.deleteImages(newUrls);
+          rethrow;
         }
-        if (allImageUrls.isNotEmpty) {
-          data['imageUrls'] = allImageUrls;
-        }
-        await _controller.updateRecord(
-            _selectedLocationId!, widget.editRecordId!, data);
+
         if (_imagesToDelete.isNotEmpty) {
           await ImageUploadService.deleteImages(_imagesToDelete);
         }
-      } else if (_selectedImages.isNotEmpty) {
-        final docRef = await FirebaseFirestore.instance
-            .collection('locais')
-            .doc(locationId!)
-            .collection('registros')
-            .add(data);
-        final newUrls = await ImageUploadService.uploadImages(
-          _selectedImages,
-          locationId,
-          docRef.id,
-        );
-        if (newUrls.isNotEmpty) {
-          await _controller.updateRecord(
-            locationId,
-            docRef.id,
-            {'imageUrls': newUrls},
-          );
-        }
       } else {
-        await _controller.saveRecord(locationId!, data);
+        final recordRef = FirebaseFirestore.instance
+            .collection('locais')
+            .doc(locationId)
+            .collection('registros')
+            .doc();
+
+        final newUrls = _selectedImages.isEmpty
+            ? const <String>[]
+            : await ImageUploadService.uploadImages(
+                _selectedImages,
+                locationId,
+                recordRef.id,
+              );
+
+        if (newUrls.isNotEmpty) {
+          data['imageUrls'] = newUrls;
+        }
+
+        try {
+          await recordRef.set(data);
+          recordPersisted = true;
+        } catch (e, stackTrace) {
+          debugPrint(
+            'NavSafetyNewRecordPage._save failed after uploading new record images: $e',
+          );
+          debugPrint('$stackTrace');
+          await ImageUploadService.deleteImages(newUrls);
+          rethrow;
+        }
       }
 
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.isEditing
-                ? l10n.recordUpdatedSuccess
-                : l10n.recordSavedSuccess),
-            backgroundColor: const Color(0xFF1B5E20),
-          ),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red.shade800,
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      final l10n = AppLocalizations.of(context)!;
+      _showSnackBar(
+        widget.isEditing
+            ? l10n.recordUpdatedSuccess
+            : l10n.recordSavedSuccess,
+      );
+      Navigator.pop(context, true);
+    } on ImageUploadException catch (e) {
+      _showSnackBar(e.message, isError: true);
+    } on FirebaseException catch (e) {
+      _showSnackBar(
+        e.message ?? 'Nao foi possivel salvar o registro.',
+        isError: true,
+      );
+    } catch (e, stackTrace) {
+      debugPrint('NavSafetyNewRecordPage._save unexpected error: $e');
+      debugPrint('$stackTrace');
+      _showSnackBar(
+        'Nao foi possivel salvar o registro. Tente novamente.',
+        isError: true,
+      );
     } finally {
+      if (!recordPersisted && createdLocationId != null) {
+        try {
+          await _controller.deleteLocationIfEmpty(createdLocationId);
+        } catch (e, stackTrace) {
+          debugPrint(
+            'NavSafetyNewRecordPage._save cleanup location failed: $e',
+          );
+          debugPrint('$stackTrace');
+        }
+      }
+
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade800 : const Color(0xFF1B5E20),
+      ),
+    );
   }
 
   Future<void> _selectNewLocation() async {
@@ -1226,12 +1291,136 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Future<void> _pickImage() async {
     final totalImages = _existingImageUrls.length + _selectedImages.length;
-    if (totalImages >= 3) return;
-
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _selectedImages.add(picked));
+    if (totalImages >= ImageUploadService.maxImagesPerRecord) {
+      _showSnackBar(
+        'Voce pode anexar no maximo ${ImageUploadService.maxImagesPerRecord} fotos.',
+        isError: true,
+      );
+      return;
     }
+
+    if (kIsWeb) {
+      _pickImageWeb();
+      return;
+    }
+
+    await _pickImageNative();
+  }
+
+  Future<void> _pickImageNative() async {
+    try {
+      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (picked == null) return;
+
+      final bytes = await picked.readAsBytes();
+      final fileName = picked.name.trim().isNotEmpty
+          ? picked.name
+          : 'imagem_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      _queueSelectedImage(
+        bytes: bytes,
+        mimeType: ImageUploadService.mimeTypeFromFileName(fileName),
+        originalName: fileName,
+      );
+    } catch (e, stackTrace) {
+      debugPrint('NavSafetyNewRecordPage._pickImageNative failed: $e');
+      debugPrint('$stackTrace');
+      _showSnackBar(
+        'Nao foi possivel selecionar a imagem neste dispositivo.',
+        isError: true,
+      );
+    }
+  }
+
+  void _pickImageWeb() {
+    final body = html.document.body;
+    if (body == null) {
+      _showSnackBar(
+        'Nao foi possivel abrir o seletor de imagens neste navegador.',
+        isError: true,
+      );
+      return;
+    }
+
+    final input = html.FileUploadInputElement()
+      ..accept = ImageUploadService.htmlAcceptAttribute
+      ..style.display = 'none';
+
+    body.append(input);
+    input.click();
+    input.onChange.listen((event) {
+      final file = input.files?.first;
+      if (file == null) {
+        input.remove();
+        return;
+      }
+
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onLoadEnd.listen((_) {
+        final result = reader.result;
+        final Uint8List bytes;
+        if (result is Uint8List) {
+          bytes = result;
+        } else if (result is ByteBuffer) {
+          bytes = result.asUint8List();
+        } else {
+          input.remove();
+          _showSnackBar(
+            'Nao foi possivel ler a imagem selecionada.',
+            isError: true,
+          );
+          return;
+        }
+
+        final fileName = file.name.trim().isNotEmpty
+            ? file.name
+            : 'imagem_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final mimeType = file.type.trim().isNotEmpty
+            ? file.type
+            : ImageUploadService.mimeTypeFromFileName(fileName);
+
+        _queueSelectedImage(
+          bytes: bytes,
+          mimeType: mimeType,
+          originalName: fileName,
+        );
+        input.remove();
+      }, onError: (_) {
+        input.remove();
+        _showSnackBar(
+          'Nao foi possivel ler a imagem selecionada.',
+          isError: true,
+        );
+      });
+    }, onError: (_) {
+      input.remove();
+      _showSnackBar(
+        'Nao foi possivel abrir a imagem selecionada.',
+        isError: true,
+      );
+    });
+  }
+
+  void _queueSelectedImage({
+    required Uint8List bytes,
+    required String mimeType,
+    required String originalName,
+  }) {
+    final image = PendingImageUpload(
+      bytes: bytes,
+      mimeType: mimeType,
+      originalName: originalName,
+    );
+    final validationError = ImageUploadService.validateSelectedImage(image);
+
+    if (validationError != null) {
+      _showSnackBar(validationError, isError: true);
+      return;
+    }
+
+    if (!mounted) return;
+    setState(() => _selectedImages.add(image));
   }
 
   Widget _buildSection6Photos(AppLocalizations l10n) {
@@ -1264,31 +1453,16 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               }),
               ..._selectedImages.asMap().entries.map((entry) {
                 return _buildImageThumbnail(
-                  child: FutureBuilder<Uint8List>(
-                    future: entry.value.readAsBytes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return Image.memory(
-                          snapshot.data!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        );
-                      }
-                      return const SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: _teal,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      );
-                    },
+                  child: Image.memory(
+                    entry.value.bytes,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
                   ),
                   onRemove: () {
-                    setState(() => _selectedImages.removeAt(entry.key));
+                    setState(() {
+                      _selectedImages.removeAt(entry.key);
+                    });
                   },
                 );
               }),

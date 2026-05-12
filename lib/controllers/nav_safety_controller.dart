@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../data/services/image_upload_service.dart';
 
 /// Controller for the Navigation Safety module.
 ///
@@ -203,6 +204,28 @@ class NavSafetyController extends ChangeNotifier {
     return doc.id;
   }
 
+  /// Deletes a location if it belongs to the current user and has no records.
+  Future<void> deleteLocationIfEmpty(String locationId) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (uid.isEmpty) return;
+
+    final locationRef = _firestore.collection(_locationsCollection).doc(locationId);
+    final snapshot = await locationRef.get();
+    final data = snapshot.data();
+    if (data == null) return;
+
+    final createdBy = (data['createdBy'] ?? '').toString();
+    if (createdBy != uid) return;
+
+    final remainingRecords =
+        await locationRef.collection(_recordsSubcollection).limit(1).get();
+    if (remainingRecords.docs.isNotEmpty) return;
+
+    await locationRef.delete();
+    debugPrint('[NavSafety] deleteLocationIfEmpty -> location deleted id=$locationId');
+    _invalidateAllCaches();
+  }
+
   /// Saves a new record to the registros subcollection of a location.
   Future<void> saveRecord(String locationId, Map<String, dynamic> data) async {
     debugPrint('[NavSafety] saveRecord → locationId=$locationId, keys=${data.keys.toList()}');
@@ -335,8 +358,20 @@ class NavSafetyController extends ChangeNotifier {
     final locationRef =
         _firestore.collection(_locationsCollection).doc(locationId);
 
+    final recordDoc = await locationRef.collection(_recordsSubcollection).doc(recordId).get();
+    final imageUrls = List<String>.from(recordDoc.data()?['imageUrls'] ?? []);
+
     await locationRef.collection(_recordsSubcollection).doc(recordId).delete();
     debugPrint('[NavSafety] deleteRecord → record deleted from Firestore');
+
+    if (imageUrls.isNotEmpty) {
+      try {
+        await ImageUploadService.deleteImages(imageUrls);
+        debugPrint('[NavSafety] deleteRecord → ${imageUrls.length} images deleted from Storage');
+      } catch (e) {
+        debugPrint('[NavSafety] deleteRecord → image cleanup failed: $e');
+      }
+    }
 
     final locationSnapshot = await locationRef.get();
     final locationData = locationSnapshot.data();
