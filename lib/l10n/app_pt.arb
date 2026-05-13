@@ -432,5 +432,11 @@
 
   "photos": "Fotos",
   "addPhoto": "Adicionar foto",
-  "maxPhotosReached": "Máximo de 3 fotos"
+  "maxPhotosReached": "Máximo de 3 fotos",
+
+  "notificationDialogTitle": "Notificações",
+  "notificationDialogBody": "Deseja receber notificações quando novos registros de profundidade forem adicionados?",
+  "notificationDialogEnable": "Ativar",
+  "notificationDialogNotNow": "Agora não",
+  "notificationsEnabled": "Notificações ativadas!"
 }

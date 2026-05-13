@@ -77,13 +77,126 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _initNotifications() async {
     if (!_notificationsInitialized) {
       _notificationsInitialized = true;
-      await NotificationService.initialize();
+      if (mounted) {
+        await NotificationService.initializeWithoutPermission(
+          ScaffoldMessenger.of(context),
+        );
+      }
     }
-    if (mounted) {
-      NotificationService.listenForegroundMessages(
-        ScaffoldMessenger.of(context),
-      );
-    }
+
+    await _showNotificationDialogIfNeeded();
+  }
+
+  Future<void> _showNotificationDialogIfNeeded() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
+    if (!mounted) return;
+
+    if (doc.data()?['notificationPromptShown'] == true) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0x1A26A69A),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.notifications_active,
+                color: Color(0xFF26A69A),
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.notificationDialogTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.notificationDialogBody,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await _markNotificationPromptShown(uid);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: Text(
+              l10n.notificationDialogNotNow,
+              style: const TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF26A69A),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () async {
+              final granted =
+                  await NotificationService.requestPermissionAndEnable();
+              await _markNotificationPromptShown(uid);
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx);
+
+              if (granted && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.notificationsEnabled),
+                    backgroundColor: const Color(0xFF26A69A),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: Text(
+              l10n.notificationDialogEnable,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _markNotificationPromptShown(String uid) async {
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
+      {'notificationPromptShown': true},
+      SetOptions(merge: true),
+    );
   }
 
   Future<void> _fetchNomeGuerra() async {

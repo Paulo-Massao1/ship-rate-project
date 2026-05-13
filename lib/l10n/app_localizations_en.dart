@@ -961,4 +961,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maxPhotosReached => 'Maximum 3 photos';
+
+  @override
+  String get notificationDialogTitle => 'Notifications';
+
+  @override
+  String get notificationDialogBody => 'Would you like to receive notifications when new depth records are added?';
+
+  @override
+  String get notificationDialogEnable => 'Enable';
+
+  @override
+  String get notificationDialogNotNow => 'Not now';
+
+  @override
+  String get notificationsEnabled => 'Notifications enabled!';
 }

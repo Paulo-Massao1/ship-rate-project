@@ -16,7 +16,8 @@ exports.onNewRecord = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(record.pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      if (pilotEmail === "gcbrgame@gmail.com") {
+      const testEmails = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
+      if (testEmails.includes(pilotEmail)) {
         console.log("Skipping notifications for test account");
         return;
       }
@@ -100,21 +101,77 @@ exports.onNewRecord = functions.firestore
       console.error("Error sending email notification:", err);
     }
 
-    // --- Push Notification via FCM ---
+    // --- Push Notification via FCM (token-based) ---
     try {
-      const message = {
-        topic: "all_pilots",
-        notification: {
-          title: `Nova profundidade — ${locationName}`,
-          body: `${profundidadeTotal}m por ${nomeGuerra} em ${formattedDate}`,
-        },
-        data: {
-          locationId: locationId,
-        },
-      };
+      const usuariosSnapshot = await db.collection("usuarios").get();
 
-      await admin.messaging().send(message);
-      console.log(`Push notification sent to topic all_pilots for ${locationName}.`);
+      const tokens = [];
+      const tokenToUid = {};
+
+      usuariosSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        // Skip the pilot who created the record
+        if (doc.id === record.pilotId) return;
+        // Skip users who disabled push notifications
+        if (data.pushNotifications === false) return;
+        // Collect valid tokens
+        if (data.fcmToken) {
+          tokens.push(data.fcmToken);
+          tokenToUid[data.fcmToken] = doc.id;
+        }
+      });
+
+      if (tokens.length === 0) {
+        console.log("No FCM tokens to send push notifications to.");
+        return;
+      }
+
+      // Send in batches of 500 (FCM limit)
+      const batchSize = 500;
+      for (let i = 0; i < tokens.length; i += batchSize) {
+        const batch = tokens.slice(i, i + batchSize);
+
+        const message = {
+          notification: {
+            title: `⚓ ${locationName}`,
+            body: `Nova profundidade: ${profundidadeTotal}m — registrada por ${nomeGuerra} em ${formattedDate}`,
+          },
+          data: {
+            locationId: locationId,
+            url: "https://shiprate-daf18.web.app",
+          },
+          tokens: batch,
+        };
+
+        const response = await admin.messaging().sendEachForMulticast(message);
+        console.log(`Push batch sent: ${response.successCount} success, ${response.failureCount} failures.`);
+
+        // Clean up invalid/expired tokens
+        const tokensToDelete = [];
+        response.responses.forEach((resp, idx) => {
+          if (resp.error) {
+            const code = resp.error.code;
+            if (
+              code === "messaging/registration-token-not-registered" ||
+              code === "messaging/invalid-registration-token"
+            ) {
+              tokensToDelete.push(batch[idx]);
+            }
+          }
+        });
+
+        // Remove stale tokens from Firestore
+        const deletePromises = tokensToDelete.map((token) => {
+          const uid = tokenToUid[token];
+          if (!uid) return Promise.resolve();
+          console.log(`Removing stale FCM token for user ${uid}`);
+          return db.collection("usuarios").doc(uid).update({
+            fcmToken: admin.firestore.FieldValue.delete(),
+          });
+        });
+
+        await Promise.all(deletePromises);
+      }
     } catch (err) {
       console.error("Error sending push notification:", err);
     }

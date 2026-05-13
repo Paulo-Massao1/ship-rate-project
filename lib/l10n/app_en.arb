@@ -432,5 +432,11 @@
 
   "photos": "Photos",
   "addPhoto": "Add photo",
-  "maxPhotosReached": "Maximum 3 photos"
+  "maxPhotosReached": "Maximum 3 photos",
+
+  "notificationDialogTitle": "Notifications",
+  "notificationDialogBody": "Would you like to receive notifications when new depth records are added?",
+  "notificationDialogEnable": "Enable",
+  "notificationDialogNotNow": "Not now",
+  "notificationsEnabled": "Notifications enabled!"
 }

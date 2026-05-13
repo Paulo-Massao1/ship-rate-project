@@ -1906,6 +1906,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Máximo de 3 fotos'**
   String get maxPhotosReached;
+
+  /// No description provided for @notificationDialogTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificações'**
+  String get notificationDialogTitle;
+
+  /// No description provided for @notificationDialogBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deseja receber notificações quando novos registros de profundidade forem adicionados?'**
+  String get notificationDialogBody;
+
+  /// No description provided for @notificationDialogEnable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ativar'**
+  String get notificationDialogEnable;
+
+  /// No description provided for @notificationDialogNotNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agora não'**
+  String get notificationDialogNotNow;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notificações ativadas!'**
+  String get notificationsEnabled;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
