@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -51,21 +52,26 @@ class DashboardController {
       // On Flutter Web, the Firestore JS SDK needs a valid auth token.
       await user.getIdToken().timeout(_queryTimeout);
 
-      // Fetch callSign and ships in parallel
+      // Fetch callSign, ships, and user count in parallel
       final results = await Future.wait([
         _getUserCallSign(userId),
         _firestore.collection(_shipsCollection).get().timeout(_queryTimeout),
+        _getUserCount(),
       ]);
 
       final callSign = results[0] as String?;
       final shipsSnapshot = results[1] as QuerySnapshot;
+      final cloudUserCount = results[2] as int?;
 
       int totalRatings = 0;
       int userRatings = 0;
       final userRatingsList = <_RatingEntry>[];
+      final ratingsPerPilot = <String, int>{};
       String? lastRatedShipName;
       String? lastRatedByPilot;
       DateTime? lastRatedDate;
+      String? lastRatedShipId;
+      String? lastRatedRatingId;
 
       // Fetch all ship ratings in parallel
       final ratingsFutures = shipsSnapshot.docs.map((ship) {
@@ -98,6 +104,16 @@ class DashboardController {
             lastRatedDate = ratingDate;
             lastRatedShipName = shipName;
             lastRatedByPilot = data['nomeGuerra'] as String?;
+            lastRatedShipId = result.ship.id;
+            lastRatedRatingId = rating.id;
+          }
+
+          final pilotKey = (data['usuarioId'] as String?) ??
+              (data['nomeGuerra'] as String?) ??
+              '';
+          if (pilotKey.isNotEmpty) {
+            ratingsPerPilot[pilotKey] =
+                (ratingsPerPilot[pilotKey] ?? 0) + 1;
           }
 
           if (_ratingBelongsToUser(data, userId, callSign)) {
@@ -109,6 +125,31 @@ class DashboardController {
           }
         }
       }
+
+      // Calculate top rater and user ranking from accumulated counts
+      int topRaterCount = 0;
+      int userRankingPosition = 0;
+      final totalPilotsWhoRated = ratingsPerPilot.length;
+
+      if (ratingsPerPilot.isNotEmpty) {
+        final counts = ratingsPerPilot.values.toList()
+          ..sort((a, b) => b.compareTo(a));
+        topRaterCount = counts.first;
+
+        final userKey = ratingsPerPilot.containsKey(userId)
+            ? userId
+            : (callSign != null && ratingsPerPilot.containsKey(callSign)
+                ? callSign
+                : null);
+
+        if (userKey != null) {
+          final userCount = ratingsPerPilot[userKey]!;
+          userRankingPosition =
+              counts.where((c) => c > userCount).length + 1;
+        }
+      }
+
+      final totalUsers = cloudUserCount ?? totalPilotsWhoRated;
 
       _sortByDateDescending(userRatingsList);
 
@@ -124,11 +165,17 @@ class DashboardController {
       return DashboardData(
         totalShips: shipsSnapshot.docs.length,
         totalRatings: totalRatings,
+        totalUsers: totalUsers,
         userRatings: userRatings,
+        topRaterCount: topRaterCount,
+        userRankingPosition: userRankingPosition,
+        totalPilotsWhoRated: totalPilotsWhoRated,
         recentRatings: recentRatings,
         lastRatedShipName: lastRatedShipName,
         lastRatedByPilot: lastRatedByPilot,
         lastRatedDate: lastRatedDate,
+        lastRatedShipId: lastRatedShipId,
+        lastRatedRatingId: lastRatedRatingId,
       );
     } catch (e) {
       debugPrint('[Dashboard] Error loading data: $e');
@@ -139,6 +186,20 @@ class DashboardController {
   // ===========================================================================
   // PRIVATE METHODS
   // ===========================================================================
+
+  /// Gets total registered users via Cloud Function. Returns null on failure.
+  Future<int?> _getUserCount() async {
+    try {
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('getUserCount')
+          .call()
+          .timeout(_queryTimeout);
+      return result.data['count'] as int;
+    } catch (e) {
+      debugPrint('[Dashboard] Error fetching user count: $e');
+      return null;
+    }
+  }
 
   /// Gets user callSign. Returns null on failure so dashboard can still load.
   Future<String?> _getUserCallSign(String userId) async {
@@ -240,26 +301,42 @@ class _RatingEntry {
 class DashboardData {
   final int totalShips;
   final int totalRatings;
+  final int totalUsers;
   final int userRatings;
+  final int topRaterCount;
+  final int userRankingPosition;
+  final int totalPilotsWhoRated;
   final List<RecentRating> recentRatings;
   final String? lastRatedShipName;
   final String? lastRatedByPilot;
   final DateTime? lastRatedDate;
+  final String? lastRatedShipId;
+  final String? lastRatedRatingId;
 
   DashboardData({
     required this.totalShips,
     required this.totalRatings,
+    required this.totalUsers,
     required this.userRatings,
+    required this.topRaterCount,
+    required this.userRankingPosition,
+    required this.totalPilotsWhoRated,
     required this.recentRatings,
     this.lastRatedShipName,
     this.lastRatedByPilot,
     this.lastRatedDate,
+    this.lastRatedShipId,
+    this.lastRatedRatingId,
   });
 
   factory DashboardData.empty() => DashboardData(
         totalShips: 0,
         totalRatings: 0,
+        totalUsers: 0,
         userRatings: 0,
+        topRaterCount: 0,
+        userRankingPosition: 0,
+        totalPilotsWhoRated: 0,
         recentRatings: [],
       );
 }

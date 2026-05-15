@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../../controllers/dashboard_controller.dart';
 import '../../../core/events/data_change_notifier.dart';
+import '../../ratings/rating_detail_page.dart';
 
 /// Dashboard widget with two visual blocks:
 /// - Block 1: App stats (total ships + total ratings)
@@ -45,11 +47,15 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // ===========================================================================
 
   void _onDataChanged() {
-    setState(() => _dataFuture = _controller.loadDashboardData());
+    setState(() {
+      _dataFuture = _controller.loadDashboardData();
+    });
   }
 
   void _retry() {
-    setState(() => _dataFuture = _controller.loadDashboardData());
+    setState(() {
+      _dataFuture = _controller.loadDashboardData();
+    });
   }
 
   // ===========================================================================
@@ -158,8 +164,41 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                   label: l10n.totalRatingsLabel,
                 ),
               ),
+              Container(
+                width: 1,
+                height: 40,
+                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+              ),
+              Expanded(
+                child: _StatItem(
+                  icon: Icons.people,
+                  value: data.totalUsers.toString(),
+                  label: l10n.activePilotsLabel,
+                ),
+              ),
             ],
           ),
+          if (data.topRaterCount > 0) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  size: 14,
+                  color: Colors.white.withValues(alpha: 0.3),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.topRaterInfo(data.topRaterCount.toString()),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -176,74 +215,123 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         '${date.month.toString().padLeft(2, '0')}/'
         '${date.year}';
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+    final isTappable =
+        data.lastRatedShipId != null && data.lastRatedRatingId != null;
+
+    return GestureDetector(
+      onTap: isTappable ? () => _onLastRatedTap(data) : null,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionTitle(label: l10n.lastRatedShip),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.directions_boat,
+                    size: 20,
+                    color: Color(0xFF64B5F6),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.lastRatedShipName!.toUpperCase(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (data.lastRatedByPilot != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.pilotCallSign(data.lastRatedByPilot!),
+                          style: const TextStyle(
+                            color: Color(0xFF64B5F6),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Text(
+                  dateStr,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    fontSize: 11,
+                  ),
+                ),
+                if (isTappable) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionTitle(label: l10n.lastRatedShip),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.directions_boat,
-                  size: 20,
-                  color: Color(0xFF64B5F6),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      data.lastRatedShipName!.toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (data.lastRatedByPilot != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.pilotCallSign(data.lastRatedByPilot!),
-                        style: const TextStyle(
-                          color: Color(0xFF64B5F6),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Text(
-                dateStr,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.35),
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-        ],
+    );
+  }
+
+  Future<void> _onLastRatedTap(DashboardData data) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF64B5F6)),
       ),
     );
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('navios')
+          .doc(data.lastRatedShipId)
+          .collection('avaliacoes')
+          .where(FieldPath.documentId, isEqualTo: data.lastRatedRatingId)
+          .limit(1)
+          .get();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (querySnapshot.docs.isEmpty) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RatingDetailPage(rating: querySnapshot.docs.first),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 
   // ===========================================================================
@@ -277,6 +365,31 @@ class _DashboardWidgetState extends State<DashboardWidget> {
 
           // Contribution progress
           _buildContribution(data, l10n, progress),
+
+          if (data.userRankingPosition > 0) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(
+                  Icons.emoji_events,
+                  size: 16,
+                  color: Color(0xFF4DB6AC),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.userRankingPosition(
+                    data.userRankingPosition.toString(),
+                    data.totalPilotsWhoRated.toString(),
+                  ),
+                  style: const TextStyle(
+                    color: Color(0xFF4DB6AC),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 14),
 
           // Recent activity

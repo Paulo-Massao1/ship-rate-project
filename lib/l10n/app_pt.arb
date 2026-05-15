@@ -262,6 +262,7 @@
   "dashboardYourActivity": "Sua Atividade",
   "totalShipsLabel": "Navios",
   "totalRatingsLabel": "Avaliações",
+  "activePilotsLabel": "Práticos",
   "yourRatingsLabel": "Suas Avaliações",
   "yourContribution": "Sua Contribuição",
   "contributionProgress": "{percent}% das avaliações",
@@ -275,6 +276,19 @@
     "placeholders": {
       "userCount": { "type": "String" },
       "totalCount": { "type": "String" }
+    }
+  },
+  "topRaterInfo": "O prático que mais avaliou registrou {count} avaliações",
+  "@topRaterInfo": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "userRankingPosition": "Sua posição: #{position} de {total} práticos",
+  "@userRankingPosition": {
+    "placeholders": {
+      "position": { "type": "String" },
+      "total": { "type": "String" }
     }
   },
   "recentActivity": "Atividade Recente",

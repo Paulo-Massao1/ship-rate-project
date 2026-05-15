@@ -13,6 +13,7 @@ const {
   finalizeNavSafetyImages,
   deleteNavSafetyImages,
 } = require("./navigation_safety/image_uploads");
+const { getUserCount } = require("./stats/get_user_count");
 
 exports.sendOTP = sendOTP;
 exports.verifyOTP = verifyOTP;
@@ -25,3 +26,4 @@ exports.createNavSafetyImageUploadUrls = createNavSafetyImageUploadUrls;
 exports.finalizeNavSafetyImages = finalizeNavSafetyImages;
 exports.deleteNavSafetyImages = deleteNavSafetyImages;
 exports.sendPasswordReset = sendPasswordReset;
+exports.getUserCount = getUserCount;

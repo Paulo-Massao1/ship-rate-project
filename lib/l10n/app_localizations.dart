@@ -1157,6 +1157,12 @@ abstract class AppLocalizations {
   /// **'Avaliações'**
   String get totalRatingsLabel;
 
+  /// No description provided for @activePilotsLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Práticos'**
+  String get activePilotsLabel;
+
   /// No description provided for @yourRatingsLabel.
   ///
   /// In pt, this message translates to:
@@ -1180,6 +1186,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Você avaliou {userCount} de {totalCount}'**
   String contributionSummary(String userCount, String totalCount);
+
+  /// No description provided for @topRaterInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'O prático que mais avaliou registrou {count} avaliações'**
+  String topRaterInfo(String count);
+
+  /// No description provided for @userRankingPosition.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua posição: #{position} de {total} práticos'**
+  String userRankingPosition(String position, String total);
 
   /// No description provided for @recentActivity.
   ///

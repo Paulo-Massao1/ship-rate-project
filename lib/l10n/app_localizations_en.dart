@@ -574,6 +574,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalRatingsLabel => 'Ratings';
 
   @override
+  String get activePilotsLabel => 'Pilots';
+
+  @override
   String get yourRatingsLabel => 'Your Ratings';
 
   @override
@@ -587,6 +590,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String contributionSummary(String userCount, String totalCount) {
     return 'You rated $userCount of $totalCount';
+  }
+
+  @override
+  String topRaterInfo(String count) {
+    return 'The top rated pilot registered $count ratings';
+  }
+
+  @override
+  String userRankingPosition(String position, String total) {
+    return 'Your position: #$position of $total pilots';
   }
 
   @override

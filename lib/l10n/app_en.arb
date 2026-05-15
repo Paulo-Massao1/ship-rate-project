@@ -262,6 +262,7 @@
   "dashboardYourActivity": "Your Activity",
   "totalShipsLabel": "Ships",
   "totalRatingsLabel": "Ratings",
+  "activePilotsLabel": "Pilots",
   "yourRatingsLabel": "Your Ratings",
   "yourContribution": "Your Contribution",
   "contributionProgress": "{percent}% of ratings",
@@ -275,6 +276,19 @@
     "placeholders": {
       "userCount": { "type": "String" },
       "totalCount": { "type": "String" }
+    }
+  },
+  "topRaterInfo": "The top rated pilot registered {count} ratings",
+  "@topRaterInfo": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "userRankingPosition": "Your position: #{position} of {total} pilots",
+  "@userRankingPosition": {
+    "placeholders": {
+      "position": { "type": "String" },
+      "total": { "type": "String" }
     }
   },
   "recentActivity": "Recent Activity",

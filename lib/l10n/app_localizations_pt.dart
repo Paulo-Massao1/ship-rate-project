@@ -574,6 +574,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get totalRatingsLabel => 'Avaliações';
 
   @override
+  String get activePilotsLabel => 'Práticos';
+
+  @override
   String get yourRatingsLabel => 'Suas Avaliações';
 
   @override
@@ -587,6 +590,16 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String contributionSummary(String userCount, String totalCount) {
     return 'Você avaliou $userCount de $totalCount';
+  }
+
+  @override
+  String topRaterInfo(String count) {
+    return 'O prático que mais avaliou registrou $count avaliações';
+  }
+
+  @override
+  String userRankingPosition(String position, String total) {
+    return 'Sua posição: #$position de $total práticos';
   }
 
   @override

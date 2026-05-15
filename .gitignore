@@ -23,3 +23,5 @@ backup_*.json
 .claude
 ai_rules.md
 functions/serviceAccountKey.json
+
+.gcloud-cli/
