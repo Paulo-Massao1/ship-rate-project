@@ -186,13 +186,13 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                 Icon(
                   Icons.emoji_events,
                   size: 14,
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: Colors.white.withValues(alpha: 0.5),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   l10n.topRaterInfo(data.topRaterCount.toString()),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 11,
                   ),
                 ),
@@ -379,7 +379,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                 Text(
                   l10n.userRankingPosition(
                     data.userRankingPosition.toString(),
-                    data.totalPilotsWhoRated.toString(),
+                    data.totalUsers.toString(),
                   ),
                   style: const TextStyle(
                     color: Color(0xFF4DB6AC),
