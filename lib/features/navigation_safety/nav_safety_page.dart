@@ -607,6 +607,13 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
         ? _formatMeters(records.first['profundidadeTotal'])
         : '—';
 
+    if (records.isNotEmpty && _controller.selectedLocationId != null) {
+      _controller.loadLikeStatesForRecords(
+        _controller.selectedLocationId!,
+        records,
+      );
+    }
+
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
@@ -693,6 +700,23 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final direction = _formatDirection(record['direcao']?.toString(), l10n);
     final dateStr = _formatDate(record['data']);
 
+    final recordId = record['recordId'] as String?;
+    final recordPilotId = record['pilotId'] as String?;
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    final isOwnRecord = recordPilotId != null && recordPilotId == currentUid;
+    final locationId = _controller.selectedLocationId;
+
+    final bool liked = (locationId != null && recordId != null)
+        ? _controller.hasUserLiked(locationId, recordId)
+        : false;
+    final int likeCount = (locationId != null && recordId != null)
+        ? _controller.getLikeCount(locationId, recordId)
+        : 0;
+    final likerNames = (locationId != null && recordId != null)
+        ? _controller.getLikerNames(locationId, recordId)
+        : <String>[];
+    final likeSummary = _formatInlineLikerSummary(likerNames, likeCount);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
@@ -708,13 +732,13 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
               border: Border.all(color: const Color(0x1A64B5F6)),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Row 1: Pilot name (left) | Date (right)
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        pilotName.isNotEmpty ? l10n.pilotCallSign(pilotName) : '\u2014',
+                        pilotName.isNotEmpty ? l10n.pilotCallSign(pilotName) : '—',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -733,7 +757,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     ),
                   ],
                 ),
-                // Row 2: Ship name (if exists)
                 if (shipName.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Align(
@@ -785,11 +808,206 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     _buildStatColumn(l10n.direction, direction),
                   ],
                 ),
+                if (locationId != null && recordId != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Color(0x1A64B5F6)),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: isOwnRecord
+                              ? null
+                              : () {
+                                  _controller.toggleLike(locationId, recordId);
+                                },
+                          behavior: HitTestBehavior.opaque,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  liked
+                                      ? Icons.thumb_up
+                                      : Icons.thumb_up_outlined,
+                                  size: 19,
+                                  color: liked
+                                      ? const Color(0xFF26A69A)
+                                      : const Color(0x66FFFFFF),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '$likeCount',
+                                  style: const TextStyle(
+                                    color: Color(0x99FFFFFF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (likeSummary.isNotEmpty) ...[
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _showLikersSheet(
+                                locationId,
+                                recordId,
+                                l10n,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Text(
+                                  likeSummary,
+                                  style: const TextStyle(
+                                    color: Color(0x99FFFFFF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  String _formatInlineLikerSummary(List<String> names, int totalCount) {
+    if (names.isEmpty) return '';
+
+    final displayNames = names.take(2).join(', ');
+    return totalCount > 2 ? '$displayNames...' : displayNames;
+  }
+
+  Future<void> _showLikersSheet(
+    String locationId,
+    String recordId,
+    AppLocalizations l10n,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF132D4A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: FutureBuilder<List<String>>(
+              future: _controller.fetchAllLikerNames(locationId, recordId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF26A69A),
+                      ),
+                    ),
+                  );
+                }
+
+                final names = snapshot.data ?? const <String>[];
+                if (names.isEmpty) {
+                  return SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        l10n.noRecords,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 360),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0x3364B5F6),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.likedBy('').trim(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: names.length,
+                          separatorBuilder: (_, __) => const Divider(
+                            color: Color(0x1A64B5F6),
+                            height: 1,
+                          ),
+                          itemBuilder: (_, index) {
+                            final name = names[index];
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              dense: true,
+                              leading: const Icon(
+                                Icons.thumb_up,
+                                color: Color(0xFF26A69A),
+                                size: 18,
+                              ),
+                              title: Text(
+                                name,
+                                style: const TextStyle(
+                                  color: Color(0xD9FFFFFF),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -843,4 +1061,3 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     }
   }
 }
-

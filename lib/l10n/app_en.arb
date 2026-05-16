@@ -452,5 +452,24 @@
   "notificationDialogBody": "Would you like to receive notifications when new depth records are added?",
   "notificationDialogEnable": "Enable",
   "notificationDialogNotNow": "Not now",
-  "notificationsEnabled": "Notifications enabled!"
+  "notificationsEnabled": "Notifications enabled!",
+
+  "likedBy": "Liked by {names}",
+  "@likedBy": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "andMore": "and {count} more",
+  "@andMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "likeNotification": "{name} liked your depth record",
+  "@likeNotification": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

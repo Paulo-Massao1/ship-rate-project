@@ -68,7 +68,6 @@ class DashboardController {
       int userRatings = 0;
       final userRatingsList = <_RatingEntry>[];
       final ratingsPerPilot = <String, int>{};
-      final pilotNames = <String, String>{};
       String? lastRatedShipName;
       String? lastRatedByPilot;
       DateTime? lastRatedDate;
@@ -114,17 +113,13 @@ class DashboardController {
           final realPilotId = data['realPilotId'] as String?;
           final realPilotIds = data['realPilotIds'] as List<dynamic>?;
 
-          final raterName = data['nomeGuerra'] as String?;
-
           if (realPilotId != null) {
             ratingsPerPilot[realPilotId] =
                 (ratingsPerPilot[realPilotId] ?? 0) + 1;
-            if (raterName != null) pilotNames[realPilotId] = raterName;
           } else if (realPilotIds != null && realPilotIds.isNotEmpty) {
             for (final id in realPilotIds) {
               final key = id as String;
               ratingsPerPilot[key] = (ratingsPerPilot[key] ?? 0) + 1;
-              if (raterName != null) pilotNames[key] = raterName;
             }
           } else if (ratingUid != _cspamUid) {
             final pilotKey = ratingUid ??
@@ -133,7 +128,6 @@ class DashboardController {
             if (pilotKey.isNotEmpty) {
               ratingsPerPilot[pilotKey] =
                   (ratingsPerPilot[pilotKey] ?? 0) + 1;
-              if (raterName != null) pilotNames[pilotKey] = raterName;
             }
           }
 
@@ -149,15 +143,6 @@ class DashboardController {
 
       // Calculate top rater and user ranking from accumulated counts
       ratingsPerPilot.remove(_cspamUid);
-
-      // Temporary: show top 3 raters
-      final sortedPilots = ratingsPerPilot.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      for (int i = 0; i < sortedPilots.length && i < 3; i++) {
-        final entry = sortedPilots[i];
-        final name = pilotNames[entry.key] ?? entry.key;
-        debugPrint('[Dashboard] Top ${i + 1}: $name = ${entry.value} ratings');
-      }
 
       int topRaterCount = 0;
       int userRankingPosition = 0;

@@ -72,7 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Permissão negada. Ative as notificações nas configurações do navegador/sistema.',
+              'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
             ),
             backgroundColor: Color(0xFFEF5350),
             behavior: SnackBarBehavior.floating,
@@ -123,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Permissão negada. Ative as notificações nas configurações do navegador/sistema.',
+            'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
           ),
           backgroundColor: Color(0xFFEF5350),
           behavior: SnackBarBehavior.floating,
@@ -224,7 +224,7 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ative as notificações para receber alertas quando novos '
+                  'Ative as notificacoes para receber alertas quando novos '
                   'registros de profundidade forem adicionados.',
                   style: const TextStyle(
                     color: Color(0xD9FFFFFF),
@@ -250,7 +250,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               child: const Text(
-                'Ativar notificações',
+                'Ativar notificacoes',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ),

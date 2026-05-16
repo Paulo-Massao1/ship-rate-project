@@ -37,6 +37,12 @@ service cloud.firestore {
                       && request.auth.uid == request.resource.data.pilotId;
         allow update, delete: if isSignedIn()
                               && resource.data.pilotId == request.auth.uid;
+
+        match /likes/{likeId} {
+          allow read: if isSignedIn();
+          allow create: if isSignedIn() && request.auth.uid == likeId;
+          allow delete: if isSignedIn() && request.auth.uid == likeId;
+        }
       }
     }
 

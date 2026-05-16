@@ -14,6 +14,8 @@ const {
   deleteNavSafetyImages,
 } = require("./navigation_safety/image_uploads");
 const { getUserCount } = require("./stats/get_user_count");
+const { onLikeCreated, onLikeDeleted } = require("./navigation_safety/on_like");
+const { inactivityReminder } = require("./notifications/inactivity_reminder");
 
 exports.sendOTP = sendOTP;
 exports.verifyOTP = verifyOTP;
@@ -27,3 +29,6 @@ exports.finalizeNavSafetyImages = finalizeNavSafetyImages;
 exports.deleteNavSafetyImages = deleteNavSafetyImages;
 exports.sendPasswordReset = sendPasswordReset;
 exports.getUserCount = getUserCount;
+exports.onLikeCreated = onLikeCreated;
+exports.onLikeDeleted = onLikeDeleted;
+exports.inactivityReminder = inactivityReminder;

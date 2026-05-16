@@ -41,6 +41,15 @@ class NavSafetyController extends ChangeNotifier {
   /// Cached total records count.
   static int? _cachedTotalRecordsCount;
 
+  /// Cached like states: { "locationId/recordId": true/false }
+  static final Map<String, bool> _cachedLikeStates = {};
+
+  /// Cached like counts: { "locationId/recordId": count }
+  static final Map<String, int> _cachedLikeCounts = {};
+
+  /// Cached likers: { "locationId/recordId": [names...] }
+  static final Map<String, List<String>> _cachedLikerNames = {};
+
   /// Timestamps for staleness checks.
   static DateTime? _locationsWithLatestFetchTime;
   static DateTime? _myRecordsFetchTime;
@@ -262,6 +271,142 @@ class NavSafetyController extends ChangeNotifier {
     return _cachedLocationDocs!;
   }
 
+  // ===========================================================================
+  // LIKE METHODS
+  // ===========================================================================
+
+  String _likeKey(String locationId, String recordId) =>
+      '$locationId/$recordId';
+
+  Future<void> toggleLike(String locationId, String recordId) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final key = _likeKey(locationId, recordId);
+    final likeRef = _firestore
+        .collection(_locationsCollection)
+        .doc(locationId)
+        .collection(_recordsSubcollection)
+        .doc(recordId)
+        .collection('likes')
+        .doc(uid);
+
+    final liked = _cachedLikeStates[key] ?? false;
+
+    if (liked) {
+      _cachedLikeStates[key] = false;
+      _cachedLikeCounts[key] = ((_cachedLikeCounts[key] ?? 1) - 1).clamp(0, 999999);
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final userName = currentUser?.displayName ?? '';
+      _cachedLikerNames[key]?.remove(userName);
+      notifyListeners();
+
+      try {
+        await likeRef.delete();
+      } catch (e) {
+        _cachedLikeStates[key] = true;
+        _cachedLikeCounts[key] = (_cachedLikeCounts[key] ?? 0) + 1;
+        if (userName.isNotEmpty) {
+          _cachedLikerNames[key] ??= [];
+          _cachedLikerNames[key]!.add(userName);
+        }
+        notifyListeners();
+        debugPrint('[NavSafety] Error removing like: $e');
+      }
+    } else {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final nomeGuerra = currentUser?.displayName ?? '';
+
+      _cachedLikeStates[key] = true;
+      _cachedLikeCounts[key] = (_cachedLikeCounts[key] ?? 0) + 1;
+      if (nomeGuerra.isNotEmpty) {
+        _cachedLikerNames[key] ??= [];
+        _cachedLikerNames[key]!.add(nomeGuerra);
+      }
+      notifyListeners();
+
+      try {
+        await likeRef.set({
+          'nomeGuerra': nomeGuerra,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        _cachedLikeStates[key] = false;
+        _cachedLikeCounts[key] = ((_cachedLikeCounts[key] ?? 1) - 1).clamp(0, 999999);
+        _cachedLikerNames[key]?.remove(nomeGuerra);
+        notifyListeners();
+        debugPrint('[NavSafety] Error adding like: $e');
+      }
+    }
+  }
+
+  bool hasUserLiked(String locationId, String recordId) {
+    return _cachedLikeStates[_likeKey(locationId, recordId)] ?? false;
+  }
+
+  int getLikeCount(String locationId, String recordId) {
+    return _cachedLikeCounts[_likeKey(locationId, recordId)] ?? 0;
+  }
+
+  List<String> getLikerNames(String locationId, String recordId) {
+    return _cachedLikerNames[_likeKey(locationId, recordId)] ?? [];
+  }
+
+  Future<List<String>> fetchAllLikerNames(
+    String locationId,
+    String recordId,
+  ) async {
+    final likesSnapshot = await _firestore
+        .collection(_locationsCollection)
+        .doc(locationId)
+        .collection(_recordsSubcollection)
+        .doc(recordId)
+        .collection('likes')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return likesSnapshot.docs
+        .map((doc) => (doc.data()['nomeGuerra'] ?? '').toString())
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
+  Future<void> loadLikeStatesForRecords(
+      String locationId, List<Map<String, dynamic>> records) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final futures = records.map((record) async {
+      final recordId = record['recordId'] as String?;
+      if (recordId == null) return;
+
+      final key = _likeKey(locationId, recordId);
+      if (_cachedLikeStates.containsKey(key)) return;
+
+      final likesRef = _firestore
+          .collection(_locationsCollection)
+          .doc(locationId)
+          .collection(_recordsSubcollection)
+          .doc(recordId)
+          .collection('likes');
+
+      final userLikeDoc = await likesRef.doc(uid).get();
+      _cachedLikeStates[key] = userLikeDoc.exists;
+
+      _cachedLikeCounts[key] = record['likeCount'] as int? ?? 0;
+
+      final likesSnapshot =
+          await likesRef.orderBy('timestamp', descending: true).limit(5).get();
+      _cachedLikerNames[key] = likesSnapshot.docs
+          .map((doc) => (doc.data()['nomeGuerra'] ?? '').toString())
+          .where((name) => name.isNotEmpty)
+          .toList();
+    });
+
+    await Future.wait(futures);
+    notifyListeners();
+  }
+
   /// Clears the selected location and returns to the list view.
   void clearSelection() {
     _selectedLocationId = null;
@@ -409,6 +554,9 @@ class NavSafetyController extends ChangeNotifier {
     _cachedHistory.clear();
     _cachedMyRecords = null;
     _cachedTotalRecordsCount = null;
+    _cachedLikeStates.clear();
+    _cachedLikeCounts.clear();
+    _cachedLikerNames.clear();
     _locationsWithLatestFetchTime = null;
     _myRecordsFetchTime = null;
     _totalCountFetchTime = null;

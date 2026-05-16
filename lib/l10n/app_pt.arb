@@ -452,5 +452,24 @@
   "notificationDialogBody": "Deseja receber notificações quando novos registros de profundidade forem adicionados?",
   "notificationDialogEnable": "Ativar",
   "notificationDialogNotNow": "Agora não",
-  "notificationsEnabled": "Notificações ativadas!"
+  "notificationsEnabled": "Notificações ativadas!",
+
+  "likedBy": "Curtido por {names}",
+  "@likedBy": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "andMore": "e mais {count}",
+  "@andMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "likeNotification": "{name} curtiu seu registro de profundidade",
+  "@likeNotification": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  }
 }

@@ -16,7 +16,7 @@ exports.onNewRecord = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(record.pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      const testEmails = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
+      const testEmails = ["gcbrgame@gmail.com"];
       if (testEmails.includes(pilotEmail)) {
         console.log("Skipping notifications for test account");
         return;

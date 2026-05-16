@@ -989,4 +989,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsEnabled => 'Notifications enabled!';
+
+  @override
+  String likedBy(String names) {
+    return 'Liked by $names';
+  }
+
+  @override
+  String andMore(int count) {
+    return 'and $count more';
+  }
+
+  @override
+  String likeNotification(String name) {
+    return '$name liked your depth record';
+  }
 }

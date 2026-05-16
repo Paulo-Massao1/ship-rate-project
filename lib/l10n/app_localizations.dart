@@ -1954,6 +1954,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Notificações ativadas!'**
   String get notificationsEnabled;
+
+  /// No description provided for @likedBy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Curtido por {names}'**
+  String likedBy(String names);
+
+  /// No description provided for @andMore.
+  ///
+  /// In pt, this message translates to:
+  /// **'e mais {count}'**
+  String andMore(int count);
+
+  /// No description provided for @likeNotification.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} curtiu seu registro de profundidade'**
+  String likeNotification(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

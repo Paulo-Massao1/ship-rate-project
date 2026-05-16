@@ -989,4 +989,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get notificationsEnabled => 'Notificações ativadas!';
+
+  @override
+  String likedBy(String names) {
+    return 'Curtido por $names';
+  }
+
+  @override
+  String andMore(int count) {
+    return 'e mais $count';
+  }
+
+  @override
+  String likeNotification(String name) {
+    return '$name curtiu seu registro de profundidade';
+  }
 }
