@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 const { transporter, smtpEmail } = require("../shared/mailer");
 
+const TEST_EMAILS = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
+
 exports.onNewRecord = functions.firestore
   .document("locais/{locationId}/registros/{registroId}")
   .onCreate(async (snap, context) => {
@@ -16,8 +18,7 @@ exports.onNewRecord = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(record.pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      const testEmails = ["gcbrgame@gmail.com"];
-      if (testEmails.includes(pilotEmail)) {
+      if (TEST_EMAILS.includes(pilotEmail)) {
         console.log("Skipping notifications for test account");
         return;
       }
@@ -52,7 +53,12 @@ exports.onNewRecord = functions.firestore
       const pilotEmail = record.email || "";
       const emails = usuariosSnapshot.docs
         .map((doc) => doc.data())
-        .filter((u) => u.email && u.emailNotifications !== false && u.email !== pilotEmail)
+        .filter((u) =>
+          u.email &&
+          u.emailNotifications !== false &&
+          u.email !== pilotEmail &&
+          !TEST_EMAILS.includes(u.email)
+        )
         .map((u) => u.email);
 
       if (emails.length > 0) {
@@ -112,6 +118,8 @@ exports.onNewRecord = functions.firestore
         const data = doc.data();
         // Skip the pilot who created the record
         if (doc.id === record.pilotId) return;
+        // Skip test accounts
+        if (TEST_EMAILS.includes(data.email)) return;
         // Skip users who disabled push notifications
         if (data.pushNotifications === false) return;
         // Collect valid tokens

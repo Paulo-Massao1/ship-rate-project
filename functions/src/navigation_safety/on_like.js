@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 
-const TEST_EMAILS = ["gcbrgame@gmail.com"];
+const TEST_EMAILS = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
 
 exports.onLikeCreated = functions.firestore
   .document("locais/{locationId}/registros/{recordId}/likes/{likeId}")
@@ -40,6 +40,13 @@ exports.onLikeCreated = functions.firestore
 
       if (pilotId === likeId) {
         console.log("Skipping: self-like");
+        return;
+      }
+
+      const likerDoc = await db.collection("usuarios").doc(likeId).get();
+      const likerData = likerDoc.data() || {};
+      if (TEST_EMAILS.includes(likerData.email)) {
+        console.log("Skipping: test account");
         return;
       }
 
@@ -92,7 +99,6 @@ exports.onLikeCreated = functions.firestore
       }
 
       let likerName = "";
-      const likerDoc = await db.collection("usuarios").doc(likeId).get();
       if (likerDoc.exists) {
         likerName = (likerDoc.data()?.nomeGuerra || "").trim();
       }

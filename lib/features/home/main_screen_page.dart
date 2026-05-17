@@ -8,10 +8,10 @@ import 'package:universal_html/html.dart' as html;
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../settings/settings_page.dart';
-import 'home_page.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
+import '../navigation_safety/nav_safety_page.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/version_service.dart';
 import '../../main.dart';
@@ -292,21 +292,21 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   child: Column(
                     children: [
                       _DrawerItem(
-                        icon: Icons.home,
-                        label: l10n.modules,
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (_) => const HomePage()),
-                            (_) => false,
-                          );
-                        },
+                        icon: Icons.directions_boat,
+                        label: l10n.shipRatingModule,
+                        isActive: true,
+                        onTap: () => Navigator.pop(context),
                       ),
                       _DrawerItem(
-                        icon: Icons.search,
-                        label: l10n.drawerSearchRate,
-                        onTap: () => Navigator.pop(context),
+                        icon: Icons.anchor,
+                        label: l10n.navSafetyModule,
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const NavSafetyPage()),
+                          );
+                        },
                       ),
                       _DrawerItem(
                         icon: Icons.assignment_turned_in_outlined,
@@ -547,23 +547,25 @@ class _DrawerItem extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final Color? color;
+  final bool isActive;
 
   const _DrawerItem({
     required this.icon,
     required this.label,
     required this.onTap,
     this.color,
+    this.isActive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textColor = color ?? const Color(0xD9FFFFFF);
-    final iconColor = color ?? Colors.white.withValues(alpha: 0.7);
+    final textColor = isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
+    final iconColor = isActive ? const Color(0xFF26A69A) : (color ?? Colors.white.withValues(alpha: 0.7));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
-        color: Colors.transparent,
+        color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,

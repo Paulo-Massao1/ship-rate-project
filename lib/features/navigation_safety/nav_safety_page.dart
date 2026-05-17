@@ -5,7 +5,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/nav_safety_controller.dart';
-import '../home/home_page.dart';
+import '../home/main_screen_page.dart';
 import '../settings/settings_page.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
@@ -191,21 +191,25 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   child: Column(
                     children: [
                       _buildDrawerItem(
-                        icon: Icons.home,
-                        label: l10n.modules,
+                        icon: Icons.directions_boat,
+                        label: l10n.shipRatingModule,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushAndRemoveUntil(
+                          Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const HomePage()),
-                            (_) => false,
+                            MaterialPageRoute(builder: (_) => const MainScreen()),
                           );
                         },
                       ),
                       _buildDrawerItem(
+                        icon: Icons.anchor,
+                        label: l10n.navSafetyModule,
+                        isActive: true,
+                        onTap: () => Navigator.pop(context),
+                      ),
+                      _buildDrawerItem(
                         icon: Icons.assignment_turned_in_outlined,
                         label: l10n.drawerMyRecords,
-                        color: const Color(0xFF26A69A),
                         onTap: () {
                           Navigator.pop(context);
                           _navigateToMyRecords();
@@ -260,14 +264,15 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     required String label,
     required VoidCallback onTap,
     Color? color,
+    bool isActive = false,
   }) {
-    final textColor = color ?? const Color(0xD9FFFFFF);
-    final iconColor = color ?? Colors.white.withValues(alpha: 0.7);
+    final textColor = isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
+    final iconColor = isActive ? const Color(0xFF26A69A) : (color ?? Colors.white.withValues(alpha: 0.7));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
-        color: Colors.transparent,
+        color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
@@ -444,6 +449,25 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   Widget _buildLocationCard(LocationWithLatestRecord loc, AppLocalizations l10n) {
+    final latestRecord = loc.latestRecord;
+    final latestRecordId = latestRecord?['recordId'] as String?;
+    final recordPilotId = latestRecord?['pilotId'] as String?;
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    final isOwnRecord = recordPilotId != null && recordPilotId == currentUid;
+    final liked = latestRecordId != null
+        ? _controller.hasUserLiked(loc.id, latestRecordId)
+        : false;
+    final serverLikeCount = latestRecord?['likeCount'] as int? ?? 0;
+    final cachedLikeCount = latestRecordId != null
+        ? _controller.getLikeCount(loc.id, latestRecordId)
+        : 0;
+    final likeCount =
+        cachedLikeCount > 0 ? cachedLikeCount : serverLikeCount;
+    final likerNames = latestRecordId != null
+        ? _controller.getLikerNames(loc.id, latestRecordId)
+        : const <String>[];
+    final likedByText = _formatLikedByText(likerNames, likeCount, l10n);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -511,6 +535,95 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                             color: Color(0x66FFFFFF),
                             fontSize: 11,
                           ),
+                        ),
+                      ],
+                      if (latestRecordId != null && (!isOwnRecord || likeCount > 0)) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            if (!isOwnRecord)
+                              GestureDetector(
+                                onTap: () {
+                                  _controller.toggleLike(loc.id, latestRecordId);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 2),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        liked
+                                            ? Icons.thumb_up
+                                            : Icons.thumb_up_outlined,
+                                        size: 16,
+                                        color: liked
+                                            ? const Color(0xFF26A69A)
+                                            : const Color(0x66FFFFFF),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '$likeCount',
+                                        style: const TextStyle(
+                                          color: Color(0x99FFFFFF),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (isOwnRecord && likeCount > 0)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.thumb_up,
+                                      size: 16,
+                                      color: Color(0xFF26A69A),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$likeCount',
+                                      style: const TextStyle(
+                                        color: Color(0x99FFFFFF),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            if (likedByText.isNotEmpty) ...[
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => _showLikersSheet(
+                                    loc.id,
+                                    latestRecordId,
+                                    l10n,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 2),
+                                    child: Text(
+                                      likedByText,
+                                      style: const TextStyle(
+                                        color: Color(0x99FFFFFF),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ],
@@ -606,13 +719,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final latestDepth = records.isNotEmpty
         ? _formatMeters(records.first['profundidadeTotal'])
         : '—';
-
-    if (records.isNotEmpty && _controller.selectedLocationId != null) {
-      _controller.loadLikeStatesForRecords(
-        _controller.selectedLocationId!,
-        records,
-      );
-    }
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -715,7 +821,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final likerNames = (locationId != null && recordId != null)
         ? _controller.getLikerNames(locationId, recordId)
         : <String>[];
-    final likeSummary = _formatInlineLikerSummary(likerNames, likeCount);
+    final likedByText = _formatLikedByText(likerNames, likeCount, l10n);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -857,7 +963,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                             ),
                           ),
                         ),
-                        if (likeSummary.isNotEmpty) ...[
+                        if (likedByText.isNotEmpty) ...[
                           const SizedBox(width: 10),
                           Expanded(
                             child: InkWell(
@@ -870,7 +976,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 2),
                                 child: Text(
-                                  likeSummary,
+                                  likedByText,
                                   style: const TextStyle(
                                     color: Color(0x99FFFFFF),
                                     fontSize: 12,
@@ -895,11 +1001,34 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
-  String _formatInlineLikerSummary(List<String> names, int totalCount) {
-    if (names.isEmpty) return '';
+  String _formatLikedByText(
+    List<String> names,
+    int totalCount,
+    AppLocalizations l10n,
+  ) {
+    if (names.isEmpty || totalCount <= 0) return '';
 
-    final displayNames = names.take(2).join(', ');
-    return totalCount > 2 ? '$displayNames...' : displayNames;
+    final visibleNames = names
+        .where((name) => name.trim().isNotEmpty)
+        .take(2)
+        .toList();
+    if (visibleNames.isEmpty) return '';
+
+    if (totalCount == 1 || visibleNames.length == 1) {
+      final remaining = totalCount - 1;
+      if (remaining > 0) {
+        return l10n.likedBy('${visibleNames.first} ${l10n.andMore(remaining)}');
+      }
+      return l10n.likedBy(visibleNames.first);
+    }
+
+    if (totalCount == 2) {
+      return l10n.likedBy('${visibleNames.first} e ${visibleNames.last}');
+    }
+
+    return l10n.likedBy(
+      '${visibleNames.first}, ${visibleNames.last} ${l10n.andMore(totalCount - 2)}',
+    );
   }
 
   Future<void> _showLikersSheet(

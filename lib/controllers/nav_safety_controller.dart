@@ -77,6 +77,7 @@ class NavSafetyController extends ChangeNotifier {
 
   List<Map<String, dynamic>> _locationRecords = [];
   List<Map<String, dynamic>> get locationRecords => _locationRecords;
+  String? _currentUserCallSign;
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -87,6 +88,7 @@ class NavSafetyController extends ChangeNotifier {
   Future<void> fetchLocationsWithLatestRecord() async {
     if (_cachedLocationsWithLatest != null && !_isCacheStale(_locationsWithLatestFetchTime)) {
       _locations = _cachedLocationsWithLatest!;
+      await loadLikeStatesForLatestLocations(_locations, notify: false);
       _isLoading = false;
       notifyListeners();
       return;
@@ -123,7 +125,10 @@ class NavSafetyController extends ChangeNotifier {
 
         Map<String, dynamic>? latestRecord;
         if (latestSnapshot.docs.isNotEmpty) {
-          latestRecord = latestSnapshot.docs.first.data();
+          latestRecord = {
+            ...latestSnapshot.docs.first.data(),
+            'recordId': latestSnapshot.docs.first.id,
+          };
         }
 
         return LocationWithLatestRecord(
@@ -144,6 +149,7 @@ class NavSafetyController extends ChangeNotifier {
         return a.name.compareTo(b.name);
       });
 
+      await loadLikeStatesForLatestLocations(_locations, notify: false);
       _cachedLocationsWithLatest = _locations;
       _locationsWithLatestFetchTime = DateTime.now();
     } catch (e) {
@@ -163,6 +169,7 @@ class NavSafetyController extends ChangeNotifier {
     if (_cachedHistory.containsKey(locationId) &&
         !_isCacheStale(_historyFetchTimes[locationId])) {
       _locationRecords = _cachedHistory[locationId]!;
+      await loadLikeStatesForRecords(locationId, _locationRecords, notify: false);
       _isLoadingHistory = false;
       notifyListeners();
       return;
@@ -185,6 +192,7 @@ class NavSafetyController extends ChangeNotifier {
                 'recordId': doc.id,
               })
           .toList();
+      await loadLikeStatesForRecords(locationId, _locationRecords, notify: false);
       _cachedHistory[locationId] = _locationRecords;
       _historyFetchTimes[locationId] = DateTime.now();
     } catch (e) {
@@ -294,10 +302,9 @@ class NavSafetyController extends ChangeNotifier {
     final liked = _cachedLikeStates[key] ?? false;
 
     if (liked) {
+      final userName = await _getCurrentUserCallSign();
       _cachedLikeStates[key] = false;
       _cachedLikeCounts[key] = ((_cachedLikeCounts[key] ?? 1) - 1).clamp(0, 999999);
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final userName = currentUser?.displayName ?? '';
       _cachedLikerNames[key]?.remove(userName);
       notifyListeners();
 
@@ -314,8 +321,7 @@ class NavSafetyController extends ChangeNotifier {
         debugPrint('[NavSafety] Error removing like: $e');
       }
     } else {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final nomeGuerra = currentUser?.displayName ?? '';
+      final nomeGuerra = await _getCurrentUserCallSign();
 
       _cachedLikeStates[key] = true;
       _cachedLikeCounts[key] = (_cachedLikeCounts[key] ?? 0) + 1;
@@ -365,14 +371,37 @@ class NavSafetyController extends ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .get();
 
-    return likesSnapshot.docs
-        .map((doc) => (doc.data()['nomeGuerra'] ?? '').toString())
-        .where((name) => name.isNotEmpty)
-        .toList();
+    return _resolveLikeNames(likesSnapshot.docs);
+  }
+
+  Future<void> loadLikeStatesForLatestLocations(
+    List<LocationWithLatestRecord> locations,
+    {bool notify = true}
+  ) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final futures = locations.map((loc) async {
+      final latestRecord = loc.latestRecord;
+      final recordId = latestRecord?['recordId'] as String?;
+      if (recordId == null) return;
+
+      final serverLikeCount = latestRecord?['likeCount'] as int? ?? 0;
+      await _loadLikeStateForRecord(
+        uid: uid,
+        locationId: loc.id,
+        recordId: recordId,
+        serverLikeCount: serverLikeCount,
+      );
+    });
+
+    await Future.wait(futures);
+    if (notify) notifyListeners();
   }
 
   Future<void> loadLikeStatesForRecords(
-      String locationId, List<Map<String, dynamic>> records) async {
+      String locationId, List<Map<String, dynamic>> records,
+      {bool notify = true}) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
@@ -380,31 +409,17 @@ class NavSafetyController extends ChangeNotifier {
       final recordId = record['recordId'] as String?;
       if (recordId == null) return;
 
-      final key = _likeKey(locationId, recordId);
-      if (_cachedLikeStates.containsKey(key)) return;
-
-      final likesRef = _firestore
-          .collection(_locationsCollection)
-          .doc(locationId)
-          .collection(_recordsSubcollection)
-          .doc(recordId)
-          .collection('likes');
-
-      final userLikeDoc = await likesRef.doc(uid).get();
-      _cachedLikeStates[key] = userLikeDoc.exists;
-
-      _cachedLikeCounts[key] = record['likeCount'] as int? ?? 0;
-
-      final likesSnapshot =
-          await likesRef.orderBy('timestamp', descending: true).limit(5).get();
-      _cachedLikerNames[key] = likesSnapshot.docs
-          .map((doc) => (doc.data()['nomeGuerra'] ?? '').toString())
-          .where((name) => name.isNotEmpty)
-          .toList();
+      final serverLikeCount = record['likeCount'] as int? ?? 0;
+      await _loadLikeStateForRecord(
+        uid: uid,
+        locationId: locationId,
+        recordId: recordId,
+        serverLikeCount: serverLikeCount,
+      );
     });
 
     await Future.wait(futures);
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   /// Clears the selected location and returns to the list view.
@@ -540,6 +555,89 @@ class NavSafetyController extends ChangeNotifier {
   bool _isCacheStale(DateTime? fetchTime) {
     if (fetchTime == null) return true;
     return DateTime.now().difference(fetchTime) > _cacheStaleThreshold;
+  }
+
+  Future<String> _getCurrentUserCallSign() async {
+    if (_currentUserCallSign != null && _currentUserCallSign!.isNotEmpty) {
+      return _currentUserCallSign!;
+    }
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return '';
+
+    final authDisplayName = (currentUser.displayName ?? '').trim();
+
+    try {
+      final userDoc = await _firestore
+          .collection('usuarios')
+          .doc(currentUser.uid)
+          .get();
+      final firestoreName = (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
+      _currentUserCallSign =
+          firestoreName.isNotEmpty ? firestoreName : authDisplayName;
+    } catch (_) {
+      _currentUserCallSign = authDisplayName;
+    }
+
+    return _currentUserCallSign ?? '';
+  }
+
+  Future<List<String>> _resolveLikeNames(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> likeDocs,
+  ) async {
+    final names = await Future.wait(
+      likeDocs.map((doc) => _resolveLikeName(doc)),
+    );
+
+    return names.where((name) => name.isNotEmpty).toList();
+  }
+
+  Future<String> _resolveLikeName(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+  ) async {
+    final storedName = (doc.data()['nomeGuerra'] ?? '').toString().trim();
+    if (storedName.isNotEmpty) return storedName;
+
+    try {
+      final userDoc = await _firestore.collection('usuarios').doc(doc.id).get();
+      final fallbackName = (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
+      if (fallbackName.isNotEmpty) {
+        await doc.reference.set({
+          'nomeGuerra': fallbackName,
+        }, SetOptions(merge: true));
+      }
+      return fallbackName;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<void> _loadLikeStateForRecord({
+    required String uid,
+    required String locationId,
+    required String recordId,
+    required int serverLikeCount,
+  }) async {
+    final key = _likeKey(locationId, recordId);
+    final shouldRefresh = !_cachedLikeStates.containsKey(key) ||
+        _cachedLikeCounts[key] != serverLikeCount ||
+        (serverLikeCount > 0 && (_cachedLikerNames[key]?.isEmpty ?? true));
+    if (!shouldRefresh) return;
+
+    final likesRef = _firestore
+        .collection(_locationsCollection)
+        .doc(locationId)
+        .collection(_recordsSubcollection)
+        .doc(recordId)
+        .collection('likes');
+
+    final userLikeDoc = await likesRef.doc(uid).get();
+    _cachedLikeStates[key] = userLikeDoc.exists;
+    _cachedLikeCounts[key] = serverLikeCount;
+
+    final likesSnapshot =
+        await likesRef.orderBy('timestamp', descending: true).limit(5).get();
+    _cachedLikerNames[key] = await _resolveLikeNames(likesSnapshot.docs);
   }
 
   /// Clears all static cached data. Call on logout to prevent cross-session leaks.

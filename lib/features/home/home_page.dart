@@ -511,10 +511,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   child: Column(
                     children: [
                       _DrawerItem(
-                        icon: Icons.home,
-                        label: l10n.modules,
-                        onTap: () => Navigator.pop(context),
+                        icon: Icons.directions_boat,
+                        label: l10n.shipRatingModule,
+                        isActive: false,
+                        onTap: () {
+                          Navigator.pop(context);
+                          _navigateToShipRating();
+                        },
                       ),
+                      if (!_isCspam)
+                        _DrawerItem(
+                          icon: Icons.anchor,
+                          label: l10n.navSafetyModule,
+                          color: const Color(0xFF26A69A),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _navigateToNavSafety();
+                          },
+                        ),
                       const Spacer(),
                       Container(
                         decoration: const BoxDecoration(
@@ -686,23 +700,25 @@ class _DrawerItem extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final Color? color;
+  final bool isActive;
 
   const _DrawerItem({
     required this.icon,
     required this.label,
     required this.onTap,
     this.color,
+    this.isActive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textColor = color ?? const Color(0xD9FFFFFF);
-    final iconColor = color ?? Colors.white.withValues(alpha: 0.7);
+    final textColor = isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
+    final iconColor = isActive ? const Color(0xFF26A69A) : (color ?? Colors.white.withValues(alpha: 0.7));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
-        color: Colors.transparent,
+        color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
