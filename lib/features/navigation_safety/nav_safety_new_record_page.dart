@@ -98,11 +98,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   late Animation<double> _arrowAnim;
   final _latDegController = TextEditingController();
   final _latMinController = TextEditingController();
-  final _latSecController = TextEditingController();
   String _latHemisphere = 'S';
   final _lonDegController = TextEditingController();
   final _lonMinController = TextEditingController();
-  final _lonSecController = TextEditingController();
   String _lonHemisphere = 'W';
 
   // Observations
@@ -181,16 +179,24 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (d['latitude'] is Map) {
         final lat = d['latitude'] as Map;
         _latDegController.text = (lat['graus'] ?? '').toString();
-        _latMinController.text = (lat['minutos'] ?? '').toString();
-        _latSecController.text = (lat['segundos'] ?? '').toString();
+        final latMin = (lat['minutos'] is num) ? (lat['minutos'] as num).toDouble() : (double.tryParse(lat['minutos']?.toString() ?? '') ?? 0.0);
+        final latSec = double.tryParse(lat['segundos']?.toString() ?? '') ?? 0.0;
+        final latDecimalMin = latSec > 0 ? latMin + (latSec / 60.0) : latMin;
+        _latMinController.text = latDecimalMin == latDecimalMin.truncateToDouble()
+            ? latDecimalMin.toInt().toString()
+            : latDecimalMin.toStringAsFixed(1);
         _latHemisphere = (lat['hemisferio'] ?? 'S').toString();
       }
       // Longitude
       if (d['longitude'] is Map) {
         final lon = d['longitude'] as Map;
         _lonDegController.text = (lon['graus'] ?? '').toString();
-        _lonMinController.text = (lon['minutos'] ?? '').toString();
-        _lonSecController.text = (lon['segundos'] ?? '').toString();
+        final lonMin = (lon['minutos'] is num) ? (lon['minutos'] as num).toDouble() : (double.tryParse(lon['minutos']?.toString() ?? '') ?? 0.0);
+        final lonSec = double.tryParse(lon['segundos']?.toString() ?? '') ?? 0.0;
+        final lonDecimalMin = lonSec > 0 ? lonMin + (lonSec / 60.0) : lonMin;
+        _lonMinController.text = lonDecimalMin == lonDecimalMin.truncateToDouble()
+            ? lonDecimalMin.toInt().toString()
+            : lonDecimalMin.toStringAsFixed(1);
         _lonHemisphere = (lon['hemisferio'] ?? 'W').toString();
       }
       // Observations
@@ -215,10 +221,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     _speedController.dispose();
     _latDegController.dispose();
     _latMinController.dispose();
-    _latSecController.dispose();
     _lonDegController.dispose();
     _lonMinController.dispose();
-    _lonSecController.dispose();
     _observationsController.dispose();
     super.dispose();
   }
@@ -350,14 +354,12 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           _lonDegController.text.isNotEmpty) {
         data['latitude'] = {
           'graus': int.tryParse(_latDegController.text) ?? 0,
-          'minutos': int.tryParse(_latMinController.text) ?? 0,
-          'segundos': _latSecController.text.trim(),
+          'minutos': double.tryParse(_latMinController.text) ?? 0.0,
           'hemisferio': _latHemisphere,
         };
         data['longitude'] = {
           'graus': int.tryParse(_lonDegController.text) ?? 0,
-          'minutos': int.tryParse(_lonMinController.text) ?? 0,
-          'segundos': _lonSecController.text.trim(),
+          'minutos': double.tryParse(_lonMinController.text) ?? 0.0,
           'hemisferio': _lonHemisphere,
         };
       }
@@ -1146,7 +1148,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _buildCoordRow(
                     degController: _latDegController,
                     minController: _latMinController,
-                    secController: _latSecController,
                     degDigits: 2,
                     hemisphere: _latHemisphere,
                     hemisphereOptions: const ['N', 'S'],
@@ -1160,7 +1161,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _buildCoordRow(
                     degController: _lonDegController,
                     minController: _lonMinController,
-                    secController: _lonSecController,
                     degDigits: 3,
                     hemisphere: _lonHemisphere,
                     hemisphereOptions: const ['W', 'E'],
@@ -1178,7 +1178,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   Widget _buildCoordRow({
     required TextEditingController degController,
     required TextEditingController minController,
-    required TextEditingController secController,
     required int degDigits,
     required String hemisphere,
     required List<String> hemisphereOptions,
@@ -1189,11 +1188,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         _buildCoordField(degController, degDigits, 48),
         const Text(' \u00B0 ',
             style: TextStyle(color: _textSecondary, fontSize: 16)),
-        _buildCoordField(minController, 2, 42),
+        _buildCoordField(minController, 6, 72),
         const Text(" \u2032 ",
-            style: TextStyle(color: _textSecondary, fontSize: 16)),
-        _buildCoordField(secController, 5, 64),
-        const Text(' \u2033 ',
             style: TextStyle(color: _textSecondary, fontSize: 16)),
         const SizedBox(width: 4),
         ...hemisphereOptions.map((opt) => Padding(

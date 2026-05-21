@@ -5,8 +5,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/nav_safety_controller.dart';
-import '../home/main_screen_page.dart';
-import '../settings/settings_page.dart';
+import '../../shared/widgets/app_drawer.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
 import 'nav_safety_record_detail_page.dart';
@@ -94,11 +93,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     });
   }
 
-  Future<void> _handleLogout() async {
-    NavSafetyController.clearAllCaches();
-    await FirebaseAuth.instance.signOut();
-  }
-
   // ===========================================================================
   // BUILD
   // ===========================================================================
@@ -109,7 +103,19 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
     return Scaffold(
       appBar: _buildAppBar(l10n),
-      drawer: _buildDrawer(l10n),
+      drawer: AppDrawer(
+        currentScreen: AppScreen.navSafety,
+        additionalItems: [
+          DrawerItem(
+            icon: Icons.assignment_turned_in_outlined,
+            label: l10n.drawerMyRecords,
+            onTap: () {
+              Navigator.pop(context);
+              _navigateToMyRecords();
+            },
+          ),
+        ],
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -125,174 +131,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
               children: [
                 _buildTabPills(l10n),
                 Expanded(child: _buildBody(l10n)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawer(AppLocalizations l10n) {
-    return Drawer(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
-                    stops: [0.0, 0.5, 1.0],
-                  ),
-                  border: Border(bottom: BorderSide(color: Color(0x2664B5F6), width: 1)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0x2626A69A),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.anchor, size: 32, color: Color(0xFF26A69A)),
-                    ),
-                    const SizedBox(height: 14),
-                    Text(
-                      l10n.navSafetyModule,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      _buildDrawerItem(
-                        icon: Icons.directions_boat,
-                        label: l10n.shipRatingModule,
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const MainScreen()),
-                          );
-                        },
-                      ),
-                      _buildDrawerItem(
-                        icon: Icons.anchor,
-                        label: l10n.navSafetyModule,
-                        isActive: true,
-                        onTap: () => Navigator.pop(context),
-                      ),
-                      _buildDrawerItem(
-                        icon: Icons.assignment_turned_in_outlined,
-                        label: l10n.drawerMyRecords,
-                        onTap: () {
-                          Navigator.pop(context);
-                          _navigateToMyRecords();
-                        },
-                      ),
-                      const Spacer(),
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0x1A64B5F6),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildDrawerItem(
-                              icon: Icons.settings,
-                              label: l10n.settings,
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const SettingsPage()),
-                                );
-                              },
-                            ),
-                            _buildDrawerItem(
-                              icon: Icons.logout,
-                              label: l10n.drawerLogout,
-                              color: const Color(0xFFEF5350),
-                              onTap: _handleLogout,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? color,
-    bool isActive = false,
-  }) {
-    final textColor = isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
-    final iconColor = isActive ? const Color(0xFF26A69A) : (color ?? Colors.white.withValues(alpha: 0.7));
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Material(
-        color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          hoverColor: const Color(0x1A64B5F6),
-          splashColor: const Color(0x1A64B5F6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-            child: Row(
-              children: [
-                Icon(icon, color: iconColor, size: 22),
-                const SizedBox(width: 16),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                    fontSize: 14,
-                  ),
-                ),
               ],
             ),
           ),

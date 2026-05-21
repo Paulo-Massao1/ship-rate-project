@@ -1,8 +1,6 @@
 const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
-
-const TEST_EMAILS = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
-const CSPAM_UID = "vvmd4t7NHgYEiRbE3aPPcyGscdq1";
+const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
 const INACTIVITY_DAYS = 90;
 const REMINDER_COOLDOWN_DAYS = 30;
 

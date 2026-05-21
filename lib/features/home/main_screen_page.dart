@@ -5,15 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import 'package:universal_html/html.dart' as html;
 
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../settings/settings_page.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
-import '../navigation_safety/nav_safety_page.dart';
-import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/version_service.dart';
+import '../../shared/widgets/app_drawer.dart';
 import '../../main.dart';
 
 /// Main screen of the ShipRate application.
@@ -46,8 +42,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   static const _shareUrl = 'https://shiprate-daf18.web.app/';
   static const _shareText =
-      'Conheça o ShipRate! O app de avaliação profissional de navios para práticos. '
-      'Acesse: $_shareUrl';
+      'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar '
+      'profundidades dos trechos navegados. Baixe aqui: $_shareUrl';
 
   // ===========================================================================
   // STATE
@@ -111,11 +107,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             l10n.updateAvailable;
       });
     }
-  }
-
-  Future<void> _handleLogout() async {
-    NavSafetyController.clearAllCaches();
-    await FirebaseAuth.instance.signOut();
   }
 
   /// Toggles between PT and EN locales.
@@ -200,7 +191,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      drawer: _buildDrawer(),
+      drawer: _buildDrawer(context),
       body: Column(
         children: [
           _buildUpdateBanner(),
@@ -264,188 +255,37 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Drawer(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0A1628),
-              Color(0xFF0D2137),
-            ],
-          ),
+    return AppDrawer(
+      currentScreen: AppScreen.shipRating,
+      headerOverlayPainter: _LinePatternPainter(opacity: 0.04),
+      additionalItems: [
+        DrawerItem(
+          icon: Icons.assignment_turned_in_outlined,
+          label: l10n.drawerMyRatings,
+          onTap: _navigateToMyRatings,
         ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildDrawerHeader(),
-              const SizedBox(height: 12),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      _DrawerItem(
-                        icon: Icons.directions_boat,
-                        label: l10n.shipRatingModule,
-                        isActive: true,
-                        onTap: () => Navigator.pop(context),
-                      ),
-                      _DrawerItem(
-                        icon: Icons.anchor,
-                        label: l10n.navSafetyModule,
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const NavSafetyPage()),
-                          );
-                        },
-                      ),
-                      _DrawerItem(
-                        icon: Icons.assignment_turned_in_outlined,
-                        label: l10n.drawerMyRatings,
-                        onTap: _navigateToMyRatings,
-                      ),
-                      _DrawerItem(
-                        icon: Icons.lightbulb_outline,
-                        label: l10n.drawerSendSuggestion,
-                        onTap: _navigateToSuggestions,
-                      ),
-                      _DrawerItem(
-                        icon: Icons.share,
-                        label: l10n.drawerShareApp,
-                        onTap: () {
-                          Navigator.pop(context);
-                          _shareApp();
-                        },
-                      ),
-                      _DrawerItem(
-                        icon: Icons.language,
-                        label: localeController.locale.languageCode == 'pt'
-                            ? 'English'
-                            : 'Português',
-                        onTap: _toggleLocale,
-                      ),
-                      const Spacer(),
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0x1A64B5F6),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            _DrawerItem(
-                              icon: Icons.settings,
-                              label: l10n.settings,
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const SettingsPage()),
-                                );
-                              },
-                            ),
-                            _DrawerItem(
-                              icon: Icons.logout,
-                              label: l10n.drawerLogout,
-                              color: const Color(0xFFEF5350),
-                              onTap: _handleLogout,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+        DrawerItem(
+          icon: Icons.lightbulb_outline,
+          label: l10n.drawerSendSuggestion,
+          onTap: _navigateToSuggestions,
         ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerHeader() {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Stack(
-      children: [
-        // Gradient background
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF0A1628),
-                Color(0xFF1A3A5C),
-                Color(0xFF0D2137),
-              ],
-              stops: [0.0, 0.5, 1.0],
-            ),
-            border: Border(
-              bottom: BorderSide(
-                color: Color(0x2664B5F6),
-                width: 1,
-              ),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ship icon in rounded container
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0x2664B5F6),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.directions_boat,
-                  size: 32,
-                  color: Color(0xFF64B5F6),
-                ),
-              ),
-              const SizedBox(height: 14),
-              const Text(
-                'ShipRate',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                l10n.appSubtitle,
-                style: const TextStyle(
-                  color: Color(0xB364B5F6),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
+        DrawerItem(
+          icon: Icons.share,
+          label: l10n.drawerShareApp,
+          onTap: () {
+            Navigator.pop(context);
+            _shareApp();
+          },
         ),
-        // Subtle horizontal line texture
-        Positioned.fill(
-          child: CustomPaint(
-            painter: _LinePatternPainter(opacity: 0.04),
-          ),
+        DrawerItem(
+          icon: Icons.language,
+          label: localeController.locale.languageCode == 'pt'
+              ? 'English'
+              : 'Português',
+          onTap: _toggleLocale,
         ),
       ],
     );
@@ -540,60 +380,6 @@ class _LinePatternPainter extends CustomPainter {
 // =============================================================================
 // PRIVATE WIDGETS
 // =============================================================================
-
-/// Drawer navigation item widget with deep ocean theme.
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color? color;
-  final bool isActive;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.color,
-    this.isActive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
-    final iconColor = isActive ? const Color(0xFF26A69A) : (color ?? Colors.white.withValues(alpha: 0.7));
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Material(
-        color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(10),
-          hoverColor: const Color(0x1A64B5F6),
-          splashColor: const Color(0x1A64B5F6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-            child: Row(
-              children: [
-                Icon(icon, color: iconColor, size: 22),
-                const SizedBox(width: 16),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// Share bottom sheet widget.
 class _ShareBottomSheet extends StatelessWidget {

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../core/constants.dart';
 import '../data/services/medias_calculator.dart';
 
 /// Controller responsible for ship rating business logic.
@@ -45,15 +46,6 @@ class RatingController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  /// Firestore collection names.
-  static const String _shipsCollection = 'navios';
-  static const String _usersCollection = 'usuarios';
-  static const String _ratingsSubcollection = 'avaliacoes';
-
-  // ===========================================================================
   // PUBLIC METHODS
   // ===========================================================================
 
@@ -67,7 +59,7 @@ class RatingController {
   /// // ['MSC Divina', 'MSC Opera', '9876543', ...]
   /// ```
   Future<List<String>> loadShips() async {
-    final snapshot = await _firestore.collection(_shipsCollection).get();
+    final snapshot = await _firestore.collection(AppConstants.shipsCollection).get();
     final names = <String>{};
 
     for (final doc in snapshot.docs) {
@@ -133,7 +125,7 @@ class RatingController {
     // Find or create ship
     final DocumentReference<Map<String, dynamic>> shipRef;
     if (existingShipId != null) {
-      shipRef = _firestore.collection(_shipsCollection).doc(existingShipId);
+      shipRef = _firestore.collection(AppConstants.shipsCollection).doc(existingShipId);
       // Update IMO if user provided one for a ship that didn't have it
       if (normalizedImo.isNotEmpty) {
         await shipRef.update({'imo': normalizedImo});
@@ -151,7 +143,7 @@ class RatingController {
     final normalizedBridgeInfo = _normalizeBridgeInfo(infoPassadico);
 
     // Save rating
-    await shipRef.collection(_ratingsSubcollection).add({
+    await shipRef.collection(AppConstants.ratingsSubcollection).add({
       'usuarioId': userId,
       'nomeGuerra': callSign,
       'dataDesembarque': Timestamp.fromDate(dataDesembarque),
@@ -184,7 +176,7 @@ class RatingController {
     String name,
     String imo,
   ) async {
-    final shipsRef = _firestore.collection(_shipsCollection);
+    final shipsRef = _firestore.collection(AppConstants.shipsCollection);
 
     // Search by IMO first (more reliable), then by name
     QuerySnapshot<Map<String, dynamic>> query;
@@ -201,7 +193,7 @@ class RatingController {
 
       // If the found ship is merged, follow the mergedInto reference
       if (data['merged'] == true && data['mergedInto'] != null) {
-        return _firestore.collection(_shipsCollection).doc(data['mergedInto']);
+        return _firestore.collection(AppConstants.shipsCollection).doc(data['mergedInto']);
       }
       return doc.reference;
     }
@@ -221,7 +213,7 @@ class RatingController {
   /// Gets user's call sign from Firestore.
   Future<String> _getUserCallSign(String userId) async {
     final userSnapshot =
-        await _firestore.collection(_usersCollection).doc(userId).get();
+        await _firestore.collection(AppConstants.usersCollection).doc(userId).get();
     return userSnapshot.data()?['nomeGuerra'] ?? 'Prático';
   }
 
@@ -320,7 +312,7 @@ class RatingController {
   Future<void> _updateAverages(
     DocumentReference<Map<String, dynamic>> shipRef,
   ) async {
-    final snapshot = await shipRef.collection(_ratingsSubcollection).get();
+    final snapshot = await shipRef.collection(AppConstants.ratingsSubcollection).get();
     if (snapshot.docs.isEmpty) return;
 
     final averages =

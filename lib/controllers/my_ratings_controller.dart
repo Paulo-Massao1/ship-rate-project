@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/constants.dart';
 import '../../data/services/medias_calculator.dart';
 import '../../data/services/pdf_service.dart';
 
@@ -19,14 +20,6 @@ class MyRatingsController {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  static const String _shipsCollection = 'navios';
-  static const String _usersCollection = 'usuarios';
-  static const String _ratingsSubcollection = 'avaliacoes';
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -51,12 +44,12 @@ class MyRatingsController {
     final callSign = await _getUserCallSign(userId);
     final results = <RatingWithShipInfo>[];
 
-    final shipsSnapshot = await _firestore.collection(_shipsCollection).get();
+    final shipsSnapshot = await _firestore.collection(AppConstants.shipsCollection).get();
 
     // Fetch all ship ratings in parallel (same pattern as DashboardController)
     final ratingsFutures = shipsSnapshot.docs.map((ship) {
       return ship.reference
-          .collection(_ratingsSubcollection)
+          .collection(AppConstants.ratingsSubcollection)
           .get()
           .then((snapshot) => _ShipRatingsResult(ship: ship, ratings: snapshot))
           .catchError((e) {
@@ -105,7 +98,7 @@ class MyRatingsController {
 
     // Check remaining ratings
     final remainingRatings =
-        await shipRef.collection(_ratingsSubcollection).get();
+        await shipRef.collection(AppConstants.ratingsSubcollection).get();
 
     if (remainingRatings.docs.isEmpty) {
       // No ratings left — delete the ship document
@@ -214,7 +207,7 @@ class MyRatingsController {
 
   Future<String?> _getUserCallSign(String userId) async {
     final userSnapshot =
-        await _firestore.collection(_usersCollection).doc(userId).get();
+        await _firestore.collection(AppConstants.usersCollection).doc(userId).get();
 
     if (!userSnapshot.exists) {
       throw Exception('User data not found');

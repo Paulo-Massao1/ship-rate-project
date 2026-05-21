@@ -326,7 +326,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareText.
   ///
   /// In pt, this message translates to:
-  /// **'Conheça o ShipRate! O app de avaliação profissional de navios para práticos. Acesse: https://shiprate-daf18.web.app/'**
+  /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app'**
   String get shareText;
 
   /// No description provided for @shipRatingTitle.

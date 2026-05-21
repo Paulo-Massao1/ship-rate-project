@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import '../core/constants.dart';
 import 'nav_safety_controller.dart';
 
 /// Controller responsible for authentication and user management.
@@ -22,12 +23,6 @@ class AuthController {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  static const String _usersCollection = 'usuarios';
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -139,7 +134,7 @@ class AuthController {
 
   /// Saves user data to Firestore.
   Future<void> _saveUserData(String uid, String email, String callSign) async {
-    await _firestore.collection(_usersCollection).doc(uid).set({
+    await _firestore.collection(AppConstants.usersCollection).doc(uid).set({
       'email': email,
       'nomeGuerra': callSign,
       'createdAt': FieldValue.serverTimestamp(),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/constants.dart';
 import '../data/services/image_upload_service.dart';
 
 /// Controller for the Navigation Safety module.
@@ -18,8 +19,6 @@ class NavSafetyController extends ChangeNotifier {
   // CONSTANTS
   // ===========================================================================
 
-  static const String _locationsCollection = 'locais';
-  static const String _recordsSubcollection = 'registros';
   static const Duration _cacheStaleThreshold = Duration(seconds: 30);
 
   // ===========================================================================
@@ -101,7 +100,7 @@ class NavSafetyController extends ChangeNotifier {
       // Fetch location documents (or use cache)
       if (_cachedLocationDocs == null) {
         final snapshot = await _firestore
-            .collection(_locationsCollection)
+            .collection(AppConstants.locationsCollection)
             .orderBy('nome')
             .get();
 
@@ -116,9 +115,9 @@ class NavSafetyController extends ChangeNotifier {
       // Fetch latest record for each location in parallel
       final futures = _cachedLocationDocs!.map((loc) async {
         final latestSnapshot = await _firestore
-            .collection(_locationsCollection)
+            .collection(AppConstants.locationsCollection)
             .doc(loc.id)
-            .collection(_recordsSubcollection)
+            .collection(AppConstants.recordsSubcollection)
             .orderBy('data', descending: true)
             .limit(1)
             .get();
@@ -180,9 +179,9 @@ class NavSafetyController extends ChangeNotifier {
 
     try {
       final snapshot = await _firestore
-          .collection(_locationsCollection)
+          .collection(AppConstants.locationsCollection)
           .doc(locationId)
-          .collection(_recordsSubcollection)
+          .collection(AppConstants.recordsSubcollection)
           .orderBy('data', descending: true)
           .get();
 
@@ -215,7 +214,7 @@ class NavSafetyController extends ChangeNotifier {
       payload['createdBy'] = createdBy;
     }
 
-    final doc = await _firestore.collection(_locationsCollection).add(payload);
+    final doc = await _firestore.collection(AppConstants.locationsCollection).add(payload);
     debugPrint('[NavSafety] addLocation OK → docId=${doc.id}');
     _invalidateAllCaches();
     return doc.id;
@@ -226,7 +225,7 @@ class NavSafetyController extends ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (uid.isEmpty) return;
 
-    final locationRef = _firestore.collection(_locationsCollection).doc(locationId);
+    final locationRef = _firestore.collection(AppConstants.locationsCollection).doc(locationId);
     final snapshot = await locationRef.get();
     final data = snapshot.data();
     if (data == null) return;
@@ -235,7 +234,7 @@ class NavSafetyController extends ChangeNotifier {
     if (createdBy != uid) return;
 
     final remainingRecords =
-        await locationRef.collection(_recordsSubcollection).limit(1).get();
+        await locationRef.collection(AppConstants.recordsSubcollection).limit(1).get();
     if (remainingRecords.docs.isNotEmpty) return;
 
     await locationRef.delete();
@@ -248,9 +247,9 @@ class NavSafetyController extends ChangeNotifier {
     debugPrint('[NavSafety] saveRecord → locationId=$locationId, keys=${data.keys.toList()}');
     try {
       final docRef = await _firestore
-          .collection(_locationsCollection)
+          .collection(AppConstants.locationsCollection)
           .doc(locationId)
-          .collection(_recordsSubcollection)
+          .collection(AppConstants.recordsSubcollection)
           .add(data);
       debugPrint('[NavSafety] saveRecord OK → docId=${docRef.id}');
       _invalidateAllCaches();
@@ -265,7 +264,7 @@ class NavSafetyController extends ChangeNotifier {
     if (_cachedLocationDocs != null) return _cachedLocationDocs!;
 
     final snapshot = await _firestore
-        .collection(_locationsCollection)
+        .collection(AppConstants.locationsCollection)
         .orderBy('nome')
         .get();
 
@@ -292,11 +291,11 @@ class NavSafetyController extends ChangeNotifier {
 
     final key = _likeKey(locationId, recordId);
     final likeRef = _firestore
-        .collection(_locationsCollection)
+        .collection(AppConstants.locationsCollection)
         .doc(locationId)
-        .collection(_recordsSubcollection)
+        .collection(AppConstants.recordsSubcollection)
         .doc(recordId)
-        .collection('likes')
+        .collection(AppConstants.likesSubcollection)
         .doc(uid);
 
     final liked = _cachedLikeStates[key] ?? false;
@@ -363,11 +362,11 @@ class NavSafetyController extends ChangeNotifier {
     String recordId,
   ) async {
     final likesSnapshot = await _firestore
-        .collection(_locationsCollection)
+        .collection(AppConstants.locationsCollection)
         .doc(locationId)
-        .collection(_recordsSubcollection)
+        .collection(AppConstants.recordsSubcollection)
         .doc(recordId)
-        .collection('likes')
+        .collection(AppConstants.likesSubcollection)
         .orderBy('timestamp', descending: true)
         .get();
 
@@ -444,7 +443,7 @@ class NavSafetyController extends ChangeNotifier {
     try {
       // Single collection group query instead of N+1 queries
       final recordsSnapshot = await _firestore
-          .collectionGroup(_recordsSubcollection)
+          .collectionGroup(AppConstants.recordsSubcollection)
           .where('pilotId', isEqualTo: uid)
           .orderBy('data', descending: true)
           .get();
@@ -487,7 +486,7 @@ class NavSafetyController extends ChangeNotifier {
 
     try {
       final countSnapshot = await _firestore
-          .collectionGroup(_recordsSubcollection)
+          .collectionGroup(AppConstants.recordsSubcollection)
           .count()
           .get();
       _cachedTotalRecordsCount = countSnapshot.count ?? 0;
@@ -503,9 +502,9 @@ class NavSafetyController extends ChangeNotifier {
   Future<void> updateRecord(
       String locationId, String recordId, Map<String, dynamic> data) async {
     await _firestore
-        .collection(_locationsCollection)
+        .collection(AppConstants.locationsCollection)
         .doc(locationId)
-        .collection(_recordsSubcollection)
+        .collection(AppConstants.recordsSubcollection)
         .doc(recordId)
         .update(data);
     _invalidateAllCaches();
@@ -516,12 +515,12 @@ class NavSafetyController extends ChangeNotifier {
   Future<void> deleteRecord(String locationId, String recordId) async {
     debugPrint('[NavSafety] deleteRecord → locationId=$locationId, recordId=$recordId');
     final locationRef =
-        _firestore.collection(_locationsCollection).doc(locationId);
+        _firestore.collection(AppConstants.locationsCollection).doc(locationId);
 
-    final recordDoc = await locationRef.collection(_recordsSubcollection).doc(recordId).get();
+    final recordDoc = await locationRef.collection(AppConstants.recordsSubcollection).doc(recordId).get();
     final imageUrls = List<String>.from(recordDoc.data()?['imageUrls'] ?? []);
 
-    await locationRef.collection(_recordsSubcollection).doc(recordId).delete();
+    await locationRef.collection(AppConstants.recordsSubcollection).doc(recordId).delete();
     debugPrint('[NavSafety] deleteRecord → record deleted from Firestore');
 
     if (imageUrls.isNotEmpty) {
@@ -536,7 +535,7 @@ class NavSafetyController extends ChangeNotifier {
     final locationSnapshot = await locationRef.get();
     final locationData = locationSnapshot.data();
     final remainingRecords =
-        await locationRef.collection(_recordsSubcollection).limit(1).get();
+        await locationRef.collection(AppConstants.recordsSubcollection).limit(1).get();
 
     if ((locationData?['createdBy'] as String?)?.isNotEmpty == true &&
         remainingRecords.docs.isEmpty) {
@@ -569,7 +568,7 @@ class NavSafetyController extends ChangeNotifier {
 
     try {
       final userDoc = await _firestore
-          .collection('usuarios')
+          .collection(AppConstants.usersCollection)
           .doc(currentUser.uid)
           .get();
       final firestoreName = (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
@@ -599,7 +598,7 @@ class NavSafetyController extends ChangeNotifier {
     if (storedName.isNotEmpty) return storedName;
 
     try {
-      final userDoc = await _firestore.collection('usuarios').doc(doc.id).get();
+      final userDoc = await _firestore.collection(AppConstants.usersCollection).doc(doc.id).get();
       final fallbackName = (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
       if (fallbackName.isNotEmpty) {
         await doc.reference.set({
@@ -625,11 +624,11 @@ class NavSafetyController extends ChangeNotifier {
     if (!shouldRefresh) return;
 
     final likesRef = _firestore
-        .collection(_locationsCollection)
+        .collection(AppConstants.locationsCollection)
         .doc(locationId)
-        .collection(_recordsSubcollection)
+        .collection(AppConstants.recordsSubcollection)
         .doc(recordId)
-        .collection('likes');
+        .collection(AppConstants.likesSubcollection);
 
     final userLikeDoc = await likesRef.doc(uid).get();
     _cachedLikeStates[key] = userLikeDoc.exists;

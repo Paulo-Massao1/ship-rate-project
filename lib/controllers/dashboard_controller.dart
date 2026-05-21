@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../core/constants.dart';
 
 /// Controller for loading dashboard statistics and recent activity.
 ///
@@ -22,12 +23,8 @@ class DashboardController {
   // CONSTANTS
   // ===========================================================================
 
-  static const String _shipsCollection = 'navios';
-  static const String _usersCollection = 'usuarios';
-  static const String _ratingsSubcollection = 'avaliacoes';
   static const int _recentRatingsLimit = 3;
   static const Duration _queryTimeout = Duration(seconds: 15);
-  static const String _cspamUid = 'vvmd4t7NHgYEiRbE3aPPcyGscdq1';
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -56,7 +53,7 @@ class DashboardController {
       // Fetch callSign, ships, and user count in parallel
       final results = await Future.wait([
         _getUserCallSign(userId),
-        _firestore.collection(_shipsCollection).get().timeout(_queryTimeout),
+        _firestore.collection(AppConstants.shipsCollection).get().timeout(_queryTimeout),
         _getUserCount(),
       ]);
 
@@ -77,7 +74,7 @@ class DashboardController {
       // Fetch all ship ratings in parallel
       final ratingsFutures = shipsSnapshot.docs.map((ship) {
         return ship.reference
-            .collection(_ratingsSubcollection)
+            .collection(AppConstants.ratingsSubcollection)
             .get()
             .timeout(_queryTimeout)
             .then((snapshot) => _ShipRatingsResult(ship: ship, ratings: snapshot))
@@ -121,7 +118,7 @@ class DashboardController {
               final key = id as String;
               ratingsPerPilot[key] = (ratingsPerPilot[key] ?? 0) + 1;
             }
-          } else if (ratingUid != _cspamUid) {
+          } else if (ratingUid != AppConstants.cspamUid) {
             final pilotKey = ratingUid ??
                 (data['nomeGuerra'] as String?) ??
                 '';
@@ -142,7 +139,7 @@ class DashboardController {
       }
 
       // Calculate top rater and user ranking from accumulated counts
-      ratingsPerPilot.remove(_cspamUid);
+      ratingsPerPilot.remove(AppConstants.cspamUid);
 
       int topRaterCount = 0;
       int userRankingPosition = 0;
@@ -222,7 +219,7 @@ class DashboardController {
   Future<String?> _getUserCallSign(String userId) async {
     try {
       final userSnapshot = await _firestore
-          .collection(_usersCollection)
+          .collection(AppConstants.usersCollection)
           .doc(userId)
           .get()
           .timeout(_queryTimeout);

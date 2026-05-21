@@ -1,8 +1,7 @@
 const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 const { transporter, smtpEmail } = require("../shared/mailer");
-
-const TEST_EMAILS = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
+const { TEST_EMAILS } = require("../shared/constants");
 
 exports.onNewRecord = functions.firestore
   .document("locais/{locationId}/registros/{registroId}")

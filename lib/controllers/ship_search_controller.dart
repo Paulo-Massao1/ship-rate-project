@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../core/constants.dart';
 import '../../data/services/marine_traffic_service.dart';
 
 /// Controller for ship search functionality.
@@ -16,13 +17,6 @@ class ShipSearchController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  static const String _shipsCollection = 'navios';
-  static const String _ratingsSubcollection = 'avaliacoes';
-
-  // ===========================================================================
   // PUBLIC METHODS
   // ===========================================================================
 
@@ -33,7 +27,7 @@ class ShipSearchController {
     final term = query.toLowerCase().trim();
     final results = <String, QueryDocumentSnapshot>{};
 
-    final snapshot = await _firestore.collection(_shipsCollection).get();
+    final snapshot = await _firestore.collection(AppConstants.shipsCollection).get();
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
@@ -55,9 +49,9 @@ class ShipSearchController {
   /// Loads all ratings for a ship.
   Future<List<QueryDocumentSnapshot>> loadShipRatings(String shipId) async {
     final ratingsSnapshot = await _firestore
-        .collection(_shipsCollection)
+        .collection(AppConstants.shipsCollection)
         .doc(shipId)
-        .collection(_ratingsSubcollection)
+        .collection(AppConstants.ratingsSubcollection)
         .get();
 
     final ratingsList = ratingsSnapshot.docs;

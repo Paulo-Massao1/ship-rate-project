@@ -398,28 +398,40 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     if (raw is! Map) return null;
 
     final degrees = raw['graus']?.toString();
-    final minutes = raw['minutos']?.toString();
-    final seconds = raw['segundos']?.toString();
     final hemisphere = raw['hemisferio']?.toString();
 
-    if (degrees == null ||
-        minutes == null ||
-        seconds == null ||
-        hemisphere == null ||
-        degrees.isEmpty ||
-        minutes.isEmpty ||
-        seconds.isEmpty ||
-        hemisphere.isEmpty) {
+    if (degrees == null || hemisphere == null || degrees.isEmpty || hemisphere.isEmpty) {
+      return null;
+    }
+
+    final minutesRaw = raw['minutos'];
+    final secondsRaw = raw['segundos'];
+
+    double decimalMin = 0.0;
+    if (minutesRaw is num) {
+      decimalMin = minutesRaw.toDouble();
+    } else if (minutesRaw != null) {
+      decimalMin = double.tryParse(minutesRaw.toString()) ?? 0.0;
+    }
+
+    // Backward compatibility: convert old seconds to decimal minutes
+    if (secondsRaw != null && secondsRaw.toString().isNotEmpty) {
+      final sec = double.tryParse(secondsRaw.toString()) ?? 0.0;
+      if (sec > 0) {
+        decimalMin += sec / 60.0;
+      }
+    }
+
+    if (decimalMin == 0.0 && (minutesRaw == null || minutesRaw.toString().isEmpty)) {
       return null;
     }
 
     final degreeWidth = isLatitude ? 2 : 3;
-    final secondValue = double.tryParse(seconds);
-    final formattedSeconds = secondValue != null
-        ? secondValue.toStringAsFixed(2).padLeft(5, '0')
-        : seconds;
+    final formattedMin = decimalMin == decimalMin.truncateToDouble()
+        ? '${decimalMin.toInt()}'
+        : decimalMin.toStringAsFixed(1);
 
-    return '${degrees.padLeft(degreeWidth, '0')}\u00B0 ${minutes.padLeft(2, '0')}\' $formattedSeconds" $hemisphere';
+    return '${degrees.padLeft(degreeWidth, '0')}\u00B0 $formattedMin\' $hemisphere';
   }
 
   Widget _buildPhotosCard(BuildContext context, AppLocalizations l10n) {
