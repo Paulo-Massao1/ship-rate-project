@@ -1217,6 +1217,18 @@ abstract class AppLocalizations {
   /// **'Última Avaliação'**
   String get lastRatedShip;
 
+  /// No description provided for @lastRatedShipsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Últimas Avaliações'**
+  String get lastRatedShipsTitle;
+
+  /// No description provided for @noRecentRatings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma avaliação recente'**
+  String get noRecentRatings;
+
   /// No description provided for @pdfReportTitle.
   ///
   /// In pt, this message translates to:
@@ -1961,6 +1973,12 @@ abstract class AppLocalizations {
   /// **'Curtido por {names}'**
   String likedBy(String names);
 
+  /// No description provided for @andWord.
+  ///
+  /// In pt, this message translates to:
+  /// **'e'**
+  String get andWord;
+
   /// No description provided for @andMore.
   ///
   /// In pt, this message translates to:
@@ -1972,6 +1990,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{name} curtiu seu registro de profundidade'**
   String likeNotification(String name);
+
+  /// No description provided for @ratingLikeNotification.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} curtiu sua avaliação'**
+  String ratingLikeNotification(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

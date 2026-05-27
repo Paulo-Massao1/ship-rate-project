@@ -6,6 +6,10 @@ const {
   recalcularMediasAoExcluirAvaliacao,
   recalcularTodasAsMedias,
 } = require("./ratings/recalculate_averages");
+const {
+  onRatingLikeCreated,
+  onRatingLikeDeleted,
+} = require("./ratings/on_rating_like");
 const { onNewRecord } = require("./navigation_safety/on_new_record");
 const { onRecordDeleted } = require("./navigation_safety/on_record_deleted");
 const {
@@ -22,6 +26,8 @@ exports.verifyOTP = verifyOTP;
 exports.checkWhitelist = checkWhitelist;
 exports.recalcularMediasAoExcluirAvaliacao = recalcularMediasAoExcluirAvaliacao;
 exports.recalcularTodasAsMedias = recalcularTodasAsMedias;
+exports.onRatingLikeCreated = onRatingLikeCreated;
+exports.onRatingLikeDeleted = onRatingLikeDeleted;
 exports.onNewRecord = onNewRecord;
 exports.onRecordDeleted = onRecordDeleted;
 exports.createNavSafetyImageUploadUrls = createNavSafetyImageUploadUrls;

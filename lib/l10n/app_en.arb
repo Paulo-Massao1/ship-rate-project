@@ -294,6 +294,8 @@
   "recentActivity": "Recent Activity",
   "noRecentActivity": "No recent activity",
   "lastRatedShip": "Latest Rating",
+  "lastRatedShipsTitle": "Latest Ratings",
+  "noRecentRatings": "No recent ratings",
 
   "pdfReportTitle": "Ship Rating Report",
   "pdfEvaluationInfo": "Evaluation Information",
@@ -460,6 +462,7 @@
       "names": { "type": "String" }
     }
   },
+  "andWord": "and",
   "andMore": "and {count} more",
   "@andMore": {
     "placeholders": {
@@ -468,6 +471,12 @@
   },
   "likeNotification": "{name} liked your depth record",
   "@likeNotification": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "ratingLikeNotification": "{name} liked your rating",
+  "@ratingLikeNotification": {
     "placeholders": {
       "name": { "type": "String" }
     }

@@ -294,6 +294,8 @@
   "recentActivity": "Atividade Recente",
   "noRecentActivity": "Nenhuma atividade recente",
   "lastRatedShip": "Última Avaliação",
+  "lastRatedShipsTitle": "Últimas Avaliações",
+  "noRecentRatings": "Nenhuma avaliação recente",
 
   "pdfReportTitle": "Relatório de Avaliação de Navio",
   "pdfEvaluationInfo": "Informações da Avaliação",
@@ -460,6 +462,7 @@
       "names": { "type": "String" }
     }
   },
+  "andWord": "e",
   "andMore": "e mais {count}",
   "@andMore": {
     "placeholders": {
@@ -468,6 +471,12 @@
   },
   "likeNotification": "{name} curtiu seu registro de profundidade",
   "@likeNotification": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "ratingLikeNotification": "{name} curtiu sua avaliação",
+  "@ratingLikeNotification": {
     "placeholders": {
       "name": { "type": "String" }
     }

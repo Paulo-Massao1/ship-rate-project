@@ -612,6 +612,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get lastRatedShip => 'Última Avaliação';
 
   @override
+  String get lastRatedShipsTitle => 'Últimas Avaliações';
+
+  @override
+  String get noRecentRatings => 'Nenhuma avaliação recente';
+
+  @override
   String get pdfReportTitle => 'Relatório de Avaliação de Navio';
 
   @override
@@ -996,6 +1002,9 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get andWord => 'e';
+
+  @override
   String andMore(int count) {
     return 'e mais $count';
   }
@@ -1003,5 +1012,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String likeNotification(String name) {
     return '$name curtiu seu registro de profundidade';
+  }
+
+  @override
+  String ratingLikeNotification(String name) {
+    return '$name curtiu sua avaliação';
   }
 }

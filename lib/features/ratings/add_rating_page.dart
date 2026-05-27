@@ -175,6 +175,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
     for (final controller in _observationControllers.values) {
       controller.dispose();
     }
+    _ratingController.dispose();
     super.dispose();
   }
 
