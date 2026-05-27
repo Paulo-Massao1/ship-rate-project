@@ -511,16 +511,16 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           borderRadius: BorderRadius.circular(10),
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: _controller.locations.length,
+            itemCount: _controller.locationsSortedByName.length,
             itemBuilder: (context, index) {
-              final loc = _controller.locations[index];
+              final loc = _controller.locationsSortedByName[index];
               return InkWell(
                 onTap: () => _onLocationTap(loc.id, loc.name),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                   decoration: BoxDecoration(
-                    border: index < _controller.locations.length - 1
+                    border: index < _controller.locationsSortedByName.length - 1
                         ? const Border(
                             bottom: BorderSide(color: Color(0x0DFFFFFF)),
                           )

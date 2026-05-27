@@ -528,7 +528,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  /// Single recent rating row: ship icon + name + date.
+  /// Single recent rating row: ship icon + name + date. Tappable to view details.
   Widget _buildRecentItem(RecentRating rating, bool showDivider) {
     final dateStr =
         '${rating.date.day.toString().padLeft(2, '0')}/'
@@ -537,42 +537,51 @@ class _DashboardWidgetState extends State<DashboardWidget> {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.directions_boat,
-                  size: 16,
-                  color: Color(0xFF64B5F6),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  rating.shipName.toUpperCase(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.85),
+        GestureDetector(
+          onTap: () => _onRecentRatingTap(rating),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  child: const Icon(
+                    Icons.directions_boat,
+                    size: 16,
+                    color: Color(0xFF64B5F6),
+                  ),
                 ),
-              ),
-              Text(
-                dateStr,
-                style: TextStyle(
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    rating.shipName.toUpperCase(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  dateStr,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.chevron_right,
+                  size: 18,
                   color: Colors.white.withValues(alpha: 0.35),
-                  fontSize: 11,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (showDivider)
@@ -582,6 +591,41 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           ),
       ],
     );
+  }
+
+  Future<void> _onRecentRatingTap(RecentRating rating) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF64B5F6)),
+      ),
+    );
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('navios')
+          .doc(rating.shipId)
+          .collection('avaliacoes')
+          .where(FieldPath.documentId, isEqualTo: rating.ratingId)
+          .limit(1)
+          .get();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (querySnapshot.docs.isEmpty) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RatingDetailPage(rating: querySnapshot.docs.first),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 }
 

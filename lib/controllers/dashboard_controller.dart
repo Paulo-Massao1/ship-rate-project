@@ -132,6 +132,8 @@ class DashboardController {
             userRatings++;
             userRatingsList.add(_RatingEntry(
               shipName: shipName,
+              shipId: result.ship.id,
+              ratingId: rating.id,
               data: data,
             ));
           }
@@ -171,6 +173,8 @@ class DashboardController {
           .take(_recentRatingsLimit)
           .map((entry) => RecentRating(
                 shipName: entry.shipName,
+                shipId: entry.shipId,
+                ratingId: entry.ratingId,
                 date: _resolveRatingDate(entry.data),
                 averageScore: _calculateAverage(entry.data),
               ))
@@ -302,9 +306,16 @@ class _ShipRatingsResult {
 /// Internal helper to hold raw rating data before mapping to [RecentRating].
 class _RatingEntry {
   final String shipName;
+  final String shipId;
+  final String ratingId;
   final Map<String, dynamic> data;
 
-  _RatingEntry({required this.shipName, required this.data});
+  _RatingEntry({
+    required this.shipName,
+    required this.shipId,
+    required this.ratingId,
+    required this.data,
+  });
 }
 
 // =============================================================================
@@ -358,11 +369,15 @@ class DashboardData {
 /// Summary of a single recent rating for dashboard display.
 class RecentRating {
   final String shipName;
+  final String shipId;
+  final String ratingId;
   final DateTime date;
   final double averageScore;
 
   RecentRating({
     required this.shipName,
+    required this.shipId,
+    required this.ratingId,
     required this.date,
     required this.averageScore,
   });

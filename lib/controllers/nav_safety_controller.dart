@@ -65,6 +65,12 @@ class NavSafetyController extends ChangeNotifier {
   List<LocationWithLatestRecord> _locations = [];
   List<LocationWithLatestRecord> get locations => _locations;
 
+  List<LocationWithLatestRecord> get locationsSortedByName {
+    final sorted = List<LocationWithLatestRecord>.from(_locations);
+    sorted.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return sorted;
+  }
+
   String? _selectedLocationId;
   String? get selectedLocationId => _selectedLocationId;
 
@@ -109,7 +115,8 @@ class NavSafetyController extends ChangeNotifier {
                   id: doc.id,
                   name: (doc.data()['nome'] ?? '').toString(),
                 ))
-            .toList();
+            .toList()
+          ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       }
 
       // Fetch latest record for each location in parallel
@@ -273,7 +280,8 @@ class NavSafetyController extends ChangeNotifier {
               id: doc.id,
               name: (doc.data()['nome'] ?? '').toString(),
             ))
-        .toList();
+        .toList()
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
     return _cachedLocationDocs!;
   }
