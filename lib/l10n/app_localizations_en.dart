@@ -1018,4 +1018,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String ratingLikeNotification(String name) {
     return '$name liked your rating';
   }
+
+  @override
+  String get milestone200Title => '200 Ships!';
+
+  @override
+  String get milestone200Body => 'ShipRate has reached 200 registered ships in less than 6 months! Every pilot is now better prepared to board, with access to ratings and navigation data shared by all. Thank you for contributing to the app\'s growth.';
+
+  @override
+  String get milestone200Button => 'Congratulations to all!';
+
+  @override
+  String get switchToNavSafety => 'Switch to Navigation Safety';
+
+  @override
+  String get switchToShipRating => 'Switch to Ship Rating';
+
+  @override
+  String get recordSaved => 'Record saved!';
+
+  @override
+  String get shareRecordPrompt => 'Would you like to share this depth record with other pilots?';
+
+  @override
+  String get shareRecord => 'Share';
+
+  @override
+  String get noThanks => 'No, thanks';
 }

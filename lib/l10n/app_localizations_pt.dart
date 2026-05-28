@@ -1018,4 +1018,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String ratingLikeNotification(String name) {
     return '$name curtiu sua avaliação';
   }
+
+  @override
+  String get milestone200Title => '200 Navios!';
+
+  @override
+  String get milestone200Body => 'O ShipRate atingiu 200 navios cadastrados em menos de 6 meses! Cada prático agora está mais preparado para embarcar, com acesso a avaliações e dados de navegação compartilhados por todos. Obrigado por contribuir com o crescimento do aplicativo.';
+
+  @override
+  String get milestone200Button => 'Parabéns a todos!';
+
+  @override
+  String get switchToNavSafety => 'Alternar para Segurança da Navegação';
+
+  @override
+  String get switchToShipRating => 'Alternar para Avaliação de Navios';
+
+  @override
+  String get recordSaved => 'Registro salvo!';
+
+  @override
+  String get shareRecordPrompt => 'Deseja compartilhar esta profundidade com outros práticos?';
+
+  @override
+  String get shareRecord => 'Compartilhar';
+
+  @override
+  String get noThanks => 'Não, obrigado';
 }

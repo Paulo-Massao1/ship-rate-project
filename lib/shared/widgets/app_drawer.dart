@@ -14,6 +14,7 @@ class AppDrawer extends StatelessWidget {
   final AppScreen currentScreen;
   final bool showNavSafety;
   final List<Widget> additionalItems;
+  final List<Widget> bottomItems;
   final VoidCallback? onBeforeLogout;
   final CustomPainter? headerOverlayPainter;
 
@@ -22,6 +23,7 @@ class AppDrawer extends StatelessWidget {
     required this.currentScreen,
     this.showNavSafety = true,
     this.additionalItems = const [],
+    this.bottomItems = const [],
     this.onBeforeLogout,
     this.headerOverlayPainter,
   });
@@ -66,20 +68,7 @@ class AppDrawer extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     children: [
-                      DrawerItem(
-                        icon: Icons.directions_boat,
-                        label: l10n.shipRatingModule,
-                        isActive: currentScreen == AppScreen.shipRating,
-                        onTap: () => _navigateTo(context, AppScreen.shipRating),
-                      ),
-                      if (showNavSafety)
-                        DrawerItem(
-                          icon: Icons.anchor,
-                          label: l10n.navSafetyModule,
-                          isActive: currentScreen == AppScreen.navSafety,
-                          onTap: () =>
-                              _navigateTo(context, AppScreen.navSafety),
-                        ),
+                      ..._buildModuleItems(context, l10n),
                       ...additionalItems,
                       const Spacer(),
                       Container(
@@ -93,6 +82,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
+                            ...bottomItems,
                             DrawerItem(
                               icon: Icons.settings,
                               label: l10n.settings,
@@ -128,6 +118,45 @@ class AppDrawer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildModuleItems(BuildContext context, AppLocalizations l10n) {
+    switch (currentScreen) {
+      case AppScreen.home:
+        return [
+          DrawerItem(
+            icon: Icons.directions_boat,
+            label: l10n.shipRatingModule,
+            isActive: false,
+            onTap: () => _navigateTo(context, AppScreen.shipRating),
+          ),
+          if (showNavSafety)
+            DrawerItem(
+              icon: Icons.anchor,
+              label: l10n.navSafetyModule,
+              isActive: false,
+              onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
+        ];
+      case AppScreen.shipRating:
+        return [
+          _SwitchModuleItem(
+            icon: Icons.anchor,
+            label: l10n.switchToNavSafety,
+            accentColor: const Color(0xFF26A69A),
+            onTap: () => _navigateTo(context, AppScreen.navSafety),
+          ),
+        ];
+      case AppScreen.navSafety:
+        return [
+          _SwitchModuleItem(
+            icon: Icons.directions_boat,
+            label: l10n.switchToShipRating,
+            accentColor: const Color(0xFF64B5F6),
+            onTap: () => _navigateTo(context, AppScreen.shipRating),
+          ),
+        ];
+    }
   }
 
   Widget _buildHeader(AppLocalizations l10n) {
@@ -220,6 +249,70 @@ class AppDrawer extends StatelessWidget {
       case AppScreen.home:
         break;
     }
+  }
+}
+
+class _SwitchModuleItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color accentColor;
+  final VoidCallback onTap;
+
+  const _SwitchModuleItem({
+    required this.icon,
+    required this.label,
+    required this.accentColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Material(
+        color: accentColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          hoverColor: accentColor.withValues(alpha: 0.12),
+          splashColor: accentColor.withValues(alpha: 0.12),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border(
+                left: BorderSide(color: accentColor, width: 3),
+              ),
+            ),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(icon, color: accentColor, size: 22),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: accentColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: accentColor.withValues(alpha: 0.5),
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

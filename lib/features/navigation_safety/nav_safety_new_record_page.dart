@@ -458,11 +458,27 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (!mounted) return;
 
       final l10n = AppLocalizations.of(context)!;
-      _showSnackBar(
-        widget.isEditing
-            ? l10n.recordUpdatedSuccess
-            : l10n.recordSavedSuccess,
-      );
+
+      if (!widget.isEditing) {
+        final locationName = pendingLocationName ?? _selectedLocationName ?? '';
+        final shipName = _shipNameController.text.trim();
+        final depth = _depthController.text.trim();
+        final dateStr =
+            '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
+
+        await _showShareDialog(
+          l10n: l10n,
+          locationName: locationName,
+          shipName: shipName,
+          depth: depth,
+          nomeGuerra: nomeGuerra,
+          dateStr: dateStr,
+        );
+      } else {
+        _showSnackBar(l10n.recordUpdatedSuccess);
+      }
+
+      if (!mounted) return;
       Navigator.pop(context, true);
     } on ImageUploadException catch (e) {
       _showSnackBar(e.message, isError: true);
@@ -504,6 +520,73 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         content: Text(message),
         backgroundColor:
             isError ? Colors.red.shade800 : const Color(0xFF1B5E20),
+      ),
+    );
+  }
+
+  Future<void> _showShareDialog({
+    required AppLocalizations l10n,
+    required String locationName,
+    required String shipName,
+    required String depth,
+    required String nomeGuerra,
+    required String dateStr,
+  }) async {
+    final shareText =
+        '⚓ Nova profundidade registrada no ShipRate\n'
+        '\u{1F4CD} Local: $locationName\n'
+        '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
+        '\u{1F4CF} Profundidade total: ${depth}m\n'
+        '\u{1F464} Prático: $nomeGuerra\n'
+        '\u{1F4C5} Data: $dateStr\n\n'
+        'Abra o app para mais detalhes: https://shiprate-daf18.web.app';
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF132D4A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Row(
+          children: [
+            const Icon(Icons.check_circle, color: _teal, size: 28),
+            const SizedBox(width: 10),
+            Text(
+              l10n.recordSaved,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          l10n.shareRecordPrompt,
+          style: const TextStyle(color: Color(0xD9FFFFFF), fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              l10n.noThanks,
+              style: const TextStyle(color: Color(0x99FFFFFF)),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              final url =
+                  'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
+              html.window.open(url, '_blank');
+            },
+            child: Text(
+              l10n.shareRecord,
+              style: const TextStyle(
+                color: _teal,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

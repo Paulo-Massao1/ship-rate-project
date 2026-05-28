@@ -1,484 +1,1421 @@
 {
   "@@locale": "en",
-
   "appTitle": "ShipRate",
+  "@appTitle": {
+    "description": "Title text for app."
+  },
   "email": "Email",
+  "@email": {
+    "description": "Localized text for email."
+  },
   "password": "Password",
+  "@password": {
+    "description": "Localized text for password."
+  },
   "yes": "Yes",
+  "@yes": {
+    "description": "Localized text for the affirmative response option."
+  },
   "no": "No",
+  "@no": {
+    "description": "Localized text for the negative response option."
+  },
   "cancel": "Cancel",
+  "@cancel": {
+    "description": "Button label used to cancel an action."
+  },
   "ratings": "Ratings",
+  "@ratings": {
+    "description": "Localized text for ratings."
+  },
   "cabin": "Cabin",
+  "@cabin": {
+    "description": "Localized text for cabin."
+  },
   "bridge": "Bridge",
+  "@bridge": {
+    "description": "Localized text for bridge."
+  },
   "pilot": "Pilot",
-
+  "@pilot": {
+    "description": "Localized text for pilot."
+  },
   "loginSubtitle": "Enter your email and password to continue",
+  "@loginSubtitle": {
+    "description": "Subtitle text for login."
+  },
   "loginButton": "Log in",
+  "@loginButton": {
+    "description": "Button label for login."
+  },
   "loginSuccess": "Login successful",
+  "@loginSuccess": {
+    "description": "Localized text for login success."
+  },
   "forgotPassword": "Forgot my password",
+  "@forgotPassword": {
+    "description": "Localized text for forgot password."
+  },
   "createAccount": "Create new account",
-
+  "@createAccount": {
+    "description": "Localized text for create account."
+  },
   "createAccountTitle": "Create account",
+  "@createAccountTitle": {
+    "description": "Title text for create account."
+  },
   "registerSubtitle": "Fill in the details to continue",
+  "@registerSubtitle": {
+    "description": "Subtitle text for register."
+  },
   "callSign": "Call sign",
+  "@callSign": {
+    "description": "Localized text for call sign."
+  },
   "confirmPassword": "Confirm password",
+  "@confirmPassword": {
+    "description": "Localized text for confirm password."
+  },
   "registerButton": "Register",
+  "@registerButton": {
+    "description": "Button label for register."
+  },
   "registerSuccess": "Registration successful",
+  "@registerSuccess": {
+    "description": "Localized text for register success."
+  },
   "alreadyHaveAccount": "Already have an account? Sign in",
-
+  "@alreadyHaveAccount": {
+    "description": "Localized text for already have account."
+  },
   "recoverPassword": "Recover password",
+  "@recoverPassword": {
+    "description": "Localized text for recover password."
+  },
   "recoverPasswordSubtitle": "Enter your email to receive the reset link",
+  "@recoverPasswordSubtitle": {
+    "description": "Subtitle text for recover password."
+  },
   "sendLink": "Send link",
+  "@sendLink": {
+    "description": "Localized text for send link."
+  },
   "resetEmailSent": "We sent a recovery link to your email.",
+  "@resetEmailSent": {
+    "description": "Localized text for reset email sent."
+  },
   "spamNotice": "If you can't find the email, also check your SPAM or Junk folder.",
+  "@spamNotice": {
+    "description": "Localized text for spam notice."
+  },
   "backToLogin": "Back to login",
-
+  "@backToLogin": {
+    "description": "Localized text for back to login."
+  },
   "appSubtitle": "Professional ship evaluation",
+  "@appSubtitle": {
+    "description": "Subtitle text for app."
+  },
   "drawerSearchRate": "Search / Rate Ships",
+  "@drawerSearchRate": {
+    "description": "Localized text for drawer search rate."
+  },
   "drawerMyRatings": "My Ratings",
+  "@drawerMyRatings": {
+    "description": "Localized text for drawer my ratings."
+  },
   "drawerSendSuggestion": "Send Suggestion",
+  "@drawerSendSuggestion": {
+    "description": "Localized text for drawer send suggestion."
+  },
   "drawerShareApp": "Share App",
+  "@drawerShareApp": {
+    "description": "Localized text for drawer share app."
+  },
   "drawerLogout": "Log out",
+  "@drawerLogout": {
+    "description": "Localized text for drawer logout."
+  },
   "linkCopied": "Link copied to clipboard!",
+  "@linkCopied": {
+    "description": "Localized text for link copied."
+  },
   "updateAvailable": "Update Available",
+  "@updateAvailable": {
+    "description": "Localized text for update available."
+  },
   "shareShipRate": "Share ShipRate",
+  "@shareShipRate": {
+    "description": "Localized text for share ship rate."
+  },
   "copyLink": "Copy Link",
+  "@copyLink": {
+    "description": "Localized text for copy link."
+  },
   "shareText": "Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths. Download here: https://shiprate-daf18.web.app",
-
+  "@shareText": {
+    "description": "Localized text for share text."
+  },
   "shipRatingTitle": "Ship Rating",
+  "@shipRatingTitle": {
+    "description": "Title text for ship rating."
+  },
   "searchSubtitle": "Search ratings or register your experience",
+  "@searchSubtitle": {
+    "description": "Subtitle text for search."
+  },
   "searchTab": "Search",
+  "@searchTab": {
+    "description": "Localized text for search tab."
+  },
   "rateTab": "Rate",
+  "@rateTab": {
+    "description": "Localized text for rate tab."
+  },
   "searchHint": "Search by ship name or IMO",
+  "@searchHint": {
+    "description": "Hint text for search."
+  },
   "newShipRating": "New Ship Rating",
+  "@newShipRating": {
+    "description": "Localized text for new ship rating."
+  },
   "rateSubtitle": "Register your technical evaluation quickly and safely",
+  "@rateSubtitle": {
+    "description": "Subtitle text for rate."
+  },
   "startRating": "Start rating",
+  "@startRating": {
+    "description": "Localized text for start rating."
+  },
   "generalInfo": "General Information",
+  "@generalInfo": {
+    "description": "Localized text for general info."
+  },
   "ratingAverages": "Rating Averages",
+  "@ratingAverages": {
+    "description": "Localized text for rating averages."
+  },
   "viewOnMarineTraffic": "View Details on MarineTraffic",
+  "@viewOnMarineTraffic": {
+    "description": "Localized text for view on marine traffic."
+  },
   "marineTrafficError": "Could not open MarineTraffic",
+  "@marineTrafficError": {
+    "description": "Localized text for marine traffic error."
+  },
   "crew": "Crew",
+  "@crew": {
+    "description": "Localized text for crew."
+  },
   "cabins": "Cabins",
+  "@cabins": {
+    "description": "Localized text for cabins."
+  },
   "minibar": "Minibar",
+  "@minibar": {
+    "description": "Localized text for minibar."
+  },
   "sink": "Sink",
+  "@sink": {
+    "description": "Localized text for sink."
+  },
   "microwave": "Microwave",
+  "@microwave": {
+    "description": "Localized text for microwave."
+  },
   "avgCabinTemp": "Cabin Temp.",
+  "@avgCabinTemp": {
+    "description": "Localized text for avg cabin temp."
+  },
   "avgCabinCleanliness": "Cabin Cleanliness",
+  "@avgCabinCleanliness": {
+    "description": "Localized text for avg cabin cleanliness."
+  },
   "avgBridgeEquipment": "Bridge Equip.",
+  "@avgBridgeEquipment": {
+    "description": "Localized text for avg bridge equipment."
+  },
   "avgBridgeTemp": "Bridge Temp.",
+  "@avgBridgeTemp": {
+    "description": "Localized text for avg bridge temp."
+  },
   "avgFood": "Food",
+  "@avgFood": {
+    "description": "Localized text for avg food."
+  },
   "avgRelationship": "Relationship",
+  "@avgRelationship": {
+    "description": "Localized text for avg relationship."
+  },
   "avgDevice": "Device",
+  "@avgDevice": {
+    "description": "Localized text for avg device."
+  },
   "pilotCallSign": "Pilot: {callSign}",
   "@pilotCallSign": {
     "placeholders": {
-      "callSign": { "type": "String" }
+      "callSign": {
+        "type": "String"
+      }
     }
   },
   "viewRating": "View rating",
-
+  "@viewRating": {
+    "description": "Localized text for view rating."
+  },
   "rateShipTitle": "Rate Ship",
+  "@rateShipTitle": {
+    "description": "Title text for rate ship."
+  },
   "saveRating": "Save Rating",
+  "@saveRating": {
+    "description": "Localized text for save rating."
+  },
   "shipData": "Ship Data",
+  "@shipData": {
+    "description": "Localized text for ship data."
+  },
   "shipName": "Ship name",
+  "@shipName": {
+    "description": "Localized text for ship name."
+  },
   "enterShipName": "Enter the ship name",
+  "@enterShipName": {
+    "description": "Localized text for enter ship name."
+  },
   "imoOptional": "IMO (optional)",
+  "@imoOptional": {
+    "description": "Localized text for imo optional."
+  },
   "disembarkationDate": "Disembarkation date",
+  "@disembarkationDate": {
+    "description": "Localized text for disembarkation date."
+  },
   "tapToSelect": "Tap to select",
+  "@tapToSelect": {
+    "description": "Localized text for tap to select."
+  },
   "crewNationality": "Crew nationality",
+  "@crewNationality": {
+    "description": "Localized text for crew nationality."
+  },
   "nationalityFilipino": "Filipino",
+  "@nationalityFilipino": {
+    "description": "Localized text for nationality filipino."
+  },
   "nationalityRussian": "Russian",
+  "@nationalityRussian": {
+    "description": "Localized text for nationality russian."
+  },
   "nationalityUkrainian": "Ukrainian",
+  "@nationalityUkrainian": {
+    "description": "Localized text for nationality ukrainian."
+  },
   "nationalityIndian": "Indian",
+  "@nationalityIndian": {
+    "description": "Localized text for nationality indian."
+  },
   "nationalityChinese": "Chinese",
+  "@nationalityChinese": {
+    "description": "Localized text for nationality chinese."
+  },
   "nationalityBrazilian": "Brazilian",
+  "@nationalityBrazilian": {
+    "description": "Localized text for nationality brazilian."
+  },
   "nationalityOther": "Other",
+  "@nationalityOther": {
+    "description": "Localized text for nationality other."
+  },
   "specifyNationality": "Specify nationality",
+  "@specifyNationality": {
+    "description": "Localized text for specify nationality."
+  },
   "cabinCount": "Number of cabins",
+  "@cabinCount": {
+    "description": "Localized text for cabin count."
+  },
   "cabinCountOne": "One",
+  "@cabinCountOne": {
+    "description": "Localized text for cabin count one."
+  },
   "cabinCountTwo": "Two",
+  "@cabinCountTwo": {
+    "description": "Localized text for cabin count two."
+  },
   "cabinCountMoreThanTwo": "More than two",
+  "@cabinCountMoreThanTwo": {
+    "description": "Localized text for cabin count more than two."
+  },
   "cabinType": "Cabin type",
+  "@cabinType": {
+    "description": "Localized text for cabin type."
+  },
   "cabinDeck": "Cabin deck",
+  "@cabinDeck": {
+    "description": "Localized text for cabin deck."
+  },
   "deckBridge": "Bridge deck",
+  "@deckBridge": {
+    "description": "Localized text for deck bridge."
+  },
   "deck1Below": "1 deck below bridge",
+  "@deck1Below": {
+    "description": "Localized text for deck1 below."
+  },
   "deck2Below": "2 decks below bridge",
+  "@deck2Below": {
+    "description": "Localized text for deck2 below."
+  },
   "deck3Below": "3 decks below bridge",
+  "@deck3Below": {
+    "description": "Localized text for deck3 below."
+  },
   "deck4PlusBelow": "4+ decks below bridge",
+  "@deck4PlusBelow": {
+    "description": "Localized text for deck4 plus below."
+  },
   "deckLabel": "Deck {deck}",
   "@deckLabel": {
     "placeholders": {
-      "deck": { "type": "String" }
+      "deck": {
+        "type": "String"
+      }
     }
   },
   "hasMinibar": "Has minibar",
+  "@hasMinibar": {
+    "description": "Localized text for has minibar."
+  },
   "hasSink": "Has sink",
+  "@hasSink": {
+    "description": "Localized text for has sink."
+  },
   "hasMicrowave": "Has microwave",
+  "@hasMicrowave": {
+    "description": "Localized text for has microwave."
+  },
   "otherRatings": "Other Ratings",
+  "@otherRatings": {
+    "description": "Localized text for other ratings."
+  },
   "generalObservation": "General Observation",
+  "@generalObservation": {
+    "description": "Localized text for general observation."
+  },
   "generalObservationHint": "Additional comments about the overall experience on the ship...",
+  "@generalObservationHint": {
+    "description": "Hint text for general observation."
+  },
   "observationsOptional": "Observations (optional)",
+  "@observationsOptional": {
+    "description": "Localized text for observations optional."
+  },
   "shipFoundTapToRate": "Ship found — tap to select from the list",
+  "@shipFoundTapToRate": {
+    "description": "Localized text for ship found tap to rate."
+  },
   "shipExistsSelectFromList": "This ship already exists. Please select it from the dropdown list.",
+  "@shipExistsSelectFromList": {
+    "description": "Localized text for ship exists select from list."
+  },
   "fillRequiredFields": "Fill in all required fields",
-
+  "@fillRequiredFields": {
+    "description": "Localized text for fill required fields."
+  },
   "editRatingTitle": "Edit Rating",
+  "@editRatingTitle": {
+    "description": "Title text for edit rating."
+  },
   "saveChanges": "Save Changes",
+  "@saveChanges": {
+    "description": "Localized text for save changes."
+  },
   "editWarningBanner": "Edit only typos. For ship changes, create a new rating.",
+  "@editWarningBanner": {
+    "description": "Localized text for edit warning banner."
+  },
   "ratingUpdatedSuccess": "Rating updated successfully!",
+  "@ratingUpdatedSuccess": {
+    "description": "Localized text for rating updated success."
+  },
   "errorLoadingData": "Error loading data: {error}",
   "@errorLoadingData": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "errorSaving": "Error saving: {error}",
   "@errorSaving": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "shipNameRequired": "Ship name *",
+  "@shipNameRequired": {
+    "description": "Localized text for ship name required."
+  },
   "disembarkationDateRequired": "Disembarkation date *",
+  "@disembarkationDateRequired": {
+    "description": "Localized text for disembarkation date required."
+  },
   "cabinTypeRequired": "Cabin type *",
-
+  "@cabinTypeRequired": {
+    "description": "Localized text for cabin type required."
+  },
   "myRatingsTitle": "My Ratings",
+  "@myRatingsTitle": {
+    "description": "Title text for my ratings."
+  },
   "loadingRatings": "Loading your ratings...",
+  "@loadingRatings": {
+    "description": "Localized text for loading ratings."
+  },
   "tryAgain": "Try Again",
+  "@tryAgain": {
+    "description": "Localized text for try again."
+  },
   "noRatingsYet": "No ratings yet",
+  "@noRatingsYet": {
+    "description": "Empty-state or negative message for ratings yet."
+  },
   "noRatingsSubtitle": "You haven't rated any ships yet.\nStart rating your next voyage!",
+  "@noRatingsSubtitle": {
+    "description": "Subtitle text for no ratings."
+  },
   "totalRatings": "{count, plural, =1{Total: 1 rating} other{Total: {count} ratings}}",
   "@totalRatings": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "newestFirst": "Newest first",
+  "@newestFirst": {
+    "description": "Localized text for newest first."
+  },
   "averageScore": "Average Score",
+  "@averageScore": {
+    "description": "Localized text for average score."
+  },
   "ratingDate": "Rating Date",
+  "@ratingDate": {
+    "description": "Localized text for rating date."
+  },
   "deleteLabel": "Delete",
+  "@deleteLabel": {
+    "description": "Label text for delete."
+  },
   "editLabel": "Edit",
+  "@editLabel": {
+    "description": "Label text for edit."
+  },
   "ratingDeletedSuccess": "Rating deleted successfully!",
+  "@ratingDeletedSuccess": {
+    "description": "Localized text for rating deleted success."
+  },
   "errorDeleting": "Error deleting: {error}",
   "@errorDeleting": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "pdfGeneratedSuccess": "PDF generated successfully!",
+  "@pdfGeneratedSuccess": {
+    "description": "Localized text for pdf generated success."
+  },
   "errorGeneratingPdf": "Error generating PDF: {error}",
   "@errorGeneratingPdf": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-
   "editWarningTitle": "Warning",
+  "@editWarningTitle": {
+    "description": "Title text for edit warning."
+  },
   "editWarningCorrectionsOnly": "Edit only to correct errors",
+  "@editWarningCorrectionsOnly": {
+    "description": "Localized text for edit warning corrections only."
+  },
   "editWarningDescription": "This feature is for correcting typos or incorrect information.",
+  "@editWarningDescription": {
+    "description": "Localized text for edit warning description."
+  },
   "editWarningImportant": "Important: Use only for corrections, not to update ship changes over time.",
+  "@editWarningImportant": {
+    "description": "Localized text for edit warning important."
+  },
   "editWarningNewRating": "If the ship's condition has changed since your last rating, create a NEW rating instead of editing this one.",
+  "@editWarningNewRating": {
+    "description": "Localized text for edit warning new rating."
+  },
   "editWarningHistory": "Keeping history helps other pilots!",
+  "@editWarningHistory": {
+    "description": "Localized text for edit warning history."
+  },
   "editWarningConfirm": "I understand, I want to edit",
-
+  "@editWarningConfirm": {
+    "description": "Localized text for edit warning confirm."
+  },
   "deleteRatingTitle": "Delete Rating",
+  "@deleteRatingTitle": {
+    "description": "Title text for delete rating."
+  },
   "deleteRatingConfirm": "Are you sure you want to delete the rating for ship \"{shipName}\"?",
   "@deleteRatingConfirm": {
     "placeholders": {
-      "shipName": { "type": "String" }
+      "shipName": {
+        "type": "String"
+      }
     }
   },
   "deleteWarning": "This action cannot be undone!",
+  "@deleteWarning": {
+    "description": "Localized text for delete warning."
+  },
   "deleteButton": "Delete",
-
+  "@deleteButton": {
+    "description": "Button label for delete."
+  },
   "ratingDetailTitle": "Rating Details",
+  "@ratingDetailTitle": {
+    "description": "Title text for rating detail."
+  },
   "exportPdf": "Export PDF",
+  "@exportPdf": {
+    "description": "Localized text for export pdf."
+  },
   "errorLoadingShipData": "Error loading ship data",
+  "@errorLoadingShipData": {
+    "description": "Error message for loading ship data."
+  },
   "defaultShipName": "Ship",
+  "@defaultShipName": {
+    "description": "Localized text for default ship name."
+  },
   "ratedOn": "Rated on: {date}",
   "@ratedOn": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "disembarkationDateValue": "Disembarkation date: {date}",
   "@disembarkationDateValue": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "cabinTypeValue": "Cabin type: {type}",
   "@cabinTypeValue": {
     "placeholders": {
-      "type": { "type": "String" }
+      "type": {
+        "type": "String"
+      }
     }
   },
   "cabinDeckValue": "Cabin deck: {deck}",
   "@cabinDeckValue": {
     "placeholders": {
-      "deck": { "type": "String" }
+      "deck": {
+        "type": "String"
+      }
     }
   },
   "imoValue": "IMO: {imo}",
   "@imoValue": {
     "placeholders": {
-      "imo": { "type": "String" }
+      "imo": {
+        "type": "String"
+      }
     }
   },
   "shipInfo": "Ship Information",
+  "@shipInfo": {
+    "description": "Localized text for ship info."
+  },
   "generalObservations": "General Observations",
+  "@generalObservations": {
+    "description": "Localized text for general observations."
+  },
   "cabinSection": "Cabin",
+  "@cabinSection": {
+    "description": "Localized text for cabin section."
+  },
   "bridgeSection": "Bridge",
+  "@bridgeSection": {
+    "description": "Localized text for bridge section."
+  },
   "otherSection": "Other",
+  "@otherSection": {
+    "description": "Localized text for other section."
+  },
   "scoreLabel": "Score: {score}",
   "@scoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "anonymous": "Anonymous",
+  "@anonymous": {
+    "description": "Localized text for anonymous."
+  },
   "notAvailable": "N/A",
-
+  "@notAvailable": {
+    "description": "Localized text for not available."
+  },
   "criteriaCabinTemp": "Cabin Temperature",
+  "@criteriaCabinTemp": {
+    "description": "Localized text for criteria cabin temp."
+  },
   "criteriaCabinCleanliness": "Cabin Cleanliness",
+  "@criteriaCabinCleanliness": {
+    "description": "Localized text for criteria cabin cleanliness."
+  },
   "criteriaBridgeEquipment": "Bridge - Equipment",
+  "@criteriaBridgeEquipment": {
+    "description": "Localized text for criteria bridge equipment."
+  },
   "criteriaBridgeTemp": "Bridge - Temperature",
+  "@criteriaBridgeTemp": {
+    "description": "Localized text for criteria bridge temp."
+  },
   "criteriaDevice": "Boarding/Disembarking Device",
+  "@criteriaDevice": {
+    "description": "Localized text for criteria device."
+  },
   "criteriaFood": "Food",
+  "@criteriaFood": {
+    "description": "Localized text for criteria food."
+  },
   "criteriaRelationship": "Relationship with captain/crew",
-
+  "@criteriaRelationship": {
+    "description": "Localized text for criteria relationship."
+  },
   "sendSuggestionTitle": "Send Suggestion",
+  "@sendSuggestionTitle": {
+    "description": "Title text for send suggestion."
+  },
   "yourOpinionMatters": "Your opinion matters",
+  "@yourOpinionMatters": {
+    "description": "Localized text for your opinion matters."
+  },
   "helpImproveApp": "Help improve ShipRate with suggestions and ideas.",
+  "@helpImproveApp": {
+    "description": "Localized text for help improve app."
+  },
   "suggestionType": "Suggestion",
+  "@suggestionType": {
+    "description": "Localized text for suggestion type."
+  },
   "complaintType": "Complaint",
+  "@complaintType": {
+    "description": "Localized text for complaint type."
+  },
   "complimentType": "Compliment",
+  "@complimentType": {
+    "description": "Localized text for compliment type."
+  },
   "messageLabel": "Message",
+  "@messageLabel": {
+    "description": "Label text for message."
+  },
   "sendButton": "Send",
+  "@sendButton": {
+    "description": "Button label for send."
+  },
   "messageSentSuccess": "Message sent successfully!",
+  "@messageSentSuccess": {
+    "description": "Localized text for message sent success."
+  },
   "errorSendingMessage": "Error sending message.",
-
+  "@errorSendingMessage": {
+    "description": "Error message for sending message."
+  },
   "dashboardAppStats": "ShipRate in numbers",
+  "@dashboardAppStats": {
+    "description": "Localized text for dashboard app stats."
+  },
   "dashboardYourActivity": "Your Activity",
+  "@dashboardYourActivity": {
+    "description": "Localized text for dashboard your activity."
+  },
   "totalShipsLabel": "Ships",
+  "@totalShipsLabel": {
+    "description": "Label text for total ships."
+  },
   "totalRatingsLabel": "Ratings",
+  "@totalRatingsLabel": {
+    "description": "Label text for total ratings."
+  },
   "activePilotsLabel": "Pilots",
+  "@activePilotsLabel": {
+    "description": "Label text for active pilots."
+  },
   "yourRatingsLabel": "Your Ratings",
+  "@yourRatingsLabel": {
+    "description": "Label text for your ratings."
+  },
   "yourContribution": "Your Contribution",
+  "@yourContribution": {
+    "description": "Localized text for your contribution."
+  },
   "contributionProgress": "{percent}% of ratings",
   "@contributionProgress": {
     "placeholders": {
-      "percent": { "type": "String" }
+      "percent": {
+        "type": "String"
+      }
     }
   },
   "contributionSummary": "You rated {userCount} of {totalCount}",
   "@contributionSummary": {
     "placeholders": {
-      "userCount": { "type": "String" },
-      "totalCount": { "type": "String" }
+      "userCount": {
+        "type": "String"
+      },
+      "totalCount": {
+        "type": "String"
+      }
     }
   },
   "topRaterInfo": "The top rated pilot registered {count} ratings",
   "@topRaterInfo": {
     "placeholders": {
-      "count": { "type": "String" }
+      "count": {
+        "type": "String"
+      }
     }
   },
   "userRankingPosition": "Your position: #{position} of {total} pilots",
   "@userRankingPosition": {
     "placeholders": {
-      "position": { "type": "String" },
-      "total": { "type": "String" }
+      "position": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "recentActivity": "Recent Activity",
+  "@recentActivity": {
+    "description": "Localized text for recent activity."
+  },
   "noRecentActivity": "No recent activity",
+  "@noRecentActivity": {
+    "description": "Empty-state or negative message for recent activity."
+  },
   "lastRatedShip": "Latest Rating",
+  "@lastRatedShip": {
+    "description": "Localized text for last rated ship."
+  },
   "lastRatedShipsTitle": "Latest Ratings",
+  "@lastRatedShipsTitle": {
+    "description": "Title text for last rated ships."
+  },
   "noRecentRatings": "No recent ratings",
-
+  "@noRecentRatings": {
+    "description": "Empty-state or negative message for recent ratings."
+  },
   "pdfReportTitle": "Ship Rating Report",
+  "@pdfReportTitle": {
+    "description": "Title text for pdf report."
+  },
   "pdfEvaluationInfo": "Evaluation Information",
+  "@pdfEvaluationInfo": {
+    "description": "Localized text for pdf evaluation info."
+  },
   "pdfEvaluator": "Evaluator Pilot",
+  "@pdfEvaluator": {
+    "description": "Localized text for pdf evaluator."
+  },
   "pdfEvaluationDate": "Evaluation Date",
+  "@pdfEvaluationDate": {
+    "description": "Localized text for pdf evaluation date."
+  },
   "pdfCabinType": "Cabin Type",
+  "@pdfCabinType": {
+    "description": "Localized text for pdf cabin type."
+  },
   "pdfDisembarkationDate": "Disembarkation Date",
+  "@pdfDisembarkationDate": {
+    "description": "Localized text for pdf disembarkation date."
+  },
   "pdfOverallAverage": "Overall Average Score",
+  "@pdfOverallAverage": {
+    "description": "Localized text for pdf overall average."
+  },
   "pdfCrewNationality": "Crew Nationality",
+  "@pdfCrewNationality": {
+    "description": "Localized text for pdf crew nationality."
+  },
   "pdfCabinCount": "Number of Cabins",
+  "@pdfCabinCount": {
+    "description": "Localized text for pdf cabin count."
+  },
   "pdfRatingsByCriteria": "Ratings by Criteria",
+  "@pdfRatingsByCriteria": {
+    "description": "Localized text for pdf ratings by criteria."
+  },
   "pdfGeneralObservation": "General Observation",
+  "@pdfGeneralObservation": {
+    "description": "Localized text for pdf general observation."
+  },
   "pdfGeneratedBy": "Generated by ShipRate",
+  "@pdfGeneratedBy": {
+    "description": "Localized text for pdf generated by."
+  },
   "pdfDateLabel": "Date",
+  "@pdfDateLabel": {
+    "description": "Label text for pdf date."
+  },
   "ratingSavedSuccess": "Rating saved successfully!",
+  "@ratingSavedSuccess": {
+    "description": "Localized text for rating saved success."
+  },
   "rateThisShip": "Rate This Ship",
-
+  "@rateThisShip": {
+    "description": "Localized text for rate this ship."
+  },
   "welcomePilot": "Welcome, {name}",
   "@welcomePilot": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "selectModule": "Select module",
+  "@selectModule": {
+    "description": "Localized text for select module."
+  },
   "shipRatingModule": "Ship Rating",
+  "@shipRatingModule": {
+    "description": "Localized text for ship rating module."
+  },
   "shipRatingDesc": "Rate ships and share experiences",
+  "@shipRatingDesc": {
+    "description": "Description text for ship rating."
+  },
   "navSafetyModule": "Navigation Safety",
+  "@navSafetyModule": {
+    "description": "Localized text for nav safety module."
+  },
   "navSafetyDesc": "Depths, draft and section conditions",
-
+  "@navSafetyDesc": {
+    "description": "Description text for nav safety."
+  },
   "latestDepths": "Latest Depths",
+  "@latestDepths": {
+    "description": "Localized text for latest depths."
+  },
   "locations": "Locations",
+  "@locations": {
+    "description": "Localized text for locations."
+  },
   "newRecord": "New Record",
+  "@newRecord": {
+    "description": "Localized text for new record."
+  },
   "latestDepthsRegistered": "Latest registered depths",
+  "@latestDepthsRegistered": {
+    "description": "Localized text for latest depths registered."
+  },
   "noRecords": "No records",
+  "@noRecords": {
+    "description": "Empty-state or negative message for records."
+  },
   "lastDepth": "LAST DEPTH",
+  "@lastDepth": {
+    "description": "Localized text for last depth."
+  },
   "history": "History",
+  "@history": {
+    "description": "Localized text for history."
+  },
   "back": "Back",
+  "@back": {
+    "description": "Localized text for back."
+  },
   "totalDepth": "TOTAL DEPTH",
+  "@totalDepth": {
+    "description": "Localized text for total depth."
+  },
   "maxDraft": "MAX DRAFT",
+  "@maxDraft": {
+    "description": "Localized text for max draft."
+  },
   "ukc": "UKC",
+  "@ukc": {
+    "description": "Localized text for ukc."
+  },
   "direction": "DIRECTION",
-
+  "@direction": {
+    "description": "Localized text for direction."
+  },
   "passageData": "Passage Data",
+  "@passageData": {
+    "description": "Localized text for passage data."
+  },
   "selectLocation": "Select location",
+  "@selectLocation": {
+    "description": "Localized text for select location."
+  },
   "addNewLocation": "Add new location",
+  "@addNewLocation": {
+    "description": "Localized text for add new location."
+  },
   "newLocationName": "New location name",
+  "@newLocationName": {
+    "description": "Localized text for new location name."
+  },
   "anchoragePt": "Point (1-15)",
+  "@anchoragePt": {
+    "description": "Localized text for anchorage pt."
+  },
   "shipNameOptional": "Ship name (optional)",
+  "@shipNameOptional": {
+    "description": "Localized text for ship name optional."
+  },
   "passageDate": "Passage date",
+  "@passageDate": {
+    "description": "Localized text for passage date."
+  },
   "goingUp": "Going up",
+  "@goingUp": {
+    "description": "Localized text for going up."
+  },
   "goingDown": "Going down",
+  "@goingDown": {
+    "description": "Localized text for going down."
+  },
   "totalDepthLabel": "TOTAL DEPTH",
+  "@totalDepthLabel": {
+    "description": "Label text for total depth."
+  },
   "complementaryData": "Complementary Data",
+  "@complementaryData": {
+    "description": "Localized text for complementary data."
+  },
   "maxDraftInput": "Max Draft (m)",
+  "@maxDraftInput": {
+    "description": "Localized text for max draft input."
+  },
   "ukcInput": "UKC (m)",
+  "@ukcInput": {
+    "description": "Localized text for ukc input."
+  },
   "speedOptional": "Speed (knots)",
+  "@speedOptional": {
+    "description": "Localized text for speed optional."
+  },
   "optional": "optional",
+  "@optional": {
+    "description": "Localized text for optional."
+  },
   "squatConsidered": "Squat considered?",
+  "@squatConsidered": {
+    "description": "Localized text for squat considered."
+  },
   "sonarPosition": "Sonar Position",
+  "@sonarPosition": {
+    "description": "Localized text for sonar position."
+  },
   "bow": "Bow",
+  "@bow": {
+    "description": "Localized text for bow."
+  },
   "stern": "Stern",
+  "@stern": {
+    "description": "Localized text for stern."
+  },
   "positionLatLong": "Position (LAT/LONG)",
+  "@positionLatLong": {
+    "description": "Localized text for position lat long."
+  },
   "observations": "Observations / References",
+  "@observations": {
+    "description": "Localized text for observations."
+  },
   "additionalInfo": "Additional information...",
+  "@additionalInfo": {
+    "description": "Localized text for additional info."
+  },
   "registerPassage": "Register Passage",
+  "@registerPassage": {
+    "description": "Localized text for register passage."
+  },
   "recordSavedSuccess": "Record saved successfully!",
+  "@recordSavedSuccess": {
+    "description": "Localized text for record saved success."
+  },
   "locationRequired": "Select a location",
+  "@locationRequired": {
+    "description": "Localized text for location required."
+  },
   "depthRequired": "Enter total depth",
+  "@depthRequired": {
+    "description": "Localized text for depth required."
+  },
   "draftRequired": "Enter max draft",
+  "@draftRequired": {
+    "description": "Localized text for draft required."
+  },
   "ukcRequired": "Enter UKC",
+  "@ukcRequired": {
+    "description": "Localized text for ukc required."
+  },
   "directionRequired": "Select direction",
+  "@directionRequired": {
+    "description": "Localized text for direction required."
+  },
   "sonarRequired": "Select sonar position",
-
+  "@sonarRequired": {
+    "description": "Localized text for sonar required."
+  },
   "myRecords": "My Records",
+  "@myRecords": {
+    "description": "Localized text for my records."
+  },
   "drawerMyRecords": "My Records",
+  "@drawerMyRecords": {
+    "description": "Localized text for drawer my records."
+  },
   "yourRecords": "Your Records",
+  "@yourRecords": {
+    "description": "Localized text for your records."
+  },
   "recordsLabel": "records",
+  "@recordsLabel": {
+    "description": "Label text for records."
+  },
   "locationsLabel": "locations",
+  "@locationsLabel": {
+    "description": "Label text for locations."
+  },
   "contributionLabel": "contribution",
+  "@contributionLabel": {
+    "description": "Label text for contribution."
+  },
   "editRecord": "Edit",
+  "@editRecord": {
+    "description": "Localized text for edit record."
+  },
   "deleteRecord": "Delete",
+  "@deleteRecord": {
+    "description": "Localized text for delete record."
+  },
   "deleteRecordTitle": "Delete Record",
+  "@deleteRecordTitle": {
+    "description": "Title text for delete record."
+  },
   "deleteRecordConfirm": "Are you sure you want to delete this record? This action cannot be undone.",
+  "@deleteRecordConfirm": {
+    "description": "Localized text for delete record confirm."
+  },
   "recordDeletedSuccess": "Record deleted successfully!",
+  "@recordDeletedSuccess": {
+    "description": "Localized text for record deleted success."
+  },
   "recordUpdatedSuccess": "Record updated successfully!",
+  "@recordUpdatedSuccess": {
+    "description": "Localized text for record updated success."
+  },
   "updatePassage": "Update Passage",
+  "@updatePassage": {
+    "description": "Localized text for update passage."
+  },
   "noRecordsYet": "No records yet",
+  "@noRecordsYet": {
+    "description": "Empty-state or negative message for records yet."
+  },
   "noRecordsSubtitle": "You haven't registered any passages yet.\nStart recording your next passage!",
+  "@noRecordsSubtitle": {
+    "description": "Subtitle text for no records."
+  },
   "recordDetails": "Record Details",
+  "@recordDetails": {
+    "description": "Localized text for record details."
+  },
   "passageInfo": "Passage Information",
+  "@passageInfo": {
+    "description": "Localized text for passage info."
+  },
   "by": "By",
+  "@by": {
+    "description": "Localized text for by."
+  },
   "technicalData": "Technical Data",
+  "@technicalData": {
+    "description": "Localized text for technical data."
+  },
   "position": "Position",
+  "@position": {
+    "description": "Localized text for position."
+  },
   "anchoragePoint": "Anchorage Point",
+  "@anchoragePoint": {
+    "description": "Localized text for anchorage point."
+  },
   "totalDepthShort": "Total Depth",
+  "@totalDepthShort": {
+    "description": "Localized text for total depth short."
+  },
   "modules": "Modules",
+  "@modules": {
+    "description": "Localized text for modules."
+  },
   "lastRecordBy": "Last record by: {name}",
   "@lastRecordBy": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "navShipLabel": "Ship: {name}",
   "@navShipLabel": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "enterEmail": "Enter your email",
+  "@enterEmail": {
+    "description": "Localized text for enter email."
+  },
   "sendCode": "Send code",
+  "@sendCode": {
+    "description": "Localized text for send code."
+  },
   "emailNotAuthorized": "Email not authorized. Contact ZP01.",
+  "@emailNotAuthorized": {
+    "description": "Localized text for email not authorized."
+  },
   "codeSentTo": "Code sent to {email}",
   "@codeSentTo": {
     "placeholders": {
-      "email": { "type": "String" }
+      "email": {
+        "type": "String"
+      }
     }
   },
   "enterCode": "Enter the 6-digit code",
+  "@enterCode": {
+    "description": "Localized text for enter code."
+  },
   "verify": "Verify",
+  "@verify": {
+    "description": "Localized text for verify."
+  },
   "resendCode": "Resend code",
+  "@resendCode": {
+    "description": "Localized text for resend code."
+  },
   "invalidCode": "Invalid code",
+  "@invalidCode": {
+    "description": "Localized text for invalid code."
+  },
   "expiredCode": "Code expired. Request a new one.",
+  "@expiredCode": {
+    "description": "Localized text for expired code."
+  },
   "rateLimited": "Too many attempts. Wait 15 minutes.",
+  "@rateLimited": {
+    "description": "Localized text for rate limited."
+  },
   "tooManyAttempts": "Too many incorrect attempts. Wait 15 minutes.",
+  "@tooManyAttempts": {
+    "description": "Localized text for too many attempts."
+  },
   "resendIn": "Resend in {seconds}s",
   "@resendIn": {
     "placeholders": {
-      "seconds": { "type": "String" }
+      "seconds": {
+        "type": "String"
+      }
     }
   },
-
   "noAccount": "Don't have an account? Register",
+  "@noAccount": {
+    "description": "Empty-state or negative message for account."
+  },
   "register": "Register",
+  "@register": {
+    "description": "Localized text for register."
+  },
   "createPassword": "Create password",
+  "@createPassword": {
+    "description": "Localized text for create password."
+  },
   "passwordHint": "Minimum 6 characters",
+  "@passwordHint": {
+    "description": "Hint text for password."
+  },
   "accountCreated": "Account created successfully!",
+  "@accountCreated": {
+    "description": "Localized text for account created."
+  },
   "invalidCredentials": "Invalid email or password",
+  "@invalidCredentials": {
+    "description": "Localized text for invalid credentials."
+  },
   "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {
+    "description": "Localized text for passwords do not match."
+  },
   "passwordTooShort": "Password must be at least 6 characters",
+  "@passwordTooShort": {
+    "description": "Localized text for password too short."
+  },
   "emailAlreadyRegistered": "This email already has an account. Use the login screen.",
-
+  "@emailAlreadyRegistered": {
+    "description": "Localized text for email already registered."
+  },
   "settings": "Settings",
+  "@settings": {
+    "description": "Localized text for settings."
+  },
   "pushNotifications": "Push notifications",
+  "@pushNotifications": {
+    "description": "Localized text for push notifications."
+  },
   "emailNotifications": "Email notifications",
+  "@emailNotifications": {
+    "description": "Localized text for email notifications."
+  },
   "notificationPermissionDenied": "Notification permission denied",
+  "@notificationPermissionDenied": {
+    "description": "Notification-related text for permission denied."
+  },
   "invalidEmail": "Invalid email",
-
+  "@invalidEmail": {
+    "description": "Localized text for invalid email."
+  },
   "navSafetyBlocked": "To access the navigation safety area, register again in the app using your Unipilot email.",
-
+  "@navSafetyBlocked": {
+    "description": "Localized text for nav safety blocked."
+  },
   "photos": "Photos",
+  "@photos": {
+    "description": "Localized text for photos."
+  },
   "addPhoto": "Add photo",
+  "@addPhoto": {
+    "description": "Localized text for add photo."
+  },
   "maxPhotosReached": "Maximum 3 photos",
-
+  "@maxPhotosReached": {
+    "description": "Localized text for max photos reached."
+  },
   "notificationDialogTitle": "Notifications",
+  "@notificationDialogTitle": {
+    "description": "Notification-related text for dialog title."
+  },
   "notificationDialogBody": "Would you like to receive notifications when new depth records are added?",
+  "@notificationDialogBody": {
+    "description": "Notification-related text for dialog body."
+  },
   "notificationDialogEnable": "Enable",
+  "@notificationDialogEnable": {
+    "description": "Notification-related text for dialog enable."
+  },
   "notificationDialogNotNow": "Not now",
+  "@notificationDialogNotNow": {
+    "description": "Notification-related text for dialog not now."
+  },
   "notificationsEnabled": "Notifications enabled!",
-
+  "@notificationsEnabled": {
+    "description": "Notification-related text shown after notifications are enabled."
+  },
   "likedBy": "Liked by {names}",
   "@likedBy": {
     "placeholders": {
-      "names": { "type": "String" }
+      "names": {
+        "type": "String"
+      }
     }
   },
   "andWord": "and",
+  "@andWord": {
+    "description": "Localized text for and word."
+  },
   "andMore": "and {count} more",
   "@andMore": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "likeNotification": "{name} liked your depth record",
   "@likeNotification": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "ratingLikeNotification": "{name} liked your rating",
   "@ratingLikeNotification": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
+  },
+  "milestone200Title": "200 Ships!",
+  "@milestone200Title": {
+    "description": "Title text for milestone200."
+  },
+  "milestone200Body": "ShipRate has reached 200 registered ships in less than 6 months! Every pilot is now better prepared to board, with access to ratings and navigation data shared by all. Thank you for contributing to the app's growth.",
+  "@milestone200Body": {
+    "description": "Localized text for milestone200 body."
+  },
+  "milestone200Button": "Congratulations to all!",
+  "@milestone200Button": {
+    "description": "Button label for milestone200."
+  },
+  "switchToNavSafety": "Switch to Navigation Safety",
+  "@switchToNavSafety": {
+    "description": "Drawer item to switch to nav safety module."
+  },
+  "switchToShipRating": "Switch to Ship Rating",
+  "@switchToShipRating": {
+    "description": "Drawer item to switch to ship rating module."
+  },
+  "recordSaved": "Record saved!",
+  "@recordSaved": {
+    "description": "Dialog title after saving a depth record."
+  },
+  "shareRecordPrompt": "Would you like to share this depth record with other pilots?",
+  "@shareRecordPrompt": {
+    "description": "Dialog body asking to share depth record."
+  },
+  "shareRecord": "Share",
+  "@shareRecord": {
+    "description": "Button label to share a record."
+  },
+  "noThanks": "No, thanks",
+  "@noThanks": {
+    "description": "Button label to dismiss share dialog."
   }
 }

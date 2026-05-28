@@ -84,6 +84,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     await _showNotificationDialogIfNeeded();
+    await _showMilestoneDialogIfNeeded();
   }
 
   Future<void> _showNotificationDialogIfNeeded() async {
@@ -183,6 +184,102 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             },
             child: Text(
               l10n.notificationDialogEnable,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showMilestoneDialogIfNeeded() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
+    if (!mounted) return;
+
+    if (doc.data()?['milestone200Shown'] == true) return;
+
+    final countSnapshot = await FirebaseFirestore.instance
+        .collection('navios')
+        .count()
+        .get();
+    final totalShips = countSnapshot.count ?? 0;
+    if (totalShips < 200) return;
+    if (!mounted) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0x1A26A69A),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.emoji_events,
+                color: Color(0xFF26A69A),
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.milestone200Title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.milestone200Body,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF26A69A),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () async {
+              await FirebaseFirestore.instance
+                  .collection('usuarios')
+                  .doc(uid)
+                  .set(
+                {'milestone200Shown': true},
+                SetOptions(merge: true),
+              );
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: Text(
+              l10n.milestone200Button,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),

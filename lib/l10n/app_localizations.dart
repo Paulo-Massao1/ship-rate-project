@@ -95,1907 +95,1961 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
-  /// No description provided for @appTitle.
+  /// Title text for app.
   ///
   /// In pt, this message translates to:
   /// **'ShipRate'**
   String get appTitle;
 
-  /// No description provided for @email.
+  /// Localized text for email.
   ///
   /// In pt, this message translates to:
   /// **'E-mail'**
   String get email;
 
-  /// No description provided for @password.
+  /// Localized text for password.
   ///
   /// In pt, this message translates to:
   /// **'Senha'**
   String get password;
 
-  /// No description provided for @yes.
+  /// Localized text for the affirmative response option.
   ///
   /// In pt, this message translates to:
   /// **'Sim'**
   String get yes;
 
-  /// No description provided for @no.
+  /// Localized text for the negative response option.
   ///
   /// In pt, this message translates to:
   /// **'Não'**
   String get no;
 
-  /// No description provided for @cancel.
+  /// Button label used to cancel an action.
   ///
   /// In pt, this message translates to:
   /// **'Cancelar'**
   String get cancel;
 
-  /// No description provided for @ratings.
+  /// Localized text for ratings.
   ///
   /// In pt, this message translates to:
   /// **'Avaliações'**
   String get ratings;
 
-  /// No description provided for @cabin.
+  /// Localized text for cabin.
   ///
   /// In pt, this message translates to:
   /// **'Cabine'**
   String get cabin;
 
-  /// No description provided for @bridge.
+  /// Localized text for bridge.
   ///
   /// In pt, this message translates to:
   /// **'Passadiço'**
   String get bridge;
 
-  /// No description provided for @pilot.
+  /// Localized text for pilot.
   ///
   /// In pt, this message translates to:
   /// **'Prático'**
   String get pilot;
 
-  /// No description provided for @loginSubtitle.
+  /// Subtitle text for login.
   ///
   /// In pt, this message translates to:
   /// **'Entre com seu e-mail e senha para continuar'**
   String get loginSubtitle;
 
-  /// No description provided for @loginButton.
+  /// Button label for login.
   ///
   /// In pt, this message translates to:
   /// **'Entrar'**
   String get loginButton;
 
-  /// No description provided for @loginSuccess.
+  /// Localized text for login success.
   ///
   /// In pt, this message translates to:
   /// **'Login realizado com sucesso'**
   String get loginSuccess;
 
-  /// No description provided for @forgotPassword.
+  /// Localized text for forgot password.
   ///
   /// In pt, this message translates to:
   /// **'Esqueci minha senha'**
   String get forgotPassword;
 
-  /// No description provided for @createAccount.
+  /// Localized text for create account.
   ///
   /// In pt, this message translates to:
   /// **'Criar nova conta'**
   String get createAccount;
 
-  /// No description provided for @createAccountTitle.
+  /// Title text for create account.
   ///
   /// In pt, this message translates to:
   /// **'Criar conta'**
   String get createAccountTitle;
 
-  /// No description provided for @registerSubtitle.
+  /// Subtitle text for register.
   ///
   /// In pt, this message translates to:
   /// **'Preencha os dados para continuar'**
   String get registerSubtitle;
 
-  /// No description provided for @callSign.
+  /// Localized text for call sign.
   ///
   /// In pt, this message translates to:
   /// **'Nome de guerra'**
   String get callSign;
 
-  /// No description provided for @confirmPassword.
+  /// Localized text for confirm password.
   ///
   /// In pt, this message translates to:
   /// **'Confirmar senha'**
   String get confirmPassword;
 
-  /// No description provided for @registerButton.
+  /// Button label for register.
   ///
   /// In pt, this message translates to:
   /// **'Cadastrar'**
   String get registerButton;
 
-  /// No description provided for @registerSuccess.
+  /// Localized text for register success.
   ///
   /// In pt, this message translates to:
   /// **'Cadastro realizado com sucesso'**
   String get registerSuccess;
 
-  /// No description provided for @alreadyHaveAccount.
+  /// Localized text for already have account.
   ///
   /// In pt, this message translates to:
   /// **'Já tem conta? Entrar'**
   String get alreadyHaveAccount;
 
-  /// No description provided for @recoverPassword.
+  /// Localized text for recover password.
   ///
   /// In pt, this message translates to:
   /// **'Recuperar senha'**
   String get recoverPassword;
 
-  /// No description provided for @recoverPasswordSubtitle.
+  /// Subtitle text for recover password.
   ///
   /// In pt, this message translates to:
   /// **'Informe seu e-mail para receber o link de redefinição'**
   String get recoverPasswordSubtitle;
 
-  /// No description provided for @sendLink.
+  /// Localized text for send link.
   ///
   /// In pt, this message translates to:
   /// **'Enviar link'**
   String get sendLink;
 
-  /// No description provided for @resetEmailSent.
+  /// Localized text for reset email sent.
   ///
   /// In pt, this message translates to:
   /// **'Enviamos um link de recuperação para o seu e-mail.'**
   String get resetEmailSent;
 
-  /// No description provided for @spamNotice.
+  /// Localized text for spam notice.
   ///
   /// In pt, this message translates to:
   /// **'Caso não encontre o e-mail, verifique também sua caixa de SPAM ou Lixo Eletrônico.'**
   String get spamNotice;
 
-  /// No description provided for @backToLogin.
+  /// Localized text for back to login.
   ///
   /// In pt, this message translates to:
   /// **'Voltar para o login'**
   String get backToLogin;
 
-  /// No description provided for @appSubtitle.
+  /// Subtitle text for app.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação profissional de navios'**
   String get appSubtitle;
 
-  /// No description provided for @drawerSearchRate.
+  /// Localized text for drawer search rate.
   ///
   /// In pt, this message translates to:
   /// **'Buscar / Avaliar Navios'**
   String get drawerSearchRate;
 
-  /// No description provided for @drawerMyRatings.
+  /// Localized text for drawer my ratings.
   ///
   /// In pt, this message translates to:
   /// **'Minhas Avaliações'**
   String get drawerMyRatings;
 
-  /// No description provided for @drawerSendSuggestion.
+  /// Localized text for drawer send suggestion.
   ///
   /// In pt, this message translates to:
   /// **'Enviar Sugestão'**
   String get drawerSendSuggestion;
 
-  /// No description provided for @drawerShareApp.
+  /// Localized text for drawer share app.
   ///
   /// In pt, this message translates to:
   /// **'Compartilhar App'**
   String get drawerShareApp;
 
-  /// No description provided for @drawerLogout.
+  /// Localized text for drawer logout.
   ///
   /// In pt, this message translates to:
   /// **'Sair'**
   String get drawerLogout;
 
-  /// No description provided for @linkCopied.
+  /// Localized text for link copied.
   ///
   /// In pt, this message translates to:
   /// **'Link copiado para a área de transferência!'**
   String get linkCopied;
 
-  /// No description provided for @updateAvailable.
+  /// Localized text for update available.
   ///
   /// In pt, this message translates to:
   /// **'Atualização Disponível'**
   String get updateAvailable;
 
-  /// No description provided for @shareShipRate.
+  /// Localized text for share ship rate.
   ///
   /// In pt, this message translates to:
   /// **'Compartilhar ShipRate'**
   String get shareShipRate;
 
-  /// No description provided for @copyLink.
+  /// Localized text for copy link.
   ///
   /// In pt, this message translates to:
   /// **'Copiar Link'**
   String get copyLink;
 
-  /// No description provided for @shareText.
+  /// Localized text for share text.
   ///
   /// In pt, this message translates to:
   /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app'**
   String get shareText;
 
-  /// No description provided for @shipRatingTitle.
+  /// Title text for ship rating.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação de Navios'**
   String get shipRatingTitle;
 
-  /// No description provided for @searchSubtitle.
+  /// Subtitle text for search.
   ///
   /// In pt, this message translates to:
   /// **'Pesquise avaliações ou registre sua experiência'**
   String get searchSubtitle;
 
-  /// No description provided for @searchTab.
+  /// Localized text for search tab.
   ///
   /// In pt, this message translates to:
   /// **'Buscar'**
   String get searchTab;
 
-  /// No description provided for @rateTab.
+  /// Localized text for rate tab.
   ///
   /// In pt, this message translates to:
   /// **'Avaliar'**
   String get rateTab;
 
-  /// No description provided for @searchHint.
+  /// Hint text for search.
   ///
   /// In pt, this message translates to:
   /// **'Buscar por nome do navio ou IMO'**
   String get searchHint;
 
-  /// No description provided for @newShipRating.
+  /// Localized text for new ship rating.
   ///
   /// In pt, this message translates to:
   /// **'Nova Avaliação de Navio'**
   String get newShipRating;
 
-  /// No description provided for @rateSubtitle.
+  /// Subtitle text for rate.
   ///
   /// In pt, this message translates to:
   /// **'Registre sua avaliação técnica de forma rápida e segura'**
   String get rateSubtitle;
 
-  /// No description provided for @startRating.
+  /// Localized text for start rating.
   ///
   /// In pt, this message translates to:
   /// **'Iniciar avaliação'**
   String get startRating;
 
-  /// No description provided for @generalInfo.
+  /// Localized text for general info.
   ///
   /// In pt, this message translates to:
   /// **'Informações Gerais'**
   String get generalInfo;
 
-  /// No description provided for @ratingAverages.
+  /// Localized text for rating averages.
   ///
   /// In pt, this message translates to:
   /// **'Médias das Avaliações'**
   String get ratingAverages;
 
-  /// No description provided for @viewOnMarineTraffic.
+  /// Localized text for view on marine traffic.
   ///
   /// In pt, this message translates to:
   /// **'Ver Detalhes no MarineTraffic'**
   String get viewOnMarineTraffic;
 
-  /// No description provided for @marineTrafficError.
+  /// Localized text for marine traffic error.
   ///
   /// In pt, this message translates to:
   /// **'Não foi possível abrir MarineTraffic'**
   String get marineTrafficError;
 
-  /// No description provided for @crew.
+  /// Localized text for crew.
   ///
   /// In pt, this message translates to:
   /// **'Tripulação'**
   String get crew;
 
-  /// No description provided for @cabins.
+  /// Localized text for cabins.
   ///
   /// In pt, this message translates to:
   /// **'Cabines'**
   String get cabins;
 
-  /// No description provided for @minibar.
+  /// Localized text for minibar.
   ///
   /// In pt, this message translates to:
   /// **'Frigobar'**
   String get minibar;
 
-  /// No description provided for @sink.
+  /// Localized text for sink.
   ///
   /// In pt, this message translates to:
   /// **'Pia'**
   String get sink;
 
-  /// No description provided for @microwave.
+  /// Localized text for microwave.
   ///
   /// In pt, this message translates to:
   /// **'Micro-ondas'**
   String get microwave;
 
-  /// No description provided for @avgCabinTemp.
+  /// Localized text for avg cabin temp.
   ///
   /// In pt, this message translates to:
   /// **'Temp. Cabine'**
   String get avgCabinTemp;
 
-  /// No description provided for @avgCabinCleanliness.
+  /// Localized text for avg cabin cleanliness.
   ///
   /// In pt, this message translates to:
   /// **'Limpeza Cabine'**
   String get avgCabinCleanliness;
 
-  /// No description provided for @avgBridgeEquipment.
+  /// Localized text for avg bridge equipment.
   ///
   /// In pt, this message translates to:
   /// **'Equip. Passadiço'**
   String get avgBridgeEquipment;
 
-  /// No description provided for @avgBridgeTemp.
+  /// Localized text for avg bridge temp.
   ///
   /// In pt, this message translates to:
   /// **'Temp. Passadiço'**
   String get avgBridgeTemp;
 
-  /// No description provided for @avgFood.
+  /// Localized text for avg food.
   ///
   /// In pt, this message translates to:
   /// **'Alimentação'**
   String get avgFood;
 
-  /// No description provided for @avgRelationship.
+  /// Localized text for avg relationship.
   ///
   /// In pt, this message translates to:
   /// **'Relacionamento'**
   String get avgRelationship;
 
-  /// No description provided for @avgDevice.
+  /// Localized text for avg device.
   ///
   /// In pt, this message translates to:
   /// **'Dispositivo'**
   String get avgDevice;
 
-  /// No description provided for @pilotCallSign.
+  /// Localized text for pilot call sign.
   ///
   /// In pt, this message translates to:
   /// **'Prático: {callSign}'**
   String pilotCallSign(String callSign);
 
-  /// No description provided for @viewRating.
+  /// Localized text for view rating.
   ///
   /// In pt, this message translates to:
   /// **'Visualizar avaliação'**
   String get viewRating;
 
-  /// No description provided for @rateShipTitle.
+  /// Title text for rate ship.
   ///
   /// In pt, this message translates to:
   /// **'Avaliar Navio'**
   String get rateShipTitle;
 
-  /// No description provided for @saveRating.
+  /// Localized text for save rating.
   ///
   /// In pt, this message translates to:
   /// **'Salvar Avaliação'**
   String get saveRating;
 
-  /// No description provided for @shipData.
+  /// Localized text for ship data.
   ///
   /// In pt, this message translates to:
   /// **'Dados do Navio'**
   String get shipData;
 
-  /// No description provided for @shipName.
+  /// Localized text for ship name.
   ///
   /// In pt, this message translates to:
   /// **'Nome do navio'**
   String get shipName;
 
-  /// No description provided for @enterShipName.
+  /// Localized text for enter ship name.
   ///
   /// In pt, this message translates to:
   /// **'Informe o nome do navio'**
   String get enterShipName;
 
-  /// No description provided for @imoOptional.
+  /// Localized text for imo optional.
   ///
   /// In pt, this message translates to:
   /// **'IMO (opcional)'**
   String get imoOptional;
 
-  /// No description provided for @disembarkationDate.
+  /// Localized text for disembarkation date.
   ///
   /// In pt, this message translates to:
   /// **'Data de desembarque'**
   String get disembarkationDate;
 
-  /// No description provided for @tapToSelect.
+  /// Localized text for tap to select.
   ///
   /// In pt, this message translates to:
   /// **'Toque para selecionar'**
   String get tapToSelect;
 
-  /// No description provided for @crewNationality.
+  /// Localized text for crew nationality.
   ///
   /// In pt, this message translates to:
   /// **'Nacionalidade da tripulação'**
   String get crewNationality;
 
-  /// No description provided for @nationalityFilipino.
+  /// Localized text for nationality filipino.
   ///
   /// In pt, this message translates to:
   /// **'Filipina'**
   String get nationalityFilipino;
 
-  /// No description provided for @nationalityRussian.
+  /// Localized text for nationality russian.
   ///
   /// In pt, this message translates to:
   /// **'Russa'**
   String get nationalityRussian;
 
-  /// No description provided for @nationalityUkrainian.
+  /// Localized text for nationality ukrainian.
   ///
   /// In pt, this message translates to:
   /// **'Ucraniana'**
   String get nationalityUkrainian;
 
-  /// No description provided for @nationalityIndian.
+  /// Localized text for nationality indian.
   ///
   /// In pt, this message translates to:
   /// **'Indiana'**
   String get nationalityIndian;
 
-  /// No description provided for @nationalityChinese.
+  /// Localized text for nationality chinese.
   ///
   /// In pt, this message translates to:
   /// **'Chinesa'**
   String get nationalityChinese;
 
-  /// No description provided for @nationalityBrazilian.
+  /// Localized text for nationality brazilian.
   ///
   /// In pt, this message translates to:
   /// **'Brasileira'**
   String get nationalityBrazilian;
 
-  /// No description provided for @nationalityOther.
+  /// Localized text for nationality other.
   ///
   /// In pt, this message translates to:
   /// **'Outro'**
   String get nationalityOther;
 
-  /// No description provided for @specifyNationality.
+  /// Localized text for specify nationality.
   ///
   /// In pt, this message translates to:
   /// **'Especifique a nacionalidade'**
   String get specifyNationality;
 
-  /// No description provided for @cabinCount.
+  /// Localized text for cabin count.
   ///
   /// In pt, this message translates to:
   /// **'Quantidade de cabines'**
   String get cabinCount;
 
-  /// No description provided for @cabinCountOne.
+  /// Localized text for cabin count one.
   ///
   /// In pt, this message translates to:
   /// **'Uma'**
   String get cabinCountOne;
 
-  /// No description provided for @cabinCountTwo.
+  /// Localized text for cabin count two.
   ///
   /// In pt, this message translates to:
   /// **'Duas'**
   String get cabinCountTwo;
 
-  /// No description provided for @cabinCountMoreThanTwo.
+  /// Localized text for cabin count more than two.
   ///
   /// In pt, this message translates to:
   /// **'Mais de duas'**
   String get cabinCountMoreThanTwo;
 
-  /// No description provided for @cabinType.
+  /// Localized text for cabin type.
   ///
   /// In pt, this message translates to:
   /// **'Tipo da cabine'**
   String get cabinType;
 
-  /// No description provided for @cabinDeck.
+  /// Localized text for cabin deck.
   ///
   /// In pt, this message translates to:
   /// **'Deck da cabine'**
   String get cabinDeck;
 
-  /// No description provided for @deckBridge.
+  /// Localized text for deck bridge.
   ///
   /// In pt, this message translates to:
   /// **'Deck do passadiço'**
   String get deckBridge;
 
-  /// No description provided for @deck1Below.
+  /// Localized text for deck1 below.
   ///
   /// In pt, this message translates to:
   /// **'1 deck abaixo do passadiço'**
   String get deck1Below;
 
-  /// No description provided for @deck2Below.
+  /// Localized text for deck2 below.
   ///
   /// In pt, this message translates to:
   /// **'2 decks abaixo do passadiço'**
   String get deck2Below;
 
-  /// No description provided for @deck3Below.
+  /// Localized text for deck3 below.
   ///
   /// In pt, this message translates to:
   /// **'3 decks abaixo do passadiço'**
   String get deck3Below;
 
-  /// No description provided for @deck4PlusBelow.
+  /// Localized text for deck4 plus below.
   ///
   /// In pt, this message translates to:
   /// **'4+ decks abaixo do passadiço'**
   String get deck4PlusBelow;
 
-  /// No description provided for @deckLabel.
+  /// Label text for deck.
   ///
   /// In pt, this message translates to:
   /// **'Deck {deck}'**
   String deckLabel(String deck);
 
-  /// No description provided for @hasMinibar.
+  /// Localized text for has minibar.
   ///
   /// In pt, this message translates to:
   /// **'Possui frigobar'**
   String get hasMinibar;
 
-  /// No description provided for @hasSink.
+  /// Localized text for has sink.
   ///
   /// In pt, this message translates to:
   /// **'Possui pia'**
   String get hasSink;
 
-  /// No description provided for @hasMicrowave.
+  /// Localized text for has microwave.
   ///
   /// In pt, this message translates to:
   /// **'Possui micro-ondas'**
   String get hasMicrowave;
 
-  /// No description provided for @otherRatings.
+  /// Localized text for other ratings.
   ///
   /// In pt, this message translates to:
   /// **'Outras Avaliações'**
   String get otherRatings;
 
-  /// No description provided for @generalObservation.
+  /// Localized text for general observation.
   ///
   /// In pt, this message translates to:
   /// **'Observação Geral'**
   String get generalObservation;
 
-  /// No description provided for @generalObservationHint.
+  /// Hint text for general observation.
   ///
   /// In pt, this message translates to:
   /// **'Comentários adicionais sobre a experiência geral no navio...'**
   String get generalObservationHint;
 
-  /// No description provided for @observationsOptional.
+  /// Localized text for observations optional.
   ///
   /// In pt, this message translates to:
   /// **'Observações (opcional)'**
   String get observationsOptional;
 
-  /// No description provided for @shipFoundTapToRate.
+  /// Localized text for ship found tap to rate.
   ///
   /// In pt, this message translates to:
   /// **'Navio encontrado — toque para selecionar da lista'**
   String get shipFoundTapToRate;
 
-  /// No description provided for @shipExistsSelectFromList.
+  /// Localized text for ship exists select from list.
   ///
   /// In pt, this message translates to:
   /// **'Este navio já existe. Selecione-o na lista suspensa.'**
   String get shipExistsSelectFromList;
 
-  /// No description provided for @fillRequiredFields.
+  /// Localized text for fill required fields.
   ///
   /// In pt, this message translates to:
   /// **'Preencha todos os campos obrigatórios'**
   String get fillRequiredFields;
 
-  /// No description provided for @editRatingTitle.
+  /// Title text for edit rating.
   ///
   /// In pt, this message translates to:
   /// **'Editar Avaliação'**
   String get editRatingTitle;
 
-  /// No description provided for @saveChanges.
+  /// Localized text for save changes.
   ///
   /// In pt, this message translates to:
   /// **'Salvar Alterações'**
   String get saveChanges;
 
-  /// No description provided for @editWarningBanner.
+  /// Localized text for edit warning banner.
   ///
   /// In pt, this message translates to:
   /// **'Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.'**
   String get editWarningBanner;
 
-  /// No description provided for @ratingUpdatedSuccess.
+  /// Localized text for rating updated success.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação atualizada com sucesso!'**
   String get ratingUpdatedSuccess;
 
-  /// No description provided for @errorLoadingData.
+  /// Error message for loading data.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao carregar dados: {error}'**
   String errorLoadingData(String error);
 
-  /// No description provided for @errorSaving.
+  /// Error message for saving.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao salvar: {error}'**
   String errorSaving(String error);
 
-  /// No description provided for @shipNameRequired.
+  /// Localized text for ship name required.
   ///
   /// In pt, this message translates to:
   /// **'Nome do navio *'**
   String get shipNameRequired;
 
-  /// No description provided for @disembarkationDateRequired.
+  /// Localized text for disembarkation date required.
   ///
   /// In pt, this message translates to:
   /// **'Data de desembarque *'**
   String get disembarkationDateRequired;
 
-  /// No description provided for @cabinTypeRequired.
+  /// Localized text for cabin type required.
   ///
   /// In pt, this message translates to:
   /// **'Tipo da cabine *'**
   String get cabinTypeRequired;
 
-  /// No description provided for @myRatingsTitle.
+  /// Title text for my ratings.
   ///
   /// In pt, this message translates to:
   /// **'Minhas Avaliações'**
   String get myRatingsTitle;
 
-  /// No description provided for @loadingRatings.
+  /// Localized text for loading ratings.
   ///
   /// In pt, this message translates to:
   /// **'Carregando suas avaliações...'**
   String get loadingRatings;
 
-  /// No description provided for @tryAgain.
+  /// Localized text for try again.
   ///
   /// In pt, this message translates to:
   /// **'Tentar Novamente'**
   String get tryAgain;
 
-  /// No description provided for @noRatingsYet.
+  /// Empty-state or negative message for ratings yet.
   ///
   /// In pt, this message translates to:
   /// **'Nenhuma avaliação ainda'**
   String get noRatingsYet;
 
-  /// No description provided for @noRatingsSubtitle.
+  /// Subtitle text for no ratings.
   ///
   /// In pt, this message translates to:
   /// **'Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!'**
   String get noRatingsSubtitle;
 
-  /// No description provided for @totalRatings.
+  /// Localized text for total ratings.
   ///
   /// In pt, this message translates to:
   /// **'{count, plural, =1{Total: 1 avaliação} other{Total: {count} avaliações}}'**
   String totalRatings(int count);
 
-  /// No description provided for @newestFirst.
+  /// Localized text for newest first.
   ///
   /// In pt, this message translates to:
   /// **'Mais recentes primeiro'**
   String get newestFirst;
 
-  /// No description provided for @averageScore.
+  /// Localized text for average score.
   ///
   /// In pt, this message translates to:
   /// **'Nota Média'**
   String get averageScore;
 
-  /// No description provided for @ratingDate.
+  /// Localized text for rating date.
   ///
   /// In pt, this message translates to:
   /// **'Data de Avaliação'**
   String get ratingDate;
 
-  /// No description provided for @deleteLabel.
+  /// Label text for delete.
   ///
   /// In pt, this message translates to:
   /// **'Excluir'**
   String get deleteLabel;
 
-  /// No description provided for @editLabel.
+  /// Label text for edit.
   ///
   /// In pt, this message translates to:
   /// **'Editar'**
   String get editLabel;
 
-  /// No description provided for @ratingDeletedSuccess.
+  /// Localized text for rating deleted success.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação excluída com sucesso!'**
   String get ratingDeletedSuccess;
 
-  /// No description provided for @errorDeleting.
+  /// Error message for deleting.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao excluir: {error}'**
   String errorDeleting(String error);
 
-  /// No description provided for @pdfGeneratedSuccess.
+  /// Localized text for pdf generated success.
   ///
   /// In pt, this message translates to:
   /// **'PDF gerado com sucesso!'**
   String get pdfGeneratedSuccess;
 
-  /// No description provided for @errorGeneratingPdf.
+  /// Error message for generating pdf.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao gerar PDF: {error}'**
   String errorGeneratingPdf(String error);
 
-  /// No description provided for @editWarningTitle.
+  /// Title text for edit warning.
   ///
   /// In pt, this message translates to:
   /// **'Atenção'**
   String get editWarningTitle;
 
-  /// No description provided for @editWarningCorrectionsOnly.
+  /// Localized text for edit warning corrections only.
   ///
   /// In pt, this message translates to:
   /// **'Edite apenas para corrigir erros'**
   String get editWarningCorrectionsOnly;
 
-  /// No description provided for @editWarningDescription.
+  /// Localized text for edit warning description.
   ///
   /// In pt, this message translates to:
   /// **'Esta função serve para corrigir erros de digitação ou informações incorretas.'**
   String get editWarningDescription;
 
-  /// No description provided for @editWarningImportant.
+  /// Localized text for edit warning important.
   ///
   /// In pt, this message translates to:
   /// **'Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.'**
   String get editWarningImportant;
 
-  /// No description provided for @editWarningNewRating.
+  /// Localized text for edit warning new rating.
   ///
   /// In pt, this message translates to:
   /// **'Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.'**
   String get editWarningNewRating;
 
-  /// No description provided for @editWarningHistory.
+  /// Localized text for edit warning history.
   ///
   /// In pt, this message translates to:
   /// **'Manter histórico ajuda outros práticos!'**
   String get editWarningHistory;
 
-  /// No description provided for @editWarningConfirm.
+  /// Localized text for edit warning confirm.
   ///
   /// In pt, this message translates to:
   /// **'Entendi, quero editar'**
   String get editWarningConfirm;
 
-  /// No description provided for @deleteRatingTitle.
+  /// Title text for delete rating.
   ///
   /// In pt, this message translates to:
   /// **'Excluir Avaliação'**
   String get deleteRatingTitle;
 
-  /// No description provided for @deleteRatingConfirm.
+  /// Localized text for delete rating confirm.
   ///
   /// In pt, this message translates to:
   /// **'Tem certeza que deseja excluir a avaliação do navio \"{shipName}\"?'**
   String deleteRatingConfirm(String shipName);
 
-  /// No description provided for @deleteWarning.
+  /// Localized text for delete warning.
   ///
   /// In pt, this message translates to:
   /// **'Esta ação não pode ser desfeita!'**
   String get deleteWarning;
 
-  /// No description provided for @deleteButton.
+  /// Button label for delete.
   ///
   /// In pt, this message translates to:
   /// **'Excluir'**
   String get deleteButton;
 
-  /// No description provided for @ratingDetailTitle.
+  /// Title text for rating detail.
   ///
   /// In pt, this message translates to:
   /// **'Detalhes da Avaliação'**
   String get ratingDetailTitle;
 
-  /// No description provided for @exportPdf.
+  /// Localized text for export pdf.
   ///
   /// In pt, this message translates to:
   /// **'Exportar PDF'**
   String get exportPdf;
 
-  /// No description provided for @errorLoadingShipData.
+  /// Error message for loading ship data.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao carregar dados do navio'**
   String get errorLoadingShipData;
 
-  /// No description provided for @defaultShipName.
+  /// Localized text for default ship name.
   ///
   /// In pt, this message translates to:
   /// **'Navio'**
   String get defaultShipName;
 
-  /// No description provided for @ratedOn.
+  /// Localized text for rated on.
   ///
   /// In pt, this message translates to:
   /// **'Avaliado em: {date}'**
   String ratedOn(String date);
 
-  /// No description provided for @disembarkationDateValue.
+  /// Localized text for disembarkation date value.
   ///
   /// In pt, this message translates to:
   /// **'Data de desembarque: {date}'**
   String disembarkationDateValue(String date);
 
-  /// No description provided for @cabinTypeValue.
+  /// Localized text for cabin type value.
   ///
   /// In pt, this message translates to:
   /// **'Tipo da cabine: {type}'**
   String cabinTypeValue(String type);
 
-  /// No description provided for @cabinDeckValue.
+  /// Localized text for cabin deck value.
   ///
   /// In pt, this message translates to:
   /// **'Deck da cabine: {deck}'**
   String cabinDeckValue(String deck);
 
-  /// No description provided for @imoValue.
+  /// Localized text for imo value.
   ///
   /// In pt, this message translates to:
   /// **'IMO: {imo}'**
   String imoValue(String imo);
 
-  /// No description provided for @shipInfo.
+  /// Localized text for ship info.
   ///
   /// In pt, this message translates to:
   /// **'Informações do Navio'**
   String get shipInfo;
 
-  /// No description provided for @generalObservations.
+  /// Localized text for general observations.
   ///
   /// In pt, this message translates to:
   /// **'Observações Gerais'**
   String get generalObservations;
 
-  /// No description provided for @cabinSection.
+  /// Localized text for cabin section.
   ///
   /// In pt, this message translates to:
   /// **'Cabine'**
   String get cabinSection;
 
-  /// No description provided for @bridgeSection.
+  /// Localized text for bridge section.
   ///
   /// In pt, this message translates to:
   /// **'Passadiço'**
   String get bridgeSection;
 
-  /// No description provided for @otherSection.
+  /// Localized text for other section.
   ///
   /// In pt, this message translates to:
   /// **'Outros'**
   String get otherSection;
 
-  /// No description provided for @scoreLabel.
+  /// Label text for score.
   ///
   /// In pt, this message translates to:
   /// **'Nota: {score}'**
   String scoreLabel(String score);
 
-  /// No description provided for @anonymous.
+  /// Localized text for anonymous.
   ///
   /// In pt, this message translates to:
   /// **'Anônimo'**
   String get anonymous;
 
-  /// No description provided for @notAvailable.
+  /// Localized text for not available.
   ///
   /// In pt, this message translates to:
   /// **'N/A'**
   String get notAvailable;
 
-  /// No description provided for @criteriaCabinTemp.
+  /// Localized text for criteria cabin temp.
   ///
   /// In pt, this message translates to:
   /// **'Temperatura da Cabine'**
   String get criteriaCabinTemp;
 
-  /// No description provided for @criteriaCabinCleanliness.
+  /// Localized text for criteria cabin cleanliness.
   ///
   /// In pt, this message translates to:
   /// **'Limpeza da Cabine'**
   String get criteriaCabinCleanliness;
 
-  /// No description provided for @criteriaBridgeEquipment.
+  /// Localized text for criteria bridge equipment.
   ///
   /// In pt, this message translates to:
   /// **'Passadiço - Equipamentos'**
   String get criteriaBridgeEquipment;
 
-  /// No description provided for @criteriaBridgeTemp.
+  /// Localized text for criteria bridge temp.
   ///
   /// In pt, this message translates to:
   /// **'Passadiço - Temperatura'**
   String get criteriaBridgeTemp;
 
-  /// No description provided for @criteriaDevice.
+  /// Localized text for criteria device.
   ///
   /// In pt, this message translates to:
   /// **'Dispositivo de Embarque/Desembarque'**
   String get criteriaDevice;
 
-  /// No description provided for @criteriaFood.
+  /// Localized text for criteria food.
   ///
   /// In pt, this message translates to:
   /// **'Comida'**
   String get criteriaFood;
 
-  /// No description provided for @criteriaRelationship.
+  /// Localized text for criteria relationship.
   ///
   /// In pt, this message translates to:
   /// **'Relacionamento com comandante/tripulação'**
   String get criteriaRelationship;
 
-  /// No description provided for @sendSuggestionTitle.
+  /// Title text for send suggestion.
   ///
   /// In pt, this message translates to:
   /// **'Enviar Sugestão'**
   String get sendSuggestionTitle;
 
-  /// No description provided for @yourOpinionMatters.
+  /// Localized text for your opinion matters.
   ///
   /// In pt, this message translates to:
   /// **'Sua opinião é importante'**
   String get yourOpinionMatters;
 
-  /// No description provided for @helpImproveApp.
+  /// Localized text for help improve app.
   ///
   /// In pt, this message translates to:
   /// **'Ajude a melhorar o ShipRate com sugestões e ideias.'**
   String get helpImproveApp;
 
-  /// No description provided for @suggestionType.
+  /// Localized text for suggestion type.
   ///
   /// In pt, this message translates to:
   /// **'Sugestão'**
   String get suggestionType;
 
-  /// No description provided for @complaintType.
+  /// Localized text for complaint type.
   ///
   /// In pt, this message translates to:
   /// **'Crítica'**
   String get complaintType;
 
-  /// No description provided for @complimentType.
+  /// Localized text for compliment type.
   ///
   /// In pt, this message translates to:
   /// **'Elogio'**
   String get complimentType;
 
-  /// No description provided for @messageLabel.
+  /// Label text for message.
   ///
   /// In pt, this message translates to:
   /// **'Mensagem'**
   String get messageLabel;
 
-  /// No description provided for @sendButton.
+  /// Button label for send.
   ///
   /// In pt, this message translates to:
   /// **'Enviar'**
   String get sendButton;
 
-  /// No description provided for @messageSentSuccess.
+  /// Localized text for message sent success.
   ///
   /// In pt, this message translates to:
   /// **'Mensagem enviada com sucesso!'**
   String get messageSentSuccess;
 
-  /// No description provided for @errorSendingMessage.
+  /// Error message for sending message.
   ///
   /// In pt, this message translates to:
   /// **'Erro ao enviar mensagem.'**
   String get errorSendingMessage;
 
-  /// No description provided for @dashboardAppStats.
+  /// Localized text for dashboard app stats.
   ///
   /// In pt, this message translates to:
   /// **'ShipRate em números'**
   String get dashboardAppStats;
 
-  /// No description provided for @dashboardYourActivity.
+  /// Localized text for dashboard your activity.
   ///
   /// In pt, this message translates to:
   /// **'Sua Atividade'**
   String get dashboardYourActivity;
 
-  /// No description provided for @totalShipsLabel.
+  /// Label text for total ships.
   ///
   /// In pt, this message translates to:
   /// **'Navios'**
   String get totalShipsLabel;
 
-  /// No description provided for @totalRatingsLabel.
+  /// Label text for total ratings.
   ///
   /// In pt, this message translates to:
   /// **'Avaliações'**
   String get totalRatingsLabel;
 
-  /// No description provided for @activePilotsLabel.
+  /// Label text for active pilots.
   ///
   /// In pt, this message translates to:
   /// **'Práticos'**
   String get activePilotsLabel;
 
-  /// No description provided for @yourRatingsLabel.
+  /// Label text for your ratings.
   ///
   /// In pt, this message translates to:
   /// **'Suas Avaliações'**
   String get yourRatingsLabel;
 
-  /// No description provided for @yourContribution.
+  /// Localized text for your contribution.
   ///
   /// In pt, this message translates to:
   /// **'Sua Contribuição'**
   String get yourContribution;
 
-  /// No description provided for @contributionProgress.
+  /// Localized text for contribution progress.
   ///
   /// In pt, this message translates to:
   /// **'{percent}% das avaliações'**
   String contributionProgress(String percent);
 
-  /// No description provided for @contributionSummary.
+  /// Localized text for contribution summary.
   ///
   /// In pt, this message translates to:
   /// **'Você avaliou {userCount} de {totalCount}'**
   String contributionSummary(String userCount, String totalCount);
 
-  /// No description provided for @topRaterInfo.
+  /// Localized text for top rater info.
   ///
   /// In pt, this message translates to:
   /// **'O prático que mais avaliou registrou {count} avaliações'**
   String topRaterInfo(String count);
 
-  /// No description provided for @userRankingPosition.
+  /// Localized text for user ranking position.
   ///
   /// In pt, this message translates to:
   /// **'Sua posição: #{position} de {total} práticos'**
   String userRankingPosition(String position, String total);
 
-  /// No description provided for @recentActivity.
+  /// Localized text for recent activity.
   ///
   /// In pt, this message translates to:
   /// **'Atividade Recente'**
   String get recentActivity;
 
-  /// No description provided for @noRecentActivity.
+  /// Empty-state or negative message for recent activity.
   ///
   /// In pt, this message translates to:
   /// **'Nenhuma atividade recente'**
   String get noRecentActivity;
 
-  /// No description provided for @lastRatedShip.
+  /// Localized text for last rated ship.
   ///
   /// In pt, this message translates to:
   /// **'Última Avaliação'**
   String get lastRatedShip;
 
-  /// No description provided for @lastRatedShipsTitle.
+  /// Title text for last rated ships.
   ///
   /// In pt, this message translates to:
   /// **'Últimas Avaliações'**
   String get lastRatedShipsTitle;
 
-  /// No description provided for @noRecentRatings.
+  /// Empty-state or negative message for recent ratings.
   ///
   /// In pt, this message translates to:
   /// **'Nenhuma avaliação recente'**
   String get noRecentRatings;
 
-  /// No description provided for @pdfReportTitle.
+  /// Title text for pdf report.
   ///
   /// In pt, this message translates to:
   /// **'Relatório de Avaliação de Navio'**
   String get pdfReportTitle;
 
-  /// No description provided for @pdfEvaluationInfo.
+  /// Localized text for pdf evaluation info.
   ///
   /// In pt, this message translates to:
   /// **'Informações da Avaliação'**
   String get pdfEvaluationInfo;
 
-  /// No description provided for @pdfEvaluator.
+  /// Localized text for pdf evaluator.
   ///
   /// In pt, this message translates to:
   /// **'Prático Avaliador'**
   String get pdfEvaluator;
 
-  /// No description provided for @pdfEvaluationDate.
+  /// Localized text for pdf evaluation date.
   ///
   /// In pt, this message translates to:
   /// **'Data da Avaliação'**
   String get pdfEvaluationDate;
 
-  /// No description provided for @pdfCabinType.
+  /// Localized text for pdf cabin type.
   ///
   /// In pt, this message translates to:
   /// **'Tipo de Cabine'**
   String get pdfCabinType;
 
-  /// No description provided for @pdfDisembarkationDate.
+  /// Localized text for pdf disembarkation date.
   ///
   /// In pt, this message translates to:
   /// **'Data de Desembarque'**
   String get pdfDisembarkationDate;
 
-  /// No description provided for @pdfOverallAverage.
+  /// Localized text for pdf overall average.
   ///
   /// In pt, this message translates to:
   /// **'Nota Média Geral'**
   String get pdfOverallAverage;
 
-  /// No description provided for @pdfCrewNationality.
+  /// Localized text for pdf crew nationality.
   ///
   /// In pt, this message translates to:
   /// **'Nacionalidade da Tripulação'**
   String get pdfCrewNationality;
 
-  /// No description provided for @pdfCabinCount.
+  /// Localized text for pdf cabin count.
   ///
   /// In pt, this message translates to:
   /// **'Quantidade de Cabines'**
   String get pdfCabinCount;
 
-  /// No description provided for @pdfRatingsByCriteria.
+  /// Localized text for pdf ratings by criteria.
   ///
   /// In pt, this message translates to:
   /// **'Avaliações por Critério'**
   String get pdfRatingsByCriteria;
 
-  /// No description provided for @pdfGeneralObservation.
+  /// Localized text for pdf general observation.
   ///
   /// In pt, this message translates to:
   /// **'Observação Geral'**
   String get pdfGeneralObservation;
 
-  /// No description provided for @pdfGeneratedBy.
+  /// Localized text for pdf generated by.
   ///
   /// In pt, this message translates to:
   /// **'Gerado por ShipRate'**
   String get pdfGeneratedBy;
 
-  /// No description provided for @pdfDateLabel.
+  /// Label text for pdf date.
   ///
   /// In pt, this message translates to:
   /// **'Data'**
   String get pdfDateLabel;
 
-  /// No description provided for @ratingSavedSuccess.
+  /// Localized text for rating saved success.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação salva com sucesso!'**
   String get ratingSavedSuccess;
 
-  /// No description provided for @rateThisShip.
+  /// Localized text for rate this ship.
   ///
   /// In pt, this message translates to:
   /// **'Avaliar este Navio'**
   String get rateThisShip;
 
-  /// No description provided for @welcomePilot.
+  /// Localized text for welcome pilot.
   ///
   /// In pt, this message translates to:
   /// **'Bem-vindo, {name}'**
   String welcomePilot(String name);
 
-  /// No description provided for @selectModule.
+  /// Localized text for select module.
   ///
   /// In pt, this message translates to:
   /// **'Selecione o módulo'**
   String get selectModule;
 
-  /// No description provided for @shipRatingModule.
+  /// Localized text for ship rating module.
   ///
   /// In pt, this message translates to:
   /// **'Avaliação de Navios'**
   String get shipRatingModule;
 
-  /// No description provided for @shipRatingDesc.
+  /// Description text for ship rating.
   ///
   /// In pt, this message translates to:
   /// **'Avalie navios e compartilhe experiências'**
   String get shipRatingDesc;
 
-  /// No description provided for @navSafetyModule.
+  /// Localized text for nav safety module.
   ///
   /// In pt, this message translates to:
   /// **'Segurança da Navegação'**
   String get navSafetyModule;
 
-  /// No description provided for @navSafetyDesc.
+  /// Description text for nav safety.
   ///
   /// In pt, this message translates to:
   /// **'Profundidades, calado e condições dos trechos'**
   String get navSafetyDesc;
 
-  /// No description provided for @latestDepths.
+  /// Localized text for latest depths.
   ///
   /// In pt, this message translates to:
   /// **'Últimas Profundidades'**
   String get latestDepths;
 
-  /// No description provided for @locations.
+  /// Localized text for locations.
   ///
   /// In pt, this message translates to:
   /// **'Locais'**
   String get locations;
 
-  /// No description provided for @newRecord.
+  /// Localized text for new record.
   ///
   /// In pt, this message translates to:
   /// **'Novo Registro'**
   String get newRecord;
 
-  /// No description provided for @latestDepthsRegistered.
+  /// Localized text for latest depths registered.
   ///
   /// In pt, this message translates to:
   /// **'Últimas profundidades registradas'**
   String get latestDepthsRegistered;
 
-  /// No description provided for @noRecords.
+  /// Empty-state or negative message for records.
   ///
   /// In pt, this message translates to:
   /// **'Sem registros'**
   String get noRecords;
 
-  /// No description provided for @lastDepth.
+  /// Localized text for last depth.
   ///
   /// In pt, this message translates to:
   /// **'ÚLTIMA PROFUNDIDADE'**
   String get lastDepth;
 
-  /// No description provided for @history.
+  /// Localized text for history.
   ///
   /// In pt, this message translates to:
   /// **'Histórico'**
   String get history;
 
-  /// No description provided for @back.
+  /// Localized text for back.
   ///
   /// In pt, this message translates to:
   /// **'Voltar'**
   String get back;
 
-  /// No description provided for @totalDepth.
+  /// Localized text for total depth.
   ///
   /// In pt, this message translates to:
   /// **'PROF. TOTAL'**
   String get totalDepth;
 
-  /// No description provided for @maxDraft.
+  /// Localized text for max draft.
   ///
   /// In pt, this message translates to:
   /// **'CALADO MÁX.'**
   String get maxDraft;
 
-  /// No description provided for @ukc.
+  /// Localized text for ukc.
   ///
   /// In pt, this message translates to:
   /// **'UKC'**
   String get ukc;
 
-  /// No description provided for @direction.
+  /// Localized text for direction.
   ///
   /// In pt, this message translates to:
   /// **'DIREÇÃO'**
   String get direction;
 
-  /// No description provided for @passageData.
+  /// Localized text for passage data.
   ///
   /// In pt, this message translates to:
   /// **'Dados da Passagem'**
   String get passageData;
 
-  /// No description provided for @selectLocation.
+  /// Localized text for select location.
   ///
   /// In pt, this message translates to:
   /// **'Selecionar local'**
   String get selectLocation;
 
-  /// No description provided for @addNewLocation.
+  /// Localized text for add new location.
   ///
   /// In pt, this message translates to:
   /// **'Adicionar novo local'**
   String get addNewLocation;
 
-  /// No description provided for @newLocationName.
+  /// Localized text for new location name.
   ///
   /// In pt, this message translates to:
   /// **'Nome do novo local'**
   String get newLocationName;
 
-  /// No description provided for @anchoragePt.
+  /// Localized text for anchorage pt.
   ///
   /// In pt, this message translates to:
   /// **'Ponto (1-15)'**
   String get anchoragePt;
 
-  /// No description provided for @shipNameOptional.
+  /// Localized text for ship name optional.
   ///
   /// In pt, this message translates to:
   /// **'Nome do navio (opcional)'**
   String get shipNameOptional;
 
-  /// No description provided for @passageDate.
+  /// Localized text for passage date.
   ///
   /// In pt, this message translates to:
   /// **'Data da passagem'**
   String get passageDate;
 
-  /// No description provided for @goingUp.
+  /// Localized text for going up.
   ///
   /// In pt, this message translates to:
   /// **'Subindo'**
   String get goingUp;
 
-  /// No description provided for @goingDown.
+  /// Localized text for going down.
   ///
   /// In pt, this message translates to:
   /// **'Baixando'**
   String get goingDown;
 
-  /// No description provided for @totalDepthLabel.
+  /// Label text for total depth.
   ///
   /// In pt, this message translates to:
   /// **'PROFUNDIDADE TOTAL'**
   String get totalDepthLabel;
 
-  /// No description provided for @complementaryData.
+  /// Localized text for complementary data.
   ///
   /// In pt, this message translates to:
   /// **'Dados Complementares'**
   String get complementaryData;
 
-  /// No description provided for @maxDraftInput.
+  /// Localized text for max draft input.
   ///
   /// In pt, this message translates to:
   /// **'Calado Máximo (m)'**
   String get maxDraftInput;
 
-  /// No description provided for @ukcInput.
+  /// Localized text for ukc input.
   ///
   /// In pt, this message translates to:
   /// **'UKC (m)'**
   String get ukcInput;
 
-  /// No description provided for @speedOptional.
+  /// Localized text for speed optional.
   ///
   /// In pt, this message translates to:
   /// **'Velocidade (nós)'**
   String get speedOptional;
 
-  /// No description provided for @optional.
+  /// Localized text for optional.
   ///
   /// In pt, this message translates to:
   /// **'opcional'**
   String get optional;
 
-  /// No description provided for @squatConsidered.
+  /// Localized text for squat considered.
   ///
   /// In pt, this message translates to:
   /// **'Squat considerado?'**
   String get squatConsidered;
 
-  /// No description provided for @sonarPosition.
+  /// Localized text for sonar position.
   ///
   /// In pt, this message translates to:
   /// **'Posição da Sonda'**
   String get sonarPosition;
 
-  /// No description provided for @bow.
+  /// Localized text for bow.
   ///
   /// In pt, this message translates to:
   /// **'Proa'**
   String get bow;
 
-  /// No description provided for @stern.
+  /// Localized text for stern.
   ///
   /// In pt, this message translates to:
   /// **'Popa'**
   String get stern;
 
-  /// No description provided for @positionLatLong.
+  /// Localized text for position lat long.
   ///
   /// In pt, this message translates to:
   /// **'Posição (LAT/LONG)'**
   String get positionLatLong;
 
-  /// No description provided for @observations.
+  /// Localized text for observations.
   ///
   /// In pt, this message translates to:
   /// **'Observações / Referências'**
   String get observations;
 
-  /// No description provided for @additionalInfo.
+  /// Localized text for additional info.
   ///
   /// In pt, this message translates to:
   /// **'Informações adicionais...'**
   String get additionalInfo;
 
-  /// No description provided for @registerPassage.
+  /// Localized text for register passage.
   ///
   /// In pt, this message translates to:
   /// **'Registrar Passagem'**
   String get registerPassage;
 
-  /// No description provided for @recordSavedSuccess.
+  /// Localized text for record saved success.
   ///
   /// In pt, this message translates to:
   /// **'Registro salvo com sucesso!'**
   String get recordSavedSuccess;
 
-  /// No description provided for @locationRequired.
+  /// Localized text for location required.
   ///
   /// In pt, this message translates to:
   /// **'Selecione um local'**
   String get locationRequired;
 
-  /// No description provided for @depthRequired.
+  /// Localized text for depth required.
   ///
   /// In pt, this message translates to:
   /// **'Informe a profundidade total'**
   String get depthRequired;
 
-  /// No description provided for @draftRequired.
+  /// Localized text for draft required.
   ///
   /// In pt, this message translates to:
   /// **'Informe o calado máximo'**
   String get draftRequired;
 
-  /// No description provided for @ukcRequired.
+  /// Localized text for ukc required.
   ///
   /// In pt, this message translates to:
   /// **'Informe o UKC'**
   String get ukcRequired;
 
-  /// No description provided for @directionRequired.
+  /// Localized text for direction required.
   ///
   /// In pt, this message translates to:
   /// **'Selecione a direção'**
   String get directionRequired;
 
-  /// No description provided for @sonarRequired.
+  /// Localized text for sonar required.
   ///
   /// In pt, this message translates to:
   /// **'Selecione a posição da sonda'**
   String get sonarRequired;
 
-  /// No description provided for @myRecords.
+  /// Localized text for my records.
   ///
   /// In pt, this message translates to:
   /// **'Meus Registros'**
   String get myRecords;
 
-  /// No description provided for @drawerMyRecords.
+  /// Localized text for drawer my records.
   ///
   /// In pt, this message translates to:
   /// **'Meus Registros'**
   String get drawerMyRecords;
 
-  /// No description provided for @yourRecords.
+  /// Localized text for your records.
   ///
   /// In pt, this message translates to:
   /// **'Seus Registros'**
   String get yourRecords;
 
-  /// No description provided for @recordsLabel.
+  /// Label text for records.
   ///
   /// In pt, this message translates to:
   /// **'registros'**
   String get recordsLabel;
 
-  /// No description provided for @locationsLabel.
+  /// Label text for locations.
   ///
   /// In pt, this message translates to:
   /// **'locais'**
   String get locationsLabel;
 
-  /// No description provided for @contributionLabel.
+  /// Label text for contribution.
   ///
   /// In pt, this message translates to:
   /// **'contribuição'**
   String get contributionLabel;
 
-  /// No description provided for @editRecord.
+  /// Localized text for edit record.
   ///
   /// In pt, this message translates to:
   /// **'Editar'**
   String get editRecord;
 
-  /// No description provided for @deleteRecord.
+  /// Localized text for delete record.
   ///
   /// In pt, this message translates to:
   /// **'Excluir'**
   String get deleteRecord;
 
-  /// No description provided for @deleteRecordTitle.
+  /// Title text for delete record.
   ///
   /// In pt, this message translates to:
   /// **'Excluir Registro'**
   String get deleteRecordTitle;
 
-  /// No description provided for @deleteRecordConfirm.
+  /// Localized text for delete record confirm.
   ///
   /// In pt, this message translates to:
   /// **'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.'**
   String get deleteRecordConfirm;
 
-  /// No description provided for @recordDeletedSuccess.
+  /// Localized text for record deleted success.
   ///
   /// In pt, this message translates to:
   /// **'Registro excluído com sucesso!'**
   String get recordDeletedSuccess;
 
-  /// No description provided for @recordUpdatedSuccess.
+  /// Localized text for record updated success.
   ///
   /// In pt, this message translates to:
   /// **'Registro atualizado com sucesso!'**
   String get recordUpdatedSuccess;
 
-  /// No description provided for @updatePassage.
+  /// Localized text for update passage.
   ///
   /// In pt, this message translates to:
   /// **'Atualizar Passagem'**
   String get updatePassage;
 
-  /// No description provided for @noRecordsYet.
+  /// Empty-state or negative message for records yet.
   ///
   /// In pt, this message translates to:
   /// **'Nenhum registro ainda'**
   String get noRecordsYet;
 
-  /// No description provided for @noRecordsSubtitle.
+  /// Subtitle text for no records.
   ///
   /// In pt, this message translates to:
   /// **'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!'**
   String get noRecordsSubtitle;
 
-  /// No description provided for @recordDetails.
+  /// Localized text for record details.
   ///
   /// In pt, this message translates to:
   /// **'Detalhes do Registro'**
   String get recordDetails;
 
-  /// No description provided for @passageInfo.
+  /// Localized text for passage info.
   ///
   /// In pt, this message translates to:
   /// **'Informações da Passagem'**
   String get passageInfo;
 
-  /// No description provided for @by.
+  /// Localized text for by.
   ///
   /// In pt, this message translates to:
   /// **'Por'**
   String get by;
 
-  /// No description provided for @technicalData.
+  /// Localized text for technical data.
   ///
   /// In pt, this message translates to:
   /// **'Dados Técnicos'**
   String get technicalData;
 
-  /// No description provided for @position.
+  /// Localized text for position.
   ///
   /// In pt, this message translates to:
   /// **'Posição'**
   String get position;
 
-  /// No description provided for @anchoragePoint.
+  /// Localized text for anchorage point.
   ///
   /// In pt, this message translates to:
   /// **'Ponto do Fundeadouro'**
   String get anchoragePoint;
 
-  /// No description provided for @totalDepthShort.
+  /// Localized text for total depth short.
   ///
   /// In pt, this message translates to:
   /// **'Prof. Total'**
   String get totalDepthShort;
 
-  /// No description provided for @modules.
+  /// Localized text for modules.
   ///
   /// In pt, this message translates to:
   /// **'Módulos'**
   String get modules;
 
-  /// No description provided for @lastRecordBy.
+  /// Localized text for last record by.
   ///
   /// In pt, this message translates to:
   /// **'Último registro por: {name}'**
   String lastRecordBy(String name);
 
-  /// No description provided for @navShipLabel.
+  /// Label text for nav ship.
   ///
   /// In pt, this message translates to:
   /// **'Navio: {name}'**
   String navShipLabel(String name);
 
-  /// No description provided for @enterEmail.
+  /// Localized text for enter email.
   ///
   /// In pt, this message translates to:
   /// **'Entre com seu email'**
   String get enterEmail;
 
-  /// No description provided for @sendCode.
+  /// Localized text for send code.
   ///
   /// In pt, this message translates to:
   /// **'Enviar código'**
   String get sendCode;
 
-  /// No description provided for @emailNotAuthorized.
+  /// Localized text for email not authorized.
   ///
   /// In pt, this message translates to:
   /// **'Email não autorizado. Entre em contato com a ZP01.'**
   String get emailNotAuthorized;
 
-  /// No description provided for @codeSentTo.
+  /// Localized text for code sent to.
   ///
   /// In pt, this message translates to:
   /// **'Código enviado para {email}'**
   String codeSentTo(String email);
 
-  /// No description provided for @enterCode.
+  /// Localized text for enter code.
   ///
   /// In pt, this message translates to:
   /// **'Digite o código de 6 dígitos'**
   String get enterCode;
 
-  /// No description provided for @verify.
+  /// Localized text for verify.
   ///
   /// In pt, this message translates to:
   /// **'Verificar'**
   String get verify;
 
-  /// No description provided for @resendCode.
+  /// Localized text for resend code.
   ///
   /// In pt, this message translates to:
   /// **'Reenviar código'**
   String get resendCode;
 
-  /// No description provided for @invalidCode.
+  /// Localized text for invalid code.
   ///
   /// In pt, this message translates to:
   /// **'Código inválido'**
   String get invalidCode;
 
-  /// No description provided for @expiredCode.
+  /// Localized text for expired code.
   ///
   /// In pt, this message translates to:
   /// **'Código expirado. Solicite um novo.'**
   String get expiredCode;
 
-  /// No description provided for @rateLimited.
+  /// Localized text for rate limited.
   ///
   /// In pt, this message translates to:
   /// **'Muitas tentativas. Aguarde 15 minutos.'**
   String get rateLimited;
 
-  /// No description provided for @tooManyAttempts.
+  /// Localized text for too many attempts.
   ///
   /// In pt, this message translates to:
   /// **'Muitas tentativas incorretas. Aguarde 15 minutos.'**
   String get tooManyAttempts;
 
-  /// No description provided for @resendIn.
+  /// Localized text for resend in.
   ///
   /// In pt, this message translates to:
   /// **'Reenviar em {seconds}s'**
   String resendIn(String seconds);
 
-  /// No description provided for @noAccount.
+  /// Empty-state or negative message for account.
   ///
   /// In pt, this message translates to:
   /// **'Não tem conta? Registrar'**
   String get noAccount;
 
-  /// No description provided for @register.
+  /// Localized text for register.
   ///
   /// In pt, this message translates to:
   /// **'Registrar'**
   String get register;
 
-  /// No description provided for @createPassword.
+  /// Localized text for create password.
   ///
   /// In pt, this message translates to:
   /// **'Criar senha'**
   String get createPassword;
 
-  /// No description provided for @passwordHint.
+  /// Hint text for password.
   ///
   /// In pt, this message translates to:
   /// **'Mínimo 6 caracteres'**
   String get passwordHint;
 
-  /// No description provided for @accountCreated.
+  /// Localized text for account created.
   ///
   /// In pt, this message translates to:
   /// **'Conta criada com sucesso!'**
   String get accountCreated;
 
-  /// No description provided for @invalidCredentials.
+  /// Localized text for invalid credentials.
   ///
   /// In pt, this message translates to:
   /// **'Email ou senha incorretos'**
   String get invalidCredentials;
 
-  /// No description provided for @passwordsDoNotMatch.
+  /// Localized text for passwords do not match.
   ///
   /// In pt, this message translates to:
   /// **'As senhas não coincidem'**
   String get passwordsDoNotMatch;
 
-  /// No description provided for @passwordTooShort.
+  /// Localized text for password too short.
   ///
   /// In pt, this message translates to:
   /// **'A senha deve ter pelo menos 6 caracteres'**
   String get passwordTooShort;
 
-  /// No description provided for @emailAlreadyRegistered.
+  /// Localized text for email already registered.
   ///
   /// In pt, this message translates to:
   /// **'Este email já possui uma conta. Use a tela de login.'**
   String get emailAlreadyRegistered;
 
-  /// No description provided for @settings.
+  /// Localized text for settings.
   ///
   /// In pt, this message translates to:
   /// **'Configurações'**
   String get settings;
 
-  /// No description provided for @pushNotifications.
+  /// Localized text for push notifications.
   ///
   /// In pt, this message translates to:
   /// **'Notificações push'**
   String get pushNotifications;
 
-  /// No description provided for @emailNotifications.
+  /// Localized text for email notifications.
   ///
   /// In pt, this message translates to:
   /// **'Notificações por email'**
   String get emailNotifications;
 
-  /// No description provided for @notificationPermissionDenied.
+  /// Notification-related text for permission denied.
   ///
   /// In pt, this message translates to:
   /// **'Permissão de notificação negada'**
   String get notificationPermissionDenied;
 
-  /// No description provided for @invalidEmail.
+  /// Localized text for invalid email.
   ///
   /// In pt, this message translates to:
   /// **'Email inválido'**
   String get invalidEmail;
 
-  /// No description provided for @navSafetyBlocked.
+  /// Localized text for nav safety blocked.
   ///
   /// In pt, this message translates to:
   /// **'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.'**
   String get navSafetyBlocked;
 
-  /// No description provided for @photos.
+  /// Localized text for photos.
   ///
   /// In pt, this message translates to:
   /// **'Fotos'**
   String get photos;
 
-  /// No description provided for @addPhoto.
+  /// Localized text for add photo.
   ///
   /// In pt, this message translates to:
   /// **'Adicionar foto'**
   String get addPhoto;
 
-  /// No description provided for @maxPhotosReached.
+  /// Localized text for max photos reached.
   ///
   /// In pt, this message translates to:
   /// **'Máximo de 3 fotos'**
   String get maxPhotosReached;
 
-  /// No description provided for @notificationDialogTitle.
+  /// Notification-related text for dialog title.
   ///
   /// In pt, this message translates to:
   /// **'Notificações'**
   String get notificationDialogTitle;
 
-  /// No description provided for @notificationDialogBody.
+  /// Notification-related text for dialog body.
   ///
   /// In pt, this message translates to:
   /// **'Deseja receber notificações quando novos registros de profundidade forem adicionados?'**
   String get notificationDialogBody;
 
-  /// No description provided for @notificationDialogEnable.
+  /// Notification-related text for dialog enable.
   ///
   /// In pt, this message translates to:
   /// **'Ativar'**
   String get notificationDialogEnable;
 
-  /// No description provided for @notificationDialogNotNow.
+  /// Notification-related text for dialog not now.
   ///
   /// In pt, this message translates to:
   /// **'Agora não'**
   String get notificationDialogNotNow;
 
-  /// No description provided for @notificationsEnabled.
+  /// Notification-related text shown after notifications are enabled.
   ///
   /// In pt, this message translates to:
   /// **'Notificações ativadas!'**
   String get notificationsEnabled;
 
-  /// No description provided for @likedBy.
+  /// Localized text for liked by.
   ///
   /// In pt, this message translates to:
   /// **'Curtido por {names}'**
   String likedBy(String names);
 
-  /// No description provided for @andWord.
+  /// Localized text for and word.
   ///
   /// In pt, this message translates to:
   /// **'e'**
   String get andWord;
 
-  /// No description provided for @andMore.
+  /// Localized text for and more.
   ///
   /// In pt, this message translates to:
   /// **'e mais {count}'**
   String andMore(int count);
 
-  /// No description provided for @likeNotification.
+  /// Localized text for like notification.
   ///
   /// In pt, this message translates to:
   /// **'{name} curtiu seu registro de profundidade'**
   String likeNotification(String name);
 
-  /// No description provided for @ratingLikeNotification.
+  /// Localized text for rating like notification.
   ///
   /// In pt, this message translates to:
   /// **'{name} curtiu sua avaliação'**
   String ratingLikeNotification(String name);
+
+  /// Title text for milestone200.
+  ///
+  /// In pt, this message translates to:
+  /// **'200 Navios!'**
+  String get milestone200Title;
+
+  /// Localized text for milestone200 body.
+  ///
+  /// In pt, this message translates to:
+  /// **'O ShipRate atingiu 200 navios cadastrados em menos de 6 meses! Cada prático agora está mais preparado para embarcar, com acesso a avaliações e dados de navegação compartilhados por todos. Obrigado por contribuir com o crescimento do aplicativo.'**
+  String get milestone200Body;
+
+  /// Button label for milestone200.
+  ///
+  /// In pt, this message translates to:
+  /// **'Parabéns a todos!'**
+  String get milestone200Button;
+
+  /// Drawer item to switch to nav safety module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alternar para Segurança da Navegação'**
+  String get switchToNavSafety;
+
+  /// Drawer item to switch to ship rating module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alternar para Avaliação de Navios'**
+  String get switchToShipRating;
+
+  /// Dialog title after saving a depth record.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registro salvo!'**
+  String get recordSaved;
+
+  /// Dialog body asking to share depth record.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deseja compartilhar esta profundidade com outros práticos?'**
+  String get shareRecordPrompt;
+
+  /// Button label to share a record.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compartilhar'**
+  String get shareRecord;
+
+  /// Button label to dismiss share dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não, obrigado'**
+  String get noThanks;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

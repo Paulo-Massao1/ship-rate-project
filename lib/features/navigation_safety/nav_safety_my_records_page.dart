@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:universal_html/html.dart' as html;
 import '../../controllers/nav_safety_controller.dart';
 import 'nav_safety_new_record_page.dart';
 
@@ -150,6 +151,26 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
       return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
     }
     return '—';
+  }
+
+  void _shareRecord(MyRecord record) {
+    final data = record.data;
+    final depth = _formatMeters(data['profundidadeTotal']);
+    final shipName = (data['nomeNavio'] ?? '').toString();
+    final nomeGuerra = (data['nomeGuerra'] ?? '').toString();
+    final dateStr = _formatDate(data['data']);
+
+    final shareText =
+        '⚓ Nova profundidade registrada no ShipRate\n'
+        '\u{1F4CD} Local: ${record.locationName}\n'
+        '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
+        '\u{1F4CF} Profundidade total: $depth\n'
+        '${nomeGuerra.isNotEmpty ? '\u{1F464} Prático: $nomeGuerra\n' : ''}'
+        '\u{1F4C5} Data: $dateStr\n\n'
+        'Abra o app para mais detalhes: https://shiprate-daf18.web.app';
+
+    final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
+    html.window.open(url, '_blank');
   }
 
   // ===========================================================================
@@ -429,10 +450,18 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
               ),
             ),
             const SizedBox(height: 10),
-            // Edit + Delete buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                _buildActionButton(
+                  label: l10n.shareRecord,
+                  icon: '\u{1F4E4}',
+                  bgColor: const Color(0x1A26A69A),
+                  borderColor: const Color(0x3326A69A),
+                  textColor: _teal,
+                  onTap: () => _shareRecord(record),
+                ),
+                const SizedBox(width: 12),
                 _buildActionButton(
                   label: l10n.editRecord,
                   icon: '\u270F\uFE0F',

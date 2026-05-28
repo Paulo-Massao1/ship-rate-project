@@ -1,11 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/nav_safety_controller.dart';
+import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../suggestions/suggestion_page.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
 import 'nav_safety_record_detail_page.dart';
@@ -19,6 +23,15 @@ class NavSafetyPage extends StatefulWidget {
 }
 
 class _NavSafetyPageState extends State<NavSafetyPage> {
+  // ===========================================================================
+  // CONSTANTS
+  // ===========================================================================
+
+  static const _shareUrl = 'https://shiprate-daf18.web.app/';
+  static const _shareText =
+      'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar '
+      'profundidades dos trechos navegados. Baixe aqui: $_shareUrl';
+
   // ===========================================================================
   // STATE
   // ===========================================================================
@@ -87,6 +100,52 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
+  void _navigateToSuggestions() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SuggestionPage()),
+    );
+  }
+
+  void _shareApp() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _NavShareBottomSheet(
+        onWhatsAppTap: () {
+          Navigator.pop(context);
+          final whatsappUrl =
+              'https://wa.me/?text=${Uri.encodeComponent(_shareText)}';
+          html.window.open(whatsappUrl, '_blank');
+        },
+        onCopyLinkTap: () async {
+          Navigator.pop(context);
+          await Clipboard.setData(const ClipboardData(text: _shareUrl));
+          if (!mounted) return;
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.linkCopied),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _toggleLocale() {
+    Navigator.pop(context);
+    final next = localeController.locale.languageCode == 'pt'
+        ? const Locale('en')
+        : const Locale('pt');
+    localeController.changeLocale(next);
+  }
+
   void _toggleLocationsDropdown() {
     setState(() {
       _showLocationsDropdown = !_showLocationsDropdown;
@@ -113,6 +172,28 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
               Navigator.pop(context);
               _navigateToMyRecords();
             },
+          ),
+        ],
+        bottomItems: [
+          DrawerItem(
+            icon: Icons.lightbulb_outline,
+            label: l10n.drawerSendSuggestion,
+            onTap: _navigateToSuggestions,
+          ),
+          DrawerItem(
+            icon: Icons.share,
+            label: l10n.drawerShareApp,
+            onTap: () {
+              Navigator.pop(context);
+              _shareApp();
+            },
+          ),
+          DrawerItem(
+            icon: Icons.language,
+            label: localeController.locale.languageCode == 'pt'
+                ? 'English'
+                : 'Português',
+            onTap: _toggleLocale,
           ),
         ],
       ),
@@ -1026,5 +1107,97 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       default:
         return '—';
     }
+  }
+}
+
+class _NavShareBottomSheet extends StatelessWidget {
+  final VoidCallback onWhatsAppTap;
+  final VoidCallback onCopyLinkTap;
+
+  const _NavShareBottomSheet({
+    required this.onWhatsAppTap,
+    required this.onCopyLinkTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.shareShipRate,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _ShareOption(
+                  icon: Icons.message,
+                  label: 'WhatsApp',
+                  color: const Color(0xFF25D366),
+                  onTap: onWhatsAppTap,
+                ),
+                _ShareOption(
+                  icon: Icons.link,
+                  label: l10n.copyLink,
+                  color: const Color(0xFF3F51B5),
+                  onTap: onCopyLinkTap,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShareOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ShareOption({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 32),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

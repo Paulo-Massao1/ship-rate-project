@@ -267,6 +267,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           label: l10n.drawerMyRatings,
           onTap: _navigateToMyRatings,
         ),
+      ],
+      bottomItems: [
         DrawerItem(
           icon: Icons.lightbulb_outline,
           label: l10n.drawerSendSuggestion,
