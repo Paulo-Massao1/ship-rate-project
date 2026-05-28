@@ -55,5 +55,20 @@ PdfLabels buildPdfLabels(AppLocalizations l10n) {
       'Chinese': l10n.nationalityChinese,
       'Brazilian': l10n.nationalityBrazilian,
     },
+    shipReportTitle: l10n.pdfShipReportTitle,
+    averagesSection: l10n.pdfAveragesSection,
+    individualRatings: l10n.pdfIndividualRatings,
+    totalRatingsCount: l10n.pdfTotalRatingsCount,
+    observation: l10n.pdfObservation,
+    ratedBy: l10n.pdfRatedBy,
+    averagesLabels: {
+      'temp_cabine': l10n.avgCabinTemp,
+      'limpeza_cabine': l10n.avgCabinCleanliness,
+      'passadico_equip': l10n.avgBridgeEquipment,
+      'passadico_temp': l10n.avgBridgeTemp,
+      'comida': l10n.avgFood,
+      'relacionamento': l10n.avgRelationship,
+      'dispositivo': l10n.avgDevice,
+    },
   );
 }

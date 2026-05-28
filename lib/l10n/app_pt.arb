@@ -1444,5 +1444,33 @@
   "noThanks": "Não, obrigado",
   "@noThanks": {
     "description": "Button label to dismiss share dialog."
+  },
+  "pdfShipReportTitle": "Relatório do Navio",
+  "@pdfShipReportTitle": {
+    "description": "Title text for pdf ship report."
+  },
+  "pdfAveragesSection": "Médias das Avaliações",
+  "@pdfAveragesSection": {
+    "description": "Section title for rating averages in ship report PDF."
+  },
+  "pdfIndividualRatings": "Avaliações Individuais",
+  "@pdfIndividualRatings": {
+    "description": "Section title for individual ratings in ship report PDF."
+  },
+  "pdfTotalRatingsCount": "Total de Avaliações",
+  "@pdfTotalRatingsCount": {
+    "description": "Label for total ratings count in ship report PDF."
+  },
+  "pdfObservation": "Observação",
+  "@pdfObservation": {
+    "description": "Label for observation in ship report PDF."
+  },
+  "pdfRatedBy": "Avaliado por",
+  "@pdfRatedBy": {
+    "description": "Label for rated by in ship report PDF."
+  },
+  "exportShipReport": "Exportar Relatório",
+  "@exportShipReport": {
+    "description": "Button label for exporting ship report PDF."
   }
 }

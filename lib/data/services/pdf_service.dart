@@ -107,6 +107,64 @@ class PdfService {
     return pdf;
   }
 
+  /// Generates a ship report PDF aggregating all ratings for a ship.
+  static Future<pw.Document> generateShipReportPdf({
+    required String shipName,
+    String? shipImo,
+    required Map<String, double> averages,
+    Map<String, dynamic>? shipInfo,
+    required List<Map<String, dynamic>> ratings,
+    required PdfLabels labels,
+  }) async {
+    final pdf = pw.Document();
+
+    double overallAvg = 0;
+    if (averages.isNotEmpty) {
+      overallAvg = averages.values.reduce((a, b) => a + b) / averages.length;
+    }
+
+    final dateFormat = DateFormat('dd/MM/yyyy');
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        footer: (context) => _buildFooter(labels),
+        build: (context) => [
+          _buildShipReportHeader(shipName, shipImo, labels),
+          pw.SizedBox(height: 20),
+          if (averages.isNotEmpty) ...[
+            _buildAveragesSection(averages, labels),
+            pw.SizedBox(height: 16),
+          ],
+          _buildReportSummary(ratings.length, overallAvg, labels),
+          pw.SizedBox(height: 20),
+          if (shipInfo != null && shipInfo.isNotEmpty) ...[
+            _buildShipInfoSection(shipInfo, labels),
+            pw.SizedBox(height: 20),
+          ],
+          if (ratings.isNotEmpty) ...[
+            pw.Text(
+              labels.individualRatings,
+              style: pw.TextStyle(
+                fontSize: 16,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColor.fromHex(_primaryColor),
+              ),
+            ),
+            pw.SizedBox(height: 12),
+            ...ratings.map(
+              (rating) =>
+                  _buildIndividualRatingCard(rating, labels, dateFormat),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return pdf;
+  }
+
   /// Saves and shares the PDF document.
   ///
   /// Behavior by platform:
@@ -384,7 +442,7 @@ class PdfService {
     PdfLabels labels,
   ) {
     final criteriaName = labels.criteriaLabels[entry.key] ?? entry.key;
-    final score = entry.value['nota'] as double;
+    final score = _toDouble(entry.value['nota']);
     final observation = entry.value['observacao'] as String;
 
     return pw.Container(
@@ -497,6 +555,318 @@ class PdfService {
   }
 
   // ===========================================================================
+  // PRIVATE METHODS - SHIP REPORT PDF SECTIONS
+  // ===========================================================================
+
+  /// Builds the header for the ship report PDF.
+  static pw.Widget _buildShipReportHeader(
+    String shipName,
+    String? shipImo,
+    PdfLabels labels,
+  ) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        color: PdfColor.fromHex(_primaryColor),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'ShipRate',
+            style: pw.TextStyle(
+              color: PdfColors.white,
+              fontSize: 24,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            labels.shipReportTitle,
+            style: const pw.TextStyle(color: PdfColors.white, fontSize: 14),
+          ),
+          pw.SizedBox(height: 16),
+          pw.Divider(color: PdfColors.white),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            shipName,
+            style: pw.TextStyle(
+              color: PdfColors.white,
+              fontSize: 20,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          if (shipImo?.isNotEmpty == true) ...[
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'IMO: $shipImo',
+              style: pw.TextStyle(
+                color: PdfColor.fromHex(_lightPrimaryColor),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Builds the averages section with color-coded score cards.
+  static pw.Widget _buildAveragesSection(
+    Map<String, double> averages,
+    PdfLabels labels,
+  ) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          labels.averagesSection,
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColor.fromHex(_primaryColor),
+          ),
+        ),
+        pw.SizedBox(height: 12),
+        ...averages.entries.map((entry) {
+          final label = labels.averagesLabels[entry.key] ?? entry.key;
+          return pw.Container(
+            margin: const pw.EdgeInsets.only(bottom: 8),
+            padding: const pw.EdgeInsets.all(12),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColor.fromHex(_borderColor)),
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    label,
+                    style: pw.TextStyle(
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ),
+                pw.Container(
+                  padding: const pw.EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: pw.BoxDecoration(
+                    color: _getRatingColor(entry.value),
+                    borderRadius: const pw.BorderRadius.all(
+                      pw.Radius.circular(4),
+                    ),
+                  ),
+                  child: pw.Text(
+                    entry.value.toStringAsFixed(1),
+                    style: pw.TextStyle(
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  /// Builds the summary row with total ratings and overall average.
+  static pw.Widget _buildReportSummary(
+    int totalRatings,
+    double overallAverage,
+    PdfLabels labels,
+  ) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        color: PdfColor.fromHex(_backgroundGray),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+      ),
+      child: pw.Row(
+        children: [
+          pw.Expanded(
+            child: _buildInfoItem(
+              labels.totalRatingsCount,
+              totalRatings.toString(),
+            ),
+          ),
+          pw.Expanded(
+            child: _buildInfoItem(
+              labels.overallAverage,
+              overallAverage > 0 ? overallAverage.toStringAsFixed(1) : '-',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds a single individual rating card.
+  static pw.Widget _buildIndividualRatingCard(
+    Map<String, dynamic> rating,
+    PdfLabels labels,
+    DateFormat dateFormat,
+  ) {
+    final pilotName = (rating['pilotName'] as String?) ?? '';
+    final date = rating['date'] as DateTime?;
+    final dateStr = date != null ? dateFormat.format(date) : '';
+    final rawScores = (rating['scores'] as Map<String, dynamic>?) ?? {};
+    final scores = rawScores.map((k, v) => MapEntry(k, _toDouble(v)));
+    final observation = (rating['observation'] as String?) ?? '';
+    final itens = (rating['itens'] as Map<String, dynamic>?) ?? {};
+
+    final criteriaObservations = <String, String>{};
+    itens.forEach((key, value) {
+      if (value is Map) {
+        final obs = (value['observacao'] ?? '').toString().trim();
+        if (obs.isNotEmpty) {
+          criteriaObservations[key] = obs;
+        }
+      }
+    });
+
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 12),
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColor.fromHex(_borderColor)),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Expanded(
+                child: pw.Text(
+                  '${labels.ratedBy} $pilotName',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+              pw.Text(
+                dateStr,
+                style: const pw.TextStyle(
+                  fontSize: 10,
+                  color: PdfColors.grey700,
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 8),
+          ...scores.entries.map((item) {
+            final criteriaName = labels.criteriaLabels[item.key] ?? item.key;
+            return pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      criteriaName,
+                      style: const pw.TextStyle(fontSize: 10),
+                    ),
+                  ),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: pw.BoxDecoration(
+                      color: _getRatingColor(item.value),
+                      borderRadius: const pw.BorderRadius.all(
+                        pw.Radius.circular(3),
+                      ),
+                    ),
+                    child: pw.Text(
+                      item.value.toStringAsFixed(1),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          if (criteriaObservations.isNotEmpty) ...[
+            pw.SizedBox(height: 8),
+            ...criteriaObservations.entries.map((entry) {
+              final criteriaName =
+                  labels.criteriaLabels[entry.key] ?? entry.key;
+              return pw.Container(
+                margin: const pw.EdgeInsets.only(bottom: 6),
+                padding: const pw.EdgeInsets.only(left: 8, top: 4, bottom: 4),
+                decoration: const pw.BoxDecoration(
+                  border: pw.Border(
+                    left: pw.BorderSide(
+                      color: PdfColors.grey400,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      criteriaName,
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.grey800,
+                      ),
+                    ),
+                    pw.SizedBox(height: 2),
+                    pw.Text(
+                      entry.value,
+                      style: const pw.TextStyle(
+                        fontSize: 9,
+                        color: PdfColors.grey600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+          if (observation.isNotEmpty) ...[
+            pw.SizedBox(height: 8),
+            pw.Text(
+              '${labels.generalObservation}:',
+              style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.grey800,
+              ),
+            ),
+            pw.SizedBox(height: 2),
+            pw.Text(
+              observation,
+              style: const pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey700,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ===========================================================================
   // PRIVATE METHODS - PLATFORM SPECIFIC
   // ===========================================================================
 
@@ -566,6 +936,13 @@ class PdfService {
   // PRIVATE METHODS - HELPERS
   // ===========================================================================
 
+  /// Safely converts a dynamic value to double.
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
   /// Calculates average rating from all criteria.
   static double _calculateAverageRating(
     Map<String, Map<String, dynamic>> ratings,
@@ -574,7 +951,7 @@ class PdfService {
 
     double total = 0;
     for (final entry in ratings.values) {
-      total += entry['nota'] as double;
+      total += _toDouble(entry['nota']);
     }
 
     return total / ratings.length;
@@ -666,6 +1043,13 @@ class PdfLabels {
   final String no;
   final Map<String, String> criteriaLabels;
   final Map<String, String> nationalityLabels;
+  final String shipReportTitle;
+  final String averagesSection;
+  final String individualRatings;
+  final String totalRatingsCount;
+  final String observation;
+  final String ratedBy;
+  final Map<String, String> averagesLabels;
 
   const PdfLabels({
     required this.reportTitle,
@@ -695,5 +1079,12 @@ class PdfLabels {
     required this.no,
     required this.criteriaLabels,
     required this.nationalityLabels,
+    required this.shipReportTitle,
+    required this.averagesSection,
+    required this.individualRatings,
+    required this.totalRatingsCount,
+    required this.observation,
+    required this.ratedBy,
+    required this.averagesLabels,
   });
 }

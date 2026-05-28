@@ -1417,5 +1417,33 @@
   "noThanks": "No, thanks",
   "@noThanks": {
     "description": "Button label to dismiss share dialog."
+  },
+  "pdfShipReportTitle": "Ship Report",
+  "@pdfShipReportTitle": {
+    "description": "Title text for pdf ship report."
+  },
+  "pdfAveragesSection": "Rating Averages",
+  "@pdfAveragesSection": {
+    "description": "Section title for rating averages in ship report PDF."
+  },
+  "pdfIndividualRatings": "Individual Ratings",
+  "@pdfIndividualRatings": {
+    "description": "Section title for individual ratings in ship report PDF."
+  },
+  "pdfTotalRatingsCount": "Total Ratings",
+  "@pdfTotalRatingsCount": {
+    "description": "Label for total ratings count in ship report PDF."
+  },
+  "pdfObservation": "Observation",
+  "@pdfObservation": {
+    "description": "Label for observation in ship report PDF."
+  },
+  "pdfRatedBy": "Rated by",
+  "@pdfRatedBy": {
+    "description": "Label for rated by in ship report PDF."
+  },
+  "exportShipReport": "Export Report",
+  "@exportShipReport": {
+    "description": "Button label for exporting ship report PDF."
   }
 }

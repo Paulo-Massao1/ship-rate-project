@@ -2050,6 +2050,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não, obrigado'**
   String get noThanks;
+
+  /// Title text for pdf ship report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatório do Navio'**
+  String get pdfShipReportTitle;
+
+  /// Section title for rating averages in ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Médias das Avaliações'**
+  String get pdfAveragesSection;
+
+  /// Section title for individual ratings in ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliações Individuais'**
+  String get pdfIndividualRatings;
+
+  /// Label for total ratings count in ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total de Avaliações'**
+  String get pdfTotalRatingsCount;
+
+  /// Label for observation in ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Observação'**
+  String get pdfObservation;
+
+  /// Label for rated by in ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado por'**
+  String get pdfRatedBy;
+
+  /// Button label for exporting ship report PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar Relatório'**
+  String get exportShipReport;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

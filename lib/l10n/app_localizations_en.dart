@@ -1045,4 +1045,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noThanks => 'No, thanks';
+
+  @override
+  String get pdfShipReportTitle => 'Ship Report';
+
+  @override
+  String get pdfAveragesSection => 'Rating Averages';
+
+  @override
+  String get pdfIndividualRatings => 'Individual Ratings';
+
+  @override
+  String get pdfTotalRatingsCount => 'Total Ratings';
+
+  @override
+  String get pdfObservation => 'Observation';
+
+  @override
+  String get pdfRatedBy => 'Rated by';
+
+  @override
+  String get exportShipReport => 'Export Report';
 }

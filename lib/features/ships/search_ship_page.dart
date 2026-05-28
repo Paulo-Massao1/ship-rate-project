@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../controllers/ship_search_controller.dart';
 import '../../core/events/data_change_notifier.dart';
+import '../../data/services/pdf_service.dart';
+import '../../data/services/pdf_labels_factory.dart';
 import '../home/widgets/dashboard_widget.dart';
 import '../ratings/add_rating_page.dart';
 import '../ratings/rating_detail_page.dart';
@@ -594,6 +596,8 @@ class _ShipSummaryCard extends StatelessWidget {
             _buildMarineTrafficButton(context, data),
             const SizedBox(height: 12),
             _buildRateShipButton(context, data, ship.id),
+            const SizedBox(height: 12),
+            _buildExportReportButton(context),
             if (infoItems.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
@@ -751,6 +755,137 @@ class _ShipSummaryCard extends StatelessWidget {
     );
     if (result == true && context.mounted) {
       notifyDataChanged();
+    }
+  }
+
+  Widget _buildExportReportButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x661565C0),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: () => _exportShipReport(context),
+        icon: const Icon(Icons.picture_as_pdf, size: 20),
+        label: Text(
+          l10n.exportShipReport,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportShipReport(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: CircularProgressIndicator(color: _accentBlue),
+        ),
+      );
+
+      final shipData = controller.extractShipData(ship);
+
+      final averagesMap = <String, double>{};
+      shipData.averages.forEach((key, value) {
+        if (value != null) {
+          final parsed = value is num ? value.toDouble() : double.tryParse(value.toString());
+          if (parsed != null) averagesMap[key] = parsed;
+        }
+      });
+
+      final shipInfo = Map<String, dynamic>.from(shipData.info);
+      final amenities = controller.resolveAmenities(shipData.info, ratings);
+      shipInfo['frigobar'] = amenities['frigobar'];
+      shipInfo['pia'] = amenities['pia'];
+      shipInfo['microondas'] = amenities['microondas'];
+
+      final ratingsData = ratings?.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final timestamp = data['dataDesembarque'] as Timestamp? ??
+            data['createdAt'] as Timestamp? ??
+            data['data'] as Timestamp?;
+
+        final itens = (data['itens'] as Map<String, dynamic>?) ?? {};
+        final scores = <String, double>{};
+        itens.forEach((key, value) {
+          if (value is Map) {
+            scores[key] = (value['nota'] as num?)?.toDouble() ?? 0.0;
+          }
+        });
+
+        return <String, dynamic>{
+          'pilotName': data['nomeGuerra'] ?? '',
+          'date': timestamp?.toDate(),
+          'scores': scores,
+          'observation': (data['observacaoGeral'] ?? '').toString(),
+          'itens': Map<String, dynamic>.from(data['itens'] ?? {}),
+        };
+      }).toList() ?? [];
+
+      final labels = buildPdfLabels(l10n);
+      final pdf = await PdfService.generateShipReportPdf(
+        shipName: shipData.name,
+        shipImo: shipData.imo,
+        averages: averagesMap,
+        shipInfo: shipInfo,
+        ratings: ratingsData,
+        labels: labels,
+      );
+
+      if (context.mounted) Navigator.pop(context);
+
+      final firstName = shipData.name
+          .split(' ')
+          .first
+          .replaceAll(RegExp(r'[^\w]'), '');
+      await PdfService.saveAndSharePdf(pdf, 'ShipRate_Report_$firstName');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.pdfGeneratedSuccess),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorGeneratingPdf(e.toString())),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 

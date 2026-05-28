@@ -1045,4 +1045,25 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get noThanks => 'Não, obrigado';
+
+  @override
+  String get pdfShipReportTitle => 'Relatório do Navio';
+
+  @override
+  String get pdfAveragesSection => 'Médias das Avaliações';
+
+  @override
+  String get pdfIndividualRatings => 'Avaliações Individuais';
+
+  @override
+  String get pdfTotalRatingsCount => 'Total de Avaliações';
+
+  @override
+  String get pdfObservation => 'Observação';
+
+  @override
+  String get pdfRatedBy => 'Avaliado por';
+
+  @override
+  String get exportShipReport => 'Exportar Relatório';
 }
