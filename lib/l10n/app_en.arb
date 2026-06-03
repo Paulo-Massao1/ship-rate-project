@@ -156,6 +156,10 @@
   "@shareText": {
     "description": "Localized text for share text."
   },
+  "shareMoreInfo": "For more information visit:",
+  "@shareMoreInfo": {
+    "description": "Short text shown before the app link in share messages."
+  },
   "shipRatingTitle": "Ship Rating",
   "@shipRatingTitle": {
     "description": "Title text for ship rating."
@@ -1445,5 +1449,101 @@
   "exportShipReport": "Export Report",
   "@exportShipReport": {
     "description": "Button label for exporting ship report PDF."
+  },
+  "cruzamentoModule": "Ship Crossing",
+  "@cruzamentoModule": {
+    "description": "Module name for ship crossing."
+  },
+  "cruzamentoDesc": "Register and track crossings",
+  "@cruzamentoDesc": {
+    "description": "Description for ship crossing module."
+  },
+  "activeCrossings": "Active crossings",
+  "@activeCrossings": {
+    "description": "Header for active crossings list."
+  },
+  "noCrossings": "No crossings registered",
+  "@noCrossings": {
+    "description": "Empty state for crossings."
+  },
+  "newCrossing": "New crossing",
+  "@newCrossing": {
+    "description": "Button label for new crossing."
+  },
+  "crossingLocation": "Location",
+  "@crossingLocation": {
+    "description": "Label for crossing location field."
+  },
+  "crossingTime": "Expected time (Brasília)",
+  "@crossingTime": {
+    "description": "Label for crossing time field."
+  },
+  "crossingShipName": "Ship name",
+  "@crossingShipName": {
+    "description": "Label for ship name in crossing form."
+  },
+  "directionUp": "Going up",
+  "@directionUp": {
+    "description": "Direction option going upstream."
+  },
+  "directionDown": "Going down",
+  "@directionDown": {
+    "description": "Direction option going downstream."
+  },
+  "pilotsToContact": "Pilots to contact",
+  "@pilotsToContact": {
+    "description": "Label for pilots to contact field."
+  },
+  "crossingObservations": "Observations",
+  "@crossingObservations": {
+    "description": "Label for crossing observations field."
+  },
+  "registerCrossing": "Register crossing",
+  "@registerCrossing": {
+    "description": "Button label for registering a crossing."
+  },
+  "receiveAlerts": "Receive alerts",
+  "@receiveAlerts": {
+    "description": "Label for receive alerts toggle."
+  },
+  "shareCrossing": "Share",
+  "@shareCrossing": {
+    "description": "Button label for sharing a crossing."
+  },
+  "crossingSaved": "Crossing registered!",
+  "@crossingSaved": {
+    "description": "Success message after saving crossing."
+  },
+  "crossingTimeMustBeFuture": "The expected crossing time must be in the future.",
+  "@crossingTimeMustBeFuture": {
+    "description": "Error shown when a crossing is saved with a past or current time."
+  },
+  "shareCrossingPrompt": "Would you like to share this crossing with other pilots?",
+  "@shareCrossingPrompt": {
+    "description": "Dialog body asking to share crossing."
+  },
+  "pushNavSafetyLabel": "Navigation Safety",
+  "@pushNavSafetyLabel": {
+    "description": "Label for nav safety push toggle."
+  },
+  "pushRatingsLabel": "Ratings and Likes",
+  "@pushRatingsLabel": {
+    "description": "Label for ratings push toggle."
+  },
+  "myCrossings": "My crossings",
+  "@myCrossings": {
+    "description": "Label for my crossings section."
+  },
+  "cruzamentoDialogTitle": "Ship Crossing",
+  "@cruzamentoDialogTitle": {
+    "description": "Title text for cruzamento first-time dialog."
+  },
+  "cruzamentoDialogBody": "New feature! You can now register crossings and receive alerts when other pilots register passages. To disable alerts, toggle them off on the crossings screen.",
+  "@cruzamentoDialogBody": {
+    "description": "Body text for cruzamento first-time dialog."
+  },
+  "cruzamentoDialogButton": "Got it!",
+  "@cruzamentoDialogButton": {
+    "description": "Button label for cruzamento first-time dialog."
   }
 }

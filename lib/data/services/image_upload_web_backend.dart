@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:html' as html;
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'image_upload_models.dart';
 

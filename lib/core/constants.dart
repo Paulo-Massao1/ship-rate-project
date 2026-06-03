@@ -1,6 +1,7 @@
 class AppConstants {
   AppConstants._();
 
+  static const appUrl = 'https://shiprate-daf18.web.app';
   static const cspamUid = 'vvmd4t7NHgYEiRbE3aPPcyGscdq1';
   static const testEmails = ['gcbrgame@gmail.com', 'spaulomassao@gmail.com'];
 
@@ -11,4 +12,5 @@ class AppConstants {
   static const locationsCollection = 'locais';
   static const recordsSubcollection = 'registros';
   static const likesSubcollection = 'likes';
+  static const cruzamentosCollection = 'cruzamentos';
 }

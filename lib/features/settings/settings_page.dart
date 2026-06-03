@@ -18,7 +18,8 @@ class _SettingsPageState extends State<SettingsPage> {
   // STATE
   // ===========================================================================
 
-  bool _pushEnabled = true;
+  bool _pushNavSafetyEnabled = true;
+  bool _pushRatingsEnabled = true;
   bool _emailEnabled = true;
   bool _loading = true;
   bool _permissionGranted = true;
@@ -52,39 +53,73 @@ class _SettingsPageState extends State<SettingsPage> {
     final granted = results[1] as bool;
     final data = doc.data();
 
+    final pushNotifications = data?['pushNotifications'] ?? true;
+    final pushNavSafety = data?['pushNavSafety'] ?? pushNotifications;
+    final emailEnabled = data?['emailNotifications'] ?? true;
+
+    if (data != null && !data.containsKey('pushNavSafety') && doc.exists) {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid != null) {
+        FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
+          {'pushNavSafety': pushNotifications},
+          SetOptions(merge: true),
+        );
+      }
+    }
+
     setState(() {
-      _pushEnabled = data?['pushNotifications'] ?? true;
-      _emailEnabled = data?['emailNotifications'] ?? true;
+      _pushNavSafetyEnabled = pushNavSafety as bool;
+      _pushRatingsEnabled = pushNotifications as bool;
+      _emailEnabled = emailEnabled as bool;
       _permissionGranted = granted;
       _loading = false;
     });
   }
 
-  Future<void> _togglePush(bool value) async {
+  Future<bool> _ensurePermission() async {
+    if (_permissionGranted) return true;
+
+    final granted = await NotificationService.requestPermissionAndEnable();
+    if (!mounted) return false;
+
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
+          ),
+          backgroundColor: Color(0xFFEF5350),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return false;
+    }
+
+    setState(() => _permissionGranted = true);
+    return true;
+  }
+
+  Future<void> _togglePushNavSafety(bool value) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    if (value && !_permissionGranted) {
-      final granted = await NotificationService.requestPermissionAndEnable();
-      if (!mounted) return;
+    if (value && !await _ensurePermission()) return;
 
-      if (!granted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
-            ),
-            backgroundColor: Color(0xFFEF5350),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return;
-      }
+    setState(() => _pushNavSafetyEnabled = value);
 
-      setState(() => _permissionGranted = true);
-    }
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
+      {'pushNavSafety': value},
+      SetOptions(merge: true),
+    );
+  }
 
-    setState(() => _pushEnabled = value);
+  Future<void> _togglePushRatings(bool value) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    if (value && !await _ensurePermission()) return;
+
+    setState(() => _pushRatingsEnabled = value);
 
     await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
       {'pushNotifications': value},
@@ -114,9 +149,12 @@ class _SettingsPageState extends State<SettingsPage> {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) return;
 
-      setState(() => _pushEnabled = true);
+      setState(() {
+        _pushNavSafetyEnabled = true;
+        _pushRatingsEnabled = true;
+      });
       await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
-        {'pushNotifications': true},
+        {'pushNotifications': true, 'pushNavSafety': true},
         SetOptions(merge: true),
       );
     } else {
@@ -156,13 +194,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(20),
                 children: [
                   if (!_permissionGranted) _buildNotificationBanner(),
-                  _buildToggleTile(
+                  _buildSectionHeader(
                     icon: Icons.notifications_active,
                     label: l10n.pushNotifications,
-                    value: _pushEnabled,
-                    onChanged: _togglePush,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
+                  _buildToggleTile(
+                    icon: Icons.sailing_outlined,
+                    label: l10n.pushNavSafetyLabel,
+                    value: _pushNavSafetyEnabled,
+                    onChanged: _togglePushNavSafety,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildToggleTile(
+                    icon: Icons.star_outline,
+                    label: l10n.pushRatingsLabel,
+                    value: _pushRatingsEnabled,
+                    onChanged: _togglePushRatings,
+                  ),
+                  const SizedBox(height: 16),
                   _buildToggleTile(
                     icon: Icons.email_outlined,
                     label: l10n.emailNotifications,
@@ -257,6 +307,27 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required IconData icon,
+    required String label,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFF64B5F6), size: 20),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF64B5F6),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
     );
   }
 

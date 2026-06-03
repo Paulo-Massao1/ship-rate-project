@@ -126,6 +126,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app';
 
   @override
+  String get shareMoreInfo => 'Para mais informacoes acesse:';
+
+  @override
   String get shipRatingTitle => 'Avaliação de Navios';
 
   @override
@@ -1066,4 +1069,76 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get exportShipReport => 'Exportar Relatório';
+
+  @override
+  String get cruzamentoModule => 'Cruzamento de Navios';
+
+  @override
+  String get cruzamentoDesc => 'Registre e acompanhe cruzamentos';
+
+  @override
+  String get activeCrossings => 'Cruzamentos ativos';
+
+  @override
+  String get noCrossings => 'Nenhum cruzamento registrado';
+
+  @override
+  String get newCrossing => 'Novo cruzamento';
+
+  @override
+  String get crossingLocation => 'Local';
+
+  @override
+  String get crossingTime => 'Horário previsto (Brasília)';
+
+  @override
+  String get crossingShipName => 'Nome do navio';
+
+  @override
+  String get directionUp => 'Subindo';
+
+  @override
+  String get directionDown => 'Baixando';
+
+  @override
+  String get pilotsToContact => 'Práticos para contactar';
+
+  @override
+  String get crossingObservations => 'Observações';
+
+  @override
+  String get registerCrossing => 'Registrar cruzamento';
+
+  @override
+  String get receiveAlerts => 'Receber alertas';
+
+  @override
+  String get shareCrossing => 'Compartilhar';
+
+  @override
+  String get crossingSaved => 'Cruzamento registrado!';
+
+  @override
+  String get crossingTimeMustBeFuture => 'O horario previsto do cruzamento deve estar no futuro.';
+
+  @override
+  String get shareCrossingPrompt => 'Deseja compartilhar este cruzamento com outros práticos?';
+
+  @override
+  String get pushNavSafetyLabel => 'Segurança da Navegação';
+
+  @override
+  String get pushRatingsLabel => 'Avaliações e Likes';
+
+  @override
+  String get myCrossings => 'Meus cruzamentos';
+
+  @override
+  String get cruzamentoDialogTitle => 'Cruzamento de Navios';
+
+  @override
+  String get cruzamentoDialogBody => 'Nova feature! Agora você pode registrar cruzamentos e receber alertas quando outros práticos registrarem passagens. Se não quiser receber alertas, desative na tela de cruzamentos.';
+
+  @override
+  String get cruzamentoDialogButton => 'Entendi!';
 }

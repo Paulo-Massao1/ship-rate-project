@@ -126,6 +126,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareText => 'Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths. Download here: https://shiprate-daf18.web.app';
 
   @override
+  String get shareMoreInfo => 'For more information visit:';
+
+  @override
   String get shipRatingTitle => 'Ship Rating';
 
   @override
@@ -1066,4 +1069,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportShipReport => 'Export Report';
+
+  @override
+  String get cruzamentoModule => 'Ship Crossing';
+
+  @override
+  String get cruzamentoDesc => 'Register and track crossings';
+
+  @override
+  String get activeCrossings => 'Active crossings';
+
+  @override
+  String get noCrossings => 'No crossings registered';
+
+  @override
+  String get newCrossing => 'New crossing';
+
+  @override
+  String get crossingLocation => 'Location';
+
+  @override
+  String get crossingTime => 'Expected time (Brasília)';
+
+  @override
+  String get crossingShipName => 'Ship name';
+
+  @override
+  String get directionUp => 'Going up';
+
+  @override
+  String get directionDown => 'Going down';
+
+  @override
+  String get pilotsToContact => 'Pilots to contact';
+
+  @override
+  String get crossingObservations => 'Observations';
+
+  @override
+  String get registerCrossing => 'Register crossing';
+
+  @override
+  String get receiveAlerts => 'Receive alerts';
+
+  @override
+  String get shareCrossing => 'Share';
+
+  @override
+  String get crossingSaved => 'Crossing registered!';
+
+  @override
+  String get crossingTimeMustBeFuture => 'The expected crossing time must be in the future.';
+
+  @override
+  String get shareCrossingPrompt => 'Would you like to share this crossing with other pilots?';
+
+  @override
+  String get pushNavSafetyLabel => 'Navigation Safety';
+
+  @override
+  String get pushRatingsLabel => 'Ratings and Likes';
+
+  @override
+  String get myCrossings => 'My crossings';
+
+  @override
+  String get cruzamentoDialogTitle => 'Ship Crossing';
+
+  @override
+  String get cruzamentoDialogBody => 'New feature! You can now register crossings and receive alerts when other pilots register passages. To disable alerts, toggle them off on the crossings screen.';
+
+  @override
+  String get cruzamentoDialogButton => 'Got it!';
 }

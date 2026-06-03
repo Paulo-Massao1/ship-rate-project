@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../app/auth_gate.dart';
+import '../../controllers/crossing_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
+import '../../features/crossing/crossing_page.dart';
 import '../../features/home/main_screen_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
 import '../../features/settings/settings_page.dart';
 
-enum AppScreen { home, shipRating, navSafety }
+enum AppScreen { home, shipRating, navSafety, crossing }
 
 class AppDrawer extends StatelessWidget {
   final AppScreen currentScreen;
@@ -35,6 +37,7 @@ class AppDrawer extends StatelessWidget {
     final navigator = Navigator.of(context);
     navigator.pop();
     NavSafetyController.clearAllCaches();
+    CrossingController.clearCache();
     onBeforeLogout?.call();
     await FirebaseAuth.instance.signOut();
     navigator.pushAndRemoveUntil(
@@ -137,14 +140,27 @@ class AppDrawer extends StatelessWidget {
               isActive: false,
               onTap: () => _navigateTo(context, AppScreen.navSafety),
             ),
+          DrawerItem(
+            icon: Icons.compare_arrows,
+            label: l10n.cruzamentoModule,
+            isActive: false,
+            onTap: () => _navigateTo(context, AppScreen.crossing),
+          ),
         ];
       case AppScreen.shipRating:
         return [
+          if (showNavSafety)
+            _SwitchModuleItem(
+              icon: Icons.anchor,
+              label: l10n.switchToNavSafety,
+              accentColor: const Color(0xFF26A69A),
+              onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
           _SwitchModuleItem(
-            icon: Icons.anchor,
-            label: l10n.switchToNavSafety,
-            accentColor: const Color(0xFF26A69A),
-            onTap: () => _navigateTo(context, AppScreen.navSafety),
+            icon: Icons.compare_arrows,
+            label: _switchToLabel(l10n, l10n.cruzamentoModule),
+            accentColor: const Color(0xFFFFB74D),
+            onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
         ];
       case AppScreen.navSafety:
@@ -155,25 +171,58 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFF64B5F6),
             onTap: () => _navigateTo(context, AppScreen.shipRating),
           ),
+          _SwitchModuleItem(
+            icon: Icons.compare_arrows,
+            label: _switchToLabel(l10n, l10n.cruzamentoModule),
+            accentColor: const Color(0xFFFFB74D),
+            onTap: () => _navigateTo(context, AppScreen.crossing),
+          ),
+        ];
+      case AppScreen.crossing:
+        return [
+          _SwitchModuleItem(
+            icon: Icons.directions_boat,
+            label: l10n.switchToShipRating,
+            accentColor: const Color(0xFF64B5F6),
+            onTap: () => _navigateTo(context, AppScreen.shipRating),
+          ),
+          if (showNavSafety)
+            _SwitchModuleItem(
+              icon: Icons.anchor,
+              label: l10n.switchToNavSafety,
+              accentColor: const Color(0xFF26A69A),
+              onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
         ];
     }
   }
 
   Widget _buildHeader(AppLocalizations l10n) {
     final bool isNavSafety = currentScreen == AppScreen.navSafety;
+    final bool isCrossing = currentScreen == AppScreen.crossing;
 
-    final icon = isNavSafety ? Icons.anchor : Icons.directions_boat;
-    final iconColor =
-        isNavSafety ? const Color(0xFF26A69A) : const Color(0xFF64B5F6);
-    final iconBgColor =
-        isNavSafety ? const Color(0x2626A69A) : const Color(0x2664B5F6);
-    final title = isNavSafety ? l10n.navSafetyModule : 'ShipRate';
-    final subtitle = isNavSafety ? null : l10n.appSubtitle;
+    final icon = isNavSafety
+        ? Icons.anchor
+        : (isCrossing ? Icons.compare_arrows : Icons.directions_boat);
+    final iconColor = isNavSafety
+        ? const Color(0xFF26A69A)
+        : (isCrossing ? const Color(0xFFFFB74D) : const Color(0xFF64B5F6));
+    final iconBgColor = isNavSafety
+        ? const Color(0x2626A69A)
+        : (isCrossing ? const Color(0x26FFB74D) : const Color(0x2664B5F6));
+    final title = isNavSafety
+        ? l10n.navSafetyModule
+        : (isCrossing ? l10n.cruzamentoModule : 'ShipRate');
+    final subtitle = (isNavSafety || isCrossing) ? null : l10n.appSubtitle;
+    final subtitleColor =
+        isCrossing ? const Color(0xB3FFB74D) : const Color(0xB364B5F6);
+    final borderColor =
+        isCrossing ? const Color(0x26FFB74D) : const Color(0x2664B5F6);
 
     final content = Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -181,7 +230,7 @@ class AppDrawer extends StatelessWidget {
           stops: [0.0, 0.5, 1.0],
         ),
         border: Border(
-          bottom: BorderSide(color: Color(0x2664B5F6), width: 1),
+          bottom: BorderSide(color: borderColor, width: 1),
         ),
       ),
       child: Column(
@@ -209,8 +258,8 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: Color(0xB364B5F6),
+              style: TextStyle(
+                color: subtitleColor,
                 fontSize: 13,
               ),
             ),
@@ -246,9 +295,27 @@ class AppDrawer extends StatelessWidget {
       case AppScreen.navSafety:
         navigator
             .push(MaterialPageRoute(builder: (_) => const NavSafetyPage()));
+      case AppScreen.crossing:
+        navigator.push(MaterialPageRoute(builder: (_) => const CrossingPage()));
       case AppScreen.home:
         break;
     }
+  }
+
+  String _switchToLabel(AppLocalizations l10n, String moduleName) {
+    final shipPrefix =
+        l10n.switchToShipRating.replaceFirst(l10n.shipRatingModule, '').trimRight();
+    if (shipPrefix != l10n.switchToShipRating) {
+      return '$shipPrefix $moduleName'.trim();
+    }
+
+    final navPrefix =
+        l10n.switchToNavSafety.replaceFirst(l10n.navSafetyModule, '').trimRight();
+    if (navPrefix != l10n.switchToNavSafety) {
+      return '$navPrefix $moduleName'.trim();
+    }
+
+    return moduleName;
   }
 }
 

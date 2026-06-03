@@ -20,6 +20,8 @@ const {
 const { getUserCount } = require("./stats/get_user_count");
 const { onLikeCreated, onLikeDeleted } = require("./navigation_safety/on_like");
 const { inactivityReminder } = require("./notifications/inactivity_reminder");
+const { onCrossingCreated } = require("./crossings/on_crossing_created");
+const { cleanupCrossings } = require("./crossings/cleanup_crossings");
 
 exports.sendOTP = sendOTP;
 exports.verifyOTP = verifyOTP;
@@ -38,3 +40,6 @@ exports.getUserCount = getUserCount;
 exports.onLikeCreated = onLikeCreated;
 exports.onLikeDeleted = onLikeDeleted;
 exports.inactivityReminder = inactivityReminder;
+// Keep the published function names stable to avoid creating duplicate triggers.
+exports.onCruzamentoCreated = onCrossingCreated;
+exports.cleanupCruzamentos = cleanupCrossings;

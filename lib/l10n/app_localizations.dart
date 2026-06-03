@@ -329,6 +329,12 @@ abstract class AppLocalizations {
   /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app'**
   String get shareText;
 
+  /// Texto curto exibido antes do link do app nas mensagens de compartilhamento.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para mais informacoes acesse:'**
+  String get shareMoreInfo;
+
   /// Title text for ship rating.
   ///
   /// In pt, this message translates to:
@@ -2092,6 +2098,150 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Exportar Relatório'**
   String get exportShipReport;
+
+  /// Module name for ship crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamento de Navios'**
+  String get cruzamentoModule;
+
+  /// Description for ship crossing module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registre e acompanhe cruzamentos'**
+  String get cruzamentoDesc;
+
+  /// Header for active crossings list.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamentos ativos'**
+  String get activeCrossings;
+
+  /// Empty state for crossings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum cruzamento registrado'**
+  String get noCrossings;
+
+  /// Button label for new crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo cruzamento'**
+  String get newCrossing;
+
+  /// Label for crossing location field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Local'**
+  String get crossingLocation;
+
+  /// Label for crossing time field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário previsto (Brasília)'**
+  String get crossingTime;
+
+  /// Label for ship name in crossing form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do navio'**
+  String get crossingShipName;
+
+  /// Direction option going upstream.
+  ///
+  /// In pt, this message translates to:
+  /// **'Subindo'**
+  String get directionUp;
+
+  /// Direction option going downstream.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixando'**
+  String get directionDown;
+
+  /// Label for pilots to contact field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Práticos para contactar'**
+  String get pilotsToContact;
+
+  /// Label for crossing observations field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Observações'**
+  String get crossingObservations;
+
+  /// Button label for registering a crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar cruzamento'**
+  String get registerCrossing;
+
+  /// Label for receive alerts toggle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receber alertas'**
+  String get receiveAlerts;
+
+  /// Button label for sharing a crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compartilhar'**
+  String get shareCrossing;
+
+  /// Success message after saving crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamento registrado!'**
+  String get crossingSaved;
+
+  /// Erro exibido quando o cruzamento e salvo com horario atual ou passado.
+  ///
+  /// In pt, this message translates to:
+  /// **'O horario previsto do cruzamento deve estar no futuro.'**
+  String get crossingTimeMustBeFuture;
+
+  /// Dialog body asking to share crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deseja compartilhar este cruzamento com outros práticos?'**
+  String get shareCrossingPrompt;
+
+  /// Label for nav safety push toggle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Segurança da Navegação'**
+  String get pushNavSafetyLabel;
+
+  /// Label for ratings push toggle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliações e Likes'**
+  String get pushRatingsLabel;
+
+  /// Label for my crossings section.
+  ///
+  /// In pt, this message translates to:
+  /// **'Meus cruzamentos'**
+  String get myCrossings;
+
+  /// Title text for cruzamento first-time dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamento de Navios'**
+  String get cruzamentoDialogTitle;
+
+  /// Body text for cruzamento first-time dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova feature! Agora você pode registrar cruzamentos e receber alertas quando outros práticos registrarem passagens. Se não quiser receber alertas, desative na tela de cruzamentos.'**
+  String get cruzamentoDialogBody;
+
+  /// Button label for cruzamento first-time dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entendi!'**
+  String get cruzamentoDialogButton;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

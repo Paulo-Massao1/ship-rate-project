@@ -156,6 +156,10 @@
   "@shareText": {
     "description": "Localized text for share text."
   },
+  "shareMoreInfo": "Para mais informacoes acesse:",
+  "@shareMoreInfo": {
+    "description": "Texto curto exibido antes do link do app nas mensagens de compartilhamento."
+  },
   "shipRatingTitle": "Avaliação de Navios",
   "@shipRatingTitle": {
     "description": "Title text for ship rating."
@@ -1472,5 +1476,101 @@
   "exportShipReport": "Exportar Relatório",
   "@exportShipReport": {
     "description": "Button label for exporting ship report PDF."
+  },
+  "cruzamentoModule": "Cruzamento de Navios",
+  "@cruzamentoModule": {
+    "description": "Module name for ship crossing."
+  },
+  "cruzamentoDesc": "Registre e acompanhe cruzamentos",
+  "@cruzamentoDesc": {
+    "description": "Description for ship crossing module."
+  },
+  "activeCrossings": "Cruzamentos ativos",
+  "@activeCrossings": {
+    "description": "Header for active crossings list."
+  },
+  "noCrossings": "Nenhum cruzamento registrado",
+  "@noCrossings": {
+    "description": "Empty state for crossings."
+  },
+  "newCrossing": "Novo cruzamento",
+  "@newCrossing": {
+    "description": "Button label for new crossing."
+  },
+  "crossingLocation": "Local",
+  "@crossingLocation": {
+    "description": "Label for crossing location field."
+  },
+  "crossingTime": "Horário previsto (Brasília)",
+  "@crossingTime": {
+    "description": "Label for crossing time field."
+  },
+  "crossingShipName": "Nome do navio",
+  "@crossingShipName": {
+    "description": "Label for ship name in crossing form."
+  },
+  "directionUp": "Subindo",
+  "@directionUp": {
+    "description": "Direction option going upstream."
+  },
+  "directionDown": "Baixando",
+  "@directionDown": {
+    "description": "Direction option going downstream."
+  },
+  "pilotsToContact": "Práticos para contactar",
+  "@pilotsToContact": {
+    "description": "Label for pilots to contact field."
+  },
+  "crossingObservations": "Observações",
+  "@crossingObservations": {
+    "description": "Label for crossing observations field."
+  },
+  "registerCrossing": "Registrar cruzamento",
+  "@registerCrossing": {
+    "description": "Button label for registering a crossing."
+  },
+  "receiveAlerts": "Receber alertas",
+  "@receiveAlerts": {
+    "description": "Label for receive alerts toggle."
+  },
+  "shareCrossing": "Compartilhar",
+  "@shareCrossing": {
+    "description": "Button label for sharing a crossing."
+  },
+  "crossingSaved": "Cruzamento registrado!",
+  "@crossingSaved": {
+    "description": "Success message after saving crossing."
+  },
+  "crossingTimeMustBeFuture": "O horario previsto do cruzamento deve estar no futuro.",
+  "@crossingTimeMustBeFuture": {
+    "description": "Erro exibido quando o cruzamento e salvo com horario atual ou passado."
+  },
+  "shareCrossingPrompt": "Deseja compartilhar este cruzamento com outros práticos?",
+  "@shareCrossingPrompt": {
+    "description": "Dialog body asking to share crossing."
+  },
+  "pushNavSafetyLabel": "Segurança da Navegação",
+  "@pushNavSafetyLabel": {
+    "description": "Label for nav safety push toggle."
+  },
+  "pushRatingsLabel": "Avaliações e Likes",
+  "@pushRatingsLabel": {
+    "description": "Label for ratings push toggle."
+  },
+  "myCrossings": "Meus cruzamentos",
+  "@myCrossings": {
+    "description": "Label for my crossings section."
+  },
+  "cruzamentoDialogTitle": "Cruzamento de Navios",
+  "@cruzamentoDialogTitle": {
+    "description": "Title text for cruzamento first-time dialog."
+  },
+  "cruzamentoDialogBody": "Nova feature! Agora voc\u00ea pode registrar cruzamentos e receber alertas quando outros pr\u00e1ticos registrarem passagens. Se n\u00e3o quiser receber alertas, desative na tela de cruzamentos.",
+  "@cruzamentoDialogBody": {
+    "description": "Body text for cruzamento first-time dialog."
+  },
+  "cruzamentoDialogButton": "Entendi!",
+  "@cruzamentoDialogButton": {
+    "description": "Button label for cruzamento first-time dialog."
   }
 }

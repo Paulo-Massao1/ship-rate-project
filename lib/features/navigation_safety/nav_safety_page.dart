@@ -39,6 +39,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   final NavSafetyController _controller = NavSafetyController();
   bool _showLocationsDropdown = false;
 
+  bool get _showNavSafetyModule {
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
+    return !email.toLowerCase().endsWith('@cspam.com.br');
+  }
+
   // ===========================================================================
   // LIFECYCLE
   // ===========================================================================
@@ -164,6 +169,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       appBar: _buildAppBar(l10n),
       drawer: AppDrawer(
         currentScreen: AppScreen.navSafety,
+        showNavSafety: _showNavSafetyModule,
         additionalItems: [
           DrawerItem(
             icon: Icons.assignment_turned_in_outlined,

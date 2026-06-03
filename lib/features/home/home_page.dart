@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../crossing/crossing_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
@@ -23,6 +24,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
   // CONSTANTS
   // ===========================================================================
+
+  static const bool _milestone200DialogEnabled = false;
 
   // ===========================================================================
   // STATE
@@ -84,7 +87,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     await _showNotificationDialogIfNeeded();
-    await _showMilestoneDialogIfNeeded();
+    // Milestone 200 ships dialog — disabled (already shown to active pilots)
+    // To re-enable for a new milestone, update the threshold and Firestore flag.
+    if (_milestone200DialogEnabled) {
+      await _showMilestoneDialogIfNeeded();
+    }
+    await _showCrossingDialogIfNeeded();
   }
 
   Future<void> _showNotificationDialogIfNeeded() async {
@@ -295,6 +303,95 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> _showCrossingDialogIfNeeded() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .get();
+    if (!mounted) return;
+
+    if (doc.data()?['cruzamentoDialogShown'] == true) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0x1AFFB74D),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.swap_vert,
+                color: Color(0xFFFFB74D),
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l10n.cruzamentoDialogTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.cruzamentoDialogBody,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFFFFB74D),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () async {
+              await _markCrossingDialogShown(uid);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: Text(
+              l10n.cruzamentoDialogButton,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _markCrossingDialogShown(String uid) async {
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
+      {'cruzamentoDialogShown': true},
+      SetOptions(merge: true),
+    );
+  }
+
   Future<void> _fetchNomeGuerra() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -362,6 +459,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  void _navigateToCrossing() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CrossingPage()),
+    );
+  }
+
 
   // ===========================================================================
   // BUILD
@@ -426,6 +530,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           onTap: _navigateToNavSafety,
                         ),
                       ],
+                      const SizedBox(height: 16),
+                      _buildModuleCard(
+                        icon: Icons.compare_arrows,
+                        iconBgColor: const Color(0x1FFFB74D),
+                        iconBorderColor: const Color(0x40FFB74D),
+                        iconColor: const Color(0xFFFFB74D),
+                        borderColor: const Color(0x33FFB74D),
+                        title: AppLocalizations.of(context)!.cruzamentoModule,
+                        subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
+                        onTap: _navigateToCrossing,
+                      ),
                     ],
                   ),
                 ),
@@ -635,4 +750,3 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 }
-

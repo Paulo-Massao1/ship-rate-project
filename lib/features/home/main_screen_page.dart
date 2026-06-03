@@ -1,5 +1,6 @@
 // lib/features/home/main_screen_page.dart
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
@@ -260,6 +261,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     return AppDrawer(
       currentScreen: AppScreen.shipRating,
+      showNavSafety: _showNavSafetyModule,
       headerOverlayPainter: _LinePatternPainter(opacity: 0.04),
       additionalItems: [
         DrawerItem(
@@ -291,6 +293,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ),
       ],
     );
+  }
+
+  bool get _showNavSafetyModule {
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
+    return !email.toLowerCase().endsWith('@cspam.com.br');
   }
 
   /// Builds update banner displayed at top when update is available.

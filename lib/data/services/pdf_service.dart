@@ -718,8 +718,6 @@ class PdfService {
     final pilotName = (rating['pilotName'] as String?) ?? '';
     final date = rating['date'] as DateTime?;
     final dateStr = date != null ? dateFormat.format(date) : '';
-    final rawScores = (rating['scores'] as Map<String, dynamic>?) ?? {};
-    final scores = rawScores.map((k, v) => MapEntry(k, _toDouble(v)));
     final observation = (rating['observation'] as String?) ?? '';
     final itens = (rating['itens'] as Map<String, dynamic>?) ?? {};
 
@@ -732,6 +730,9 @@ class PdfService {
         }
       }
     });
+
+    final hasAnyObservation =
+        criteriaObservations.isNotEmpty || observation.isNotEmpty;
 
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 12),
@@ -764,44 +765,6 @@ class PdfService {
               ),
             ],
           ),
-          pw.SizedBox(height: 8),
-          ...scores.entries.map((item) {
-            final criteriaName = labels.criteriaLabels[item.key] ?? item.key;
-            return pw.Padding(
-              padding: const pw.EdgeInsets.only(bottom: 4),
-              child: pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Expanded(
-                    child: pw.Text(
-                      criteriaName,
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: pw.BoxDecoration(
-                      color: _getRatingColor(item.value),
-                      borderRadius: const pw.BorderRadius.all(
-                        pw.Radius.circular(3),
-                      ),
-                    ),
-                    child: pw.Text(
-                      item.value.toStringAsFixed(1),
-                      style: pw.TextStyle(
-                        fontSize: 9,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
           if (criteriaObservations.isNotEmpty) ...[
             pw.SizedBox(height: 8),
             ...criteriaObservations.entries.map((entry) {
@@ -858,6 +821,16 @@ class PdfService {
               style: const pw.TextStyle(
                 fontSize: 10,
                 color: PdfColors.grey700,
+              ),
+            ),
+          ],
+          if (!hasAnyObservation) ...[
+            pw.SizedBox(height: 8),
+            pw.Text(
+              labels.noObservations,
+              style: const pw.TextStyle(
+                fontSize: 9,
+                color: PdfColors.grey400,
               ),
             ),
           ],
@@ -1050,6 +1023,7 @@ class PdfLabels {
   final String observation;
   final String ratedBy;
   final Map<String, String> averagesLabels;
+  final String noObservations;
 
   const PdfLabels({
     required this.reportTitle,
@@ -1086,5 +1060,6 @@ class PdfLabels {
     required this.observation,
     required this.ratedBy,
     required this.averagesLabels,
+    this.noObservations = 'Sem observações',
   });
 }

@@ -119,8 +119,9 @@ exports.onNewRecord = functions.firestore
         if (doc.id === record.pilotId) return;
         // Skip test accounts
         if (TEST_EMAILS.includes(data.email)) return;
-        // Skip users who disabled push notifications
-        if (data.pushNotifications === false) return;
+        // Skip users who disabled nav safety push notifications
+        if (data.pushNavSafety === false) return;
+        if (data.pushNavSafety === undefined && data.pushNotifications === false) return;
         // Collect valid tokens
         if (data.fcmToken) {
           tokens.push(data.fcmToken);
