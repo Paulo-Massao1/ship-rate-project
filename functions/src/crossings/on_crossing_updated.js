@@ -3,6 +3,12 @@ const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 const { TEST_EMAILS } = require("../shared/constants");
 
+function timestampMillis(timestamp) {
+  return timestamp && typeof timestamp.toDate === "function"
+    ? timestamp.toDate().getTime()
+    : null;
+}
+
 function formatBrasiliaTime(timestamp) {
   const brasiliaTime = new Date(
     timestamp.toDate().getTime() - 3 * 60 * 60 * 1000,
@@ -15,55 +21,28 @@ function formatBrasiliaTime(timestamp) {
   );
 }
 
-function formatDraft(value) {
-  switch (value) {
-    case "ate_6_5":
-      return "At\u00e9 6,5m";
-    case "6_5_a_9_5":
-      return "6,5 a 9,5m";
-    case "acima_9_5":
-      return "Acima de 9,5m";
-    default:
-      return "N/A";
-  }
-}
-
-async function updateCrossingCounters(pilotId) {
-  await db.collection("stats").doc("crossings").set(
-    { totalCount: admin.firestore.FieldValue.increment(1) },
-    { merge: true },
-  );
-
-  if (!pilotId) return;
-
-  await db.collection("usuarios").doc(pilotId).set(
-    { crossingCount: admin.firestore.FieldValue.increment(1) },
-    { merge: true },
-  );
-}
-
-exports.onCrossingCreated = functions.firestore
+exports.onCrossingUpdated = functions.firestore
   .document("cruzamentos/{docId}")
-  .onCreate(async (snap) => {
-    const data = snap.data();
+  .onUpdate(async (change) => {
+    const beforeData = change.before.data();
+    const afterData = change.after.data();
+    const beforeTime = timestampMillis(beforeData.dataHora);
+    const afterTime = timestampMillis(afterData.dataHora);
+
+    if (!beforeTime || !afterTime || beforeTime === afterTime) {
+      return;
+    }
+
     const {
       pilotoId: pilotId,
       nomeGuerra: pilotCallSign,
       nomeNavio: shipName,
       local: location,
-      direcao: direction,
       dataHora: crossingDateTime,
-      calado: draft,
-    } = data;
-
-    try {
-      await updateCrossingCounters(pilotId);
-    } catch (error) {
-      console.error("Error updating crossing counters:", error);
-    }
+    } = afterData;
 
     if (!pilotId) {
-      console.log("Skipping notification - no pilotoId.");
+      console.log("Skipping update notification - no pilotoId.");
       return;
     }
 
@@ -71,7 +50,7 @@ exports.onCrossingCreated = functions.firestore
       const pilotDoc = await db.collection("usuarios").doc(pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
       if (TEST_EMAILS.includes(pilotEmail)) {
-        console.log("Skipping notifications for test account");
+        console.log("Skipping update notifications for test account");
         return;
       }
     } catch (error) {
@@ -79,7 +58,6 @@ exports.onCrossingCreated = functions.firestore
     }
 
     const formattedTime = formatBrasiliaTime(crossingDateTime);
-    const formattedDraft = formatDraft(draft);
 
     try {
       const usersSnapshot = await db.collection("usuarios").get();
@@ -113,7 +91,7 @@ exports.onCrossingCreated = functions.firestore
       });
 
       if (tokens.length === 0) {
-        console.log("No FCM tokens to send push notifications to.");
+        console.log("No FCM tokens to send update notifications to.");
         return;
       }
 
@@ -123,11 +101,10 @@ exports.onCrossingCreated = functions.firestore
 
         const message = {
           notification: {
-            title: `Novo cruzamento: ${shipName}`,
+            title: `Hor\u00e1rio atualizado: ${shipName}`,
             body:
-              `${pilotCallSign} registrou cruzamento previsto em ` +
-              `${location} as ${formattedTime} - ${direction} - ` +
-              `Calado: ${formattedDraft}`,
+              `${pilotCallSign} atualizou o hor\u00e1rio do cruzamento em ` +
+              `${location} para ${formattedTime}`,
           },
           data: {
             url: "https://shiprate-daf18.web.app",
@@ -137,7 +114,7 @@ exports.onCrossingCreated = functions.firestore
 
         const response = await admin.messaging().sendEachForMulticast(message);
         console.log(
-          `Push batch sent: ${response.successCount} success, ` +
+          `Update push batch sent: ${response.successCount} success, ` +
           `${response.failureCount} failures.`,
         );
 
@@ -166,6 +143,6 @@ exports.onCrossingCreated = functions.firestore
         await Promise.all(deletePromises);
       }
     } catch (error) {
-      console.error("Error sending crossing push notification:", error);
+      console.error("Error sending crossing update notification:", error);
     }
   });

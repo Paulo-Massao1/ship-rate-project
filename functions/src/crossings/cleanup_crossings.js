@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 
 const { db } = require("../shared/firestore");
 
+const BATCH_LIMIT = 499;
+
 exports.cleanupCrossings = functions.pubsub
   .schedule("every 1 hours")
   .timeZone("America/Sao_Paulo")
@@ -17,11 +19,18 @@ exports.cleanupCrossings = functions.pubsub
       return;
     }
 
-    const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
+    let deletedCount = 0;
+    for (let i = 0; i < snapshot.docs.length; i += BATCH_LIMIT) {
+      const batch = db.batch();
+      const docs = snapshot.docs.slice(i, i + BATCH_LIMIT);
 
-    await batch.commit();
-    console.log(`Cleaned up ${snapshot.size} expired crossings.`);
+      docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+      deletedCount += docs.length;
+    }
+
+    console.log(`Cleaned up ${deletedCount} expired crossings.`);
   });

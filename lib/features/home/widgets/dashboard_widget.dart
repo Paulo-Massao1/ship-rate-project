@@ -10,7 +10,7 @@ import '../../ratings/last_rated_page.dart';
 import '../../ratings/rating_detail_page.dart';
 
 /// Dashboard widget with two visual blocks:
-/// - Block 1: App stats (total ships + total ratings)
+/// - Block 1: App stats (ships, ratings, crossings, active pilots)
 /// - Block 2: User activity (your ratings, contribution, recent)
 ///
 /// Handles loading, error, and loaded states.
@@ -139,6 +139,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           ],
           const SizedBox(height: 14),
           _buildUserActivityBlock(data, l10n),
+          if (data.totalCrossings > 0) ...[
+            const SizedBox(height: 14),
+            _buildCrossingBlock(data, l10n),
+          ],
         ],
       ),
     );
@@ -148,7 +152,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // BLOCK 1 — APP STATS
   // ===========================================================================
 
-  /// Dark card with section title + 2 stats side by side.
+  /// Dark card with section title + main app stats side by side.
   Widget _buildAppStatsBlock(DashboardData data, AppLocalizations l10n) {
     return Container(
       width: double.infinity,
@@ -186,6 +190,19 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                   icon: Icons.star_outline,
                   value: data.totalRatings.toString(),
                   label: l10n.totalRatingsLabel,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+              ),
+              Expanded(
+                child: _StatItem(
+                  icon: Icons.compare_arrows,
+                  value: data.totalCrossings.toString(),
+                  label: l10n.totalCrossingsLabel,
+                  iconColor: const Color(0xFFFFB74D),
                 ),
               ),
               Container(
@@ -726,6 +743,138 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
+  // ===========================================================================
+  // BLOCK 3 — CROSSINGS
+  // ===========================================================================
+
+  Widget _buildCrossingBlock(DashboardData data, AppLocalizations l10n) {
+    const amber = Color(0xFFFFB74D);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: amber.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.crossingsDashboardTitle.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.0,
+              color: amber.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+            decoration: BoxDecoration(
+              color: amber.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.compare_arrows,
+                  color: Colors.white.withValues(alpha: 0.7),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  l10n.myCrossings,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  data.userCrossingCount.toString(),
+                  style: const TextStyle(
+                    color: amber,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (data.userCrossingRanking > 0) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.emoji_events, size: 16, color: amber),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.crossingRankingPosition(
+                      '#${data.userCrossingRanking}',
+                      data.totalCrossingPilots,
+                    ),
+                    style: const TextStyle(
+                      color: amber,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (data.topCrosserCount > 0) ...[
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  size: 14,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    l10n.crossingTopCrosser(data.topCrosserCount),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: amber.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: amber.withValues(alpha: 0.15)),
+            ),
+            child: Text(
+              l10n.crossingsMotivational(data.totalCrossings),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Highlighted badge showing user's total ratings.
   Widget _buildUserRatingsBadge(DashboardData data, AppLocalizations l10n) {
     return Container(
@@ -995,6 +1144,7 @@ class _StatItem extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
+  final Color iconColor;
   final bool showChevron;
   final VoidCallback? onTap;
 
@@ -1002,6 +1152,7 @@ class _StatItem extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.label,
+    this.iconColor = const Color(0xFF64B5F6),
     this.showChevron = false,
     this.onTap,
   });
@@ -1017,7 +1168,7 @@ class _StatItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
           child: Column(
             children: [
-              Icon(icon, color: const Color(0xFF64B5F6), size: 22),
+              Icon(icon, color: iconColor, size: 22),
               const SizedBox(height: 4),
               Text(
                 value,

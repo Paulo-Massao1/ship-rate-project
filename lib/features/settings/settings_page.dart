@@ -84,11 +84,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!granted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
+            AppLocalizations.of(context)!.permissionDeniedSettings,
           ),
-          backgroundColor: Color(0xFFEF5350),
+          backgroundColor: const Color(0xFFEF5350),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -159,11 +159,11 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Permissao negada. Ative as notificacoes nas configuracoes do navegador/sistema.',
+            AppLocalizations.of(context)!.permissionDeniedSettings,
           ),
-          backgroundColor: Color(0xFFEF5350),
+          backgroundColor: const Color(0xFFEF5350),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -274,8 +274,7 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ative as notificacoes para receber alertas quando novos '
-                  'registros de profundidade forem adicionados.',
+                  AppLocalizations.of(context)!.enableNotificationsDepthPrompt,
                   style: const TextStyle(
                     color: Color(0xD9FFFFFF),
                     fontSize: 13,
@@ -299,9 +298,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Ativar notificacoes',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              child: Text(
+                AppLocalizations.of(context)!.enableNotificationsButtonLabel,
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
               ),
             ),
           ),

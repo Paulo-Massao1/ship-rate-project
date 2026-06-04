@@ -72,6 +72,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /stats/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
     match /cruzamentos/{docId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn()

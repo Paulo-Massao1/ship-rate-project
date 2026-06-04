@@ -332,7 +332,7 @@ abstract class AppLocalizations {
   /// Texto curto exibido antes do link do app nas mensagens de compartilhamento.
   ///
   /// In pt, this message translates to:
-  /// **'Para mais informacoes acesse:'**
+  /// **'Para informar seu cruzamento, acesse:'**
   String get shareMoreInfo;
 
   /// Title text for ship rating.
@@ -1163,6 +1163,12 @@ abstract class AppLocalizations {
   /// **'Avaliações'**
   String get totalRatingsLabel;
 
+  /// Label text for total ship crossings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamentos'**
+  String get totalCrossingsLabel;
+
   /// Label text for active pilots.
   ///
   /// In pt, this message translates to:
@@ -1408,6 +1414,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Voltar'**
   String get back;
+
+  /// Small in-page back button label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Voltar'**
+  String get goBack;
 
   /// Localized text for total depth.
   ///
@@ -2147,6 +2159,36 @@ abstract class AppLocalizations {
   /// **'Nome do navio'**
   String get crossingShipName;
 
+  /// Label for ship draft in crossing form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado do navio'**
+  String get draftLabel;
+
+  /// Draft range option up to 6.5 meters.
+  ///
+  /// In pt, this message translates to:
+  /// **'Até 6,5m'**
+  String get draftUpTo65;
+
+  /// Draft range option from 6.5 to 9.5 meters.
+  ///
+  /// In pt, this message translates to:
+  /// **'6,5 a 9,5m'**
+  String get draft65To95;
+
+  /// Draft range option above 9.5 meters.
+  ///
+  /// In pt, this message translates to:
+  /// **'Acima de 9,5m'**
+  String get draftAbove95;
+
+  /// Option for custom crossing location.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outro'**
+  String get otherLocation;
+
   /// Direction option going upstream.
   ///
   /// In pt, this message translates to:
@@ -2176,6 +2218,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Registrar cruzamento'**
   String get registerCrossing;
+
+  /// Button label for updating a crossing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atualizar cruzamento'**
+  String get updateCrossing;
+
+  /// Notification text for updated crossing time.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} atualizou o horário do cruzamento em {location}'**
+  String crossingTimeUpdated(String name, String location);
+
+  /// Label for crossing alert expiry date.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alertas ativos até'**
+  String get alertsActiveUntil;
+
+  /// Button label for selecting the crossing alert expiry date.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecionar data'**
+  String get selectEndDate;
 
   /// Label for receive alerts toggle.
   ///
@@ -2242,6 +2308,66 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Entendi!'**
   String get cruzamentoDialogButton;
+
+  /// User crossing ranking position shown on the my crossings tab.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua posição: {position} de {total} práticos'**
+  String crossingRankingPosition(String position, int total);
+
+  /// Top crossing count shown on the my crossings tab.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{O prático que mais registrou cruzamentos: 1 cruzamento} other{O prático que mais registrou cruzamentos: {count} cruzamentos}}'**
+  String crossingTopCrosser(int count);
+
+  /// Motivational message about crossings shown on the dashboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}'**
+  String crossingsMotivational(int count);
+
+  /// Section title for crossings on the dashboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamentos'**
+  String get crossingsDashboardTitle;
+
+  /// Message shown when notification permission is denied.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para receber notificações, permita o envio de notificações nas configurações do seu dispositivo'**
+  String get enableNotificationsMessage;
+
+  /// Banner text prompting to enable notifications.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ative as notificações para receber alertas'**
+  String get enableNotificationsBanner;
+
+  /// Message shown when notification permission is denied on settings page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Permissão negada. Ative as notificações nas configurações do navegador/sistema.'**
+  String get permissionDeniedSettings;
+
+  /// Prompt to enable notifications for depth record alerts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ative as notificações para receber alertas quando novos registros de profundidade forem adicionados.'**
+  String get enableNotificationsDepthPrompt;
+
+  /// Button label for enabling notifications.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ativar notificações'**
+  String get enableNotificationsButtonLabel;
+
+  /// Tooltip or button label for closing.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fechar'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -126,7 +126,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app';
 
   @override
-  String get shareMoreInfo => 'Para mais informacoes acesse:';
+  String get shareMoreInfo => 'Para informar seu cruzamento, acesse:';
 
   @override
   String get shipRatingTitle => 'Avaliação de Navios';
@@ -577,6 +577,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get totalRatingsLabel => 'Avaliações';
 
   @override
+  String get totalCrossingsLabel => 'Cruzamentos';
+
+  @override
   String get activePilotsLabel => 'Práticos';
 
   @override
@@ -708,6 +711,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get back => 'Voltar';
+
+  @override
+  String get goBack => 'Voltar';
 
   @override
   String get totalDepth => 'PROF. TOTAL';
@@ -1095,6 +1101,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get crossingShipName => 'Nome do navio';
 
   @override
+  String get draftLabel => 'Calado do navio';
+
+  @override
+  String get draftUpTo65 => 'Até 6,5m';
+
+  @override
+  String get draft65To95 => '6,5 a 9,5m';
+
+  @override
+  String get draftAbove95 => 'Acima de 9,5m';
+
+  @override
+  String get otherLocation => 'Outro';
+
+  @override
   String get directionUp => 'Subindo';
 
   @override
@@ -1108,6 +1129,20 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get registerCrossing => 'Registrar cruzamento';
+
+  @override
+  String get updateCrossing => 'Atualizar cruzamento';
+
+  @override
+  String crossingTimeUpdated(String name, String location) {
+    return '$name atualizou o horário do cruzamento em $location';
+  }
+
+  @override
+  String get alertsActiveUntil => 'Alertas ativos até';
+
+  @override
+  String get selectEndDate => 'Selecionar data';
 
   @override
   String get receiveAlerts => 'Receber alertas';
@@ -1141,4 +1176,52 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get cruzamentoDialogButton => 'Entendi!';
+
+  @override
+  String crossingRankingPosition(String position, int total) {
+    return 'Sua posição: $position de $total práticos';
+  }
+
+  @override
+  String crossingTopCrosser(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'O prático que mais registrou cruzamentos: $count cruzamentos',
+      one: 'O prático que mais registrou cruzamentos: 1 cruzamento',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String crossingsMotivational(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cruzamentos realizados com segurança, graças à sua participação',
+      one: '1 cruzamento realizado com segurança, graças à sua participação',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get crossingsDashboardTitle => 'Cruzamentos';
+
+  @override
+  String get enableNotificationsMessage => 'Para receber notificações, permita o envio de notificações nas configurações do seu dispositivo';
+
+  @override
+  String get enableNotificationsBanner => 'Ative as notificações para receber alertas';
+
+  @override
+  String get permissionDeniedSettings => 'Permissão negada. Ative as notificações nas configurações do navegador/sistema.';
+
+  @override
+  String get enableNotificationsDepthPrompt => 'Ative as notificações para receber alertas quando novos registros de profundidade forem adicionados.';
+
+  @override
+  String get enableNotificationsButtonLabel => 'Ativar notificações';
+
+  @override
+  String get close => 'Fechar';
 }

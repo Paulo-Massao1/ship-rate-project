@@ -156,7 +156,7 @@
   "@shareText": {
     "description": "Localized text for share text."
   },
-  "shareMoreInfo": "Para mais informacoes acesse:",
+  "shareMoreInfo": "Para informar seu cruzamento, acesse:",
   "@shareMoreInfo": {
     "description": "Texto curto exibido antes do link do app nas mensagens de compartilhamento."
   },
@@ -782,6 +782,10 @@
   "@totalRatingsLabel": {
     "description": "Label text for total ratings."
   },
+  "totalCrossingsLabel": "Cruzamentos",
+  "@totalCrossingsLabel": {
+    "description": "Label text for total ship crossings."
+  },
   "activePilotsLabel": "Práticos",
   "@activePilotsLabel": {
     "description": "Label text for active pilots."
@@ -976,6 +980,10 @@
   "back": "Voltar",
   "@back": {
     "description": "Localized text for back."
+  },
+  "goBack": "Voltar",
+  "@goBack": {
+    "description": "Small in-page back button label."
   },
   "totalDepth": "PROF. TOTAL",
   "@totalDepth": {
@@ -1509,6 +1517,26 @@
   "@crossingShipName": {
     "description": "Label for ship name in crossing form."
   },
+  "draftLabel": "Calado do navio",
+  "@draftLabel": {
+    "description": "Label for ship draft in crossing form."
+  },
+  "draftUpTo65": "Até 6,5m",
+  "@draftUpTo65": {
+    "description": "Draft range option up to 6.5 meters."
+  },
+  "draft65To95": "6,5 a 9,5m",
+  "@draft65To95": {
+    "description": "Draft range option from 6.5 to 9.5 meters."
+  },
+  "draftAbove95": "Acima de 9,5m",
+  "@draftAbove95": {
+    "description": "Draft range option above 9.5 meters."
+  },
+  "otherLocation": "Outro",
+  "@otherLocation": {
+    "description": "Option for custom crossing location."
+  },
   "directionUp": "Subindo",
   "@directionUp": {
     "description": "Direction option going upstream."
@@ -1528,6 +1556,30 @@
   "registerCrossing": "Registrar cruzamento",
   "@registerCrossing": {
     "description": "Button label for registering a crossing."
+  },
+  "updateCrossing": "Atualizar cruzamento",
+  "@updateCrossing": {
+    "description": "Button label for updating a crossing."
+  },
+  "crossingTimeUpdated": "{name} atualizou o horário do cruzamento em {location}",
+  "@crossingTimeUpdated": {
+    "description": "Notification text for updated crossing time.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "alertsActiveUntil": "Alertas ativos até",
+  "@alertsActiveUntil": {
+    "description": "Label for crossing alert expiry date."
+  },
+  "selectEndDate": "Selecionar data",
+  "@selectEndDate": {
+    "description": "Button label for selecting the crossing alert expiry date."
   },
   "receiveAlerts": "Receber alertas",
   "@receiveAlerts": {
@@ -1572,5 +1624,63 @@
   "cruzamentoDialogButton": "Entendi!",
   "@cruzamentoDialogButton": {
     "description": "Button label for cruzamento first-time dialog."
+  },
+  "crossingRankingPosition": "Sua posição: {position} de {total} práticos",
+  "@crossingRankingPosition": {
+    "description": "User crossing ranking position shown on the my crossings tab.",
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "crossingTopCrosser": "{count, plural, =1{O prático que mais registrou cruzamentos: 1 cruzamento} other{O prático que mais registrou cruzamentos: {count} cruzamentos}}",
+  "@crossingTopCrosser": {
+    "description": "Top crossing count shown on the my crossings tab.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crossingsMotivational": "{count, plural, =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}",
+  "@crossingsMotivational": {
+    "description": "Motivational message about crossings shown on the dashboard.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crossingsDashboardTitle": "Cruzamentos",
+  "@crossingsDashboardTitle": {
+    "description": "Section title for crossings on the dashboard."
+  },
+  "enableNotificationsMessage": "Para receber notificações, permita o envio de notificações nas configurações do seu dispositivo",
+  "@enableNotificationsMessage": {
+    "description": "Message shown when notification permission is denied."
+  },
+  "enableNotificationsBanner": "Ative as notificações para receber alertas",
+  "@enableNotificationsBanner": {
+    "description": "Banner text prompting to enable notifications."
+  },
+  "permissionDeniedSettings": "Permissão negada. Ative as notificações nas configurações do navegador/sistema.",
+  "@permissionDeniedSettings": {
+    "description": "Message shown when notification permission is denied on settings page."
+  },
+  "enableNotificationsDepthPrompt": "Ative as notificações para receber alertas quando novos registros de profundidade forem adicionados.",
+  "@enableNotificationsDepthPrompt": {
+    "description": "Prompt to enable notifications for depth record alerts."
+  },
+  "enableNotificationsButtonLabel": "Ativar notificações",
+  "@enableNotificationsButtonLabel": {
+    "description": "Button label for enabling notifications."
+  },
+  "close": "Fechar",
+  "@close": {
+    "description": "Tooltip or button label for closing."
   }
 }

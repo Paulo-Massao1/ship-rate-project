@@ -102,9 +102,28 @@ class CrossingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateCrossing(
+    String docId,
+    Map<String, dynamic> data,
+  ) async {
+    debugPrint('[Crossing] updateCrossing -> docId=$docId');
+
+    await _firestore
+        .collection(AppConstants.cruzamentosCollection)
+        .doc(docId)
+        .update({
+      ...data,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    debugPrint('[Crossing] updateCrossing OK');
+    _invalidateCache();
+    notifyListeners();
+  }
+
   Future<bool> isCrossingPushEnabled() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return true;
+    if (uid == null) return false;
 
     try {
       final doc = await _firestore
@@ -112,25 +131,66 @@ class CrossingController extends ChangeNotifier {
           .doc(uid)
           .get();
       final data = doc.data();
-      if (data == null) return true;
+      if (data == null) return false;
 
       if (data.containsKey('pushCruzamento')) {
-        return data['pushCruzamento'] as bool? ?? true;
+        final enabled = data['pushCruzamento'] as bool? ?? false;
+        if (!enabled) return false;
+
+        final expiry = _resolveDateTime(data['pushCruzamentoExpiry']);
+        if (expiry != null && expiry.isBefore(DateTime.now().toUtc())) {
+          return false;
+        }
+
+        return true;
       }
 
-      return data['pushNotifications'] as bool? ?? true;
+      return false;
     } catch (e) {
       debugPrint('[Crossing] Error reading pushCruzamento: $e');
-      return true;
+      return false;
     }
   }
 
-  Future<void> setCrossingPushEnabled(bool enabled) async {
+  Future<DateTime?> getCrossingPushExpiryDate() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return null;
+
+    try {
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get();
+      return _resolveDateTime(doc.data()?['pushCruzamentoExpiry']);
+    } catch (e) {
+      debugPrint('[Crossing] Error reading pushCruzamentoExpiry: $e');
+      return null;
+    }
+  }
+
+  Future<void> setCrossingPushEnabled(
+    bool enabled, {
+    DateTime? expiryDate,
+  }) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
+    final payload = <String, dynamic>{
+      'pushCruzamento': enabled,
+    };
+
+    if (enabled && expiryDate != null) {
+      payload['pushCruzamentoExpiry'] = Timestamp.fromDate(
+        expiryDate.toUtc(),
+      );
+    }
+
+    if (!enabled) {
+      payload['pushCruzamentoExpiry'] = FieldValue.delete();
+    }
+
     await _firestore.collection(AppConstants.usersCollection).doc(uid).set(
-      {'pushCruzamento': enabled},
+      payload,
       SetOptions(merge: true),
     );
     debugPrint('[Crossing] setCrossingPushEnabled -> $enabled');
@@ -160,6 +220,12 @@ class CrossingController extends ChangeNotifier {
     }).toList();
   }
 
+  DateTime? _resolveDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate().toUtc();
+    if (value is DateTime) return value.toUtc();
+    return null;
+  }
+
   void _invalidateCache() {
     _cachedCrossings = null;
     _crossingsFetchTime = null;
@@ -184,3 +250,4 @@ class CrossingController extends ChangeNotifier {
     }
   }
 }
+

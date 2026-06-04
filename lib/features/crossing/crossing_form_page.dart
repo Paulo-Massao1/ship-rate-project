@@ -7,7 +7,12 @@ import '../../controllers/crossing_controller.dart';
 import '../../core/constants.dart';
 
 class CrossingFormPage extends StatefulWidget {
-  const CrossingFormPage({super.key});
+  final Map<String, dynamic>? crossing;
+
+  const CrossingFormPage({
+    super.key,
+    this.crossing,
+  });
 
   @override
   State<CrossingFormPage> createState() => _CrossingFormPageState();
@@ -24,6 +29,15 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
   static const _textPrimary = Colors.white;
   static const _textSecondary = Color(0xD9FFFFFF);
   static const _textMuted = Color(0x99FFFFFF);
+  static const _otherLocationValue = '__other__';
+  static const _presetLocations = [
+    'Patacho Sul',
+    'Boca do Trombetas',
+    'Ponta do Jari',
+    'Cajari',
+    'Mocambo - Ponta de cima',
+    'Furo do Santa Rita',
+  ];
 
   final CrossingController _controller = CrossingController();
   final TextEditingController _locationController = TextEditingController();
@@ -33,8 +47,19 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
   final TextEditingController _observationsController = TextEditingController();
 
   DateTime _selectedBrasiliaDateTime = _currentBrasiliaMinute();
+  String? _selectedLocation;
+  String? _selectedDraft;
   String? _direction;
+  DateTime? _originalBrasiliaDateTime;
   bool _isSaving = false;
+  bool get _isEditing => widget.crossing != null;
+  String get _docId => (widget.crossing?['id'] ?? '').toString();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCrossingForEdit();
+  }
 
   @override
   void dispose() {
@@ -69,6 +94,33 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
       brasiliaDateTime.hour,
       brasiliaDateTime.minute,
     ).add(const Duration(hours: 3));
+  }
+
+  void _loadCrossingForEdit() {
+    final crossing = widget.crossing;
+    if (crossing == null) return;
+
+    final location = (crossing['local'] ?? '').toString().trim();
+    if (_presetLocations.contains(location)) {
+      _selectedLocation = location;
+    } else if (location.isNotEmpty) {
+      _selectedLocation = _otherLocationValue;
+      _locationController.text = location;
+    }
+
+    _shipNameController.text = (crossing['nomeNavio'] ?? '').toString().trim();
+    _pilotsToContactController.text =
+        (crossing['praticosContato'] ?? '').toString().trim();
+    _observationsController.text =
+        (crossing['observacoes'] ?? '').toString().trim();
+    _direction = crossing['direcao']?.toString();
+    _selectedDraft = crossing['calado']?.toString();
+
+    final existingDateTime = _timestampToBrasilia(crossing['dataHora']);
+    if (existingDateTime != null) {
+      _selectedBrasiliaDateTime = existingDateTime;
+      _originalBrasiliaDateTime = existingDateTime;
+    }
   }
 
   Future<void> _pickDateTime() async {
@@ -123,22 +175,26 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
-    final location = _locationController.text.trim();
+    final location = _selectedLocation == _otherLocationValue
+        ? _locationController.text.trim()
+        : (_selectedLocation ?? '').trim();
     final shipName = _shipNameController.text.trim();
     final pilotsToContact = _pilotsToContactController.text.trim();
     final observations = _observationsController.text.trim();
 
-    if (location.isEmpty || shipName.isEmpty) {
+    if (location.isEmpty ||
+        shipName.isEmpty ||
+        _direction == null ||
+        _selectedDraft == null) {
       _showSnackBar(l10n.fillRequiredFields, isError: true);
       return;
     }
 
-    if (_direction == null) {
-      _showSnackBar(l10n.directionRequired, isError: true);
-      return;
-    }
-
-    if (!_selectedBrasiliaDateTime.isAfter(_currentBrasiliaMinute())) {
+    final timeWasChanged = !_isEditing ||
+        _originalBrasiliaDateTime == null ||
+        _selectedBrasiliaDateTime != _originalBrasiliaDateTime;
+    if (timeWasChanged &&
+        !_selectedBrasiliaDateTime.isAfter(_currentBrasiliaMinute())) {
       _showSnackBar(l10n.crossingTimeMustBeFuture, isError: true);
       return;
     }
@@ -153,14 +209,27 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
         'dataHora': Timestamp.fromDate(crossingDateTimeUtc),
         'nomeNavio': shipName,
         'direcao': _direction,
+        'calado': _selectedDraft,
       };
 
       if (pilotsToContact.isNotEmpty) {
         data['praticosContato'] = pilotsToContact;
+      } else if (_isEditing) {
+        data['praticosContato'] = FieldValue.delete();
       }
 
       if (observations.isNotEmpty) {
         data['observacoes'] = observations;
+      } else if (_isEditing) {
+        data['observacoes'] = FieldValue.delete();
+      }
+
+      if (_isEditing) {
+        await _controller.updateCrossing(_docId, data);
+        if (!mounted) return;
+
+        Navigator.pop(context, true);
+        return;
       }
 
       final savedCrossing = await _controller.addCrossing(data);
@@ -237,6 +306,7 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
     final location = (crossing['local'] ?? '').toString().trim();
     final shipName = (crossing['nomeNavio'] ?? '').toString().trim();
     final direction = _directionLabel(crossing['direcao']?.toString(), l10n);
+    final draft = _draftLabel(crossing['calado']?.toString(), l10n);
     final pilotsToContact =
         (crossing['praticosContato'] ?? '').toString().trim();
     final formattedTime = _formatBrasiliaDateTime(
@@ -251,9 +321,10 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
         '\u{1F4CD} ${l10n.crossingLocation}: $location\n'
         '\u{1F550} ${l10n.crossingTime}: $formattedTime\n'
         '\u{1F6A2} ${l10n.crossingShipName}: $shipName\n'
+        '\u2693 ${l10n.draftLabel}: $draft\n'
         '\u2195\uFE0F $direction'
         '$contactLine\n\n'
-        '${l10n.shareMoreInfo}\n'
+        '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
     final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
@@ -318,6 +389,19 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
     }
   }
 
+  String _draftLabel(String? value, AppLocalizations l10n) {
+    switch (value) {
+      case 'ate_6_5':
+        return l10n.draftUpTo65;
+      case '6_5_a_9_5':
+        return l10n.draft65To95;
+      case 'acima_9_5':
+        return l10n.draftAbove95;
+      default:
+        return l10n.notAvailable;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -325,7 +409,7 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          l10n.newCrossing,
+          _isEditing ? l10n.updateCrossing : l10n.newCrossing,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -367,19 +451,17 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
                   children: [
                     _buildSectionCard(
                       icon: Icons.compare_arrows,
-                      title: l10n.newCrossing,
+                      title: _isEditing ? l10n.updateCrossing : l10n.newCrossing,
                       children: [
-                        _buildTextField(
-                          controller: _locationController,
-                          label: l10n.crossingLocation,
-                          icon: Icons.place_outlined,
-                        ),
+                        _buildLocationSelector(l10n),
                         const SizedBox(height: 14),
                         _buildTextField(
                           controller: _shipNameController,
                           label: l10n.crossingShipName,
                           icon: Icons.directions_boat_outlined,
                         ),
+                        const SizedBox(height: 14),
+                        _buildDraftSelector(l10n),
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -508,7 +590,9 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
                                   ),
                                 )
                               : Text(
-                                  l10n.registerCrossing,
+                                  _isEditing
+                                      ? l10n.updateCrossing
+                                      : l10n.registerCrossing,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -569,6 +653,101 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
           const SizedBox(height: 16),
           ...children,
         ],
+      ),
+    );
+  }
+
+  Widget _buildLocationSelector(AppLocalizations l10n) {
+    final options = [..._presetLocations, _otherLocationValue];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.crossingLocation,
+          style: const TextStyle(color: _textMuted, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((option) {
+            final label = option == _otherLocationValue
+                ? l10n.otherLocation
+                : option;
+            return _buildChoiceChip(
+              label: label,
+              isActive: _selectedLocation == option,
+              onTap: () => setState(() => _selectedLocation = option),
+            );
+          }).toList(),
+        ),
+        if (_selectedLocation == _otherLocationValue) ...[
+          const SizedBox(height: 14),
+          _buildTextField(
+            controller: _locationController,
+            label: l10n.crossingLocation,
+            icon: Icons.place_outlined,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDraftSelector(AppLocalizations l10n) {
+    final options = [
+      ('ate_6_5', l10n.draftUpTo65),
+      ('6_5_a_9_5', l10n.draft65To95),
+      ('acima_9_5', l10n.draftAbove95),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.draftLabel,
+          style: const TextStyle(color: _textMuted, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((option) {
+            return _buildChoiceChip(
+              label: option.$2,
+              isActive: _selectedDraft == option.$1,
+              onTap: () => setState(() => _selectedDraft = option.$1),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChoiceChip({
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? _amberLight : _fieldBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isActive ? _amber : _fieldBorder,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isActive ? _amber : _textMuted,
+            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 13,
+          ),
+        ),
       ),
     );
   }

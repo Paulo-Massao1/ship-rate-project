@@ -32,6 +32,7 @@ class _CrossingPageState extends State<CrossingPage> {
   _CrossingTab _selectedTab = _CrossingTab.active;
   bool _pushEnabled = true;
   bool _isLoadingPush = true;
+  DateTime? _pushExpiryDate;
 
   @override
   void initState() {
@@ -61,11 +62,21 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   Future<void> _loadPushPreference() async {
-    final enabled = await _controller.isCrossingPushEnabled();
+    final results = await Future.wait([
+      _controller.isCrossingPushEnabled(),
+      _controller.getCrossingPushExpiryDate(),
+    ]);
     if (!mounted) return;
+
+    final enabled = results[0] as bool;
+    final savedExpiryDate = results[1] as DateTime?;
+    final expiryDate = enabled
+        ? (savedExpiryDate ?? _defaultPushExpiryDate())
+        : null;
 
     setState(() {
       _pushEnabled = enabled;
+      _pushExpiryDate = expiryDate;
       _isLoadingPush = false;
     });
   }
@@ -88,8 +99,68 @@ class _CrossingPageState extends State<CrossingPage> {
       }
     }
 
-    setState(() => _pushEnabled = value);
-    await _controller.setCrossingPushEnabled(value);
+    final expiryDate = value
+        ? (_pushExpiryDate != null && _pushExpiryDate!.isAfter(DateTime.now())
+            ? _pushExpiryDate!
+            : _defaultPushExpiryDate())
+        : null;
+
+    setState(() {
+      _pushEnabled = value;
+      _pushExpiryDate = expiryDate;
+    });
+    await _controller.setCrossingPushEnabled(value, expiryDate: expiryDate);
+  }
+
+  Future<void> _pickPushExpiryDate() async {
+    final initialDate = _toBrasilia(_pushExpiryDate) ??
+        _currentBrasiliaDate().add(const Duration(days: 7));
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: _currentBrasiliaDate(),
+      lastDate: _currentBrasiliaDate().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: _amber,
+              surface: Color(0xFF0D2137),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate == null) return;
+
+    final expiryDate = _endOfBrasiliaDay(pickedDate);
+
+    setState(() => _pushExpiryDate = expiryDate);
+    await _controller.setCrossingPushEnabled(
+      true,
+      expiryDate: expiryDate,
+    );
+  }
+
+  DateTime _defaultPushExpiryDate() {
+    return _endOfBrasiliaDay(
+      _currentBrasiliaDate().add(const Duration(days: 7)),
+    );
+  }
+
+  DateTime _currentBrasiliaDate() {
+    final brasiliaNow = DateTime.now().toUtc().subtract(
+          const Duration(hours: 3),
+        );
+    return DateTime(brasiliaNow.year, brasiliaNow.month, brasiliaNow.day);
+  }
+
+  DateTime _endOfBrasiliaDay(DateTime value) {
+    return DateTime.utc(value.year, value.month, value.day, 23, 59, 59).add(
+      const Duration(hours: 3),
+    );
   }
 
   Future<void> _navigateToNewCrossing() async {
@@ -99,7 +170,20 @@ class _CrossingPageState extends State<CrossingPage> {
     );
 
     if (created == true) {
-      await _controller.fetchActiveCrossings();
+      await _refreshCrossings();
+    }
+  }
+
+  Future<void> _navigateToEditCrossing(Map<String, dynamic> crossing) async {
+    final updated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CrossingFormPage(crossing: crossing),
+      ),
+    );
+
+    if (updated == true) {
+      await _refreshCrossings();
     }
   }
 
@@ -198,7 +282,7 @@ class _CrossingPageState extends State<CrossingPage> {
     if (docId.isEmpty) return;
 
     await _controller.deleteCrossing(docId);
-    await _controller.fetchActiveCrossings();
+    await _refreshCrossings();
     if (!mounted) return;
 
     _showSnackBar(l10n.recordDeletedSuccess, isError: false);
@@ -209,6 +293,7 @@ class _CrossingPageState extends State<CrossingPage> {
     final location = (crossing['local'] ?? '').toString().trim();
     final shipName = (crossing['nomeNavio'] ?? '').toString().trim();
     final direction = _directionLabel(crossing['direcao']?.toString(), l10n);
+    final draft = _draftLabel(crossing['calado']?.toString(), l10n);
     final pilotsToContact = (crossing['praticosContato'] ?? '').toString().trim();
     final formattedTime = _formatBrasiliaDateTimeLong(
       _toBrasilia(_resolveDateTime(crossing['dataHora'])),
@@ -222,9 +307,10 @@ class _CrossingPageState extends State<CrossingPage> {
         '\u{1F4CD} ${l10n.crossingLocation}: $location\n'
         '\u{1F550} ${l10n.crossingTime}: $formattedTime\n'
         '\u{1F6A2} ${l10n.crossingShipName}: $shipName\n'
+        '\u2693 ${l10n.draftLabel}: $draft\n'
         '\u2195\uFE0F $direction'
         '$contactLine\n\n'
-        '${l10n.shareMoreInfo}\n'
+        '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
     final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
@@ -311,12 +397,34 @@ class _CrossingPageState extends State<CrossingPage> {
     return '$day/$month/$year $hour:$minute';
   }
 
+  String _formatDate(DateTime? value) {
+    if (value == null) return '';
+
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final year = value.year.toString();
+    return '$day/$month/$year';
+  }
+
   String _directionLabel(String? value, AppLocalizations l10n) {
     switch (value?.toLowerCase()) {
       case 'subindo':
         return l10n.directionUp;
       case 'baixando':
         return l10n.directionDown;
+      default:
+        return l10n.notAvailable;
+    }
+  }
+
+  String _draftLabel(String? value, AppLocalizations l10n) {
+    switch (value) {
+      case 'ate_6_5':
+        return l10n.draftUpTo65;
+      case '6_5_a_9_5':
+        return l10n.draft65To95;
+      case 'acima_9_5':
+        return l10n.draftAbove95;
       default:
         return l10n.notAvailable;
     }
@@ -388,11 +496,63 @@ class _CrossingPageState extends State<CrossingPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: Column(
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                _buildAlertToggle(l10n),
-                _buildTabPills(l10n),
-                Expanded(child: _buildBody(l10n)),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: Navigator.canPop(context) ? 44 : 0,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildAlertToggle(l10n),
+                      _buildTabPills(l10n),
+                      Expanded(child: _buildBody(l10n)),
+                    ],
+                  ),
+                ),
+                if (Navigator.canPop(context)) _buildPageBackButton(l10n),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageBackButton(AppLocalizations l10n) {
+    return Positioned(
+      top: 8,
+      left: 16,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Navigator.pop(context),
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xCC0A1628),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: const Color(0x33FFFFFF)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 13,
+                  color: Color(0xCCFFFFFF),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  l10n.back,
+                  style: const TextStyle(
+                    color: Color(0xCCFFFFFF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
@@ -410,52 +570,104 @@ class _CrossingPageState extends State<CrossingPage> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _amberBorder),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0x26FFB74D),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.notifications_active_outlined,
-              color: _amber,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.receiveAlerts,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0x26FFB74D),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _pushEnabled ? l10n.yes : l10n.no,
-                  style: const TextStyle(
-                    color: Color(0xB3FFFFFF),
-                    fontSize: 12,
-                  ),
+                child: const Icon(
+                  Icons.notifications_active_outlined,
+                  color: _amber,
+                  size: 22,
                 ),
-              ],
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.receiveAlerts,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _pushEnabled ? l10n.yes : l10n.no,
+                      style: const TextStyle(
+                        color: Color(0xB3FFFFFF),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: _pushEnabled,
+                onChanged: _isLoadingPush ? null : _togglePushAlerts,
+                activeColor: _amber,
+                activeTrackColor: const Color(0x66FFB74D),
+                inactiveThumbColor: Colors.white54,
+                inactiveTrackColor: Colors.white24,
+              ),
+            ],
+          ),
+          if (_pushEnabled) ...[
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: _pickPushExpiryDate,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x141A2E45),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: _amberBorder),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.event_available_outlined,
+                      color: _amber,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '${l10n.alertsActiveUntil} '
+                        '${_formatDate(_toBrasilia(_pushExpiryDate))}',
+                        style: const TextStyle(
+                          color: Color(0xD9FFFFFF),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      l10n.selectEndDate,
+                      style: const TextStyle(
+                        color: _amber,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          Switch(
-            value: _pushEnabled,
-            onChanged: _isLoadingPush ? null : _togglePushAlerts,
-            activeColor: _amber,
-            activeTrackColor: const Color(0x66FFB74D),
-            inactiveThumbColor: Colors.white54,
-            inactiveTrackColor: Colors.white24,
-          ),
+          ],
         ],
       ),
     );
@@ -563,7 +775,6 @@ class _CrossingPageState extends State<CrossingPage> {
                 return _buildCrossingCard(
                   crossing,
                   l10n,
-                  showDelete: _selectedTab == _CrossingTab.mine,
                 );
               },
             ),
@@ -609,14 +820,16 @@ class _CrossingPageState extends State<CrossingPage> {
 
   Widget _buildCrossingCard(
     Map<String, dynamic> crossing,
-    AppLocalizations l10n, {
-    required bool showDelete,
-  }) {
+    AppLocalizations l10n,
+  ) {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    final isOwnCrossing = crossing['pilotoId'] == currentUid;
     final shipName = (crossing['nomeNavio'] ?? '').toString().trim();
     final location = (crossing['local'] ?? '').toString().trim();
     final pilotName = (crossing['nomeGuerra'] ?? '').toString().trim();
     final pilotsToContact = (crossing['praticosContato'] ?? '').toString().trim();
     final observations = (crossing['observacoes'] ?? '').toString().trim();
+    final draft = _draftLabel(crossing['calado']?.toString(), l10n);
     final formattedTime = _formatBrasiliaDateTimeShort(
       _toBrasilia(_resolveDateTime(crossing['dataHora'])),
       l10n,
@@ -655,7 +868,17 @@ class _CrossingPageState extends State<CrossingPage> {
                 tooltip: l10n.shareCrossing,
                 splashRadius: 18,
               ),
-              if (showDelete)
+              if (isOwnCrossing)
+                IconButton(
+                  onPressed: () => _navigateToEditCrossing(crossing),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    color: _amber,
+                  ),
+                  tooltip: l10n.editRecord,
+                  splashRadius: 18,
+                ),
+              if (isOwnCrossing)
                 IconButton(
                   onPressed: () => _confirmDelete(crossing),
                   icon: const Icon(
@@ -674,6 +897,13 @@ class _CrossingPageState extends State<CrossingPage> {
             Icons.schedule_outlined,
             l10n.crossingTime,
             formattedTime,
+            l10n,
+          ),
+          const SizedBox(height: 8),
+          _buildInfoLine(
+            Icons.anchor_outlined,
+            l10n.draftLabel,
+            draft,
             l10n,
           ),
           const SizedBox(height: 10),

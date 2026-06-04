@@ -21,7 +21,9 @@ const { getUserCount } = require("./stats/get_user_count");
 const { onLikeCreated, onLikeDeleted } = require("./navigation_safety/on_like");
 const { inactivityReminder } = require("./notifications/inactivity_reminder");
 const { onCrossingCreated } = require("./crossings/on_crossing_created");
+const { onCrossingUpdated } = require("./crossings/on_crossing_updated");
 const { cleanupCrossings } = require("./crossings/cleanup_crossings");
+const { expireCrossingPush } = require("./crossings/expire_crossing_push");
 
 exports.sendOTP = sendOTP;
 exports.verifyOTP = verifyOTP;
@@ -42,4 +44,6 @@ exports.onLikeDeleted = onLikeDeleted;
 exports.inactivityReminder = inactivityReminder;
 // Keep the published function names stable to avoid creating duplicate triggers.
 exports.onCruzamentoCreated = onCrossingCreated;
+exports.onCrossingUpdated = onCrossingUpdated;
 exports.cleanupCruzamentos = cleanupCrossings;
+exports.expireCrossingPush = expireCrossingPush;

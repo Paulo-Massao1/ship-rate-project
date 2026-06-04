@@ -190,14 +190,77 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: _buildAppBar(),
       drawer: _buildDrawer(context),
-      body: Column(
-        children: [
-          _buildUpdateBanner(),
-          const Expanded(child: SearchAndRateShipPage()),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
+          ),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: Navigator.canPop(context) ? 44 : 0,
+              ),
+              child: Column(
+                children: [
+                  _buildUpdateBanner(),
+                  const Expanded(child: SearchAndRateShipPage()),
+                ],
+              ),
+            ),
+            if (Navigator.canPop(context)) _buildPageBackButton(l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageBackButton(AppLocalizations l10n) {
+    return Positioned(
+      top: 8,
+      left: 16,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => Navigator.pop(context),
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: const Color(0xCC0A1628),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: const Color(0x33FFFFFF)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 13,
+                  color: Color(0xCCFFFFFF),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  l10n.back,
+                  style: const TextStyle(
+                    color: Color(0xCCFFFFFF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

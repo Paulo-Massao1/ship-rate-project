@@ -50,16 +50,18 @@ class DashboardController {
       // On Flutter Web, the Firestore JS SDK needs a valid auth token.
       await user.getIdToken().timeout(_queryTimeout);
 
-      // Fetch callSign, ships, and user count in parallel
+      // Fetch callSign, ships, user count, and crossing count in parallel
       final results = await Future.wait([
         _getUserCallSign(userId),
         _firestore.collection(AppConstants.shipsCollection).get().timeout(_queryTimeout),
         _getUserCount(),
+        _getCrossingStats(userId),
       ]);
 
       final callSign = results[0] as String?;
       final shipsSnapshot = results[1] as QuerySnapshot;
       final cloudUserCount = results[2] as int?;
+      final crossingStats = results[3] as _CrossingDashboardStats;
 
       int totalRatings = 0;
       int userRatings = 0;
@@ -183,6 +185,11 @@ class DashboardController {
       return DashboardData(
         totalShips: shipsSnapshot.docs.length,
         totalRatings: totalRatings,
+        totalCrossings: crossingStats.totalCrossings,
+        userCrossingCount: crossingStats.userCrossingCount,
+        topCrosserCount: crossingStats.topCrosserCount,
+        userCrossingRanking: crossingStats.userCrossingRanking,
+        totalCrossingPilots: crossingStats.totalCrossingPilots,
         totalUsers: totalUsers,
         userRatings: userRatings,
         topRaterCount: topRaterCount,
@@ -217,6 +224,56 @@ class DashboardController {
       debugPrint('[Dashboard] Error fetching user count: $e');
       return null;
     }
+  }
+
+  Future<_CrossingDashboardStats> _getCrossingStats(String userId) async {
+    int totalCrossings = 0;
+    final crossingsPerPilot = <String, int>{};
+
+    try {
+      final statsDoc = await _firestore
+          .collection('stats')
+          .doc('crossings')
+          .get()
+          .timeout(_queryTimeout);
+      if (statsDoc.exists) {
+        final rawCount = (statsDoc.data()?['totalCount'] as int?) ?? 0;
+        totalCrossings = rawCount < 2 ? 2 : rawCount;
+      }
+    } catch (e) {
+      debugPrint('[Dashboard] Error fetching crossing stats doc: $e');
+    }
+
+    try {
+      final usersSnapshot = await _firestore
+          .collection(AppConstants.usersCollection)
+          .where('crossingCount', isGreaterThan: 0)
+          .get()
+          .timeout(_queryTimeout);
+
+      for (final doc in usersSnapshot.docs) {
+        if (doc.id == AppConstants.cspamUid) continue;
+        final count = (doc.data()['crossingCount'] as int?) ?? 0;
+        crossingsPerPilot[doc.id] = count;
+      }
+    } catch (e) {
+      debugPrint('[Dashboard] Error fetching usuario crossing counts: $e');
+    }
+
+    final sortedCounts = crossingsPerPilot.values.toList()
+      ..sort((a, b) => b.compareTo(a));
+    final userCount = crossingsPerPilot[userId] ?? 0;
+    final userRanking = userCount > 0
+        ? sortedCounts.where((c) => c > userCount).length + 1
+        : 0;
+
+    return _CrossingDashboardStats(
+      totalCrossings: totalCrossings,
+      userCrossingCount: userCount,
+      topCrosserCount: sortedCounts.isEmpty ? 0 : sortedCounts.first,
+      userCrossingRanking: userRanking,
+      totalCrossingPilots: crossingsPerPilot.length,
+    );
   }
 
   /// Gets user callSign. Returns null on failure so dashboard can still load.
@@ -295,6 +352,23 @@ class DashboardController {
 // PRIVATE DATA CLASSES
 // =============================================================================
 
+class _CrossingDashboardStats {
+  final int totalCrossings;
+  final int userCrossingCount;
+  final int topCrosserCount;
+  final int userCrossingRanking;
+  final int totalCrossingPilots;
+
+  const _CrossingDashboardStats({
+    required this.totalCrossings,
+    required this.userCrossingCount,
+    required this.topCrosserCount,
+    required this.userCrossingRanking,
+    required this.totalCrossingPilots,
+  });
+
+}
+
 /// Internal helper to hold the result of a parallel ship ratings query.
 class _ShipRatingsResult {
   final QueryDocumentSnapshot ship;
@@ -326,11 +400,16 @@ class _RatingEntry {
 class DashboardData {
   final int totalShips;
   final int totalRatings;
+  final int totalCrossings;
   final int totalUsers;
   final int userRatings;
   final int topRaterCount;
   final int userRankingPosition;
   final int totalPilotsWhoRated;
+  final int userCrossingCount;
+  final int topCrosserCount;
+  final int userCrossingRanking;
+  final int totalCrossingPilots;
   final List<RecentRating> recentRatings;
   final String? lastRatedShipName;
   final String? lastRatedByPilot;
@@ -341,11 +420,16 @@ class DashboardData {
   DashboardData({
     required this.totalShips,
     required this.totalRatings,
+    required this.totalCrossings,
     required this.totalUsers,
     required this.userRatings,
     required this.topRaterCount,
     required this.userRankingPosition,
     required this.totalPilotsWhoRated,
+    required this.userCrossingCount,
+    required this.topCrosserCount,
+    required this.userCrossingRanking,
+    required this.totalCrossingPilots,
     required this.recentRatings,
     this.lastRatedShipName,
     this.lastRatedByPilot,
@@ -357,11 +441,16 @@ class DashboardData {
   factory DashboardData.empty() => DashboardData(
         totalShips: 0,
         totalRatings: 0,
+        totalCrossings: 0,
         totalUsers: 0,
         userRatings: 0,
         topRaterCount: 0,
         userRankingPosition: 0,
         totalPilotsWhoRated: 0,
+        userCrossingCount: 0,
+        topCrosserCount: 0,
+        userCrossingRanking: 0,
+        totalCrossingPilots: 0,
         recentRatings: [],
       );
 }

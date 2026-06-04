@@ -32,11 +32,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
 
   static bool _notificationsInitialized = false;
+  static final Map<String, String> _cachedNomeGuerraByUid = {};
+  static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
+  static const String _defaultPilotName = 'Pr\u00e1tico';
 
   bool _showUpdateBanner = false;
   String _updateMessage = '';
   String? _nomeGuerra;
   bool _isCspam = false;
+  bool _showNotificationSetupBanner = false;
+  bool _isRequestingNotificationSetup = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -64,6 +69,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _checkForUpdates();
+      _checkNotificationSetupBanner();
     }
   }
 
@@ -93,6 +99,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       await _showMilestoneDialogIfNeeded();
     }
     await _showCrossingDialogIfNeeded();
+    await _checkNotificationSetupBanner();
   }
 
   Future<void> _showNotificationDialogIfNeeded() async {
@@ -396,16 +403,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
+    final cachedName = _cachedNomeGuerraByUid[uid];
+    if (cachedName != null && cachedName.isNotEmpty) {
+      _setNomeGuerra(cachedName, uid: uid);
+    } else {
+      _setNomeGuerra(_defaultPilotName);
+    }
+
     try {
       final doc = await FirebaseFirestore.instance
           .collection('usuarios')
           .doc(uid)
-          .get(const GetOptions(source: Source.server));
-      if (!mounted) return;
-      final nome = doc.data()?['nomeGuerra'] as String?;
-      setState(() {
-        _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
-      });
+          .get(const GetOptions(source: Source.server))
+          .timeout(_nomeGuerraServerTimeout);
+      _setNomeGuerraFromData(doc.data(), uid);
     } catch (e) {
       debugPrint('[Home] Error fetching nomeGuerra: $e');
       try {
@@ -413,13 +424,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             .collection('usuarios')
             .doc(uid)
             .get();
-        if (!mounted) return;
-        final nome = doc.data()?['nomeGuerra'] as String?;
-        setState(() {
-          _nomeGuerra = (nome != null && nome.trim().isNotEmpty) ? nome : 'Prático';
-        });
+        _setNomeGuerraFromData(doc.data(), uid);
       } catch (_) {}
     }
+  }
+
+  void _setNomeGuerraFromData(Map<String, dynamic>? data, String uid) {
+    final rawName = data?['nomeGuerra'];
+    final name = rawName == null ? '' : rawName.toString().trim();
+    if (name.isNotEmpty) {
+      _setNomeGuerra(name, uid: uid);
+    }
+  }
+
+  void _setNomeGuerra(String value, {String? uid}) {
+    final displayName = value.trim().isEmpty ? _defaultPilotName : value.trim();
+
+    if (uid != null) {
+      _cachedNomeGuerraByUid[uid] = displayName;
+    }
+
+    if (!mounted) {
+      _nomeGuerra = displayName;
+      return;
+    }
+
+    if (_nomeGuerra == displayName) return;
+    setState(() => _nomeGuerra = displayName);
   }
 
   Future<void> _checkForUpdates() async {
@@ -440,6 +471,91 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() => _showUpdateBanner = false);
   }
 
+  Future<void> _checkNotificationSetupBanner() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
+      final data = doc.data();
+
+      if (data?['notificationBannerDismissed'] == true) {
+        if (mounted) setState(() => _showNotificationSetupBanner = false);
+        return;
+      }
+
+      final hasFcmToken =
+          (data?['fcmToken'] ?? '').toString().trim().isNotEmpty;
+      final wantsAnyPush = _isAnyPushPreferenceEnabled(data);
+
+      if (!mounted) return;
+      setState(() {
+        _showNotificationSetupBanner = wantsAnyPush && !hasFcmToken;
+      });
+    } catch (e) {
+      debugPrint('[Home] Error checking notification setup: $e');
+    }
+  }
+
+  Future<void> _dismissNotificationBannerPermanently() async {
+    setState(() => _showNotificationSetupBanner = false);
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
+      {'notificationBannerDismissed': true},
+      SetOptions(merge: true),
+    );
+  }
+
+  bool _isAnyPushPreferenceEnabled(Map<String, dynamic>? data) {
+    final pushNotifications = data?['pushNotifications'] as bool? ?? true;
+    final pushNavSafety =
+        data?['pushNavSafety'] as bool? ?? pushNotifications;
+    final pushCrossing =
+        data?['pushCruzamento'] as bool? ?? pushNotifications;
+
+    return pushNotifications || pushNavSafety || pushCrossing;
+  }
+
+  Future<void> _requestNotificationSetup() async {
+    if (_isRequestingNotificationSetup) return;
+
+    setState(() => _isRequestingNotificationSetup = true);
+    final granted = await NotificationService.requestPermissionAndEnable();
+    if (!mounted) return;
+
+    setState(() => _isRequestingNotificationSetup = false);
+
+    if (granted) {
+      await _checkNotificationSetupBanner();
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.notificationsEnabled),
+          backgroundColor: const Color(0xFF26A69A),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    await _dismissNotificationBannerPermanently();
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context)!.enableNotificationsMessage,
+        ),
+        backgroundColor: Colors.red.shade800,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   // ===========================================================================
   // NAVIGATION
@@ -480,6 +596,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         showNavSafety: !_isCspam,
         onBeforeLogout: () {
           _notificationsInitialized = false;
+          _cachedNomeGuerraByUid.clear();
         },
       ),
       body: Container(
@@ -496,52 +613,59 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Column(
           children: [
             _buildUpdateBanner(),
+            _buildNotificationSetupBanner(),
             Expanded(
               child: SafeArea(
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 32),
-                      _buildWelcomeText(),
-                      const SizedBox(height: 32),
-                      _buildModuleCard(
-                        icon: Icons.directions_boat,
-                        iconBgColor: const Color(0x1F64B5F6),
-                        iconBorderColor: const Color(0x3364B5F6),
-                        iconColor: const Color(0xFF64B5F6),
-                        borderColor: const Color(0x1A64B5F6),
-                        title: AppLocalizations.of(context)!.shipRatingModule,
-                        subtitle: AppLocalizations.of(context)!.shipRatingDesc,
-                        onTap: _navigateToShipRating,
-                      ),
-                      if (!_isCspam) ...[
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 32),
+                        _buildWelcomeText(),
+                        const SizedBox(height: 32),
+                        _buildModuleCard(
+                          icon: Icons.directions_boat,
+                          iconBgColor: const Color(0x1F64B5F6),
+                          iconBorderColor: const Color(0x3364B5F6),
+                          iconColor: const Color(0xFF64B5F6),
+                          borderColor: const Color(0x1A64B5F6),
+                          title: AppLocalizations.of(context)!.shipRatingModule,
+                          subtitle:
+                              AppLocalizations.of(context)!.shipRatingDesc,
+                          onTap: _navigateToShipRating,
+                        ),
+                        if (!_isCspam) ...[
+                          const SizedBox(height: 16),
+                          _buildModuleCard(
+                            icon: Icons.anchor,
+                            iconBgColor: const Color(0x1F26A69A),
+                            iconBorderColor: const Color(0x4026A69A),
+                            iconColor: const Color(0xFF26A69A),
+                            borderColor: const Color(0x3326A69A),
+                            title:
+                                AppLocalizations.of(context)!.navSafetyModule,
+                            subtitle:
+                                AppLocalizations.of(context)!.navSafetyDesc,
+                            onTap: _navigateToNavSafety,
+                          ),
+                        ],
                         const SizedBox(height: 16),
                         _buildModuleCard(
-                          icon: Icons.anchor,
-                          iconBgColor: const Color(0x1F26A69A),
-                          iconBorderColor: const Color(0x4026A69A),
-                          iconColor: const Color(0xFF26A69A),
-                          borderColor: const Color(0x3326A69A),
-                          title: AppLocalizations.of(context)!.navSafetyModule,
-                          subtitle: AppLocalizations.of(context)!.navSafetyDesc,
-                          onTap: _navigateToNavSafety,
+                          icon: Icons.compare_arrows,
+                          iconBgColor: const Color(0x1FFFB74D),
+                          iconBorderColor: const Color(0x40FFB74D),
+                          iconColor: const Color(0xFFFFB74D),
+                          borderColor: const Color(0x33FFB74D),
+                          title: AppLocalizations.of(context)!.cruzamentoModule,
+                          subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
+                          onTap: _navigateToCrossing,
                         ),
                       ],
-                      const SizedBox(height: 16),
-                      _buildModuleCard(
-                        icon: Icons.compare_arrows,
-                        iconBgColor: const Color(0x1FFFB74D),
-                        iconBorderColor: const Color(0x40FFB74D),
-                        iconColor: const Color(0xFFFFB74D),
-                        borderColor: const Color(0x33FFB74D),
-                        title: AppLocalizations.of(context)!.cruzamentoModule,
-                        subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
-                        onTap: _navigateToCrossing,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -554,7 +678,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildWelcomeText() {
     final l10n = AppLocalizations.of(context)!;
-    final displayName = _nomeGuerra ?? 'Prático';
+    final displayName = _nomeGuerra ?? _defaultPilotName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -694,6 +818,69 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+
+  Widget _buildNotificationSetupBanner() {
+    if (!_showNotificationSetupBanner) return const SizedBox.shrink();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap:
+            _isRequestingNotificationSetup ? null : _requestNotificationSetup,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0E3A3A),
+            border: Border(
+              bottom: BorderSide(color: Color(0x3326A69A)),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.notifications_active_outlined,
+                color: Color(0xFF26A69A),
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.enableNotificationsBanner,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (_isRequestingNotificationSetup)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFF26A69A),
+                  ),
+                )
+              else
+                const Icon(
+                  Icons.touch_app_outlined,
+                  color: Color(0xB3FFFFFF),
+                  size: 18,
+                ),
+              IconButton(
+                onPressed: _dismissNotificationBannerPermanently,
+                icon: const Icon(Icons.close, color: Colors.white70, size: 18),
+                splashRadius: 18,
+                tooltip: AppLocalizations.of(context)!.close,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildUpdateBanner() {
     if (!_showUpdateBanner) return const SizedBox.shrink();
