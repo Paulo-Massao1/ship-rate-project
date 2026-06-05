@@ -3,6 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../app/auth_gate.dart';
+import '../../controllers/crossing_controller.dart';
+import '../../controllers/nav_safety_controller.dart';
+import '../../controllers/rating_controller.dart';
 import '../../data/services/notification_service.dart';
 
 /// Settings page with notification preference toggles.
@@ -23,6 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _emailEnabled = true;
   bool _loading = true;
   bool _permissionGranted = true;
+  bool _deletingAccount = false;
 
   // ===========================================================================
   // LIFECYCLE
@@ -170,6 +175,307 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _confirmDeleteAccount() async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.deleteAccountTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          l10n.deleteAccountBody,
+          style: const TextStyle(color: Colors.white70, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.deleteAccountCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.deleteAccountConfirm),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    final isEmailProvider = user?.providerData.any(
+          (info) => info.providerId == 'password',
+        ) ??
+        false;
+
+    if (isEmailProvider) {
+      await _requestPasswordForDeletion();
+    } else {
+      await _requestTypeDeleteConfirmation();
+    }
+  }
+
+  Future<void> _requestPasswordForDeletion() async {
+    final l10n = AppLocalizations.of(context)!;
+    final passwordController = TextEditingController();
+
+    final password = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.deleteAccountTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.deleteAccountPassword,
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              autofocus: true,
+              obscureText: true,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (value) {
+                if (value.isNotEmpty) Navigator.pop(dialogContext, value);
+              },
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: l10n.deleteAccountPasswordHint,
+                hintStyle: const TextStyle(color: Colors.white38),
+                filled: true,
+                fillColor: const Color(0x1AFFFFFF),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0x33FFFFFF)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFEF5350)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.deleteAccountCancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final password = passwordController.text;
+              if (password.isNotEmpty) Navigator.pop(dialogContext, password);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.deleteAccountConfirmButton),
+          ),
+        ],
+      ),
+    );
+
+    passwordController.dispose();
+    if (password == null || password.isEmpty || !mounted) return;
+    await _deleteAccount(password: password);
+  }
+
+  Future<void> _requestTypeDeleteConfirmation() async {
+    final l10n = AppLocalizations.of(context)!;
+    final controller = TextEditingController();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF0D2137),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.deleteAccountTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.deleteAccountTypeConfirm,
+              style: const TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (value) {
+                if (value.trim().toUpperCase() == 'DELETE') {
+                  Navigator.pop(dialogContext, true);
+                }
+              },
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: l10n.deleteAccountTypeHint,
+                hintStyle: const TextStyle(color: Colors.white38),
+                filled: true,
+                fillColor: const Color(0x1AFFFFFF),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0x33FFFFFF)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Color(0xFFEF5350)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.deleteAccountCancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.trim().toUpperCase() == 'DELETE') {
+                Navigator.pop(dialogContext, true);
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.deleteAccountConfirmButton),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+    if (confirmed != true || !mounted) return;
+    await _deleteAccount();
+  }
+
+  Future<void> _deleteAccount({String? password}) async {
+    final l10n = AppLocalizations.of(context)!;
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      _showDeleteAccountError(l10n.deleteAccountError);
+      return;
+    }
+
+    setState(() => _deletingAccount = true);
+
+    try {
+      if (password != null) {
+        final email = user.email;
+        if (email == null || email.isEmpty) {
+          _showDeleteAccountError(l10n.deleteAccountError);
+          return;
+        }
+        final credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
+        await user.reauthenticateWithCredential(credential);
+      }
+
+      final userDocRef = FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid);
+      final userDoc = await userDocRef.get();
+      final backupData = userDoc.data();
+
+      await userDocRef.delete();
+
+      try {
+        await user.delete();
+      } catch (_) {
+        if (backupData != null) {
+          await userDocRef.set(backupData);
+        }
+        rethrow;
+      }
+
+      NavSafetyController.clearAllCaches();
+      CrossingController.clearCache();
+      RatingController.clearAllCaches();
+
+      if (!mounted) return;
+      final navigator = Navigator.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AuthGate()),
+        (route) => false,
+      );
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.deleteAccountSuccess),
+          backgroundColor: const Color(0xFF26A69A),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      final message = switch (error.code) {
+        'wrong-password' ||
+        'invalid-credential' ||
+        'invalid-login-credentials' =>
+          l10n.deleteAccountWrongPassword,
+        'network-request-failed' => l10n.deleteAccountNetworkError,
+        _ => l10n.deleteAccountError,
+      };
+      _showDeleteAccountError(message);
+    } on FirebaseException catch (error) {
+      if (!mounted) return;
+      final message = error.code == 'unavailable'
+          ? l10n.deleteAccountNetworkError
+          : l10n.deleteAccountError;
+      _showDeleteAccountError(message);
+    } catch (_) {
+      if (!mounted) return;
+      _showDeleteAccountError(l10n.deleteAccountError);
+    } finally {
+      if (mounted) setState(() => _deletingAccount = false);
+    }
+  }
+
+  void _showDeleteAccountError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFDC2626),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   // ===========================================================================
   // BUILD
   // ===========================================================================
@@ -219,6 +525,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     value: _emailEnabled,
                     onChanged: _toggleEmail,
                   ),
+                  const SizedBox(height: 40),
+                  const Divider(color: Color(0x1AFFFFFF)),
+                  const SizedBox(height: 16),
+                  _buildDeleteAccountButton(l10n),
                 ],
               ),
       ),
@@ -366,6 +676,32 @@ class _SettingsPageState extends State<SettingsPage> {
             inactiveTrackColor: Colors.white24,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton(AppLocalizations l10n) {
+    return OutlinedButton.icon(
+      onPressed: _deletingAccount ? null : _confirmDeleteAccount,
+      icon: _deletingAccount
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Color(0xFFEF5350),
+              ),
+            )
+          : const Icon(Icons.delete_outline),
+      label: Text(l10n.deleteAccount),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFFEF5350),
+        disabledForegroundColor: const Color(0x80EF5350),
+        side: const BorderSide(color: Color(0x66EF5350)),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
     );
   }

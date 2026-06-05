@@ -1682,5 +1682,61 @@
   "close": "Fechar",
   "@close": {
     "description": "Tooltip or button label for closing."
+  },
+  "deleteAccount": "Excluir minha conta",
+  "@deleteAccount": {
+    "description": "Button label for deleting user account."
+  },
+  "deleteAccountTitle": "Excluir conta",
+  "@deleteAccountTitle": {
+    "description": "Title for delete account confirmation dialog."
+  },
+  "deleteAccountBody": "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita. Suas avaliações e registros continuarão disponíveis para outros práticos.",
+  "@deleteAccountBody": {
+    "description": "Body text for delete account confirmation dialog."
+  },
+  "deleteAccountConfirm": "Excluir",
+  "@deleteAccountConfirm": {
+    "description": "Confirm button for delete account dialog."
+  },
+  "deleteAccountCancel": "Cancelar",
+  "@deleteAccountCancel": {
+    "description": "Cancel button for delete account dialog."
+  },
+  "deleteAccountPassword": "Para confirmar, digite sua senha",
+  "@deleteAccountPassword": {
+    "description": "Password prompt for delete account confirmation."
+  },
+  "deleteAccountPasswordHint": "Sua senha",
+  "@deleteAccountPasswordHint": {
+    "description": "Hint text for password field in delete account dialog."
+  },
+  "deleteAccountConfirmButton": "Confirmar exclusão",
+  "@deleteAccountConfirmButton": {
+    "description": "Button label for confirming account deletion with password."
+  },
+  "deleteAccountSuccess": "Conta excluída com sucesso",
+  "@deleteAccountSuccess": {
+    "description": "Success message after account deletion."
+  },
+  "deleteAccountWrongPassword": "Senha incorreta",
+  "@deleteAccountWrongPassword": {
+    "description": "Error message for wrong password during account deletion."
+  },
+  "deleteAccountNetworkError": "Erro de conexão. Tente novamente.",
+  "@deleteAccountNetworkError": {
+    "description": "Error message for network error during account deletion."
+  },
+  "deleteAccountError": "Erro ao excluir conta. Tente novamente.",
+  "@deleteAccountError": {
+    "description": "Generic error message for account deletion failure."
+  },
+  "deleteAccountTypeConfirm": "Para confirmar, digite DELETE abaixo",
+  "@deleteAccountTypeConfirm": {
+    "description": "Prompt for non-email users to type DELETE to confirm account deletion."
+  },
+  "deleteAccountTypeHint": "Digite DELETE",
+  "@deleteAccountTypeHint": {
+    "description": "Hint text for the DELETE confirmation field."
   }
 }

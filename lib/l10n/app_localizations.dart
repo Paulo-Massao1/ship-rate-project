@@ -2368,6 +2368,90 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Fechar'**
   String get close;
+
+  /// Button label for deleting user account.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir minha conta'**
+  String get deleteAccount;
+
+  /// Title for delete account confirmation dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir conta'**
+  String get deleteAccountTitle;
+
+  /// Body text for delete account confirmation dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita. Suas avaliações e registros continuarão disponíveis para outros práticos.'**
+  String get deleteAccountBody;
+
+  /// Confirm button for delete account dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir'**
+  String get deleteAccountConfirm;
+
+  /// Cancel button for delete account dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get deleteAccountCancel;
+
+  /// Password prompt for delete account confirmation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para confirmar, digite sua senha'**
+  String get deleteAccountPassword;
+
+  /// Hint text for password field in delete account dialog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua senha'**
+  String get deleteAccountPasswordHint;
+
+  /// Button label for confirming account deletion with password.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmar exclusão'**
+  String get deleteAccountConfirmButton;
+
+  /// Success message after account deletion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta excluída com sucesso'**
+  String get deleteAccountSuccess;
+
+  /// Error message for wrong password during account deletion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Senha incorreta'**
+  String get deleteAccountWrongPassword;
+
+  /// Error message for network error during account deletion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro de conexão. Tente novamente.'**
+  String get deleteAccountNetworkError;
+
+  /// Generic error message for account deletion failure.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao excluir conta. Tente novamente.'**
+  String get deleteAccountError;
+
+  /// Prompt for non-email users to type DELETE to confirm account deletion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para confirmar, digite DELETE abaixo'**
+  String get deleteAccountTypeConfirm;
+
+  /// Hint text for the DELETE confirmation field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite DELETE'**
+  String get deleteAccountTypeHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,5 +1,13 @@
 import 'image_upload_models.dart';
 
+Future<PendingImageUpload?> pickImage({
+  required ImagePickSource source,
+  required String accept,
+  required String Function(String fileName) mimeTypeFromFileName,
+}) {
+  throw UnsupportedError('Image picking is not available on this platform.');
+}
+
 Future<List<String>> uploadImages({
   required List<PendingImageUpload> images,
   required String locationId,
@@ -12,5 +20,5 @@ Future<List<String>> uploadImages({
 }
 
 Future<void> deleteImages(Iterable<String> urls) {
-  throw UnsupportedError('The web image delete backend is only available on web.');
+  throw UnsupportedError('Image deletion is not available on this platform.');
 }

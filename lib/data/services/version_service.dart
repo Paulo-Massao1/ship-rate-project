@@ -1,17 +1,17 @@
 // lib/data/services/version_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service responsible for app version checking and update banner management.
 ///
-/// Compares local version (localStorage) with remote version (Firestore)
+/// Compares the locally stored version with the remote version (Firestore)
 /// to determine if an update banner should be displayed.
 ///
 /// Flow:
 /// 1. User opens app
 /// 2. Service fetches remote version from Firestore
-/// 3. Compares with localStorage version
+/// 3. Compares with the locally stored version
 /// 4. If version changed AND banner not seen → show banner
 /// 5. User clicks OK → marks as seen
 /// 6. User reopens app → local version updates
@@ -20,10 +20,10 @@ class VersionService {
   // CONSTANTS
   // ===========================================================================
 
-  /// LocalStorage key for the current running version.
+  /// Local preference key for the current running version.
   static const String _localVersionKey = 'app_local_version';
 
-  /// LocalStorage key for the version whose banner was already seen.
+  /// Local preference key for the version whose banner was already seen.
   static const String _seenVersionKey = 'seen_banner_version';
 
   /// Firestore collection and document path.
@@ -63,12 +63,13 @@ class VersionService {
       }
 
       final message = remoteData['message'] as String? ?? _defaultUpdateMessage;
-      final localVersion = _getLocalValue(_localVersionKey);
-      final seenVersion = _getLocalValue(_seenVersionKey);
+      final preferences = await SharedPreferences.getInstance();
+      final localVersion = preferences.getString(_localVersionKey);
+      final seenVersion = preferences.getString(_seenVersionKey);
 
       // First time user - save version and skip banner
       if (localVersion == null) {
-        _setLocalValue(_localVersionKey, remoteVersion);
+        await preferences.setString(_localVersionKey, remoteVersion);
         return _noUpdateResult();
       }
 
@@ -79,7 +80,7 @@ class VersionService {
 
       // Already saw banner - update local version
       if (seenVersion == remoteVersion) {
-        _setLocalValue(_localVersionKey, remoteVersion);
+        await preferences.setString(_localVersionKey, remoteVersion);
         return _noUpdateResult();
       }
 
@@ -105,19 +106,21 @@ class VersionService {
       final remoteVersion = remoteData?['version'] as String?;
 
       if (remoteVersion != null) {
-        _setLocalValue(_seenVersionKey, remoteVersion);
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.setString(_seenVersionKey, remoteVersion);
       }
     } catch (e) {
       // Silently ignore - not critical
     }
   }
 
-  /// Clears all version data from localStorage.
+  /// Clears all locally stored version data.
   ///
   /// Useful for testing and debugging purposes only.
-  static void clearVersionData() {
-    html.window.localStorage.remove(_localVersionKey);
-    html.window.localStorage.remove(_seenVersionKey);
+  static Future<void> clearVersionData() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_localVersionKey);
+    await preferences.remove(_seenVersionKey);
   }
 
   // ===========================================================================
@@ -132,16 +135,6 @@ class VersionService {
         .get();
 
     return doc.exists ? doc.data() : null;
-  }
-
-  /// Gets a value from localStorage.
-  static String? _getLocalValue(String key) {
-    return html.window.localStorage[key];
-  }
-
-  /// Sets a value in localStorage.
-  static void _setLocalValue(String key, String value) {
-    html.window.localStorage[key] = value;
   }
 
   /// Returns a standard "no update" result.

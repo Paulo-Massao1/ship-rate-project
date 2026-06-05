@@ -3,12 +3,10 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:universal_html/html.dart' as html;
 
 /// Service responsible for generating and exporting ship rating PDFs.
 ///
-/// Supports both mobile (native share dialog) and web (automatic download).
+/// Supports PDF sharing and preview on mobile and web.
 /// Generates professional reports with ShipRate branding.
 class PdfService {
   // ===========================================================================
@@ -167,36 +165,18 @@ class PdfService {
 
   /// Saves and shares the PDF document.
   ///
-  /// Behavior by platform:
-  /// - Mobile: Opens native share dialog (WhatsApp, Email, etc.)
-  /// - Web: Downloads file directly to browser
-  ///
   /// Parameters:
   /// - [pdf]: Generated PDF document
   /// - [fileName]: Filename without extension
   static Future<void> saveAndSharePdf(pw.Document pdf, String fileName) async {
     final bytes = await pdf.save();
-
-    if (kIsWeb) {
-      await _downloadPdfWeb(bytes, fileName);
-    } else {
-      await _sharePdfMobile(bytes, fileName);
-    }
+    await _sharePdf(bytes, fileName);
   }
 
   /// Opens PDF preview before saving.
-  ///
-  /// Behavior by platform:
-  /// - Mobile: Opens native preview with print/share options
-  /// - Web: Opens PDF in new browser tab
   static Future<void> previewPdf(pw.Document pdf) async {
     final bytes = await pdf.save();
-
-    if (kIsWeb) {
-      _previewPdfWeb(bytes);
-    } else {
-      await _previewPdfMobile(bytes);
-    }
+    await _previewPdf(bytes);
   }
 
   // ===========================================================================
@@ -840,35 +820,10 @@ class PdfService {
   }
 
   // ===========================================================================
-  // PRIVATE METHODS - PLATFORM SPECIFIC
+  // PRIVATE METHODS - PDF EXPORT
   // ===========================================================================
 
-  /// Downloads PDF in web browser.
-  static Future<void> _downloadPdfWeb(List<int> bytes, String fileName) async {
-    try {
-      final blob = html.Blob([Uint8List.fromList(bytes)], 'application/pdf');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-
-      final anchor = html.document.createElement('a') as html.AnchorElement
-        ..href = url
-        ..style.display = 'none'
-        ..download = '$fileName.pdf';
-
-      html.document.body?.children.add(anchor);
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      anchor.click();
-
-      await Future.delayed(const Duration(milliseconds: 100));
-      html.document.body?.children.remove(anchor);
-      html.Url.revokeObjectUrl(url);
-    } catch (e) {
-      throw Exception('Failed to download PDF in browser: $e');
-    }
-  }
-
-  /// Shares PDF on mobile devices.
-  static Future<void> _sharePdfMobile(List<int> bytes, String fileName) async {
+  static Future<void> _sharePdf(List<int> bytes, String fileName) async {
     try {
       await Printing.sharePdf(
         bytes: Uint8List.fromList(bytes),
@@ -879,23 +834,7 @@ class PdfService {
     }
   }
 
-  /// Previews PDF in web browser.
-  static void _previewPdfWeb(List<int> bytes) {
-    try {
-      final blob = html.Blob([Uint8List.fromList(bytes)], 'application/pdf');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.window.open(url, '_blank');
-
-      Future.delayed(const Duration(seconds: 1), () {
-        html.Url.revokeObjectUrl(url);
-      });
-    } catch (e) {
-      throw Exception('Failed to preview PDF in browser: $e');
-    }
-  }
-
-  /// Previews PDF on mobile devices.
-  static Future<void> _previewPdfMobile(List<int> bytes) async {
+  static Future<void> _previewPdf(List<int> bytes) async {
     try {
       await Printing.layoutPdf(
         onLayout: (format) async => Uint8List.fromList(bytes),

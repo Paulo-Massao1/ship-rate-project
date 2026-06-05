@@ -1,10 +1,81 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'image_upload_models.dart';
+
+Future<PendingImageUpload?> pickImage({
+  required ImagePickSource source,
+  required String accept,
+  required String Function(String fileName) mimeTypeFromFileName,
+}) {
+  final body = html.document.body;
+  if (body == null) {
+    throw const ImageUploadException(
+      'Nao foi possivel abrir o seletor de imagens neste navegador.',
+    );
+  }
+
+  final completer = Completer<PendingImageUpload?>();
+  final input = html.FileUploadInputElement()
+    ..accept = accept
+    ..style.display = 'none';
+
+  if (source == ImagePickSource.camera) {
+    input.setAttribute('capture', 'environment');
+  }
+
+  body.append(input);
+
+  input.onChange.first.then((_) async {
+    final file = input.files?.first;
+    if (file == null) {
+      completer.complete(null);
+      return;
+    }
+
+    final reader = html.FileReader();
+    reader.readAsArrayBuffer(file);
+    await reader.onLoadEnd.first;
+
+    final result = reader.result;
+    final Uint8List bytes;
+    if (result is Uint8List) {
+      bytes = result;
+    } else if (result is ByteBuffer) {
+      bytes = result.asUint8List();
+    } else {
+      throw const ImageUploadException(
+        'Nao foi possivel ler a imagem selecionada.',
+      );
+    }
+
+    final fileName = file.name.trim().isNotEmpty
+        ? file.name
+        : 'imagem_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final mimeType = file.type.trim().isNotEmpty
+        ? file.type
+        : mimeTypeFromFileName(fileName);
+
+    completer.complete(
+      PendingImageUpload(
+        bytes: bytes,
+        mimeType: mimeType,
+        originalName: fileName,
+      ),
+    );
+  }).catchError((Object error, StackTrace stackTrace) {
+    if (!completer.isCompleted) {
+      completer.completeError(error, stackTrace);
+    }
+  });
+
+  input.click();
+  return completer.future.whenComplete(input.remove);
+}
 
 Future<List<String>> uploadImages({
   required List<PendingImageUpload> images,

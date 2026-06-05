@@ -60,11 +60,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB1EejUoI6xnVlN1NKqH2fxeqj74P0QzgI',
-    appId: '1:718297005782:ios:fe6012043accec24685377',
+    appId: '1:718297005782:ios:b55e0f13cfe64366685377',
     messagingSenderId: '718297005782',
     projectId: 'shiprate-daf18',
     storageBucket: 'shiprate-daf18.firebasestorage.app',
-    iosBundleId: 'com.example.shipRate',
+    iosBundleId: 'com.shiprate.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

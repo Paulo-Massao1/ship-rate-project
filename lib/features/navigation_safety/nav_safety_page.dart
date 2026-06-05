@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
 
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/nav_safety_controller.dart';
+import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../suggestions/suggestion_page.dart';
@@ -122,9 +122,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       builder: (_) => _NavShareBottomSheet(
         onWhatsAppTap: () {
           Navigator.pop(context);
-          final whatsappUrl =
-              'https://wa.me/?text=${Uri.encodeComponent(_shareText)}';
-          html.window.open(whatsappUrl, '_blank');
+          UrlLauncherService.openWhatsAppShare(_shareText);
         },
         onCopyLinkTap: () async {
           Navigator.pop(context);

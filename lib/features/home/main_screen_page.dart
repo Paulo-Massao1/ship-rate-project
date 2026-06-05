@@ -4,11 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
+import '../../data/services/url_launcher_service.dart';
 import '../../data/services/version_service.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../main.dart';
@@ -142,8 +142,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// Opens WhatsApp with share text.
   void _shareViaWhatsApp() {
     Navigator.pop(context);
-    final whatsappUrl = 'https://wa.me/?text=${Uri.encodeComponent(_shareText)}';
-    html.window.open(whatsappUrl, '_blank');
+    UrlLauncherService.openWhatsAppShare(_shareText);
   }
 
   /// Copies app link to clipboard.

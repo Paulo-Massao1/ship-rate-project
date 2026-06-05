@@ -1,14 +1,12 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
+
 import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/image_upload_service.dart';
+import '../../data/services/url_launcher_service.dart';
 
 /// Form screen for registering a new depth/passage record,
 /// or editing an existing one when [editLocationId] and [editRecordId] are provided.
@@ -574,9 +572,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              final url =
-                  'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
-              html.window.open(url, '_blank');
+              UrlLauncherService.openWhatsAppShare(shareText);
             },
             child: Text(
               l10n.shareRecord,
@@ -1377,31 +1373,17 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       return;
     }
 
-    if (kIsWeb) {
-      _pickImageWeb();
-      return;
-    }
+    final source = kIsWeb
+        ? ImagePickSource.gallery
+        : await _chooseImageSource();
+    if (source == null) return;
 
-    await _pickImageNative();
-  }
-
-  Future<void> _pickImageNative() async {
     try {
-      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (picked == null) return;
-
-      final bytes = await picked.readAsBytes();
-      final fileName = picked.name.trim().isNotEmpty
-          ? picked.name
-          : 'imagem_${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      _queueSelectedImage(
-        bytes: bytes,
-        mimeType: ImageUploadService.mimeTypeFromFileName(fileName),
-        originalName: fileName,
-      );
+      final image = await ImageUploadService.pickImage(source);
+      if (image == null) return;
+      _queueSelectedImage(image);
     } catch (e, stackTrace) {
-      debugPrint('NavSafetyNewRecordPage._pickImageNative failed: $e');
+      debugPrint('NavSafetyNewRecordPage._pickImage failed: $e');
       debugPrint('$stackTrace');
       _showSnackBar(
         'Nao foi possivel selecionar a imagem neste dispositivo.',
@@ -1410,86 +1392,44 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     }
   }
 
-  void _pickImageWeb() {
-    final body = html.document.body;
-    if (body == null) {
-      _showSnackBar(
-        'Nao foi possivel abrir o seletor de imagens neste navegador.',
-        isError: true,
-      );
-      return;
-    }
-
-    final input = html.FileUploadInputElement()
-      ..accept = ImageUploadService.htmlAcceptAttribute
-      ..style.display = 'none';
-
-    body.append(input);
-    input.click();
-    input.onChange.listen((event) {
-      final file = input.files?.first;
-      if (file == null) {
-        input.remove();
-        return;
-      }
-
-      final reader = html.FileReader();
-      reader.readAsArrayBuffer(file);
-      reader.onLoadEnd.listen((_) {
-        final result = reader.result;
-        final Uint8List bytes;
-        if (result is Uint8List) {
-          bytes = result;
-        } else if (result is ByteBuffer) {
-          bytes = result.asUint8List();
-        } else {
-          input.remove();
-          _showSnackBar(
-            'Nao foi possivel ler a imagem selecionada.',
-            isError: true,
-          );
-          return;
-        }
-
-        final fileName = file.name.trim().isNotEmpty
-            ? file.name
-            : 'imagem_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final mimeType = file.type.trim().isNotEmpty
-            ? file.type
-            : ImageUploadService.mimeTypeFromFileName(fileName);
-
-        _queueSelectedImage(
-          bytes: bytes,
-          mimeType: mimeType,
-          originalName: fileName,
-        );
-        input.remove();
-      }, onError: (_) {
-        input.remove();
-        _showSnackBar(
-          'Nao foi possivel ler a imagem selecionada.',
-          isError: true,
-        );
-      });
-    }, onError: (_) {
-      input.remove();
-      _showSnackBar(
-        'Nao foi possivel abrir a imagem selecionada.',
-        isError: true,
-      );
-    });
+  Future<ImagePickSource?> _chooseImageSource() {
+    return showModalBottomSheet<ImagePickSource>(
+      context: context,
+      backgroundColor: _dropdownBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: _teal),
+              title: const Text(
+                'Camera',
+                style: TextStyle(color: _textPrimary),
+              ),
+              onTap: () {
+                Navigator.pop(sheetContext, ImagePickSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: _teal),
+              title: const Text(
+                'Photo library',
+                style: TextStyle(color: _textPrimary),
+              ),
+              onTap: () {
+                Navigator.pop(sheetContext, ImagePickSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _queueSelectedImage({
-    required Uint8List bytes,
-    required String mimeType,
-    required String originalName,
-  }) {
-    final image = PendingImageUpload(
-      bytes: bytes,
-      mimeType: mimeType,
-      originalName: originalName,
-    );
+  void _queueSelectedImage(PendingImageUpload image) {
     final validationError = ImageUploadService.validateSelectedImage(image);
 
     if (validationError != null) {

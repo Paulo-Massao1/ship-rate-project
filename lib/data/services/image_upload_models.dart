@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+enum ImagePickSource { camera, gallery }
+
 class PendingImageUpload {
   const PendingImageUpload({
     required this.bytes,

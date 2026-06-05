@@ -1224,4 +1224,46 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get close => 'Fechar';
+
+  @override
+  String get deleteAccount => 'Excluir minha conta';
+
+  @override
+  String get deleteAccountTitle => 'Excluir conta';
+
+  @override
+  String get deleteAccountBody => 'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita. Suas avaliações e registros continuarão disponíveis para outros práticos.';
+
+  @override
+  String get deleteAccountConfirm => 'Excluir';
+
+  @override
+  String get deleteAccountCancel => 'Cancelar';
+
+  @override
+  String get deleteAccountPassword => 'Para confirmar, digite sua senha';
+
+  @override
+  String get deleteAccountPasswordHint => 'Sua senha';
+
+  @override
+  String get deleteAccountConfirmButton => 'Confirmar exclusão';
+
+  @override
+  String get deleteAccountSuccess => 'Conta excluída com sucesso';
+
+  @override
+  String get deleteAccountWrongPassword => 'Senha incorreta';
+
+  @override
+  String get deleteAccountNetworkError => 'Erro de conexão. Tente novamente.';
+
+  @override
+  String get deleteAccountError => 'Erro ao excluir conta. Tente novamente.';
+
+  @override
+  String get deleteAccountTypeConfirm => 'Para confirmar, digite DELETE abaixo';
+
+  @override
+  String get deleteAccountTypeHint => 'Digite DELETE';
 }

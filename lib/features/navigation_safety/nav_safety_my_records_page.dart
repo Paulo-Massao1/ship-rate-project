@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
+
 import '../../controllers/nav_safety_controller.dart';
+import '../../data/services/url_launcher_service.dart';
 import 'nav_safety_new_record_page.dart';
 
 /// Screen showing the current pilot's own navigation safety records
@@ -169,8 +170,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         '\u{1F4C5} Data: $dateStr\n\n'
         'Abra o app para mais detalhes: https://shiprate-daf18.web.app';
 
-    final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
-    html.window.open(url, '_blank');
+    UrlLauncherService.openWhatsAppShare(shareText);
   }
 
   // ===========================================================================

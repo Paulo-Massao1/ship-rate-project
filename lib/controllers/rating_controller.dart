@@ -33,15 +33,15 @@ class RatingController extends ChangeNotifier {
   // CACHE
   // ===========================================================================
 
-  List<LastRatedShipItem>? _cachedLastRatedShips;
-  DateTime? _lastRatedShipsFetchTime;
+  static List<LastRatedShipItem>? _cachedLastRatedShips;
+  static DateTime? _lastRatedShipsFetchTime;
 
-  final Map<String, bool> _cachedLikeStates = {};
-  final Map<String, int> _cachedLikeCounts = {};
-  final Map<String, List<String>> _cachedLikerNames = {};
-  final Map<String, String> _cachedRatingOwnerIds = {};
+  static final Map<String, bool> _cachedLikeStates = {};
+  static final Map<String, int> _cachedLikeCounts = {};
+  static final Map<String, List<String>> _cachedLikerNames = {};
+  static final Map<String, String> _cachedRatingOwnerIds = {};
 
-  String? _currentUserCallSign;
+  static String? _currentUserCallSign;
 
   // ===========================================================================
   // PUBLIC GETTERS
@@ -646,6 +646,16 @@ class RatingController extends ChangeNotifier {
   bool _isCacheStale(DateTime? fetchTime) {
     if (fetchTime == null) return true;
     return DateTime.now().difference(fetchTime) > _cacheStaleThreshold;
+  }
+
+  static void clearAllCaches() {
+    _cachedLastRatedShips = null;
+    _lastRatedShipsFetchTime = null;
+    _cachedLikeStates.clear();
+    _cachedLikeCounts.clear();
+    _cachedLikerNames.clear();
+    _cachedRatingOwnerIds.clear();
+    _currentUserCallSign = null;
   }
 
   void _invalidateRecentShipsCache() {

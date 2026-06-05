@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../../controllers/crossing_controller.dart';
 import '../../core/constants.dart';
+import '../../data/services/url_launcher_service.dart';
 
 class CrossingFormPage extends StatefulWidget {
   final Map<String, dynamic>? crossing;
@@ -327,8 +327,7 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
         '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
-    final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
-    html.window.open(url, '_blank');
+    UrlLauncherService.openWhatsAppShare(shareText);
   }
 
   void _showSnackBar(String message, {required bool isError}) {

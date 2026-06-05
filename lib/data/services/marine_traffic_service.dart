@@ -1,4 +1,4 @@
-import 'package:universal_html/html.dart' as html;
+import 'url_launcher_service.dart';
 
 /// Service for opening MarineTraffic website.
 ///
@@ -32,8 +32,7 @@ class MarineTrafficService {
   }) async {
     try {
       final url = _buildUrl(imo);
-      html.window.open(url, '_blank');
-      return true;
+      return UrlLauncherService.openExternalUrl(url);
     } catch (e) {
       return false;
     }

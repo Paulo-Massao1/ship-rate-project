@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
-import 'package:universal_html/html.dart' as html;
 
 import '../../core/constants.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../data/services/notification_service.dart';
+import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../suggestions/suggestion_page.dart';
@@ -211,9 +211,7 @@ class _CrossingPageState extends State<CrossingPage> {
   void _shareAppViaWhatsApp() {
     Navigator.pop(context);
     final l10n = AppLocalizations.of(context)!;
-    final whatsappUrl =
-        'https://wa.me/?text=${Uri.encodeComponent(l10n.shareText)}';
-    html.window.open(whatsappUrl, '_blank');
+    UrlLauncherService.openWhatsAppShare(l10n.shareText);
   }
 
   Future<void> _copyLinkToClipboard() async {
@@ -313,8 +311,7 @@ class _CrossingPageState extends State<CrossingPage> {
         '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
-    final url = 'https://wa.me/?text=${Uri.encodeComponent(shareText)}';
-    html.window.open(url, '_blank');
+    UrlLauncherService.openWhatsAppShare(shareText);
   }
 
   void _showSnackBar(String message, {required bool isError}) {

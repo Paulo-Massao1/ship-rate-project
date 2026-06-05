@@ -5,6 +5,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../app/auth_gate.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
+import '../../controllers/rating_controller.dart';
 import '../../features/crossing/crossing_page.dart';
 import '../../features/home/main_screen_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
@@ -38,6 +39,7 @@ class AppDrawer extends StatelessWidget {
     navigator.pop();
     NavSafetyController.clearAllCaches();
     CrossingController.clearCache();
+    RatingController.clearAllCaches();
     onBeforeLogout?.call();
     await FirebaseAuth.instance.signOut();
     navigator.pushAndRemoveUntil(

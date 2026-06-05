@@ -1224,4 +1224,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get deleteAccount => 'Delete my account';
+
+  @override
+  String get deleteAccountTitle => 'Delete account';
+
+  @override
+  String get deleteAccountBody => 'Are you sure you want to delete your account? This action cannot be undone. Your ratings and records will remain available to other pilots.';
+
+  @override
+  String get deleteAccountConfirm => 'Delete';
+
+  @override
+  String get deleteAccountCancel => 'Cancel';
+
+  @override
+  String get deleteAccountPassword => 'To confirm, enter your password';
+
+  @override
+  String get deleteAccountPasswordHint => 'Your password';
+
+  @override
+  String get deleteAccountConfirmButton => 'Confirm deletion';
+
+  @override
+  String get deleteAccountSuccess => 'Account deleted successfully';
+
+  @override
+  String get deleteAccountWrongPassword => 'Incorrect password';
+
+  @override
+  String get deleteAccountNetworkError => 'Connection error. Please try again.';
+
+  @override
+  String get deleteAccountError => 'Error deleting account. Please try again.';
+
+  @override
+  String get deleteAccountTypeConfirm => 'To confirm, type DELETE below';
+
+  @override
+  String get deleteAccountTypeHint => 'Type DELETE';
 }

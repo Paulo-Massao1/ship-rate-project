@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 /// Service for managing FCM push notifications (token-based).
@@ -9,6 +12,8 @@ class NotificationService {
 
   static const String _vapidKey =
       'BG7qaSaUPwenzt0e2qZrpYB4rrQcnsc0uSlRp8Ul0BaiENKOwk2-HYCwuhC6Brzz7COiZy4YwsUD75krWS0YOJc';
+
+  static StreamSubscription<String>? _tokenRefreshSubscription;
 
   /// Initialize without requesting permission.
   /// If permission was already granted, stores token and sets up listeners.
@@ -107,7 +112,9 @@ class NotificationService {
 
   static Future<void> _storeFcmToken() async {
     try {
-      final token = await _messaging.getToken(vapidKey: _vapidKey);
+      final token = await _messaging.getToken(
+        vapidKey: kIsWeb ? _vapidKey : null,
+      );
       if (token == null) return;
 
       await _updateTokenInFirestore(token);
@@ -117,9 +124,14 @@ class NotificationService {
   }
 
   static void _listenTokenRefresh() {
-    _messaging.onTokenRefresh.listen((newToken) {
-      _updateTokenInFirestore(newToken);
-    });
+    _tokenRefreshSubscription ??=
+        _messaging.onTokenRefresh.listen((newToken) async {
+          try {
+            await _updateTokenInFirestore(newToken);
+          } catch (e) {
+            debugPrint('NotificationService token refresh error: $e');
+          }
+        });
   }
 
   static Future<void> _updateTokenInFirestore(String token) async {

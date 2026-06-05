@@ -1,5 +1,7 @@
+import FirebaseCore
 import Flutter
 import UIKit
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -7,7 +9,14 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    if FirebaseApp.app() == nil {
+      FirebaseApp.configure()
+    }
+
     GeneratedPluginRegistrant.register(with: self)
+    UNUserNotificationCenter.current().delegate = self
+    application.registerForRemoteNotifications()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
