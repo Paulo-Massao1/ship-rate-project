@@ -41,19 +41,27 @@
       }
     ],
     "rewrites": [
-      {
-        "source": "/reset-password",
-        "destination": "/reset-password.html"
-      },
-      {
-        "source": "/privacy",
-        "destination": "/privacy.html"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+  {
+    "source": "/support.html",
+    "destination": "/support.html"
+  },
+  {
+    "source": "/support",
+    "destination": "/support.html"
+  },
+  {
+    "source": "/privacy",
+    "destination": "/privacy.html"
+  },
+  {
+    "source": "/reset-password",
+    "destination": "/reset-password.html"
+  },
+  {
+    "source": "**",
+    "destination": "/index.html"
+  }
+]
   },
   "firestore": {
     "rules": "firestore.rules",
@@ -67,5 +75,4 @@
   "storage": {
     "rules": "storage.rules"
   }
-
 }
