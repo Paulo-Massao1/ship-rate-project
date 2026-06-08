@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:excel/excel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_html/html.dart' as html;
 
-import '../firebase_options.dart';
+import 'package:ship_rate/firebase_options.dart';
 
-/// Seed script to create navigation safety locations in Firestore.
-/// Run with: flutter run -d chrome -t lib/scripts/seed_locations.dart
+/// Seed script to import authorized pilot emails from Excel into Firestore.
+/// Run with: flutter run -d chrome -t tool/seed_authorized_emails.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -14,58 +18,33 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const SeedLocationsApp());
+  runApp(const SeedAuthorizedEmailsApp());
 }
 
-class SeedLocationsApp extends StatelessWidget {
-  const SeedLocationsApp({super.key});
+class SeedAuthorizedEmailsApp extends StatelessWidget {
+  const SeedAuthorizedEmailsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShipRate - Seed Locations',
+      title: 'ShipRate - Seed Authorized Emails',
       theme: ThemeData.dark(useMaterial3: true),
-      home: const SeedLocationsPage(),
+      home: const SeedAuthorizedEmailsPage(),
     );
   }
 }
 
-// CONSTANTS
-
-const _locations = [
-  'Arapiri',
-  'Balaio',
-  'Bicheira',
-  'Caldeirão',
-  'Ciganas',
-  'Cuieiras',
-  'Fundeadouro Itacoatiara',
-  'Gurupatuba',
-  'Juruti/Canal',
-  'Mazagão',
-  'Mocambo',
-  'Oiapoque',
-  'Paraná dos Arcos',
-  'Parauaquara',
-  'Patacho Sul',
-  'Peixe Boi',
-  'Prainha',
-  'Santa Rita',
-  'São Raimundo',
-  'Serpa',
-  'Xibuí',
-];
-
 // PAGE
 
-class SeedLocationsPage extends StatefulWidget {
-  const SeedLocationsPage({super.key});
+class SeedAuthorizedEmailsPage extends StatefulWidget {
+  const SeedAuthorizedEmailsPage({super.key});
 
   @override
-  State<SeedLocationsPage> createState() => _SeedLocationsPageState();
+  State<SeedAuthorizedEmailsPage> createState() =>
+      _SeedAuthorizedEmailsPageState();
 }
 
-class _SeedLocationsPageState extends State<SeedLocationsPage> {
+class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
   // AUTH STATE
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -76,6 +55,8 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
   // SEED STATE
   final _logs = <String>[];
   bool _seeding = false;
+  Uint8List? _fileBytes;
+  String? _fileName;
 
   @override
   void dispose() {
@@ -108,6 +89,27 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
     setState(() => _loggingIn = false);
   }
 
+  // FILE METHODS
+
+  Future<void> _pickFile() async {
+    final uploadInput = html.FileUploadInputElement()..accept = '.xlsx,.xls';
+    uploadInput.click();
+
+    await uploadInput.onChange.first;
+
+    if (uploadInput.files == null || uploadInput.files!.isEmpty) return;
+
+    final file = uploadInput.files!.first;
+    final reader = html.FileReader();
+    reader.readAsArrayBuffer(file);
+    await reader.onLoadEnd.first;
+
+    setState(() {
+      _fileBytes = Uint8List.fromList(reader.result as List<int>);
+      _fileName = file.name;
+    });
+  }
+
   // SEED METHODS
 
   void _log(String message) {
@@ -115,6 +117,8 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
   }
 
   Future<void> _seed() async {
+    if (_fileBytes == null) return;
+
     setState(() {
       _seeding = true;
       _logs.clear();
@@ -123,35 +127,63 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
     try {
       final firestore = FirebaseFirestore.instance;
 
-      _log('Seeding navigation safety locations...');
+      _log('Seeding authorized emails from: $_fileName');
       _log('Logged in as: ${_user?.email}');
       _log('');
 
-      // Load existing locations to skip duplicates
-      final existing = await firestore.collection('locais').get();
-      final existingNames =
-          existing.docs.map((d) => d.data()['nome'] as String).toSet();
+      // Parse Excel file
+      final excel = Excel.decodeBytes(_fileBytes!);
+      final sheet = excel.tables[excel.tables.keys.first]!;
+      final rows = sheet.rows;
 
-      _log('Existing locations in database: ${existingNames.length}');
+      _log('Total rows in Excel (including header): ${rows.length}');
+      _log('');
+
+      // Load existing authorized emails to skip duplicates
+      final existing =
+          await firestore.collection('authorized_emails').get();
+      final existingEmails = existing.docs
+          .map((d) => (d.data()['email'] as String?)?.toLowerCase())
+          .whereType<String>()
+          .toSet();
+
+      _log('Existing authorized emails in database: ${existingEmails.length}');
       _log('');
 
       var created = 0;
       var skipped = 0;
+      var skippedEmpty = 0;
 
-      for (final name in _locations) {
-        if (existingNames.contains(name)) {
-          _log('  SKIP: $name (already exists)');
+      // Skip header row (index 0), process data rows
+      for (var i = 1; i < rows.length; i++) {
+        final row = rows[i];
+
+        // Column indices: 0=Sequência, 1=Praticagem, 2=Nome, 3=Nome de Guerra, 4=Email
+        final emailCell = row.length > 4 ? row[4] : null;
+        final nomeGuerraCell = row.length > 3 ? row[3] : null;
+
+        final emailValue = emailCell?.value?.toString().trim().toLowerCase();
+        final nomeGuerraValue = nomeGuerraCell?.value?.toString().trim() ?? '';
+
+        if (emailValue == null || emailValue.isEmpty) {
+          skippedEmpty++;
+          continue;
+        }
+
+        if (existingEmails.contains(emailValue)) {
+          _log('  SKIP: $emailValue (already exists)');
           skipped++;
           continue;
         }
 
-        await firestore.collection('locais').add({
-          'nome': name,
-          'createdAt': FieldValue.serverTimestamp(),
+        await firestore.collection('authorized_emails').add({
+          'email': emailValue,
+          'nomeGuerra': nomeGuerraValue,
         });
 
-        _log('  CREATED: $name');
+        _log('  CREATED: $emailValue ($nomeGuerraValue)');
         created++;
+        existingEmails.add(emailValue);
       }
 
       _log('');
@@ -159,8 +191,9 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
       _log('');
       _log('=== Seed Complete ===');
       _log('Created: $created');
-      _log('Skipped: $skipped');
-      _log('Total locations: ${existingNames.length + created}');
+      _log('Skipped (duplicate): $skipped');
+      _log('Skipped (empty email): $skippedEmpty');
+      _log('Total authorized emails: ${existingEmails.length}');
       _log('=====================');
     } catch (e) {
       _log('');
@@ -175,7 +208,7 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ShipRate - Seed Locations')),
+      appBar: AppBar(title: const Text('ShipRate - Seed Authorized Emails')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: _user == null ? _buildLoginForm() : _buildSeedPanel(),
@@ -193,7 +226,7 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
             const Icon(Icons.lock_outline, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Login to seed locations',
+              'Login to seed authorized emails',
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 24),
@@ -249,16 +282,26 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
-          onPressed: _seeding ? null : _seed,
-          icon: _seeding
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.add_location_alt),
-          label: Text(_seeding ? 'Seeding...' : 'Seed Locations'),
+        Row(
+          children: [
+            ElevatedButton.icon(
+              onPressed: _seeding ? null : _pickFile,
+              icon: const Icon(Icons.upload_file),
+              label: Text(_fileName ?? 'Select Excel File'),
+            ),
+            const SizedBox(width: 16),
+            ElevatedButton.icon(
+              onPressed: _seeding || _fileBytes == null ? null : _seed,
+              icon: _seeding
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.cloud_upload),
+              label: Text(_seeding ? 'Seeding...' : 'Seed Emails'),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         Expanded(
@@ -272,7 +315,7 @@ class _SeedLocationsPageState extends State<SeedLocationsPage> {
             child: SingleChildScrollView(
               child: SelectableText(
                 _logs.isEmpty
-                    ? 'Press "Seed Locations" to create navigation safety locations...'
+                    ? 'Select an Excel file (.xlsx) and press "Seed Emails" to import authorized pilot emails...'
                     : _logs.join('\n'),
                 style: const TextStyle(
                   fontFamily: 'monospace',

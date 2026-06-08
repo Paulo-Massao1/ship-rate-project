@@ -1,15 +1,13 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:universal_html/html.dart' as html;
 
-import '../firebase_options.dart';
+import 'package:ship_rate/firebase_options.dart';
 
-/// Backup script for all Firestore data (READ-ONLY).
-/// Run with: flutter run -d chrome -t lib/scripts/backup_firestore.dart
+/// Audit script to compare usuarios against authorized_emails whitelist.
+/// READ-ONLY — does NOT modify or delete anything.
+/// Run with: flutter run -d chrome -t tool/audit_usuarios.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,30 +15,32 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const BackupApp());
+  runApp(const AuditUsuariosApp());
 }
 
-class BackupApp extends StatelessWidget {
-  const BackupApp({super.key});
+class AuditUsuariosApp extends StatelessWidget {
+  const AuditUsuariosApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShipRate Backup',
+      title: 'ShipRate - Audit Usuarios',
       theme: ThemeData.dark(useMaterial3: true),
-      home: const BackupPage(),
+      home: const AuditUsuariosPage(),
     );
   }
 }
 
-class BackupPage extends StatefulWidget {
-  const BackupPage({super.key});
+// PAGE
+
+class AuditUsuariosPage extends StatefulWidget {
+  const AuditUsuariosPage({super.key});
 
   @override
-  State<BackupPage> createState() => _BackupPageState();
+  State<AuditUsuariosPage> createState() => _AuditUsuariosPageState();
 }
 
-class _BackupPageState extends State<BackupPage> {
+class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
   // AUTH STATE
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -48,10 +48,9 @@ class _BackupPageState extends State<BackupPage> {
   String? _loginError;
   User? _user;
 
-  // BACKUP STATE
+  // AUDIT STATE
   final _logs = <String>[];
-  bool _running = false;
-  bool _done = false;
+  bool _auditing = false;
 
   @override
   void dispose() {
@@ -84,98 +83,97 @@ class _BackupPageState extends State<BackupPage> {
     setState(() => _loggingIn = false);
   }
 
-  // BACKUP METHODS
+  // AUDIT METHODS
 
   void _log(String message) {
     setState(() => _logs.add(message));
   }
 
-  Future<void> _runBackup() async {
+  Future<void> _audit() async {
     setState(() {
-      _running = true;
+      _auditing = true;
       _logs.clear();
     });
 
     try {
       final firestore = FirebaseFirestore.instance;
 
-      _log('Starting Firestore backup...');
+      _log('Auditing usuarios vs authorized_emails...');
       _log('Logged in as: ${_user?.email}');
       _log('');
 
-      // Read all ships from "navios" collection
-      final shipsSnapshot = await firestore.collection('navios').get();
-      final totalShips = shipsSnapshot.docs.length;
-      _log('Found $totalShips ships.');
-
-      var totalRatings = 0;
-      final shipsList = <Map<String, dynamic>>[];
-
-      for (final shipDoc in shipsSnapshot.docs) {
-        // Read all ratings from "avaliacoes" subcollection
-        final ratingsSnapshot = await firestore
-            .collection('navios')
-            .doc(shipDoc.id)
-            .collection('avaliacoes')
-            .get();
-
-        final ratingsList = ratingsSnapshot.docs.map((ratingDoc) {
-          return {
-            'id': ratingDoc.id,
-            'data': _sanitizeData(ratingDoc.data()),
-          };
-        }).toList();
-
-        totalRatings += ratingsList.length;
-
-        shipsList.add({
-          'id': shipDoc.id,
-          'data': _sanitizeData(shipDoc.data()),
-          'avaliacoes': ratingsList,
-        });
-
-        _log(
-          '  ${shipDoc.data()['nome'] ?? shipDoc.id}: '
-          '${ratingsList.length} ratings',
-        );
+      // Fetch all usuarios
+      final usuariosSnap = await firestore.collection('usuarios').get();
+      final usuarioEmails = <String>{};
+      for (final doc in usuariosSnap.docs) {
+        final email = (doc.data()['email'] as String?)?.toLowerCase().trim();
+        if (email != null && email.isNotEmpty) {
+          usuarioEmails.add(email);
+        }
       }
 
-      // Build backup object
-      final backup = {
-        'timestamp': DateTime.now().toIso8601String(),
-        'ships': shipsList,
-      };
+      // Fetch all authorized_emails
+      final authSnap = await firestore.collection('authorized_emails').get();
+      final authorizedEmails = <String>{};
+      for (final doc in authSnap.docs) {
+        final email = (doc.data()['email'] as String?)?.toLowerCase().trim();
+        if (email != null && email.isNotEmpty) {
+          authorizedEmails.add(email);
+        }
+      }
 
-      // Generate filename with timestamp
-      final now = DateTime.now();
-      final filename = 'backup_'
-          '${now.year}${_pad(now.month)}${_pad(now.day)}_'
-          '${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}'
-          '.json';
-
-      // Trigger browser download
-      final jsonString = const JsonEncoder.withIndent('  ').convert(backup);
-      final blob = html.Blob([jsonString], 'application/json');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      html.AnchorElement(href: url)
-        ..setAttribute('download', filename)
-        ..click();
-      html.Url.revokeObjectUrl(url);
-
+      _log('Total usuarios: ${usuarioEmails.length}');
+      _log('Total authorized_emails: ${authorizedEmails.length}');
       _log('');
-      _log('=== Backup Summary ===');
-      _log('Total ships:   $totalShips');
-      _log('Total ratings: $totalRatings');
-      _log('File:          $filename (downloaded)');
-      _log('======================');
+
+      // Compare
+      final matched = usuarioEmails.intersection(authorizedEmails);
+      final notInWhitelist = usuarioEmails.difference(authorizedEmails);
+      final whitelistOnly = authorizedEmails.difference(usuarioEmails);
+
+      const divider = '==================================================';
+
+      // Print MATCHED
+      _log(divider);
+      _log('MATCHED (${matched.length}) — usuarios in whitelist');
+      _log(divider);
+      for (final email in matched.toList()..sort()) {
+        _log('  $email');
+      }
+      _log('');
+
+      // Print NOT IN WHITELIST
+      _log(divider);
+      _log('NOT IN WHITELIST (${notInWhitelist.length}) — review needed');
+      _log(divider);
+      for (final email in notInWhitelist.toList()..sort()) {
+        _log('  $email');
+      }
+      _log('');
+
+      // Print WHITELIST ONLY
+      _log(divider);
+      _log('WHITELIST ONLY (${whitelistOnly.length}) — not registered yet');
+      _log(divider);
+      for (final email in whitelistOnly.toList()..sort()) {
+        _log('  $email');
+      }
+      _log('');
+
+      // Summary
+      _log(divider);
+      _log('SUMMARY');
+      _log(divider);
+      _log('  Matched:          ${matched.length}');
+      _log('  Not in whitelist: ${notInWhitelist.length}');
+      _log('  Whitelist only:   ${whitelistOnly.length}');
+      _log(divider);
     } catch (e) {
+      _log('');
       _log('ERROR: $e');
     }
 
-    setState(() {
-      _running = false;
-      _done = true;
-    });
+    setState(() => _auditing = false);
   }
 
   // BUILD
@@ -183,10 +181,10 @@ class _BackupPageState extends State<BackupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ShipRate - Firestore Backup')),
+      appBar: AppBar(title: const Text('ShipRate - Audit Usuarios')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: _user == null ? _buildLoginForm() : _buildBackupPanel(),
+        child: _user == null ? _buildLoginForm() : _buildAuditPanel(),
       ),
     );
   }
@@ -201,7 +199,7 @@ class _BackupPageState extends State<BackupPage> {
             const Icon(Icons.lock_outline, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Login to access backup',
+              'Login to audit usuarios',
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 24),
@@ -253,24 +251,20 @@ class _BackupPageState extends State<BackupPage> {
     );
   }
 
-  Widget _buildBackupPanel() {
+  Widget _buildAuditPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ElevatedButton.icon(
-          onPressed: _running ? null : _runBackup,
-          icon: _running
+          onPressed: _auditing ? null : _audit,
+          icon: _auditing
               ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Icon(_done ? Icons.refresh : Icons.download),
-          label: Text(_running
-              ? 'Backing up...'
-              : _done
-                  ? 'Run Again'
-                  : 'Start Backup'),
+              : const Icon(Icons.search),
+          label: Text(_auditing ? 'Auditing...' : 'Run Audit'),
         ),
         const SizedBox(height: 16),
         Expanded(
@@ -284,7 +278,7 @@ class _BackupPageState extends State<BackupPage> {
             child: SingleChildScrollView(
               child: SelectableText(
                 _logs.isEmpty
-                    ? 'Press "Start Backup" to begin...'
+                    ? 'Press "Run Audit" to compare usuarios vs authorized_emails...'
                     : _logs.join('\n'),
                 style: const TextStyle(
                   fontFamily: 'monospace',
@@ -298,30 +292,4 @@ class _BackupPageState extends State<BackupPage> {
       ],
     );
   }
-}
-
-/// Pad single digit numbers with leading zero.
-String _pad(int value) => value.toString().padLeft(2, '0');
-
-/// Convert Firestore Timestamps to ISO strings for JSON serialization.
-Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
-  return data.map((key, value) {
-    if (value is Timestamp) {
-      return MapEntry(key, value.toDate().toIso8601String());
-    }
-    if (value is Map<String, dynamic>) {
-      return MapEntry(key, _sanitizeData(value));
-    }
-    if (value is List) {
-      return MapEntry(
-        key,
-        value.map((item) {
-          if (item is Timestamp) return item.toDate().toIso8601String();
-          if (item is Map<String, dynamic>) return _sanitizeData(item);
-          return item;
-        }).toList(),
-      );
-    }
-    return MapEntry(key, value);
-  });
 }

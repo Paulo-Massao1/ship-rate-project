@@ -50,7 +50,8 @@ class NotificationService {
         return false;
       }
 
-      await _storeFcmToken();
+      final tokenStored = await _storeFcmToken();
+      if (!tokenStored) return false;
       _listenTokenRefresh();
       return true;
     } catch (e) {
@@ -110,16 +111,18 @@ class NotificationService {
     });
   }
 
-  static Future<void> _storeFcmToken() async {
+  static Future<bool> _storeFcmToken() async {
     try {
       final token = await _messaging.getToken(
         vapidKey: kIsWeb ? _vapidKey : null,
       );
-      if (token == null) return;
+      if (token == null || token.isEmpty) return false;
 
       await _updateTokenInFirestore(token);
+      return true;
     } catch (e) {
       debugPrint('NotificationService._storeFcmToken error: $e');
+      return false;
     }
   }
 

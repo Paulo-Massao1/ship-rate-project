@@ -2452,6 +2452,90 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Digite DELETE'**
   String get deleteAccountTypeHint;
+
+  /// Error message when not all fields are filled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preencha todos os campos.'**
+  String get fillAllFields;
+
+  /// Relative time label for just-now ratings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado agora'**
+  String get ratedNow;
+
+  /// Relative time label for ratings made minutes ago.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado há {count} min'**
+  String ratedMinutesAgo(int count);
+
+  /// Relative time label for ratings made hours ago.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado há {count}h'**
+  String ratedHoursAgo(int count);
+
+  /// Relative time label for yesterday's ratings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado ontem'**
+  String get ratedYesterday;
+
+  /// Relative time label for ratings made days ago.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado há {count} dias'**
+  String ratedDaysAgo(int count);
+
+  /// Relative time label for older ratings with date.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avaliado em {date}'**
+  String ratedOnDate(String date);
+
+  /// Default pilot name when call sign is not available.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prático'**
+  String get defaultPilotName;
+
+  /// Default text when no observations are present in PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem observações'**
+  String get pdfNoObservations;
+
+  /// Default update message shown in update banner.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.'**
+  String get defaultUpdateMessage;
+
+  /// Error message for empty image selection.
+  ///
+  /// In pt, this message translates to:
+  /// **'A imagem selecionada está vazia.'**
+  String get imageEmptyError;
+
+  /// Error message for unsupported image format.
+  ///
+  /// In pt, this message translates to:
+  /// **'Formato não suportado. Use apenas JPG, PNG ou WEBP.'**
+  String get formatNotSupportedError;
+
+  /// Error message for oversized image.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cada imagem deve ter no máximo 20 MB.'**
+  String get imageTooLargeError;
+
+  /// Error message for exceeding max images per record.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você pode anexar no máximo 3 imagens por registro.'**
+  String get maxImagesExceededError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

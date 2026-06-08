@@ -55,7 +55,7 @@ class AuthController {
 
       await _saveUserData(userCredential.user!.uid, email, callSign);
     } on FirebaseAuthException catch (error) {
-      throw AuthException(error.message ?? 'Erro ao cadastrar usuário.');
+      throw AuthException(error.message ?? 'registrationFailed');
     }
   }
 
@@ -92,13 +92,13 @@ class AuthController {
   /// Throws [AuthException] on failure.
   Future<void> sendPasswordReset(String email) async {
     if (email.isEmpty) {
-      throw AuthException('Informe o e-mail.');
+      throw AuthException('enterEmailRequired');
     }
 
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (error) {
-      throw AuthException(error.message ?? 'Erro ao enviar e-mail.');
+      throw AuthException(error.message ?? 'emailSendFailed');
     }
   }
 
@@ -117,18 +117,18 @@ class AuthController {
         password.isEmpty ||
         confirmPassword.isEmpty ||
         callSign.isEmpty) {
-      throw AuthException('Preencha todos os campos.');
+      throw AuthException('fillAllFields');
     }
 
     if (password != confirmPassword) {
-      throw AuthException('As senhas não coincidem.');
+      throw AuthException('passwordsDoNotMatch');
     }
   }
 
   /// Validates login form fields.
   void _validateLoginFields(String email, String password) {
     if (email.isEmpty || password.isEmpty) {
-      throw AuthException('Preencha todos os campos.');
+      throw AuthException('fillAllFields');
     }
   }
 
@@ -145,19 +145,19 @@ class AuthController {
   String _mapLoginError(String errorCode) {
     switch (errorCode) {
       case 'invalid-email':
-        return 'O e-mail informado é inválido.';
+        return 'invalidEmail';
       case 'user-disabled':
-        return 'Esta conta foi desativada.';
+        return 'userDisabled';
       case 'user-not-found':
-        return 'Nenhuma conta encontrada com este e-mail.';
+        return 'userNotFound';
       case 'wrong-password':
       case 'invalid-credential':
       case 'invalid-login-credentials':
-        return 'E-mail ou senha incorretos. Tente novamente.';
+        return 'invalidCredentials';
       case 'too-many-requests':
-        return 'Muitas tentativas. Aguarde alguns minutos.';
+        return 'tooManyRequests';
       default:
-        return 'Não foi possível realizar o login. Verifique suas credenciais.';
+        return 'loginFailed';
     }
   }
 }

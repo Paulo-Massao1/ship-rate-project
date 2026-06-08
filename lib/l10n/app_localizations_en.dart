@@ -1266,4 +1266,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountTypeHint => 'Type DELETE';
+
+  @override
+  String get fillAllFields => 'Fill in all fields.';
+
+  @override
+  String get ratedNow => 'Rated just now';
+
+  @override
+  String ratedMinutesAgo(int count) {
+    return 'Rated $count min ago';
+  }
+
+  @override
+  String ratedHoursAgo(int count) {
+    return 'Rated ${count}h ago';
+  }
+
+  @override
+  String get ratedYesterday => 'Rated yesterday';
+
+  @override
+  String ratedDaysAgo(int count) {
+    return 'Rated $count days ago';
+  }
+
+  @override
+  String ratedOnDate(String date) {
+    return 'Rated on $date';
+  }
+
+  @override
+  String get defaultPilotName => 'Pilot';
+
+  @override
+  String get pdfNoObservations => 'No observations';
+
+  @override
+  String get defaultUpdateMessage => 'New update available. Please close and reopen the app to apply improvements.';
+
+  @override
+  String get imageEmptyError => 'The selected image is empty.';
+
+  @override
+  String get formatNotSupportedError => 'Format not supported. Use only JPG, PNG, or WEBP.';
+
+  @override
+  String get imageTooLargeError => 'Each image must be at most 20 MB.';
+
+  @override
+  String get maxImagesExceededError => 'You can attach a maximum of 3 images per record.';
 }

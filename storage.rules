@@ -13,8 +13,9 @@ service firebase.storage {
 
     match /registros/{locationId}/{recordId}/{fileName} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn()
-                   && (request.resource == null || isSupportedImageUpload());
+      allow create, update: if isSignedIn() && isSupportedImageUpload();
+      allow delete: if isSignedIn()
+                    && resource.metadata.uploadedBy == request.auth.uid;
     }
   }
 }

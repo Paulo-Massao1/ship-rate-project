@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/constants.dart';
-import '../../data/services/marine_traffic_service.dart';
+import 'package:ship_rate/l10n/app_localizations.dart';
+import '../core/constants.dart';
+import '../data/services/marine_traffic_service.dart';
 
 /// Controller for ship search functionality.
 ///
@@ -114,21 +115,24 @@ class ShipSearchController {
   }
 
   /// Calculates relative time string from timestamp.
-  String getRelativeTime(Timestamp? timestamp) {
-    if (timestamp == null) return 'Avaliado agora';
+  String getRelativeTime(Timestamp? timestamp, {AppLocalizations? l10n}) {
+    if (timestamp == null) {
+      return l10n?.ratedNow ?? 'Avaliado agora';
+    }
 
     final date = timestamp.toDate().toUtc();
     final now = DateTime.now().toUtc();
     final diff = now.difference(date);
 
-    if (diff.inMinutes < 1) return 'Avaliado agora';
-    if (diff.inMinutes < 60) return 'Avaliado há ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Avaliado há ${diff.inHours}h';
-    if (diff.inDays == 1) return 'Avaliado ontem';
-    if (diff.inDays < 7) return 'Avaliado há ${diff.inDays} dias';
+    if (diff.inMinutes < 1) return l10n?.ratedNow ?? 'Avaliado agora';
+    if (diff.inMinutes < 60) return l10n?.ratedMinutesAgo(diff.inMinutes) ?? 'Avaliado há ${diff.inMinutes} min';
+    if (diff.inHours < 24) return l10n?.ratedHoursAgo(diff.inHours) ?? 'Avaliado há ${diff.inHours}h';
+    if (diff.inDays == 1) return l10n?.ratedYesterday ?? 'Avaliado ontem';
+    if (diff.inDays < 7) return l10n?.ratedDaysAgo(diff.inDays) ?? 'Avaliado há ${diff.inDays} dias';
 
-    return 'Avaliado em ${date.day.toString().padLeft(2, '0')}/'
+    final formatted = '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/${date.year}';
+    return l10n?.ratedOnDate(formatted) ?? 'Avaliado em $formatted';
   }
 
   // ===========================================================================

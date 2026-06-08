@@ -28,9 +28,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   // ===========================================================================
 
   static const _shareUrl = 'https://shiprate-daf18.web.app/';
-  static const _shareText =
-      'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar '
-      'profundidades dos trechos navegados. Baixe aqui: $_shareUrl';
 
   // ===========================================================================
   // STATE
@@ -122,7 +119,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       builder: (_) => _NavShareBottomSheet(
         onWhatsAppTap: () {
           Navigator.pop(context);
-          UrlLauncherService.openWhatsAppShare(_shareText);
+          final l10n = AppLocalizations.of(context)!;
+          UrlLauncherService.openWhatsAppShare(l10n.shareText);
         },
         onCopyLinkTap: () async {
           Navigator.pop(context);
@@ -843,7 +841,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Navio: $shipName',
+                      l10n.navShipLabel(shipName),
                       style: const TextStyle(
                         color: Color(0xFF64B5F6),
                         fontSize: 13,

@@ -3,7 +3,6 @@
 .packages
 .flutter-plugins
 .flutter-plugins-dependencies
-pubspec.lock
 
 # Build
 /build/
@@ -26,3 +25,6 @@ serviceAccountKey.json
 functions/serviceAccountKey.json
 
 .gcloud-cli/
+
+# Firebase deploy cache
+.firebase/

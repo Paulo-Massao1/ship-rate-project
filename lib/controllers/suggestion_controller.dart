@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../data/services/suggestion_service.dart';
+import '../data/services/suggestion_service.dart';
 
 /// Controller for suggestion/feedback submission.
 ///

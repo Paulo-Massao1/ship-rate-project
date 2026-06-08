@@ -18,7 +18,7 @@ class ImageUploadService {
   ];
   static const String htmlAcceptAttribute =
       'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp';
-  static const String supportedFormatsLabel = 'JPG, PNG ou WEBP';
+  static const String supportedFormatsLabel = 'JPG, PNG, WEBP';
 
   static String normalizeMimeType(String mimeType) {
     switch (mimeType.trim().toLowerCase()) {
@@ -59,15 +59,15 @@ class ImageUploadService {
     final normalizedMimeType = normalizeMimeType(image.mimeType);
 
     if (image.bytes.isEmpty) {
-      return 'A imagem selecionada esta vazia.';
+      return 'imageEmpty';
     }
 
     if (!supportedMimeTypes.contains(normalizedMimeType)) {
-      return 'Formato nao suportado. Use apenas $supportedFormatsLabel.';
+      return 'formatNotSupported';
     }
 
     if (image.sizeInBytes > maxImageSizeBytes) {
-      return 'Cada imagem deve ter no maximo 20 MB.';
+      return 'imageTooLarge';
     }
 
     return null;
@@ -90,7 +90,7 @@ class ImageUploadService {
 
     if (images.length > maxImagesPerRecord) {
       throw const ImageUploadException(
-        'Voce pode anexar no maximo 3 imagens por registro.',
+        'maxImagesExceeded',
       );
     }
 

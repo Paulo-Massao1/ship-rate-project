@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/constants.dart';
-import '../../data/services/medias_calculator.dart';
-import '../../data/services/pdf_service.dart';
+import '../core/constants.dart';
+import '../data/services/medias_calculator.dart';
+import '../data/services/pdf_service.dart';
 
 /// Controller for managing user's ratings list.
 ///

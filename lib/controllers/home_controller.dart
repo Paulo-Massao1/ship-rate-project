@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../core/platform/install_hint.dart';
+import '../core/platform/install_hint.dart';
 import 'nav_safety_controller.dart';
 
 /// Controller responsible for MainScreen business logic.

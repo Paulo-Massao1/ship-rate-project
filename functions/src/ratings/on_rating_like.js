@@ -19,10 +19,6 @@ exports.onRatingLikeCreated = functions.firestore
       .collection("avaliacoes")
       .doc(ratingId);
 
-    await ratingRef.update({
-      likeCount: admin.firestore.FieldValue.increment(1),
-    });
-
     try {
       const ratingDoc = await ratingRef.get();
       if (!ratingDoc.exists) {
@@ -61,6 +57,10 @@ exports.onRatingLikeCreated = functions.firestore
         console.log("Skipping: test account");
         return;
       }
+
+      await ratingRef.update({
+        likeCount: admin.firestore.FieldValue.increment(1),
+      });
 
       if (ownerData.pushNotifications === false || !ownerData.fcmToken) {
         console.log("Skipping: no token or notifications disabled");

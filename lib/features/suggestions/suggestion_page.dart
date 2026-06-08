@@ -31,17 +31,14 @@ class _SuggestionPageState extends State<SuggestionPage> {
     _FeedbackType(
       value: 'Sugestão',
       icon: Icons.lightbulb_outline,
-      label: 'Sugestão',
     ),
     _FeedbackType(
       value: 'Crítica',
       icon: Icons.feedback_outlined,
-      label: 'Crítica',
     ),
     _FeedbackType(
       value: 'Elogio',
       icon: Icons.favorite_outline,
-      label: 'Elogio',
     ),
   ];
 
@@ -316,11 +313,9 @@ class _SuggestionPageState extends State<SuggestionPage> {
 class _FeedbackType {
   final String value;
   final IconData icon;
-  final String label;
 
   const _FeedbackType({
     required this.value,
     required this.icon,
-    required this.label,
   });
 }

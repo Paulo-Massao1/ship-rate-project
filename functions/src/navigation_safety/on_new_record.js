@@ -92,7 +92,7 @@ exports.onNewRecord = functions.firestore
               </table>
               <hr style="border: none; border-top: 1px solid rgba(100,181,246,0.15); margin: 20px 0;" />
               <p style="text-align: center; margin-top: 24px;">
-                <a href="https://shiprate.web.app" style="background: linear-gradient(135deg, #00897b, #26a69a); color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: bold; display: inline-block;">Abrir ShipRate</a>
+                <a href="https://shiprate-daf18.web.app" style="background: linear-gradient(135deg, #00897b, #26a69a); color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: bold; display: inline-block;">Abrir ShipRate</a>
               </p>
               <p style="color: rgba(255,255,255,0.3); text-align: center; font-size: 11px; margin-top: 24px;">Você recebeu este e-mail porque está cadastrado no ShipRate.</p>
             </div>

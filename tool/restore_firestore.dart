@@ -6,10 +6,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
 
-import '../firebase_options.dart';
+import 'package:ship_rate/firebase_options.dart';
 
 /// Restore script for Firestore data from backup JSON.
-/// Run with: flutter run -d chrome -t lib/scripts/restore_firestore.dart
+/// Run with: flutter run -d chrome -t tool/restore_firestore.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

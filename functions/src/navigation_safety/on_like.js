@@ -18,10 +18,6 @@ exports.onLikeCreated = functions.firestore
       .collection("registros")
       .doc(recordId);
 
-    await recordRef.update({
-      likeCount: admin.firestore.FieldValue.increment(1),
-    });
-
     try {
       const recordDoc = await recordRef.get();
       if (!recordDoc.exists) {
@@ -61,6 +57,10 @@ exports.onLikeCreated = functions.firestore
         console.log("Skipping: test account");
         return;
       }
+
+      await recordRef.update({
+        likeCount: admin.firestore.FieldValue.increment(1),
+      });
 
       if (pilotData.pushNotifications === false || !pilotData.fcmToken) {
         console.log("Skipping: no token or notifications disabled");

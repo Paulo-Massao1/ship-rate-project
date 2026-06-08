@@ -238,7 +238,7 @@ class DashboardController {
           .timeout(_queryTimeout);
       if (statsDoc.exists) {
         final rawCount = (statsDoc.data()?['totalCount'] as int?) ?? 0;
-        totalCrossings = rawCount < 2 ? 2 : rawCount;
+        totalCrossings = rawCount;
       }
     } catch (e) {
       debugPrint('[Dashboard] Error fetching crossing stats doc: $e');

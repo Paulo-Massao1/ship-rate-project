@@ -34,8 +34,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static bool _notificationsInitialized = false;
   static final Map<String, String> _cachedNomeGuerraByUid = {};
   static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
-  static const String _defaultPilotName = 'Pr\u00e1tico';
-
   bool _showUpdateBanner = false;
   String _updateMessage = '';
   String? _nomeGuerra;
@@ -406,8 +404,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final cachedName = _cachedNomeGuerraByUid[uid];
     if (cachedName != null && cachedName.isNotEmpty) {
       _setNomeGuerra(cachedName, uid: uid);
-    } else {
-      _setNomeGuerra(_defaultPilotName);
     }
 
     try {
@@ -438,19 +434,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _setNomeGuerra(String value, {String? uid}) {
-    final displayName = value.trim().isEmpty ? _defaultPilotName : value.trim();
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
 
     if (uid != null) {
-      _cachedNomeGuerraByUid[uid] = displayName;
+      _cachedNomeGuerraByUid[uid] = trimmed;
     }
 
     if (!mounted) {
-      _nomeGuerra = displayName;
+      _nomeGuerra = trimmed;
       return;
     }
 
-    if (_nomeGuerra == displayName) return;
-    setState(() => _nomeGuerra = displayName);
+    if (_nomeGuerra == trimmed) return;
+    setState(() => _nomeGuerra = trimmed);
   }
 
   Future<void> _checkForUpdates() async {
@@ -461,7 +458,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (result['shouldShow'] == true) {
       setState(() {
         _showUpdateBanner = true;
-        _updateMessage = result['message'] ?? l10n.updateAvailable;
+        _updateMessage = result['message'] ?? l10n.defaultUpdateMessage;
       });
     }
   }
@@ -678,7 +675,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildWelcomeText() {
     final l10n = AppLocalizations.of(context)!;
-    final displayName = _nomeGuerra ?? _defaultPilotName;
+    final displayName = _nomeGuerra ?? l10n.defaultPilotName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

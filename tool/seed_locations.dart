@@ -3,11 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import '../firebase_options.dart';
+import 'package:ship_rate/firebase_options.dart';
 
-/// Audit script to compare usuarios against authorized_emails whitelist.
-/// READ-ONLY — does NOT modify or delete anything.
-/// Run with: flutter run -d chrome -t lib/scripts/audit_usuarios.dart
+/// Seed script to create navigation safety locations in Firestore.
+/// Run with: flutter run -d chrome -t tool/seed_locations.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -15,32 +14,58 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const AuditUsuariosApp());
+  runApp(const SeedLocationsApp());
 }
 
-class AuditUsuariosApp extends StatelessWidget {
-  const AuditUsuariosApp({super.key});
+class SeedLocationsApp extends StatelessWidget {
+  const SeedLocationsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShipRate - Audit Usuarios',
+      title: 'ShipRate - Seed Locations',
       theme: ThemeData.dark(useMaterial3: true),
-      home: const AuditUsuariosPage(),
+      home: const SeedLocationsPage(),
     );
   }
 }
 
+// CONSTANTS
+
+const _locations = [
+  'Arapiri',
+  'Balaio',
+  'Bicheira',
+  'Caldeirão',
+  'Ciganas',
+  'Cuieiras',
+  'Fundeadouro Itacoatiara',
+  'Gurupatuba',
+  'Juruti/Canal',
+  'Mazagão',
+  'Mocambo',
+  'Oiapoque',
+  'Paraná dos Arcos',
+  'Parauaquara',
+  'Patacho Sul',
+  'Peixe Boi',
+  'Prainha',
+  'Santa Rita',
+  'São Raimundo',
+  'Serpa',
+  'Xibuí',
+];
+
 // PAGE
 
-class AuditUsuariosPage extends StatefulWidget {
-  const AuditUsuariosPage({super.key});
+class SeedLocationsPage extends StatefulWidget {
+  const SeedLocationsPage({super.key});
 
   @override
-  State<AuditUsuariosPage> createState() => _AuditUsuariosPageState();
+  State<SeedLocationsPage> createState() => _SeedLocationsPageState();
 }
 
-class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
+class _SeedLocationsPageState extends State<SeedLocationsPage> {
   // AUTH STATE
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -48,9 +73,9 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
   String? _loginError;
   User? _user;
 
-  // AUDIT STATE
+  // SEED STATE
   final _logs = <String>[];
-  bool _auditing = false;
+  bool _seeding = false;
 
   @override
   void dispose() {
@@ -83,97 +108,66 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
     setState(() => _loggingIn = false);
   }
 
-  // AUDIT METHODS
+  // SEED METHODS
 
   void _log(String message) {
     setState(() => _logs.add(message));
   }
 
-  Future<void> _audit() async {
+  Future<void> _seed() async {
     setState(() {
-      _auditing = true;
+      _seeding = true;
       _logs.clear();
     });
 
     try {
       final firestore = FirebaseFirestore.instance;
 
-      _log('Auditing usuarios vs authorized_emails...');
+      _log('Seeding navigation safety locations...');
       _log('Logged in as: ${_user?.email}');
       _log('');
 
-      // Fetch all usuarios
-      final usuariosSnap = await firestore.collection('usuarios').get();
-      final usuarioEmails = <String>{};
-      for (final doc in usuariosSnap.docs) {
-        final email = (doc.data()['email'] as String?)?.toLowerCase().trim();
-        if (email != null && email.isNotEmpty) {
-          usuarioEmails.add(email);
+      // Load existing locations to skip duplicates
+      final existing = await firestore.collection('locais').get();
+      final existingNames =
+          existing.docs.map((d) => d.data()['nome'] as String).toSet();
+
+      _log('Existing locations in database: ${existingNames.length}');
+      _log('');
+
+      var created = 0;
+      var skipped = 0;
+
+      for (final name in _locations) {
+        if (existingNames.contains(name)) {
+          _log('  SKIP: $name (already exists)');
+          skipped++;
+          continue;
         }
+
+        await firestore.collection('locais').add({
+          'nome': name,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        _log('  CREATED: $name');
+        created++;
       }
 
-      // Fetch all authorized_emails
-      final authSnap = await firestore.collection('authorized_emails').get();
-      final authorizedEmails = <String>{};
-      for (final doc in authSnap.docs) {
-        final email = (doc.data()['email'] as String?)?.toLowerCase().trim();
-        if (email != null && email.isNotEmpty) {
-          authorizedEmails.add(email);
-        }
-      }
-
-      _log('Total usuarios: ${usuarioEmails.length}');
-      _log('Total authorized_emails: ${authorizedEmails.length}');
       _log('');
-
-      // Compare
-      final matched = usuarioEmails.intersection(authorizedEmails);
-      final notInWhitelist = usuarioEmails.difference(authorizedEmails);
-      final whitelistOnly = authorizedEmails.difference(usuarioEmails);
-
-      const divider = '==================================================';
-
-      // Print MATCHED
-      _log(divider);
-      _log('MATCHED (${matched.length}) — usuarios in whitelist');
-      _log(divider);
-      for (final email in matched.toList()..sort()) {
-        _log('  $email');
-      }
+      _log('=' * 40);
       _log('');
-
-      // Print NOT IN WHITELIST
-      _log(divider);
-      _log('NOT IN WHITELIST (${notInWhitelist.length}) — review needed');
-      _log(divider);
-      for (final email in notInWhitelist.toList()..sort()) {
-        _log('  $email');
-      }
-      _log('');
-
-      // Print WHITELIST ONLY
-      _log(divider);
-      _log('WHITELIST ONLY (${whitelistOnly.length}) — not registered yet');
-      _log(divider);
-      for (final email in whitelistOnly.toList()..sort()) {
-        _log('  $email');
-      }
-      _log('');
-
-      // Summary
-      _log(divider);
-      _log('SUMMARY');
-      _log(divider);
-      _log('  Matched:          ${matched.length}');
-      _log('  Not in whitelist: ${notInWhitelist.length}');
-      _log('  Whitelist only:   ${whitelistOnly.length}');
-      _log(divider);
+      _log('=== Seed Complete ===');
+      _log('Created: $created');
+      _log('Skipped: $skipped');
+      _log('Total locations: ${existingNames.length + created}');
+      _log('=====================');
     } catch (e) {
       _log('');
       _log('ERROR: $e');
     }
 
-    setState(() => _auditing = false);
+    setState(() => _seeding = false);
   }
 
   // BUILD
@@ -181,10 +175,10 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ShipRate - Audit Usuarios')),
+      appBar: AppBar(title: const Text('ShipRate - Seed Locations')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: _user == null ? _buildLoginForm() : _buildAuditPanel(),
+        child: _user == null ? _buildLoginForm() : _buildSeedPanel(),
       ),
     );
   }
@@ -199,7 +193,7 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
             const Icon(Icons.lock_outline, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Login to audit usuarios',
+              'Login to seed locations',
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 24),
@@ -251,20 +245,20 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
     );
   }
 
-  Widget _buildAuditPanel() {
+  Widget _buildSeedPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ElevatedButton.icon(
-          onPressed: _auditing ? null : _audit,
-          icon: _auditing
+          onPressed: _seeding ? null : _seed,
+          icon: _seeding
               ? const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.search),
-          label: Text(_auditing ? 'Auditing...' : 'Run Audit'),
+              : const Icon(Icons.add_location_alt),
+          label: Text(_seeding ? 'Seeding...' : 'Seed Locations'),
         ),
         const SizedBox(height: 16),
         Expanded(
@@ -278,7 +272,7 @@ class _AuditUsuariosPageState extends State<AuditUsuariosPage> {
             child: SingleChildScrollView(
               child: SelectableText(
                 _logs.isEmpty
-                    ? 'Press "Run Audit" to compare usuarios vs authorized_emails...'
+                    ? 'Press "Seed Locations" to create navigation safety locations...'
                     : _logs.join('\n'),
                 style: const TextStyle(
                   fontFamily: 'monospace',

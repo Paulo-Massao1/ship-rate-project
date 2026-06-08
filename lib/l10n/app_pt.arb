@@ -1738,5 +1738,81 @@
   "deleteAccountTypeHint": "Digite DELETE",
   "@deleteAccountTypeHint": {
     "description": "Hint text for the DELETE confirmation field."
+  },
+  "fillAllFields": "Preencha todos os campos.",
+  "@fillAllFields": {
+    "description": "Error message when not all fields are filled."
+  },
+  "ratedNow": "Avaliado agora",
+  "@ratedNow": {
+    "description": "Relative time label for just-now ratings."
+  },
+  "ratedMinutesAgo": "Avaliado há {count} min",
+  "@ratedMinutesAgo": {
+    "description": "Relative time label for ratings made minutes ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratedHoursAgo": "Avaliado há {count}h",
+  "@ratedHoursAgo": {
+    "description": "Relative time label for ratings made hours ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratedYesterday": "Avaliado ontem",
+  "@ratedYesterday": {
+    "description": "Relative time label for yesterday's ratings."
+  },
+  "ratedDaysAgo": "Avaliado há {count} dias",
+  "@ratedDaysAgo": {
+    "description": "Relative time label for ratings made days ago.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratedOnDate": "Avaliado em {date}",
+  "@ratedOnDate": {
+    "description": "Relative time label for older ratings with date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultPilotName": "Prático",
+  "@defaultPilotName": {
+    "description": "Default pilot name when call sign is not available."
+  },
+  "pdfNoObservations": "Sem observações",
+  "@pdfNoObservations": {
+    "description": "Default text when no observations are present in PDF."
+  },
+  "defaultUpdateMessage": "Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.",
+  "@defaultUpdateMessage": {
+    "description": "Default update message shown in update banner."
+  },
+  "imageEmptyError": "A imagem selecionada está vazia.",
+  "@imageEmptyError": {
+    "description": "Error message for empty image selection."
+  },
+  "formatNotSupportedError": "Formato não suportado. Use apenas JPG, PNG ou WEBP.",
+  "@formatNotSupportedError": {
+    "description": "Error message for unsupported image format."
+  },
+  "imageTooLargeError": "Cada imagem deve ter no máximo 20 MB.",
+  "@imageTooLargeError": {
+    "description": "Error message for oversized image."
+  },
+  "maxImagesExceededError": "Você pode anexar no máximo 3 imagens por registro.",
+  "@maxImagesExceededError": {
+    "description": "Error message for exceeding max images per record."
   }
 }

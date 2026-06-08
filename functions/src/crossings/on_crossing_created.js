@@ -56,12 +56,6 @@ exports.onCrossingCreated = functions.firestore
       calado: draft,
     } = data;
 
-    try {
-      await updateCrossingCounters(pilotId);
-    } catch (error) {
-      console.error("Error updating crossing counters:", error);
-    }
-
     if (!pilotId) {
       console.log("Skipping notification - no pilotoId.");
       return;
@@ -76,6 +70,12 @@ exports.onCrossingCreated = functions.firestore
       }
     } catch (error) {
       console.error("Error checking test account:", error);
+    }
+
+    try {
+      await updateCrossingCounters(pilotId);
+    } catch (error) {
+      console.error("Error updating crossing counters:", error);
     }
 
     const formattedTime = formatBrasiliaTime(crossingDateTime);

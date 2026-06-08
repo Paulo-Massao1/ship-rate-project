@@ -1266,4 +1266,54 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get deleteAccountTypeHint => 'Digite DELETE';
+
+  @override
+  String get fillAllFields => 'Preencha todos os campos.';
+
+  @override
+  String get ratedNow => 'Avaliado agora';
+
+  @override
+  String ratedMinutesAgo(int count) {
+    return 'Avaliado há $count min';
+  }
+
+  @override
+  String ratedHoursAgo(int count) {
+    return 'Avaliado há ${count}h';
+  }
+
+  @override
+  String get ratedYesterday => 'Avaliado ontem';
+
+  @override
+  String ratedDaysAgo(int count) {
+    return 'Avaliado há $count dias';
+  }
+
+  @override
+  String ratedOnDate(String date) {
+    return 'Avaliado em $date';
+  }
+
+  @override
+  String get defaultPilotName => 'Prático';
+
+  @override
+  String get pdfNoObservations => 'Sem observações';
+
+  @override
+  String get defaultUpdateMessage => 'Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.';
+
+  @override
+  String get imageEmptyError => 'A imagem selecionada está vazia.';
+
+  @override
+  String get formatNotSupportedError => 'Formato não suportado. Use apenas JPG, PNG ou WEBP.';
+
+  @override
+  String get imageTooLargeError => 'Cada imagem deve ter no máximo 20 MB.';
+
+  @override
+  String get maxImagesExceededError => 'Você pode anexar no máximo 3 imagens por registro.';
 }

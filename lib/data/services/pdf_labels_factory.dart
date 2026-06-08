@@ -61,6 +61,7 @@ PdfLabels buildPdfLabels(AppLocalizations l10n) {
     totalRatingsCount: l10n.pdfTotalRatingsCount,
     observation: l10n.pdfObservation,
     ratedBy: l10n.pdfRatedBy,
+    noObservations: l10n.pdfNoObservations,
     averagesLabels: {
       'temp_cabine': l10n.avgCabinTemp,
       'limpeza_cabine': l10n.avgCabinCleanliness,

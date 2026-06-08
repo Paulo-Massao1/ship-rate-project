@@ -30,9 +30,6 @@ class VersionService {
   static const String _configCollection = 'config';
   static const String _versionDocument = 'app_version';
 
-  /// Default update message when none is provided.
-  static const String _defaultUpdateMessage =
-      'Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.';
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -62,7 +59,7 @@ class VersionService {
         return _noUpdateResult();
       }
 
-      final message = remoteData['message'] as String? ?? _defaultUpdateMessage;
+      final message = remoteData['message'] as String?;
       final preferences = await SharedPreferences.getInstance();
       final localVersion = preferences.getString(_localVersionKey);
       final seenVersion = preferences.getString(_seenVersionKey);

@@ -1,16 +1,15 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:excel/excel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:universal_html/html.dart' as html;
 
-import '../firebase_options.dart';
+import 'package:ship_rate/firebase_options.dart';
 
-/// Seed script to import authorized pilot emails from Excel into Firestore.
-/// Run with: flutter run -d chrome -t lib/scripts/seed_authorized_emails.dart
+/// Backup script for all Firestore data (READ-ONLY).
+/// Run with: flutter run -d chrome -t tool/backup_firestore.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -18,33 +17,30 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const SeedAuthorizedEmailsApp());
+  runApp(const BackupApp());
 }
 
-class SeedAuthorizedEmailsApp extends StatelessWidget {
-  const SeedAuthorizedEmailsApp({super.key});
+class BackupApp extends StatelessWidget {
+  const BackupApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShipRate - Seed Authorized Emails',
+      title: 'ShipRate Backup',
       theme: ThemeData.dark(useMaterial3: true),
-      home: const SeedAuthorizedEmailsPage(),
+      home: const BackupPage(),
     );
   }
 }
 
-// PAGE
-
-class SeedAuthorizedEmailsPage extends StatefulWidget {
-  const SeedAuthorizedEmailsPage({super.key});
+class BackupPage extends StatefulWidget {
+  const BackupPage({super.key});
 
   @override
-  State<SeedAuthorizedEmailsPage> createState() =>
-      _SeedAuthorizedEmailsPageState();
+  State<BackupPage> createState() => _BackupPageState();
 }
 
-class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
+class _BackupPageState extends State<BackupPage> {
   // AUTH STATE
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -52,11 +48,10 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
   String? _loginError;
   User? _user;
 
-  // SEED STATE
+  // BACKUP STATE
   final _logs = <String>[];
-  bool _seeding = false;
-  Uint8List? _fileBytes;
-  String? _fileName;
+  bool _running = false;
+  bool _done = false;
 
   @override
   void dispose() {
@@ -89,118 +84,98 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
     setState(() => _loggingIn = false);
   }
 
-  // FILE METHODS
-
-  Future<void> _pickFile() async {
-    final uploadInput = html.FileUploadInputElement()..accept = '.xlsx,.xls';
-    uploadInput.click();
-
-    await uploadInput.onChange.first;
-
-    if (uploadInput.files == null || uploadInput.files!.isEmpty) return;
-
-    final file = uploadInput.files!.first;
-    final reader = html.FileReader();
-    reader.readAsArrayBuffer(file);
-    await reader.onLoadEnd.first;
-
-    setState(() {
-      _fileBytes = Uint8List.fromList(reader.result as List<int>);
-      _fileName = file.name;
-    });
-  }
-
-  // SEED METHODS
+  // BACKUP METHODS
 
   void _log(String message) {
     setState(() => _logs.add(message));
   }
 
-  Future<void> _seed() async {
-    if (_fileBytes == null) return;
-
+  Future<void> _runBackup() async {
     setState(() {
-      _seeding = true;
+      _running = true;
       _logs.clear();
     });
 
     try {
       final firestore = FirebaseFirestore.instance;
 
-      _log('Seeding authorized emails from: $_fileName');
+      _log('Starting Firestore backup...');
       _log('Logged in as: ${_user?.email}');
       _log('');
 
-      // Parse Excel file
-      final excel = Excel.decodeBytes(_fileBytes!);
-      final sheet = excel.tables[excel.tables.keys.first]!;
-      final rows = sheet.rows;
+      // Read all ships from "navios" collection
+      final shipsSnapshot = await firestore.collection('navios').get();
+      final totalShips = shipsSnapshot.docs.length;
+      _log('Found $totalShips ships.');
 
-      _log('Total rows in Excel (including header): ${rows.length}');
-      _log('');
+      var totalRatings = 0;
+      final shipsList = <Map<String, dynamic>>[];
 
-      // Load existing authorized emails to skip duplicates
-      final existing =
-          await firestore.collection('authorized_emails').get();
-      final existingEmails = existing.docs
-          .map((d) => (d.data()['email'] as String?)?.toLowerCase())
-          .whereType<String>()
-          .toSet();
+      for (final shipDoc in shipsSnapshot.docs) {
+        // Read all ratings from "avaliacoes" subcollection
+        final ratingsSnapshot = await firestore
+            .collection('navios')
+            .doc(shipDoc.id)
+            .collection('avaliacoes')
+            .get();
 
-      _log('Existing authorized emails in database: ${existingEmails.length}');
-      _log('');
+        final ratingsList = ratingsSnapshot.docs.map((ratingDoc) {
+          return {
+            'id': ratingDoc.id,
+            'data': _sanitizeData(ratingDoc.data()),
+          };
+        }).toList();
 
-      var created = 0;
-      var skipped = 0;
-      var skippedEmpty = 0;
+        totalRatings += ratingsList.length;
 
-      // Skip header row (index 0), process data rows
-      for (var i = 1; i < rows.length; i++) {
-        final row = rows[i];
-
-        // Column indices: 0=Sequência, 1=Praticagem, 2=Nome, 3=Nome de Guerra, 4=Email
-        final emailCell = row.length > 4 ? row[4] : null;
-        final nomeGuerraCell = row.length > 3 ? row[3] : null;
-
-        final emailValue = emailCell?.value?.toString().trim().toLowerCase();
-        final nomeGuerraValue = nomeGuerraCell?.value?.toString().trim() ?? '';
-
-        if (emailValue == null || emailValue.isEmpty) {
-          skippedEmpty++;
-          continue;
-        }
-
-        if (existingEmails.contains(emailValue)) {
-          _log('  SKIP: $emailValue (already exists)');
-          skipped++;
-          continue;
-        }
-
-        await firestore.collection('authorized_emails').add({
-          'email': emailValue,
-          'nomeGuerra': nomeGuerraValue,
+        shipsList.add({
+          'id': shipDoc.id,
+          'data': _sanitizeData(shipDoc.data()),
+          'avaliacoes': ratingsList,
         });
 
-        _log('  CREATED: $emailValue ($nomeGuerraValue)');
-        created++;
-        existingEmails.add(emailValue);
+        _log(
+          '  ${shipDoc.data()['nome'] ?? shipDoc.id}: '
+          '${ratingsList.length} ratings',
+        );
       }
 
+      // Build backup object
+      final backup = {
+        'timestamp': DateTime.now().toIso8601String(),
+        'ships': shipsList,
+      };
+
+      // Generate filename with timestamp
+      final now = DateTime.now();
+      final filename = 'backup_'
+          '${now.year}${_pad(now.month)}${_pad(now.day)}_'
+          '${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}'
+          '.json';
+
+      // Trigger browser download
+      final jsonString = const JsonEncoder.withIndent('  ').convert(backup);
+      final blob = html.Blob([jsonString], 'application/json');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      html.AnchorElement(href: url)
+        ..setAttribute('download', filename)
+        ..click();
+      html.Url.revokeObjectUrl(url);
+
       _log('');
-      _log('=' * 40);
-      _log('');
-      _log('=== Seed Complete ===');
-      _log('Created: $created');
-      _log('Skipped (duplicate): $skipped');
-      _log('Skipped (empty email): $skippedEmpty');
-      _log('Total authorized emails: ${existingEmails.length}');
-      _log('=====================');
+      _log('=== Backup Summary ===');
+      _log('Total ships:   $totalShips');
+      _log('Total ratings: $totalRatings');
+      _log('File:          $filename (downloaded)');
+      _log('======================');
     } catch (e) {
-      _log('');
       _log('ERROR: $e');
     }
 
-    setState(() => _seeding = false);
+    setState(() {
+      _running = false;
+      _done = true;
+    });
   }
 
   // BUILD
@@ -208,10 +183,10 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ShipRate - Seed Authorized Emails')),
+      appBar: AppBar(title: const Text('ShipRate - Firestore Backup')),
       body: Padding(
         padding: const EdgeInsets.all(24),
-        child: _user == null ? _buildLoginForm() : _buildSeedPanel(),
+        child: _user == null ? _buildLoginForm() : _buildBackupPanel(),
       ),
     );
   }
@@ -226,7 +201,7 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
             const Icon(Icons.lock_outline, size: 48),
             const SizedBox(height: 16),
             const Text(
-              'Login to seed authorized emails',
+              'Login to access backup',
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 24),
@@ -278,30 +253,24 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
     );
   }
 
-  Widget _buildSeedPanel() {
+  Widget _buildBackupPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            ElevatedButton.icon(
-              onPressed: _seeding ? null : _pickFile,
-              icon: const Icon(Icons.upload_file),
-              label: Text(_fileName ?? 'Select Excel File'),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: _seeding || _fileBytes == null ? null : _seed,
-              icon: _seeding
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.cloud_upload),
-              label: Text(_seeding ? 'Seeding...' : 'Seed Emails'),
-            ),
-          ],
+        ElevatedButton.icon(
+          onPressed: _running ? null : _runBackup,
+          icon: _running
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(_done ? Icons.refresh : Icons.download),
+          label: Text(_running
+              ? 'Backing up...'
+              : _done
+                  ? 'Run Again'
+                  : 'Start Backup'),
         ),
         const SizedBox(height: 16),
         Expanded(
@@ -315,7 +284,7 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
             child: SingleChildScrollView(
               child: SelectableText(
                 _logs.isEmpty
-                    ? 'Select an Excel file (.xlsx) and press "Seed Emails" to import authorized pilot emails...'
+                    ? 'Press "Start Backup" to begin...'
                     : _logs.join('\n'),
                 style: const TextStyle(
                   fontFamily: 'monospace',
@@ -329,4 +298,30 @@ class _SeedAuthorizedEmailsPageState extends State<SeedAuthorizedEmailsPage> {
       ],
     );
   }
+}
+
+/// Pad single digit numbers with leading zero.
+String _pad(int value) => value.toString().padLeft(2, '0');
+
+/// Convert Firestore Timestamps to ISO strings for JSON serialization.
+Map<String, dynamic> _sanitizeData(Map<String, dynamic> data) {
+  return data.map((key, value) {
+    if (value is Timestamp) {
+      return MapEntry(key, value.toDate().toIso8601String());
+    }
+    if (value is Map<String, dynamic>) {
+      return MapEntry(key, _sanitizeData(value));
+    }
+    if (value is List) {
+      return MapEntry(
+        key,
+        value.map((item) {
+          if (item is Timestamp) return item.toDate().toIso8601String();
+          if (item is Map<String, dynamic>) return _sanitizeData(item);
+          return item;
+        }).toList(),
+      );
+    }
+    return MapEntry(key, value);
+  });
 }

@@ -42,9 +42,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   // ===========================================================================
 
   static const _shareUrl = 'https://shiprate-daf18.web.app/';
-  static const _shareText =
-      'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar '
-      'profundidades dos trechos navegados. Baixe aqui: $_shareUrl';
 
   // ===========================================================================
   // STATE
@@ -105,7 +102,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       setState(() {
         _showUpdateBanner = true;
         _updateMessage = result['message'] ??
-            l10n.updateAvailable;
+            l10n.defaultUpdateMessage;
       });
     }
   }
@@ -142,7 +139,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   /// Opens WhatsApp with share text.
   void _shareViaWhatsApp() {
     Navigator.pop(context);
-    UrlLauncherService.openWhatsAppShare(_shareText);
+    final l10n = AppLocalizations.of(context)!;
+    UrlLauncherService.openWhatsAppShare(l10n.shareText);
   }
 
   /// Copies app link to clipboard.

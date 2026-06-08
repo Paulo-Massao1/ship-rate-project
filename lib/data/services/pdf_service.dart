@@ -999,6 +999,6 @@ class PdfLabels {
     required this.observation,
     required this.ratedBy,
     required this.averagesLabels,
-    this.noObservations = 'Sem observações',
+    required this.noObservations,
   });
 }
