@@ -922,7 +922,7 @@
   "@shipRatingDesc": {
     "description": "Description text for ship rating."
   },
-  "navSafetyModule": "Navigation Safety",
+  "navSafetyModule": "Depths - Records",
   "@navSafetyModule": {
     "description": "Localized text for nav safety module."
   },
@@ -1406,7 +1406,7 @@
   "@milestone200Button": {
     "description": "Button label for milestone200."
   },
-  "switchToNavSafety": "Switch to Navigation Safety",
+  "switchToNavSafety": "Switch to Depths - Records",
   "@switchToNavSafety": {
     "description": "Drawer item to switch to nav safety module."
   },
@@ -1574,7 +1574,7 @@
   "@shareCrossingPrompt": {
     "description": "Dialog body asking to share crossing."
   },
-  "pushNavSafetyLabel": "Navigation Safety",
+  "pushNavSafetyLabel": "Depths - Records",
   "@pushNavSafetyLabel": {
     "description": "Label for nav safety push toggle."
   },
@@ -1787,5 +1787,13 @@
   "maxImagesExceededError": "You can attach a maximum of 3 images per record.",
   "@maxImagesExceededError": {
     "description": "Error message for exceeding max images per record."
+  },
+  "shareDepthTitle": "New depth recorded",
+  "@shareDepthTitle": {
+    "description": "Title line in WhatsApp share message for depth records."
+  },
+  "shareDepthFooter": "Open the app to view depth records",
+  "@shareDepthFooter": {
+    "description": "Footer line in WhatsApp share message for depth records."
   }
 }

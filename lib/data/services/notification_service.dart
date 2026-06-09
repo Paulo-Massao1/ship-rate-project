@@ -15,6 +15,25 @@ class NotificationService {
 
   static StreamSubscription<String>? _tokenRefreshSubscription;
 
+  static String? pendingRoute;
+
+  static Future<void> setupNotificationTapHandlers() async {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      final type = message.data['type'] as String?;
+      if (type == 'nav_safety' || type == 'crossing') {
+        pendingRoute = type;
+      }
+    });
+
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      final type = initialMessage.data['type'] as String?;
+      if (type == 'nav_safety' || type == 'crossing') {
+        pendingRoute = type;
+      }
+    }
+  }
+
   /// Initialize without requesting permission.
   /// If permission was already granted, stores token and sets up listeners.
   static Future<void> initializeWithoutPermission(

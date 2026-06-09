@@ -1,7 +1,10 @@
 // lib/features/home/home_page.dart
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
@@ -9,6 +12,7 @@ import '../crossing/crossing_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
+import '../../controllers/dashboard_controller.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../data/services/version_service.dart';
 
@@ -40,6 +44,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isCspam = false;
   bool _showNotificationSetupBanner = false;
   bool _isRequestingNotificationSetup = false;
+  StreamSubscription<RemoteMessage>? _notificationTapSubscription;
+  final _dashboardController = DashboardController();
+  late Future<DashboardData> _statsFuture;
 
   // ===========================================================================
   // LIFECYCLE
@@ -52,13 +59,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _checkUserDomain();
     _checkForUpdates();
     _fetchNomeGuerra();
+    _statsFuture = _dashboardController.loadDashboardData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _consumePendingRoute();
       _initNotifications();
     });
   }
 
   @override
   void dispose() {
+    _notificationTapSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -74,6 +84,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
+
+  void _consumePendingRoute() {
+    final route = NotificationService.pendingRoute;
+    if (route != null) {
+      NotificationService.pendingRoute = null;
+      if (route == 'nav_safety') {
+        _navigateToNavSafety();
+      } else if (route == 'crossing') {
+        _navigateToCrossing();
+      }
+    }
+
+    _notificationTapSubscription = FirebaseMessaging.onMessageOpenedApp
+        .listen((RemoteMessage message) {
+      final type = message.data['type'] as String?;
+      if (type == 'nav_safety') {
+        _navigateToNavSafety();
+      } else if (type == 'crossing') {
+        _navigateToCrossing();
+      }
+    });
+  }
 
   void _checkUserDomain() {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
@@ -623,7 +655,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       children: [
                         const SizedBox(height: 32),
                         _buildWelcomeText(),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
+                        _buildStatsSection(),
+                        const SizedBox(height: 24),
                         _buildModuleCard(
                           icon: Icons.directions_boat,
                           iconBgColor: const Color(0x1F64B5F6),
@@ -697,6 +731,163 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStatsSection() {
+    return FutureBuilder<DashboardData>(
+      future: _statsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+              ),
+            ),
+            child: const Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF64B5F6),
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return const SizedBox.shrink();
+        }
+
+        final data = snapshot.data ?? DashboardData.empty();
+        return _buildStatsCard(data);
+      },
+    );
+  }
+
+  Widget _buildStatsCard(DashboardData data) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.dashboardAppStats.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.0,
+              color: const Color(0xFF64B5F6).withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _buildStatItem(
+                Icons.directions_boat,
+                data.totalShips.toString(),
+                l10n.totalShipsLabel,
+              ),
+              _buildStatDivider(),
+              _buildStatItem(
+                Icons.star_outline,
+                data.totalRatings.toString(),
+                l10n.totalRatingsLabel,
+              ),
+              _buildStatDivider(),
+              _buildStatItem(
+                Icons.compare_arrows,
+                data.totalCrossings.toString(),
+                l10n.totalCrossingsLabel,
+                iconColor: const Color(0xFFFFB74D),
+              ),
+              _buildStatDivider(),
+              _buildStatItem(
+                Icons.people,
+                data.totalUsers.toString(),
+                l10n.activePilotsLabel,
+              ),
+            ],
+          ),
+          if (data.topRaterCount > 0) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  size: 14,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.topRaterInfo(data.topRaterCount.toString()),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(
+    IconData icon,
+    String value,
+    String label, {
+    Color iconColor = const Color(0xFF64B5F6),
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.4),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatDivider() {
+    return Container(
+      width: 1,
+      height: 40,
+      color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
     );
   }
 

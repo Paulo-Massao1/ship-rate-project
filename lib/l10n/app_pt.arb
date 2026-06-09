@@ -941,7 +941,7 @@
   "@shipRatingDesc": {
     "description": "Description text for ship rating."
   },
-  "navSafetyModule": "Segurança da Navegação",
+  "navSafetyModule": "Profundidades - Registro",
   "@navSafetyModule": {
     "description": "Localized text for nav safety module."
   },
@@ -1433,7 +1433,7 @@
   "@milestone200Button": {
     "description": "Button label for milestone200."
   },
-  "switchToNavSafety": "Alternar para Segurança da Navegação",
+  "switchToNavSafety": "Alternar para Profundidades - Registro",
   "@switchToNavSafety": {
     "description": "Drawer item to switch to nav safety module."
   },
@@ -1601,7 +1601,7 @@
   "@shareCrossingPrompt": {
     "description": "Dialog body asking to share crossing."
   },
-  "pushNavSafetyLabel": "Segurança da Navegação",
+  "pushNavSafetyLabel": "Profundidades - Registro",
   "@pushNavSafetyLabel": {
     "description": "Label for nav safety push toggle."
   },
@@ -1814,5 +1814,13 @@
   "maxImagesExceededError": "Você pode anexar no máximo 3 imagens por registro.",
   "@maxImagesExceededError": {
     "description": "Error message for exceeding max images per record."
+  },
+  "shareDepthTitle": "Nova profundidade registrada",
+  "@shareDepthTitle": {
+    "description": "Title line in WhatsApp share message for depth records."
+  },
+  "shareDepthFooter": "Abra o app para ver os históricos de profundidades",
+  "@shareDepthFooter": {
+    "description": "Footer line in WhatsApp share message for depth records."
   }
 }

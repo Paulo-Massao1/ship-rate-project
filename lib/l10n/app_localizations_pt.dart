@@ -683,7 +683,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shipRatingDesc => 'Avalie navios e compartilhe experiências';
 
   @override
-  String get navSafetyModule => 'Segurança da Navegação';
+  String get navSafetyModule => 'Profundidades - Registro';
 
   @override
   String get navSafetyDesc => 'Profundidades, calado e condições dos trechos';
@@ -1038,7 +1038,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get milestone200Button => 'Parabéns a todos!';
 
   @override
-  String get switchToNavSafety => 'Alternar para Segurança da Navegação';
+  String get switchToNavSafety => 'Alternar para Profundidades - Registro';
 
   @override
   String get switchToShipRating => 'Alternar para Avaliação de Navios';
@@ -1160,7 +1160,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shareCrossingPrompt => 'Deseja compartilhar este cruzamento com outros práticos?';
 
   @override
-  String get pushNavSafetyLabel => 'Segurança da Navegação';
+  String get pushNavSafetyLabel => 'Profundidades - Registro';
 
   @override
   String get pushRatingsLabel => 'Avaliações e Likes';
@@ -1316,4 +1316,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get maxImagesExceededError => 'Você pode anexar no máximo 3 imagens por registro.';
+
+  @override
+  String get shareDepthTitle => 'Nova profundidade registrada';
+
+  @override
+  String get shareDepthFooter => 'Abra o app para ver os históricos de profundidades';
 }

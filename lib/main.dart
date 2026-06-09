@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,6 +7,7 @@ import 'firebase_options.dart';
 import 'app/auth_gate.dart';
 import 'core/theme/app_theme.dart';
 import 'controllers/locale_controller.dart';
+import 'data/services/notification_service.dart';
 
 /// Entry point for the ShipRate application.
 ///
@@ -45,6 +47,15 @@ void main() async {
   );
 
   await localeController.loadSavedLocale();
+
+  await NotificationService.setupNotificationTapHandlers();
+
+  if (kIsWeb) {
+    final route = Uri.base.queryParameters['route'];
+    if (route == 'nav_safety' || route == 'crossing') {
+      NotificationService.pendingRoute ??= route;
+    }
+  }
 
   runApp(ShipRateApp(localeController: localeController));
 }

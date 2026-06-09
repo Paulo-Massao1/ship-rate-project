@@ -145,6 +145,8 @@ exports.onNewRecord = functions.firestore
             body: `Nova profundidade: ${profundidadeTotal}m — registrada por ${nomeGuerra} em ${formattedDate}`,
           },
           data: {
+            type: "nav_safety",
+            click_action: "FLUTTER_NOTIFICATION_CLICK",
             locationId: locationId,
             url: "https://shiprate-daf18.web.app",
           },

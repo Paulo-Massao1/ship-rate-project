@@ -1358,7 +1358,7 @@ abstract class AppLocalizations {
   /// Localized text for nav safety module.
   ///
   /// In pt, this message translates to:
-  /// **'Segurança da Navegação'**
+  /// **'Profundidades - Registro'**
   String get navSafetyModule;
 
   /// Description text for nav safety.
@@ -2036,7 +2036,7 @@ abstract class AppLocalizations {
   /// Drawer item to switch to nav safety module.
   ///
   /// In pt, this message translates to:
-  /// **'Alternar para Segurança da Navegação'**
+  /// **'Alternar para Profundidades - Registro'**
   String get switchToNavSafety;
 
   /// Drawer item to switch to ship rating module.
@@ -2276,7 +2276,7 @@ abstract class AppLocalizations {
   /// Label for nav safety push toggle.
   ///
   /// In pt, this message translates to:
-  /// **'Segurança da Navegação'**
+  /// **'Profundidades - Registro'**
   String get pushNavSafetyLabel;
 
   /// Label for ratings push toggle.
@@ -2536,6 +2536,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Você pode anexar no máximo 3 imagens por registro.'**
   String get maxImagesExceededError;
+
+  /// Title line in WhatsApp share message for depth records.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova profundidade registrada'**
+  String get shareDepthTitle;
+
+  /// Footer line in WhatsApp share message for depth records.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abra o app para ver os históricos de profundidades'**
+  String get shareDepthFooter;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

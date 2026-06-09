@@ -6,7 +6,6 @@ import '../../../controllers/dashboard_controller.dart';
 import '../../../controllers/rating_controller.dart';
 import '../../../core/constants.dart';
 import '../../../core/events/data_change_notifier.dart';
-import '../../ratings/last_rated_page.dart';
 import '../../ratings/rating_detail_page.dart';
 
 /// Dashboard widget with two visual blocks:
@@ -132,113 +131,14 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAppStatsBlock(data, l10n),
           if (data.lastRatedShipName != null) ...[
-            const SizedBox(height: 14),
             _buildLastRatedBlock(data, l10n),
+            const SizedBox(height: 14),
           ],
-          const SizedBox(height: 14),
           _buildUserActivityBlock(data, l10n),
           if (data.totalCrossings > 0) ...[
             const SizedBox(height: 14),
             _buildCrossingBlock(data, l10n),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // BLOCK 1 — APP STATS
-  // ===========================================================================
-
-  /// Dark card with section title + main app stats side by side.
-  Widget _buildAppStatsBlock(DashboardData data, AppLocalizations l10n) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionTitle(label: l10n.dashboardAppStats),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.directions_boat,
-                  value: data.totalShips.toString(),
-                  label: l10n.totalShipsLabel,
-                  showChevron: true,
-                  onTap: _openLastRatedPage,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-              ),
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.star_outline,
-                  value: data.totalRatings.toString(),
-                  label: l10n.totalRatingsLabel,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-              ),
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.compare_arrows,
-                  value: data.totalCrossings.toString(),
-                  label: l10n.totalCrossingsLabel,
-                  iconColor: const Color(0xFFFFB74D),
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-              ),
-              Expanded(
-                child: _StatItem(
-                  icon: Icons.people,
-                  value: data.totalUsers.toString(),
-                  label: l10n.activePilotsLabel,
-                ),
-              ),
-            ],
-          ),
-          if (data.topRaterCount > 0) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.emoji_events,
-                  size: 14,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  l10n.topRaterInfo(data.topRaterCount.toString()),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
           ],
         ],
       ),
@@ -490,16 +390,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       userId: (ratingData['usuarioId'] ?? '').toString().trim(),
       likeCount: ratingData['likeCount'] as int? ?? 0,
     );
-  }
-
-  Future<void> _openLastRatedPage() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LastRatedPage()),
-    );
-
-    if (!mounted) return;
-    setState(_reloadDashboard);
   }
 
   Future<void> _onLastRatedTap(DashboardData data) async {
@@ -1139,70 +1029,3 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-/// Single stat item (icon + value + label) used in the app stats block.
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-  final bool showChevron;
-  final VoidCallback? onTap;
-
-  const _StatItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-    this.iconColor = const Color(0xFF64B5F6),
-    this.showChevron = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-          child: Column(
-            children: [
-              Icon(icon, color: iconColor, size: 22),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 11,
-                    ),
-                  ),
-                  if (showChevron) ...[
-                    const SizedBox(width: 2),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 14,
-                      color: Colors.white.withValues(alpha: 0.35),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -130,6 +130,8 @@ exports.onCrossingCreated = functions.firestore
               `Calado: ${formattedDraft}`,
           },
           data: {
+            type: "crossing",
+            click_action: "FLUTTER_NOTIFICATION_CLICK",
             url: "https://shiprate-daf18.web.app",
           },
           tokens: batch,

@@ -531,13 +531,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     required String dateStr,
   }) async {
     final shareText =
-        '⚓ Nova profundidade registrada no ShipRate\n'
+        '⚓ ${l10n.shareDepthTitle}\n'
         '\u{1F4CD} Local: $locationName\n'
         '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
         '\u{1F4CF} Profundidade total: ${depth}m\n'
         '\u{1F464} Prático: $nomeGuerra\n'
         '\u{1F4C5} Data: $dateStr\n\n'
-        'Abra o app para mais detalhes: https://shiprate-daf18.web.app';
+        '${l10n.shareDepthFooter}: https://shiprate-daf18.web.app/?route=nav_safety';
 
     await showDialog<void>(
       context: context,

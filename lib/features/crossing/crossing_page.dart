@@ -208,10 +208,10 @@ class _CrossingPageState extends State<CrossingPage> {
     );
   }
 
-  void _shareAppViaWhatsApp() {
+  Future<void> _shareAppViaWhatsApp() async {
     Navigator.pop(context);
     final l10n = AppLocalizations.of(context)!;
-    UrlLauncherService.openWhatsAppShare(l10n.shareText);
+    await UrlLauncherService.openWhatsAppShare(l10n.shareText);
   }
 
   Future<void> _copyLinkToClipboard() async {
@@ -286,7 +286,7 @@ class _CrossingPageState extends State<CrossingPage> {
     _showSnackBar(l10n.recordDeletedSuccess, isError: false);
   }
 
-  void _shareCrossing(Map<String, dynamic> crossing) {
+  Future<void> _shareCrossing(Map<String, dynamic> crossing) async {
     final l10n = AppLocalizations.of(context)!;
     final location = (crossing['local'] ?? '').toString().trim();
     final shipName = (crossing['nomeNavio'] ?? '').toString().trim();
@@ -311,7 +311,7 @@ class _CrossingPageState extends State<CrossingPage> {
         '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
-    UrlLauncherService.openWhatsAppShare(shareText);
+    await UrlLauncherService.openWhatsAppShare(shareText);
   }
 
   void _showSnackBar(String message, {required bool isError}) {

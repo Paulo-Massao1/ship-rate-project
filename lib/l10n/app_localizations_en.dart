@@ -683,7 +683,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shipRatingDesc => 'Rate ships and share experiences';
 
   @override
-  String get navSafetyModule => 'Navigation Safety';
+  String get navSafetyModule => 'Depths - Records';
 
   @override
   String get navSafetyDesc => 'Depths, draft and section conditions';
@@ -1038,7 +1038,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get milestone200Button => 'Congratulations to all!';
 
   @override
-  String get switchToNavSafety => 'Switch to Navigation Safety';
+  String get switchToNavSafety => 'Switch to Depths - Records';
 
   @override
   String get switchToShipRating => 'Switch to Ship Rating';
@@ -1160,7 +1160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareCrossingPrompt => 'Would you like to share this crossing with other pilots?';
 
   @override
-  String get pushNavSafetyLabel => 'Navigation Safety';
+  String get pushNavSafetyLabel => 'Depths - Records';
 
   @override
   String get pushRatingsLabel => 'Ratings and Likes';
@@ -1316,4 +1316,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maxImagesExceededError => 'You can attach a maximum of 3 images per record.';
+
+  @override
+  String get shareDepthTitle => 'New depth recorded';
+
+  @override
+  String get shareDepthFooter => 'Open the app to view depth records';
 }

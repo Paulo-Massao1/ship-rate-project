@@ -302,7 +302,7 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
     );
   }
 
-  void _shareCrossing(Map<String, dynamic> crossing, AppLocalizations l10n) {
+  Future<void> _shareCrossing(Map<String, dynamic> crossing, AppLocalizations l10n) async {
     final location = (crossing['local'] ?? '').toString().trim();
     final shipName = (crossing['nomeNavio'] ?? '').toString().trim();
     final direction = _directionLabel(crossing['direcao']?.toString(), l10n);
@@ -327,7 +327,7 @@ class _CrossingFormPageState extends State<CrossingFormPage> {
         '${l10n.shareMoreInfo} '
         '${AppConstants.appUrl}';
 
-    UrlLauncherService.openWhatsAppShare(shareText);
+    await UrlLauncherService.openWhatsAppShare(shareText);
   }
 
   void _showSnackBar(String message, {required bool isError}) {
