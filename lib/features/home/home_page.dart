@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../crossing/crossing_page.dart';
@@ -59,12 +60,44 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _checkUserDomain();
     _checkForUpdates();
+    _loadCachedDataFirst();
     _fetchNomeGuerra();
     _loadStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _consumePendingRoute();
       _initNotifications();
     });
+  }
+
+  Future<void> _loadCachedDataFirst() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final cachedNome = prefs.getString('cached_nomeGuerra');
+    if (cachedNome != null && cachedNome.isNotEmpty && mounted) {
+      setState(() => _nomeGuerra = cachedNome);
+    }
+
+    final cached = await DashboardController.loadCachedStats();
+    final hasAnyData = cached.values.any((v) => v > 0);
+    if (hasAnyData && mounted) {
+      setState(() {
+        _statsData = DashboardData(
+          totalShips: cached['ships']!,
+          totalRatings: cached['ratings']!,
+          totalCrossings: cached['crossings']!,
+          totalUsers: cached['pilots']!,
+          topRaterCount: cached['topRaterCount']!,
+          userRatings: _statsData.userRatings,
+          userRankingPosition: _statsData.userRankingPosition,
+          totalPilotsWhoRated: _statsData.totalPilotsWhoRated,
+          userCrossingCount: _statsData.userCrossingCount,
+          topCrosserCount: _statsData.topCrosserCount,
+          userCrossingRanking: _statsData.userCrossingRanking,
+          totalCrossingPilots: _statsData.totalCrossingPilots,
+          recentRatings: _statsData.recentRatings,
+        );
+      });
+    }
   }
 
   @override
@@ -473,6 +506,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (uid != null) {
       _cachedNomeGuerraByUid[uid] = trimmed;
     }
+
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('cached_nomeGuerra', trimmed);
+    });
 
     if (!mounted) {
       _nomeGuerra = trimmed;

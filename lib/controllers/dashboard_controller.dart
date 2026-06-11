@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 
 /// Controller for loading dashboard statistics and recent activity.
@@ -40,6 +41,36 @@ class DashboardController {
       _cachedData != null &&
       _cacheTimestamp != null &&
       DateTime.now().difference(_cacheTimestamp!) < _cacheDuration;
+
+  // ===========================================================================
+  // SHARED PREFERENCES PERSISTENCE
+  // ===========================================================================
+
+  static Future<void> _persistStats({
+    required int ships,
+    required int ratings,
+    required int crossings,
+    required int pilots,
+    required int topRaterCount,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('cached_ships', ships);
+    prefs.setInt('cached_ratings', ratings);
+    prefs.setInt('cached_crossings', crossings);
+    prefs.setInt('cached_pilots', pilots);
+    prefs.setInt('cached_topRaterCount', topRaterCount);
+  }
+
+  static Future<Map<String, int>> loadCachedStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'ships': prefs.getInt('cached_ships') ?? 0,
+      'ratings': prefs.getInt('cached_ratings') ?? 0,
+      'crossings': prefs.getInt('cached_crossings') ?? 0,
+      'pilots': prefs.getInt('cached_pilots') ?? 0,
+      'topRaterCount': prefs.getInt('cached_topRaterCount') ?? 0,
+    };
+  }
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -221,6 +252,15 @@ class DashboardController {
       );
       _cachedData = result;
       _cacheTimestamp = DateTime.now();
+
+      _persistStats(
+        ships: result.totalShips,
+        ratings: result.totalRatings,
+        crossings: result.totalCrossings,
+        pilots: result.totalUsers,
+        topRaterCount: result.topRaterCount,
+      );
+
       return result;
     } catch (e) {
       debugPrint('[Dashboard] Error loading data: $e');
