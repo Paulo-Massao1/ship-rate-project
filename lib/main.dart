@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'app/auth_gate.dart';
+import 'core/app_cache.dart';
 import 'core/theme/app_theme.dart';
 import 'controllers/locale_controller.dart';
 import 'data/services/notification_service.dart';
@@ -45,6 +48,23 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  if (kIsWeb) {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  }
+
+  final prefs = await SharedPreferences.getInstance();
+  AppCache.nomeGuerra = prefs.getString('cached_nomeGuerra');
+  AppCache.stats = {
+    'ships': prefs.getInt('cached_ships') ?? 0,
+    'ratings': prefs.getInt('cached_ratings') ?? 0,
+    'crossings': prefs.getInt('cached_crossings') ?? 0,
+    'pilots': prefs.getInt('cached_pilots') ?? 0,
+    'topRaterCount': prefs.getInt('cached_topRaterCount') ?? 0,
+  };
 
   await localeController.loadSavedLocale();
 

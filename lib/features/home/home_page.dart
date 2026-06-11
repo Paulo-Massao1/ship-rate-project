@@ -15,6 +15,7 @@ import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../core/app_cache.dart';
 import '../../data/services/version_service.dart';
 
 /// Home screen displayed after login with module selection cards.
@@ -41,14 +42,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
   bool _showUpdateBanner = false;
   String _updateMessage = '';
-  String? _nomeGuerra;
+  String? _nomeGuerra = AppCache.nomeGuerra;
   bool _isCspam = false;
   bool _showNotificationSetupBanner = false;
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
   final _dashboardController = DashboardController();
   DashboardData _statsData =
-      DashboardController.cachedData ?? DashboardData.empty();
+      DashboardController.cachedData ??
+      (AppCache.stats.values.any((v) => v > 0)
+          ? DashboardData(
+              totalShips: AppCache.stats['ships'] ?? 0,
+              totalRatings: AppCache.stats['ratings'] ?? 0,
+              totalCrossings: AppCache.stats['crossings'] ?? 0,
+              totalUsers: AppCache.stats['pilots'] ?? 0,
+              topRaterCount: AppCache.stats['topRaterCount'] ?? 0,
+              userRatings: 0,
+              userRankingPosition: 0,
+              totalPilotsWhoRated: 0,
+              userCrossingCount: 0,
+              topCrosserCount: 0,
+              userCrossingRanking: 0,
+              totalCrossingPilots: 0,
+              recentRatings: const [],
+            )
+          : DashboardData.empty());
 
   // ===========================================================================
   // LIFECYCLE
@@ -75,6 +93,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final cachedNome = prefs.getString('cached_nomeGuerra');
     if (cachedNome != null && cachedNome.isNotEmpty && mounted) {
       setState(() => _nomeGuerra = cachedNome);
+      debugPrint('CACHE: nomeGuerra = $_nomeGuerra');
     }
 
     final cached = await DashboardController.loadCachedStats();
@@ -97,6 +116,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           recentRatings: _statsData.recentRatings,
         );
       });
+      debugPrint('CACHE: statsLoaded = true');
     }
   }
 
