@@ -46,7 +46,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
   final _dashboardController = DashboardController();
-  late Future<DashboardData> _statsFuture;
+  DashboardData _statsData =
+      DashboardController.cachedData ?? DashboardData.empty();
 
   // ===========================================================================
   // LIFECYCLE
@@ -59,7 +60,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _checkUserDomain();
     _checkForUpdates();
     _fetchNomeGuerra();
-    _statsFuture = _dashboardController.loadDashboardData();
+    _loadStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _consumePendingRoute();
       _initNotifications();
@@ -482,6 +483,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() => _nomeGuerra = trimmed);
   }
 
+  Future<void> _loadStats() async {
+    if (DashboardController.isCacheFresh) {
+      _statsData = DashboardController.cachedData!;
+      return;
+    }
+    try {
+      final data = await _dashboardController.loadDashboardData();
+      if (mounted) {
+        setState(() => _statsData = data);
+      }
+    } catch (e) {
+      debugPrint('[Home] Error loading stats: $e');
+    }
+  }
+
   Future<void> _checkForUpdates() async {
     final result = await VersionService.shouldShowUpdateBanner();
     if (!mounted) return;
@@ -735,41 +751,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildStatsSection() {
-    return FutureBuilder<DashboardData>(
-      future: _statsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-              ),
-            ),
-            child: const Center(
-              child: SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Color(0xFF64B5F6),
-                ),
-              ),
-            ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return const SizedBox.shrink();
-        }
-
-        final data = snapshot.data ?? DashboardData.empty();
-        return _buildStatsCard(data);
-      },
-    );
+    return _buildStatsCard(_statsData);
   }
 
   Widget _buildStatsCard(DashboardData data) {

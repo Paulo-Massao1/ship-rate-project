@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/constants.dart';
 import '../../controllers/crossing_controller.dart';
+import '../../controllers/dashboard_controller.dart';
 import '../../data/services/notification_service.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
@@ -28,6 +29,8 @@ class _CrossingPageState extends State<CrossingPage> {
   static const _amberBorder = Color(0x40FFB74D);
 
   final CrossingController _controller = CrossingController();
+  final DashboardController _dashboardController = DashboardController();
+  DashboardData? _crossingStats;
 
   _CrossingTab _selectedTab = _CrossingTab.active;
   bool _pushEnabled = true;
@@ -55,10 +58,24 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   Future<void> _loadInitialData() async {
+    _crossingStats = DashboardController.cachedData;
+    _loadCrossingStats();
     await Future.wait([
       _controller.fetchActiveCrossings(),
       _loadPushPreference(),
     ]);
+  }
+
+  Future<void> _loadCrossingStats() async {
+    if (DashboardController.isCacheFresh && _crossingStats != null) return;
+    try {
+      final data = await _dashboardController.loadDashboardData();
+      if (mounted) {
+        setState(() => _crossingStats = data);
+      }
+    } catch (e) {
+      debugPrint('[Crossing] Error loading crossing stats: $e');
+    }
   }
 
   Future<void> _loadPushPreference() async {
@@ -349,6 +366,11 @@ class _CrossingPageState extends State<CrossingPage> {
         .where((item) => item['pilotoId'] == uid)
         .toList(growable: false);
   }
+
+  bool get _showCrossingStats =>
+      _selectedTab == _CrossingTab.active &&
+      _crossingStats != null &&
+      _crossingStats!.totalCrossings > 0;
 
   bool get _showNavSafetyModule {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
@@ -745,6 +767,10 @@ class _CrossingPageState extends State<CrossingPage> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
+                if (_showCrossingStats) ...[
+                  const SizedBox(height: 8),
+                  _buildCrossingStatsCard(l10n),
+                ],
                 const SizedBox(height: 96),
                 _buildEmptyState(l10n),
               ],
@@ -752,10 +778,14 @@ class _CrossingPageState extends State<CrossingPage> {
           : ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-              itemCount: items.length + 1,
+              itemCount: items.length + 1 + (_showCrossingStats ? 1 : 0),
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                if (index == 0) {
+                if (_showCrossingStats && index == 0) {
+                  return _buildCrossingStatsCard(l10n);
+                }
+                final adjusted = index - (_showCrossingStats ? 1 : 0);
+                if (adjusted == 0) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 2),
                     child: Text(
@@ -768,7 +798,7 @@ class _CrossingPageState extends State<CrossingPage> {
                   );
                 }
 
-                final crossing = items[index - 1];
+                final crossing = items[adjusted - 1];
                 return _buildCrossingCard(
                   crossing,
                   l10n,
@@ -808,6 +838,134 @@ class _CrossingPageState extends State<CrossingPage> {
               color: Colors.white,
               fontWeight: FontWeight.w700,
               fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCrossingStatsCard(AppLocalizations l10n) {
+    final data = _crossingStats!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _amberBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.crossingsDashboardTitle.toUpperCase(),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.0,
+              color: _amber.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+            decoration: BoxDecoration(
+              color: _amberLight,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.compare_arrows,
+                  color: Colors.white.withValues(alpha: 0.7),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  l10n.myCrossings,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  data.userCrossingCount.toString(),
+                  style: const TextStyle(
+                    color: _amber,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (data.userCrossingRanking > 0) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.emoji_events, size: 16, color: _amber),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.crossingRankingPosition(
+                      '#${data.userCrossingRanking}',
+                      data.totalCrossingPilots,
+                    ),
+                    style: const TextStyle(
+                      color: _amber,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (data.topCrosserCount > 0) ...[
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events,
+                  size: 14,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    l10n.crossingTopCrosser(data.topCrosserCount),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _amber.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _amberBorder),
+            ),
+            child: Text(
+              l10n.crossingsMotivational(data.totalCrossings),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
         ],

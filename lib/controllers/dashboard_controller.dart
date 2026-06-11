@@ -27,6 +27,21 @@ class DashboardController {
   static const Duration _queryTimeout = Duration(seconds: 15);
 
   // ===========================================================================
+  // STATIC CACHE
+  // ===========================================================================
+
+  static DashboardData? _cachedData;
+  static DateTime? _cacheTimestamp;
+  static const Duration _cacheDuration = Duration(seconds: 60);
+
+  static DashboardData? get cachedData => _cachedData;
+
+  static bool get isCacheFresh =>
+      _cachedData != null &&
+      _cacheTimestamp != null &&
+      DateTime.now().difference(_cacheTimestamp!) < _cacheDuration;
+
+  // ===========================================================================
   // PUBLIC METHODS
   // ===========================================================================
 
@@ -42,6 +57,8 @@ class DashboardController {
     // the user is authenticated before this widget is ever mounted.
     final user = _auth.currentUser;
     if (user == null) return DashboardData.empty();
+
+    if (isCacheFresh) return _cachedData!;
 
     final userId = user.uid;
 
@@ -182,7 +199,7 @@ class DashboardController {
               ))
           .toList();
 
-      return DashboardData(
+      final result = DashboardData(
         totalShips: shipsSnapshot.docs.length,
         totalRatings: totalRatings,
         totalCrossings: crossingStats.totalCrossings,
@@ -202,6 +219,9 @@ class DashboardController {
         lastRatedShipId: lastRatedShipId,
         lastRatedRatingId: lastRatedRatingId,
       );
+      _cachedData = result;
+      _cacheTimestamp = DateTime.now();
+      return result;
     } catch (e) {
       debugPrint('[Dashboard] Error loading data: $e');
       rethrow;
