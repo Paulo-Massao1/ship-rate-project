@@ -42,6 +42,11 @@ class DashboardController {
       _cacheTimestamp != null &&
       DateTime.now().difference(_cacheTimestamp!) < _cacheDuration;
 
+  static void invalidateCache() {
+    _cachedData = null;
+    _cacheTimestamp = null;
+  }
+
   // ===========================================================================
   // SHARED PREFERENCES PERSISTENCE
   // ===========================================================================

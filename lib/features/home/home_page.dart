@@ -78,46 +78,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _checkUserDomain();
     _checkForUpdates();
-    _loadCachedDataFirst();
     _fetchNomeGuerra();
+    debugPrint('HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, crossings=${_statsData.totalCrossings}');
     _loadStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _consumePendingRoute();
       _initNotifications();
     });
-  }
-
-  Future<void> _loadCachedDataFirst() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final cachedNome = prefs.getString('cached_nomeGuerra');
-    if (cachedNome != null && cachedNome.isNotEmpty && mounted) {
-      setState(() => _nomeGuerra = cachedNome);
-      debugPrint('CACHE: nomeGuerra = $_nomeGuerra');
-    }
-
-    final cached = await DashboardController.loadCachedStats();
-    final hasAnyData = cached.values.any((v) => v > 0);
-    if (hasAnyData && mounted) {
-      setState(() {
-        _statsData = DashboardData(
-          totalShips: cached['ships']!,
-          totalRatings: cached['ratings']!,
-          totalCrossings: cached['crossings']!,
-          totalUsers: cached['pilots']!,
-          topRaterCount: cached['topRaterCount']!,
-          userRatings: _statsData.userRatings,
-          userRankingPosition: _statsData.userRankingPosition,
-          totalPilotsWhoRated: _statsData.totalPilotsWhoRated,
-          userCrossingCount: _statsData.userCrossingCount,
-          topCrosserCount: _statsData.topCrosserCount,
-          userCrossingRanking: _statsData.userCrossingRanking,
-          totalCrossingPilots: _statsData.totalCrossingPilots,
-          recentRatings: _statsData.recentRatings,
-        );
-      });
-      debugPrint('CACHE: statsLoaded = true');
-    }
   }
 
   @override
@@ -547,6 +514,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
     try {
       final data = await _dashboardController.loadDashboardData();
+      debugPrint('HOME: Firestore returned fresh stats: ships=${data.totalShips}, ratings=${data.totalRatings}, crossings=${data.totalCrossings}');
       if (mounted) {
         setState(() => _statsData = data);
       }
@@ -667,21 +635,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const MainScreen()),
-    );
+    ).then((_) {
+      DashboardController.invalidateCache();
+      _loadStats();
+    });
   }
 
   void _navigateToNavSafety() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const NavSafetyPage()),
-    );
+    ).then((_) {
+      DashboardController.invalidateCache();
+      _loadStats();
+    });
   }
 
   void _navigateToCrossing() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const CrossingPage()),
-    );
+    ).then((_) {
+      DashboardController.invalidateCache();
+      _loadStats();
+    });
   }
 
 

@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../core/constants.dart';
-import '../data/services/medias_calculator.dart';
 import '../data/services/pdf_service.dart';
 
 /// Controller for managing user's ratings list.
@@ -84,29 +83,12 @@ class MyRatingsController {
     return results;
   }
 
-  /// Deletes a rating and updates the parent ship.
+  /// Deletes a rating document.
   ///
-  /// After deleting the rating document:
-  /// - Recalculates the ship's aggregated averages
-  /// - If no ratings remain, deletes the ship document too
+  /// Average recalculation and ship cleanup are handled server-side
+  /// by the Cloud Function (recalcularMediasAoExcluirAvaliacao).
   Future<void> deleteRating(DocumentReference ratingRef) async {
-    // Get the ship reference from the rating path (navios/{shipId}/avaliacoes/{ratingId})
-    final shipRef = ratingRef.parent.parent!;
-
-    // Delete the rating document
     await ratingRef.delete();
-
-    // Check remaining ratings
-    final remainingRatings =
-        await shipRef.collection(AppConstants.ratingsSubcollection).get();
-
-    if (remainingRatings.docs.isEmpty) {
-      // No ratings left — delete the ship document
-      await shipRef.delete();
-    } else {
-      // Recalculate averages
-      await _recalculateAverages(shipRef, remainingRatings.docs);
-    }
   }
 
   /// Generates a PDF for a rating.
@@ -238,19 +220,7 @@ class MyRatingsController {
     });
   }
 
-  /// Recalculates aggregated ship averages from remaining ratings
-  /// using the shared [MediasCalculator].
-  Future<void> _recalculateAverages(
-    DocumentReference shipRef,
-    List<QueryDocumentSnapshot> ratingDocs,
-  ) async {
-    final averages = MediasCalculator.calculate(
-      ratingDocs.map((d) => d.data() as Map<String, dynamic>),
-    );
-    await shipRef.update({'medias': averages});
-  }
-
-  Map<String, Map<String, dynamic>> _extractRatings(Map<String, dynamic> data) {
+Map<String, Map<String, dynamic>> _extractRatings(Map<String, dynamic> data) {
     final itensData = data['itens'] as Map<String, dynamic>? ?? {};
     final ratings = <String, Map<String, dynamic>>{};
 

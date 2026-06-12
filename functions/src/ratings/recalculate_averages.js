@@ -52,20 +52,20 @@ exports.recalcularMediasAoExcluirAvaliacao = functions.firestore
         .collection("avaliacoes");
 
       const snapshot = await avaliacoesRef.get();
+      const navioRef = db.collection("navios").doc(navioId);
 
       if (snapshot.empty) {
-        await db.collection("navios").doc(navioId).update({ medias: {} });
+        await navioRef.set({ medias: {} }, { merge: true });
         return;
       }
 
       const medias = calcularMedias(snapshot.docs);
-      await db.collection("navios").doc(navioId).update({ medias });
+      await navioRef.set({ medias }, { merge: true });
     } catch (err) {
       console.error(
         `recalcularMediasAoExcluirAvaliacao failed for navioId=${navioId}:`,
         err
       );
-      throw err;
     }
   });
 
