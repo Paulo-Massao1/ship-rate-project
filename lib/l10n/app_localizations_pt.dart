@@ -1029,15 +1029,6 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get milestone200Title => '200 Navios!';
-
-  @override
-  String get milestone200Body => 'O ShipRate atingiu 200 navios cadastrados em menos de 6 meses! Cada prático agora está mais preparado para embarcar, com acesso a avaliações e dados de navegação compartilhados por todos. Obrigado por contribuir com o crescimento do aplicativo.';
-
-  @override
-  String get milestone200Button => 'Parabéns a todos!';
-
-  @override
   String get switchToNavSafety => 'Alternar para Profundidades - Registro';
 
   @override
@@ -1167,15 +1158,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get myCrossings => 'Meus cruzamentos';
-
-  @override
-  String get cruzamentoDialogTitle => 'Cruzamento de Navios';
-
-  @override
-  String get cruzamentoDialogBody => 'Nova feature! Agora você pode registrar cruzamentos e receber alertas quando outros práticos registrarem passagens. Se não quiser receber alertas, desative na tela de cruzamentos.';
-
-  @override
-  String get cruzamentoDialogButton => 'Entendi!';
 
   @override
   String crossingRankingPosition(String position, int total) {

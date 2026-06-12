@@ -1029,15 +1029,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get milestone200Title => '200 Ships!';
-
-  @override
-  String get milestone200Body => 'ShipRate has reached 200 registered ships in less than 6 months! Every pilot is now better prepared to board, with access to ratings and navigation data shared by all. Thank you for contributing to the app\'s growth.';
-
-  @override
-  String get milestone200Button => 'Congratulations to all!';
-
-  @override
   String get switchToNavSafety => 'Switch to Depths - Records';
 
   @override
@@ -1167,15 +1158,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myCrossings => 'My crossings';
-
-  @override
-  String get cruzamentoDialogTitle => 'Ship Crossing';
-
-  @override
-  String get cruzamentoDialogBody => 'New feature! You can now register crossings and receive alerts when other pilots register passages. To disable alerts, toggle them off on the crossings screen.';
-
-  @override
-  String get cruzamentoDialogButton => 'Got it!';
 
   @override
   String crossingRankingPosition(String position, int total) {

@@ -1421,18 +1421,6 @@
       }
     }
   },
-  "milestone200Title": "200 Navios!",
-  "@milestone200Title": {
-    "description": "Title text for milestone200."
-  },
-  "milestone200Body": "O ShipRate atingiu 200 navios cadastrados em menos de 6 meses! Cada prático agora está mais preparado para embarcar, com acesso a avaliações e dados de navegação compartilhados por todos. Obrigado por contribuir com o crescimento do aplicativo.",
-  "@milestone200Body": {
-    "description": "Localized text for milestone200 body."
-  },
-  "milestone200Button": "Parabéns a todos!",
-  "@milestone200Button": {
-    "description": "Button label for milestone200."
-  },
   "switchToNavSafety": "Alternar para Profundidades - Registro",
   "@switchToNavSafety": {
     "description": "Drawer item to switch to nav safety module."
@@ -1612,18 +1600,6 @@
   "myCrossings": "Meus cruzamentos",
   "@myCrossings": {
     "description": "Label for my crossings section."
-  },
-  "cruzamentoDialogTitle": "Cruzamento de Navios",
-  "@cruzamentoDialogTitle": {
-    "description": "Title text for cruzamento first-time dialog."
-  },
-  "cruzamentoDialogBody": "Nova feature! Agora voc\u00ea pode registrar cruzamentos e receber alertas quando outros pr\u00e1ticos registrarem passagens. Se n\u00e3o quiser receber alertas, desative na tela de cruzamentos.",
-  "@cruzamentoDialogBody": {
-    "description": "Body text for cruzamento first-time dialog."
-  },
-  "cruzamentoDialogButton": "Entendi!",
-  "@cruzamentoDialogButton": {
-    "description": "Button label for cruzamento first-time dialog."
   },
   "crossingRankingPosition": "Sua posição: {position} de {total} práticos",
   "@crossingRankingPosition": {

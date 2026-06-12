@@ -2015,24 +2015,6 @@ abstract class AppLocalizations {
   /// **'{name} curtiu sua avaliação'**
   String ratingLikeNotification(String name);
 
-  /// Title text for milestone200.
-  ///
-  /// In pt, this message translates to:
-  /// **'200 Navios!'**
-  String get milestone200Title;
-
-  /// Localized text for milestone200 body.
-  ///
-  /// In pt, this message translates to:
-  /// **'O ShipRate atingiu 200 navios cadastrados em menos de 6 meses! Cada prático agora está mais preparado para embarcar, com acesso a avaliações e dados de navegação compartilhados por todos. Obrigado por contribuir com o crescimento do aplicativo.'**
-  String get milestone200Body;
-
-  /// Button label for milestone200.
-  ///
-  /// In pt, this message translates to:
-  /// **'Parabéns a todos!'**
-  String get milestone200Button;
-
   /// Drawer item to switch to nav safety module.
   ///
   /// In pt, this message translates to:
@@ -2290,24 +2272,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Meus cruzamentos'**
   String get myCrossings;
-
-  /// Title text for cruzamento first-time dialog.
-  ///
-  /// In pt, this message translates to:
-  /// **'Cruzamento de Navios'**
-  String get cruzamentoDialogTitle;
-
-  /// Body text for cruzamento first-time dialog.
-  ///
-  /// In pt, this message translates to:
-  /// **'Nova feature! Agora você pode registrar cruzamentos e receber alertas quando outros práticos registrarem passagens. Se não quiser receber alertas, desative na tela de cruzamentos.'**
-  String get cruzamentoDialogBody;
-
-  /// Button label for cruzamento first-time dialog.
-  ///
-  /// In pt, this message translates to:
-  /// **'Entendi!'**
-  String get cruzamentoDialogButton;
 
   /// User crossing ranking position shown on the my crossings tab.
   ///

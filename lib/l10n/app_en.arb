@@ -1394,18 +1394,6 @@
       }
     }
   },
-  "milestone200Title": "200 Ships!",
-  "@milestone200Title": {
-    "description": "Title text for milestone200."
-  },
-  "milestone200Body": "ShipRate has reached 200 registered ships in less than 6 months! Every pilot is now better prepared to board, with access to ratings and navigation data shared by all. Thank you for contributing to the app's growth.",
-  "@milestone200Body": {
-    "description": "Localized text for milestone200 body."
-  },
-  "milestone200Button": "Congratulations to all!",
-  "@milestone200Button": {
-    "description": "Button label for milestone200."
-  },
   "switchToNavSafety": "Switch to Depths - Records",
   "@switchToNavSafety": {
     "description": "Drawer item to switch to nav safety module."
@@ -1585,18 +1573,6 @@
   "myCrossings": "My crossings",
   "@myCrossings": {
     "description": "Label for my crossings section."
-  },
-  "cruzamentoDialogTitle": "Ship Crossing",
-  "@cruzamentoDialogTitle": {
-    "description": "Title text for cruzamento first-time dialog."
-  },
-  "cruzamentoDialogBody": "New feature! You can now register crossings and receive alerts when other pilots register passages. To disable alerts, toggle them off on the crossings screen.",
-  "@cruzamentoDialogBody": {
-    "description": "Body text for cruzamento first-time dialog."
-  },
-  "cruzamentoDialogButton": "Got it!",
-  "@cruzamentoDialogButton": {
-    "description": "Button label for cruzamento first-time dialog."
   },
   "crossingRankingPosition": "Your position: {position} of {total} pilots",
   "@crossingRankingPosition": {
