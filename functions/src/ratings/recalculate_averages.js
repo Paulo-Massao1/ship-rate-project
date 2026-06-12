@@ -55,7 +55,8 @@ exports.recalcularMediasAoExcluirAvaliacao = functions.firestore
       const navioRef = db.collection("navios").doc(navioId);
 
       if (snapshot.empty) {
-        await navioRef.set({ medias: {} }, { merge: true });
+        await navioRef.delete();
+        console.log(`Deleted ship ${navioId} — no remaining ratings`);
         return;
       }
 
