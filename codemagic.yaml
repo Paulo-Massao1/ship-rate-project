@@ -9,10 +9,8 @@ workflows:
       flutter: stable
       xcode: latest
       ios_signing:
-        certificate: $CM_CERTIFICATE
-        certificate_password: $CM_CERTIFICATE_PASSWORD
-        provisioning_profiles:
-          - profile: $CM_PROVISIONING_PROFILE
+        distribution_type: app_store
+        bundle_identifier: com.shiprate.app
     triggering:
       events: []
     scripts:
@@ -34,6 +32,7 @@ workflows:
       - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
+        auth: integration
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         key: $APP_STORE_CONNECT_PRIVATE_KEY
