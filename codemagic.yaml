@@ -25,7 +25,7 @@ workflows:
           echo "Saved provisioning profile $PROFILE_PATH"
       - name: Set up signing certificate
         script: |
-          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+          echo $CM_CERTIFICATE | tr -d ' \n' | base64 --decode > /tmp/certificate.p12
           keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CM_CERTIFICATE_PASSWORD
       - name: Set up code signing settings on Xcode project
         script: xcode-project use-profiles
