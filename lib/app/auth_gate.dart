@@ -1,47 +1,70 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../features/home/home_page.dart';
 import '../features/auth/login_page.dart';
 
-/// Authentication gate that controls app navigation based on auth state.
-///
-/// Acts as the entry point that listens to Firebase auth state changes
-/// and automatically redirects users to the appropriate screen:
-/// - [HomePage]: When authenticated
-/// - [LoginPage]: When not authenticated
-///
-/// Benefits:
-/// - Eliminates manual navigation after login/logout
-/// - Prevents UI flicker on app startup
-/// - Ensures consistent security and UX
-/// - Auto-syncs with auth state changes
-///
-/// Usage in main.dart:
-/// ```dart
-/// MaterialApp(home: const AuthGate())
-/// ```
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  Timer? _timeoutTimer;
+  bool _timedOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _timeoutTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() {
+          _timedOut = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timeoutTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Loading state - checking authentication
+        if (snapshot.hasError) {
+          return const LoginPage();
+        }
+
+        if (FirebaseAuth.instance.currentUser == null &&
+            snapshot.data == null) {
+          return const LoginPage();
+        }
+
         if (snapshot.connectionState == ConnectionState.waiting) {
+          if (_timedOut) {
+            return const LoginPage();
+          }
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            backgroundColor: Color(0xFF0A1628),
+            body: Center(child: CircularProgressIndicator(color: Colors.white)),
           );
         }
 
-        // Authenticated - show main screen
+        _timeoutTimer?.cancel();
+
         if (snapshot.hasData) {
           return const HomePage();
         }
 
-        // Not authenticated - show login
         return const LoginPage();
       },
     );

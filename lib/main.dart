@@ -12,86 +12,106 @@ import 'core/theme/app_theme.dart';
 import 'controllers/locale_controller.dart';
 import 'data/services/notification_service.dart';
 
-/// Entry point for the ShipRate application.
-///
-/// Responsibilities:
-/// - Initialize Flutter binding
-/// - Initialize Firebase with platform-specific options
-/// - Load saved locale preference
-/// - Launch the root widget
-///
-/// Initialization flow:
-/// 1. WidgetsFlutterBinding.ensureInitialized()
-///    - Ensures Flutter binding is ready before async operations
-///
-/// 2. Firebase.initializeApp(...)
-///    - Initializes Firebase with current platform configuration
-///    - App does NOT continue until Firebase is fully initialized
-///
-/// 3. LocaleController.loadSavedLocale()
-///    - Loads the user's saved language preference
-///
-/// 4. runApp(ShipRateApp)
-///    - Starts the main application widget
-///
-/// Future extensions:
-/// - Crashlytics / Logging setup
-/// - Remote Config initialization
-/// - Dependency injection container (GetIt, Riverpod, etc.)
-
-/// Global locale controller instance, accessible across the app.
 final localeController = LocaleController();
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const StartupWidget());
+}
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+class StartupWidget extends StatefulWidget {
+  const StartupWidget({super.key});
 
-  if (kIsWeb) {
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+  @override
+  State<StartupWidget> createState() => _StartupWidgetState();
+}
+
+class _StartupWidgetState extends State<StartupWidget> {
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeApp();
+    });
   }
 
-  final prefs = await SharedPreferences.getInstance();
-  AppCache.nomeGuerra = prefs.getString('cached_nomeGuerra');
-  AppCache.stats = {
-    'ships': prefs.getInt('cached_ships') ?? 0,
-    'ratings': prefs.getInt('cached_ratings') ?? 0,
-    'crossings': prefs.getInt('cached_crossings') ?? 0,
-    'pilots': prefs.getInt('cached_pilots') ?? 0,
-    'topRaterCount': prefs.getInt('cached_topRaterCount') ?? 0,
-  };
+  Future<void> _initializeApp() async {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ).timeout(const Duration(seconds: 10));
 
-  await localeController.loadSavedLocale();
+      if (kIsWeb) {
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: true,
+          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        );
+      }
+    } catch (e) {
+      debugPrint('Firebase initialization error: $e');
+    }
 
-  await NotificationService.setupNotificationTapHandlers();
+    try {
+      final prefs = await SharedPreferences.getInstance()
+          .timeout(const Duration(seconds: 5));
+      AppCache.nomeGuerra = prefs.getString('cached_nomeGuerra');
+      AppCache.stats = {
+        'ships': prefs.getInt('cached_ships') ?? 0,
+        'ratings': prefs.getInt('cached_ratings') ?? 0,
+        'crossings': prefs.getInt('cached_crossings') ?? 0,
+        'pilots': prefs.getInt('cached_pilots') ?? 0,
+        'topRaterCount': prefs.getInt('cached_topRaterCount') ?? 0,
+      };
+    } catch (e) {
+      debugPrint('SharedPreferences initialization error: $e');
+    }
 
-  if (kIsWeb) {
-    final route = Uri.base.queryParameters['route'];
-    if (route == 'nav_safety' || route == 'crossing') {
-      NotificationService.pendingRoute ??= route;
+    try {
+      await localeController
+          .loadSavedLocale()
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('Locale loading error: $e');
+    }
+
+    try {
+      await NotificationService.setupNotificationTapHandlers()
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('Notification setup error: $e');
+    }
+
+    if (kIsWeb) {
+      final route = Uri.base.queryParameters['route'];
+      if (route == 'nav_safety' || route == 'crossing') {
+        NotificationService.pendingRoute ??= route;
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _initialized = true;
+      });
     }
   }
 
-  runApp(ShipRateApp(localeController: localeController));
+  @override
+  Widget build(BuildContext context) {
+    if (!_initialized) {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: Color(0xFF0A1628),
+        ),
+      );
+    }
+
+    return ShipRateApp(localeController: localeController);
+  }
 }
 
-/// Root widget for the ShipRate application.
-///
-/// Responsibilities:
-/// - Declare MaterialApp configuration
-/// - Register global theme (light/dark)
-/// - Configure localization (i18n) support
-/// - Define authentication flow via AuthGate
-///
-/// AuthGate behavior:
-/// - Listens to FirebaseAuth state
-/// - Redirects to LoginPage when logged out
-/// - Redirects to HomePage when authenticated
 class ShipRateApp extends StatelessWidget {
   final LocaleController localeController;
 
@@ -106,8 +126,6 @@ class ShipRateApp extends StatelessWidget {
           title: 'ShipRate',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
-
-          // i18n configuration
           locale: localeController.locale,
           supportedLocales: LocaleController.supportedLocales,
           localizationsDelegates: const [
@@ -116,7 +134,6 @@ class ShipRateApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-
           home: const AuthGate(),
         );
       },

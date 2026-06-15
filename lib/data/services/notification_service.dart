@@ -25,12 +25,18 @@ class NotificationService {
       }
     });
 
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      final type = initialMessage.data['type'] as String?;
-      if (type == 'nav_safety' || type == 'crossing') {
-        pendingRoute = type;
+    try {
+      final initialMessage = await _messaging
+          .getInitialMessage()
+          .timeout(const Duration(seconds: 5));
+      if (initialMessage != null) {
+        final type = initialMessage.data['type'] as String?;
+        if (type == 'nav_safety' || type == 'crossing') {
+          pendingRoute = type;
+        }
       }
+    } catch (e) {
+      debugPrint('NotificationService.getInitialMessage error: $e');
     }
   }
 
