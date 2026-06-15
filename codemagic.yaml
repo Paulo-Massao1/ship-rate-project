@@ -41,7 +41,10 @@ workflows:
         script: |
           cd ios && pod install
       - name: Build IPA
-        script: flutter build ipa --release --build-number=$PROJECT_BUILD_NUMBER
+        script: |
+          flutter build ipa --release \
+            --build-number=$PROJECT_BUILD_NUMBER \
+            --export-options-plist=$CM_BUILD_DIR/ios/ExportOptions.plist
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
