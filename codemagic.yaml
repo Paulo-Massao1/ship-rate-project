@@ -11,6 +11,8 @@ workflows:
     triggering:
       events: []
     scripts:
+      - name: Disable Swift Package Manager
+        script: flutter config --no-enable-swift-package-manager
       - name: Decode GoogleService-Info.plist
         script: |
           echo $GOOGLE_SERVICE_INFO_PLIST | base64 --decode > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
