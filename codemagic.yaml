@@ -39,47 +39,7 @@ workflows:
         script: dart run flutter_native_splash:create
       - name: Fix LaunchScreen for iPad
         script: |
-          cat > $CM_BUILD_DIR/ios/Runner/Base.lproj/LaunchScreen.storyboard << 'STORYBOARD'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="AppleSDK" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-              <device id="retina6_12" orientation="portrait" appearance="light"/>
-              <dependencies>
-                  <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
-                  <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-                  <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
-              </dependencies>
-              <scenes>
-                  <scene sceneID="EHf-IW-A2E">
-                      <objects>
-                          <viewController id="01J-lp-oVM" sceneMemberID="viewController">
-                              <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                                  <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                  <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                  <subviews>
-                                      <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ew4">
-                                          <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                      </imageView>
-                                  </subviews>
-                                  <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                                  <color key="backgroundColor" red="0.039215686274509803" green="0.086274509803921567" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                  <constraints>
-                                      <constraint firstItem="YRO-k0-Ew4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="1"/>
-                                      <constraint firstItem="YRO-k0-Ew4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="2"/>
-                                      <constraint firstItem="YRO-k0-Ew4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3"/>
-                                      <constraint firstItem="YRO-k0-Ew4" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="4"/>
-                                  </constraints>
-                              </view>
-                          </viewController>
-                          <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                      </objects>
-                      <point key="canvasLocation" x="53" y="375"/>
-                  </scene>
-              </scenes>
-              <resources>
-                  <image name="LaunchImage" width="1254" height="1254"/>
-              </resources>
-          </document>
-          STORYBOARD
+          echo "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGRvY3VtZW50IHR5cGU9ImNvbS5hcHBsZS5JbnRlcmZhY2VCdWlsZGVyMy5Db2NvYVRvdWNoLlN0b3J5Ym9hcmQuWElCIiB2ZXJzaW9uPSIzLjAiIHRvb2xzVmVyc2lvbj0iMjI1MDUiIHRhcmdldFJ1bnRpbWU9IkFwcGxlU0RLIiBwcm9wZXJ0eUFjY2Vzc0NvbnRyb2w9Im5vbmUiIHVzZUF1dG9sYXlvdXQ9IllFUyIgbGF1bmNoU2NyZWVuPSJZRVMiIHVzZVRyYWl0Q29sbGVjdGlvbnM9IllFUyIgdXNlU2FmZUFyZWFzPSJZRVMiIGNvbG9yTWF0Y2hlZD0iWUVTIiBpbml0aWFsVmlld0NvbnRyb2xsZXI9IjAxSi1scC1vVk0iPgogICAgPGRldmljZSBpZD0icmV0aW5hNl8xMiIgb3JpZW50YXRpb249InBvcnRyYWl0IiBhcHBlYXJhbmNlPSJsaWdodCIvPgogICAgPGRlcGVuZGVuY2llcz4KICAgICAgICA8cGx1Z0luIGlkZW50aWZpZXI9ImNvbS5hcHBsZS5JbnRlcmZhY2VCdWlsZGVyLklCQ29jb2FUb3VjaFBsdWdpbiIgdmVyc2lvbj0iMjI1MDQiLz4KICAgICAgICA8Y2FwYWJpbGl0eSBuYW1lPSJTYWZlIGFyZWEgbGF5b3V0IGd1aWRlcyIgbWluVG9vbHNWZXJzaW9uPSI5LjAiLz4KICAgICAgICA8Y2FwYWJpbGl0eSBuYW1lPSJkb2N1bWVudHMgc2F2ZWQgaW4gdGhlIFhjb2RlIDggZm9ybWF0IiBtaW5Ub29sc1ZlcnNpb249IjguMCIvPgogICAgPC9kZXBlbmRlbmNpZXM+CiAgICA8c2NlbmVzPgogICAgICAgIDxzY2VuZSBzY2VuZUlEPSJFSGYtSVctQTJFIj4KICAgICAgICAgICAgPG9iamVjdHM+CiAgICAgICAgICAgICAgICA8dmlld0NvbnRyb2xsZXIgaWQ9IjAxSi1scC1vVk0iIHNjZW5lTWVtYmVySUQ9InZpZXdDb250cm9sbGVyIj4KICAgICAgICAgICAgICAgICAgICA8dmlldyBrZXk9InZpZXciIGNvbnRlbnRNb2RlPSJzY2FsZVRvRmlsbCIgaWQ9IlplNS02Yi0ydDMiPgogICAgICAgICAgICAgICAgICAgICAgICA8cmVjdCBrZXk9ImZyYW1lIiB4PSIwLjAiIHk9IjAuMCIgd2lkdGg9IjM5MyIgaGVpZ2h0PSI4NTIiLz4KICAgICAgICAgICAgICAgICAgICAgICAgPGF1dG9yZXNpemluZ01hc2sga2V5PSJhdXRvcmVzaXppbmdNYXNrIiB3aWR0aFNpemFibGU9IllFUyIgaGVpZ2h0U2l6YWJsZT0iWUVTIi8+CiAgICAgICAgICAgICAgICAgICAgICAgIDxzdWJ2aWV3cz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxpbWFnZVZpZXcgY2xpcHNTdWJ2aWV3cz0iWUVTIiB1c2VySW50ZXJhY3Rpb25FbmFibGVkPSJOTyIgY29udGVudE1vZGU9InNjYWxlQXNwZWN0Rml0IiBob3Jpem9udGFsSHVnZ2luZ1ByaW9yaXR5PSIyNTEiIHZlcnRpY2FsSHVnZ2luZ1ByaW9yaXR5PSIyNTEiIGltYWdlPSJMYXVuY2hJbWFnZSIgdHJhbnNsYXRlc0F1dG9yZXNpemluZ01hc2tJbnRvQ29uc3RyYWludHM9Ik5PIiBpZD0iWVJPLWswLUV3NCI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPHJlY3Qga2V5PSJmcmFtZSIgeD0iMC4wIiB5PSIwLjAiIHdpZHRoPSIzOTMiIGhlaWdodD0iODUyIi8+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L2ltYWdlVmlldz4KICAgICAgICAgICAgICAgICAgICAgICAgPC9zdWJ2aWV3cz4KICAgICAgICAgICAgICAgICAgICAgICAgPHZpZXdMYXlvdXRHdWlkZSBrZXk9InNhZmVBcmVhIiBpZD0iQmN1LTN5LWZVUyIvPgogICAgICAgICAgICAgICAgICAgICAgICA8Y29sb3Iga2V5PSJiYWNrZ3JvdW5kQ29sb3IiIHJlZD0iMC4wMzkyMTU2ODYyNzQ1MDk4MDMiIGdyZWVuPSIwLjA4NjI3NDUwOTgwMzkyMTU2NyIgYmx1ZT0iMC4xNTY4NjI3NDUwOTgwMzkyMSIgYWxwaGE9IjEiIGNvbG9yU3BhY2U9ImN1c3RvbSIgY3VzdG9tQ29sb3JTcGFjZT0ic1JHQiIvPgogICAgICAgICAgICAgICAgICAgICAgICA8Y29uc3RyYWludHM+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Y29uc3RyYWludCBmaXJzdEl0ZW09IllSTy1rMC1FdzQiIGZpcnN0QXR0cmlidXRlPSJ0b3AiIHNlY29uZEl0ZW09IlplNS02Yi0ydDMiIHNlY29uZEF0dHJpYnV0ZT0idG9wIiBpZD0iMSIvPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgPGNvbnN0cmFpbnQgZmlyc3RJdGVtPSJZUk8tazAtRXc0IiBmaXJzdEF0dHJpYnV0ZT0iYm90dG9tIiBzZWNvbmRJdGVtPSJaZTUtNmItMnQzIiBzZWNvbmRBdHRyaWJ1dGU9ImJvdHRvbSIgaWQ9IjIiLz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxjb25zdHJhaW50IGZpcnN0SXRlbT0iWVJPLWswLUV3NCIgZmlyc3RBdHRyaWJ1dGU9ImxlYWRpbmciIHNlY29uZEl0ZW09IlplNS02Yi0ydDMiIHNlY29uZEF0dHJpYnV0ZT0ibGVhZGluZyIgaWQ9IjMiLz4KICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxjb25zdHJhaW50IGZpcnN0SXRlbT0iWVJPLWswLUV3NCIgZmlyc3RBdHRyaWJ1dGU9InRyYWlsaW5nIiBzZWNvbmRJdGVtPSJaZTUtNmItMnQzIiBzZWNvbmRBdHRyaWJ1dGU9InRyYWlsaW5nIiBpZD0iNCIvPgogICAgICAgICAgICAgICAgICAgICAgICA8L2NvbnN0cmFpbnRzPgogICAgICAgICAgICAgICAgICAgIDwvdmlldz4KICAgICAgICAgICAgICAgIDwvdmlld0NvbnRyb2xsZXI+CiAgICAgICAgICAgICAgICA8cGxhY2Vob2xkZXIgcGxhY2Vob2xkZXJJZGVudGlmaWVyPSJJQkZpcnN0UmVzcG9uZGVyIiBpZD0iaVlqLUtxLUVhMSIgdXNlckxhYmVsPSJGaXJzdCBSZXNwb25kZXIiIHNjZW5lTWVtYmVySUQ9ImZpcnN0UmVzcG9uZGVyIi8+CiAgICAgICAgICAgIDwvb2JqZWN0cz4KICAgICAgICAgICAgPHBvaW50IGtleT0iY2FudmFzTG9jYXRpb24iIHg9IjUzIiB5PSIzNzUiLz4KICAgICAgICA8L3NjZW5lPgogICAgPC9zY2VuZXM+CiAgICA8cmVzb3VyY2VzPgogICAgICAgIDxpbWFnZSBuYW1lPSJMYXVuY2hJbWFnZSIgd2lkdGg9IjEyNTQiIGhlaWdodD0iMTI1NCIvPgogICAgPC9yZXNvdXJjZXM+CjwvZG9jdW1lbnQ+Cg==" | base64 --decode > $CM_BUILD_DIR/ios/Runner/Base.lproj/LaunchScreen.storyboard
       - name: Install CocoaPods
         script: |
           cd ios && pod install
