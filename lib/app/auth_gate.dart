@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
 import '../features/home/home_page.dart';
 import '../features/auth/login_page.dart';
 
@@ -37,36 +38,44 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const LoginPage();
-        }
+    if (!StartupWidget.firebaseReady) {
+      return const LoginPage();
+    }
 
-        if (FirebaseAuth.instance.currentUser == null &&
-            snapshot.data == null) {
-          return const LoginPage();
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          if (_timedOut) {
+    try {
+      return StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
             return const LoginPage();
           }
-          return const Scaffold(
-            backgroundColor: Color(0xFF0A1628),
-            body: Center(child: CircularProgressIndicator(color: Colors.white)),
-          );
-        }
 
-        _timeoutTimer?.cancel();
+          if (FirebaseAuth.instance.currentUser == null &&
+              snapshot.data == null) {
+            return const LoginPage();
+          }
 
-        if (snapshot.hasData) {
-          return const HomePage();
-        }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            if (_timedOut) {
+              return const LoginPage();
+            }
+            return const Scaffold(
+              backgroundColor: Color(0xFF0A1628),
+              body: Center(child: CircularProgressIndicator(color: Colors.white)),
+            );
+          }
 
-        return const LoginPage();
-      },
-    );
+          _timeoutTimer?.cancel();
+
+          if (snapshot.hasData) {
+            return const HomePage();
+          }
+
+          return const LoginPage();
+        },
+      );
+    } catch (e) {
+      return const LoginPage();
+    }
   }
 }

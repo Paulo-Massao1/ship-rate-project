@@ -16,11 +16,22 @@ final localeController = LocaleController();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  ErrorWidget.builder = (details) => Scaffold(
+    backgroundColor: Color(0xFF0A1628),
+    body: Center(
+      child: Text(
+        '${details.exception}',
+        style: TextStyle(color: Colors.red),
+      ),
+    ),
+  );
   runApp(const StartupWidget());
 }
 
 class StartupWidget extends StatefulWidget {
   const StartupWidget({super.key});
+
+  static bool firebaseReady = false;
 
   @override
   State<StartupWidget> createState() => _StartupWidgetState();
@@ -44,6 +55,8 @@ class _StartupWidgetState extends State<StartupWidget> {
           options: DefaultFirebaseOptions.currentPlatform,
         ).timeout(const Duration(seconds: 10));
       }
+
+      StartupWidget.firebaseReady = true;
 
       if (kIsWeb) {
         FirebaseFirestore.instance.settings = const Settings(
