@@ -57,6 +57,9 @@ workflows:
           cd ..
       - name: Install Flutter dependencies
         script: flutter pub get
+      - name: Print Firebase dependency versions
+        script: |
+          dart pub deps --style=list | grep -E "firebase_core|firebase_auth|cloud_firestore|cloud_functions|firebase_messaging|firebase_storage"
       - name: Generate launcher icons
         script: dart run flutter_launcher_icons
       - name: Generate native splash

@@ -5,10 +5,14 @@ import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+  private var flutterViewController: FlutterViewController?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    flutterViewController = window?.rootViewController as? FlutterViewController
+
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
@@ -17,24 +21,39 @@ import FirebaseCore
     UNUserNotificationCenter.current().delegate = self
     application.registerForRemoteNotifications()
 
-    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    registerPluginsOnRootFlutterViewControllerIfNeeded()
-    return result
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  override func applicationDidBecomeActive(_ application: UIApplication) {
-    super.applicationDidBecomeActive(application)
-    registerPluginsOnRootFlutterViewControllerIfNeeded()
+  override func registrar(forPlugin pluginKey: String) -> FlutterPluginRegistrar? {
+    if let controller = currentFlutterViewController() {
+      return controller.registrar(forPlugin: pluginKey)
+    }
+
+    return super.registrar(forPlugin: pluginKey)
   }
 
-  private func registerPluginsOnRootFlutterViewControllerIfNeeded() {
-    guard let controller = window?.rootViewController as? FlutterViewController else {
-      return
+  override func hasPlugin(_ pluginKey: String) -> Bool {
+    if let controller = currentFlutterViewController() {
+      return controller.hasPlugin(pluginKey)
     }
 
-    // Ensure plugins are registered on the Flutter engine that actually runs Dart.
-    if !controller.hasPlugin("FLTFirebaseCorePlugin") {
-      GeneratedPluginRegistrant.register(with: controller)
+    return super.hasPlugin(pluginKey)
+  }
+
+  override func valuePublished(byPlugin pluginKey: String) -> NSObject? {
+    if let controller = currentFlutterViewController() {
+      return controller.valuePublished(byPlugin: pluginKey)
     }
+
+    return super.valuePublished(byPlugin: pluginKey)
+  }
+
+  private func currentFlutterViewController() -> FlutterViewController? {
+    if let controller = flutterViewController {
+      return controller
+    }
+
+    flutterViewController = window?.rootViewController as? FlutterViewController
+    return flutterViewController
   }
 }
