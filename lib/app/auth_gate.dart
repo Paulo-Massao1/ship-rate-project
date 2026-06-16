@@ -39,7 +39,10 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     if (!StartupWidget.firebaseReady) {
-      return const LoginPage();
+      return const Scaffold(
+        backgroundColor: Color(0xFF0A1628),
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
     }
 
     try {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -32,6 +33,7 @@ class StartupWidget extends StatefulWidget {
   const StartupWidget({super.key});
 
   static bool firebaseReady = false;
+  static String? firebaseInitError;
 
   @override
   State<StartupWidget> createState() => _StartupWidgetState();
@@ -39,7 +41,6 @@ class StartupWidget extends StatefulWidget {
 
 class _StartupWidgetState extends State<StartupWidget> {
   bool _initialized = false;
-  String? _error;
 
   @override
   void initState() {
@@ -51,37 +52,52 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   Future<void> _initializeApp() async {
     StartupWidget.firebaseReady = false;
+    StartupWidget.firebaseInitError = null;
 
-    // First attempt: initialize with explicit FlutterFire options.
+    // On iOS the native app is configured from GoogleService-Info.plist.
+    // Initialize Dart Firebase from that default app first, then fall back.
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ).timeout(const Duration(seconds: 10));
+      if (Firebase.apps.isEmpty) {
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+          await Firebase.initializeApp()
+              .timeout(const Duration(seconds: 10));
+        } else {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          ).timeout(const Duration(seconds: 10));
+        }
+      }
       StartupWidget.firebaseReady = true;
-      debugPrint('Firebase init SUCCESS with options');
+      debugPrint('Firebase init SUCCESS');
     } catch (e, stackTrace) {
-      debugPrint('Firebase init with options failed: $e');
+      debugPrint('Firebase init primary attempt failed: $e');
       debugPrintStack(stackTrace: stackTrace);
 
-      // Second attempt: check whether native initialization already created it.
+      // Fallback to the opposite initialization mode for recovery diagnostics.
       try {
         if (Firebase.apps.isNotEmpty) {
           StartupWidget.firebaseReady = true;
           debugPrint('Firebase already initialized natively');
+        } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          ).timeout(const Duration(seconds: 10));
+          StartupWidget.firebaseReady = true;
+          debugPrint('Firebase init SUCCESS with options fallback');
         } else {
-          // Third attempt: initialize from native GoogleService-Info.plist.
           await Firebase.initializeApp()
               .timeout(const Duration(seconds: 10));
           StartupWidget.firebaseReady = true;
-          debugPrint('Firebase init SUCCESS without options');
+          debugPrint('Firebase init SUCCESS without options fallback');
         }
       } catch (e2, stackTrace2) {
         debugPrint('Firebase init completely failed: $e2');
         debugPrintStack(stackTrace: stackTrace2);
-        _error =
+        final error =
             'Firebase init failed:\n\n'
-            'With options:\n$e\n\n'
-            'Without options/native check:\n$e2';
+            'Primary attempt:\n$e\n\n'
+            'Fallback attempt:\n$e2';
+        StartupWidget.firebaseInitError = error;
       }
     }
 
@@ -145,6 +161,26 @@ class _StartupWidgetState extends State<StartupWidget> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           backgroundColor: Color(0xFF0A1628),
+        ),
+      );
+    }
+
+    if (!StartupWidget.firebaseReady) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          backgroundColor: const Color(0xFF0A1628),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                StartupWidget.firebaseInitError ??
+                    'Firebase init failed before authentication.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
         ),
       );
     }
