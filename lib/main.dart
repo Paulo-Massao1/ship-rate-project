@@ -50,22 +50,24 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   Future<void> _initializeApp() async {
     try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ).timeout(const Duration(seconds: 10));
-      }
-
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ).timeout(const Duration(seconds: 10));
       StartupWidget.firebaseReady = true;
-
-      if (kIsWeb) {
-        FirebaseFirestore.instance.settings = const Settings(
-          persistenceEnabled: true,
-          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-        );
-      }
     } catch (e) {
-      debugPrint('Firebase initialization error: $e');
+      if (e.toString().contains('duplicate-app') ||
+          e.toString().contains('already been initialized')) {
+        StartupWidget.firebaseReady = true;
+      } else {
+        debugPrint('Firebase initialization error: $e');
+      }
+    }
+
+    if (StartupWidget.firebaseReady && kIsWeb) {
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
     }
 
     try {
