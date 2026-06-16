@@ -39,9 +39,11 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   Future<void> _initializeApp() async {
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ).timeout(const Duration(seconds: 10));
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        ).timeout(const Duration(seconds: 10));
+      }
 
       if (kIsWeb) {
         FirebaseFirestore.instance.settings = const Settings(
