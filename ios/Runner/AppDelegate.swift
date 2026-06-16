@@ -17,6 +17,24 @@ import FirebaseCore
     UNUserNotificationCenter.current().delegate = self
     application.registerForRemoteNotifications()
 
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    registerPluginsOnRootFlutterViewControllerIfNeeded()
+    return result
+  }
+
+  override func applicationDidBecomeActive(_ application: UIApplication) {
+    super.applicationDidBecomeActive(application)
+    registerPluginsOnRootFlutterViewControllerIfNeeded()
+  }
+
+  private func registerPluginsOnRootFlutterViewControllerIfNeeded() {
+    guard let controller = window?.rootViewController as? FlutterViewController else {
+      return
+    }
+
+    // Ensure plugins are registered on the Flutter engine that actually runs Dart.
+    if !controller.hasPlugin("FLTFirebaseCorePlugin") {
+      GeneratedPluginRegistrant.register(with: controller)
+    }
   }
 }

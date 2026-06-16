@@ -89,6 +89,15 @@ workflows:
           flutter build ipa --release \
             --build-number=$PROJECT_BUILD_NUMBER \
             --export-options-plist=$CM_BUILD_DIR/ios/ExportOptions.plist
+      - name: Verify final iOS archive Firebase channel
+        script: |
+          APP="$CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+          test -d "$APP"
+          if ! grep -R -a -q "FirebaseCoreHostApi" "$APP"; then
+            echo "FirebaseCoreHostApi channel not found in final app bundle"
+            exit 1
+          fi
+          echo "Final iOS archive contains FirebaseCoreHostApi channel"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
