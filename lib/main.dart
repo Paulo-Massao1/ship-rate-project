@@ -39,6 +39,7 @@ class StartupWidget extends StatefulWidget {
 
 class _StartupWidgetState extends State<StartupWidget> {
   bool _initialized = false;
+  String? _error;
 
   @override
   void initState() {
@@ -49,17 +50,38 @@ class _StartupWidgetState extends State<StartupWidget> {
   }
 
   Future<void> _initializeApp() async {
+    StartupWidget.firebaseReady = false;
+
+    // First attempt: initialize with explicit FlutterFire options.
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       ).timeout(const Duration(seconds: 10));
       StartupWidget.firebaseReady = true;
-    } catch (e) {
-      if (e.toString().contains('duplicate-app') ||
-          e.toString().contains('already been initialized')) {
-        StartupWidget.firebaseReady = true;
-      } else {
-        debugPrint('Firebase initialization error: $e');
+      debugPrint('Firebase init SUCCESS with options');
+    } catch (e, stackTrace) {
+      debugPrint('Firebase init with options failed: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      // Second attempt: check whether native initialization already created it.
+      try {
+        if (Firebase.apps.isNotEmpty) {
+          StartupWidget.firebaseReady = true;
+          debugPrint('Firebase already initialized natively');
+        } else {
+          // Third attempt: initialize from native GoogleService-Info.plist.
+          await Firebase.initializeApp()
+              .timeout(const Duration(seconds: 10));
+          StartupWidget.firebaseReady = true;
+          debugPrint('Firebase init SUCCESS without options');
+        }
+      } catch (e2, stackTrace2) {
+        debugPrint('Firebase init completely failed: $e2');
+        debugPrintStack(stackTrace: stackTrace2);
+        _error =
+            'Firebase init failed:\n\n'
+            'With options:\n$e\n\n'
+            'Without options/native check:\n$e2';
       }
     }
 
@@ -93,11 +115,13 @@ class _StartupWidgetState extends State<StartupWidget> {
       debugPrint('Locale loading error: $e');
     }
 
-    try {
-      await NotificationService.setupNotificationTapHandlers()
-          .timeout(const Duration(seconds: 5));
-    } catch (e) {
-      debugPrint('Notification setup error: $e');
+    if (StartupWidget.firebaseReady) {
+      try {
+        await NotificationService.setupNotificationTapHandlers()
+            .timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugPrint('Notification setup error: $e');
+      }
     }
 
     if (kIsWeb) {
@@ -116,11 +140,22 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_initialized) {
-      return const MaterialApp(
+    if (!_initialized || _error != null) {
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          backgroundColor: Color(0xFF0A1628),
+          backgroundColor: const Color(0xFF0A1628),
+          body: _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                )
+              : null,
         ),
       );
     }
