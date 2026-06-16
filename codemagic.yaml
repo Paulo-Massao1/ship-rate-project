@@ -16,6 +16,16 @@ workflows:
       - name: Decode GoogleService-Info.plist
         script: |
           echo $GOOGLE_SERVICE_INFO_PLIST | base64 --decode > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+      - name: Verify GoogleService-Info.plist
+        script: |
+          echo "=== File exists? ==="
+          ls -la $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+          echo "=== Content ==="
+          cat $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+          echo "=== Bundle ID ==="
+          /usr/libexec/PlistBuddy -c "Print :BUNDLE_ID" $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+          echo "=== Project ID ==="
+          /usr/libexec/PlistBuddy -c "Print :PROJECT_ID" $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
       - name: Set up keychain
         script: keychain initialize
       - name: Set up provisioning profile
