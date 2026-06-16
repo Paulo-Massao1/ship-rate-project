@@ -2512,6 +2512,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Abra o app para ver os históricos de profundidades'**
   String get shareDepthFooter;
+
+  /// Message shown when Firebase initialization fails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível conectar. Por favor, feche e reabra o aplicativo.'**
+  String get firebaseUnavailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

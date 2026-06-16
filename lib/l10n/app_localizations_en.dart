@@ -1304,4 +1304,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareDepthFooter => 'Open the app to view depth records';
+
+  @override
+  String get firebaseUnavailable => 'Unable to connect. Please close and reopen the app.';
 }

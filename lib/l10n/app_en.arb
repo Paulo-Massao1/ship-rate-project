@@ -1771,5 +1771,9 @@
   "shareDepthFooter": "Open the app to view depth records",
   "@shareDepthFooter": {
     "description": "Footer line in WhatsApp share message for depth records."
+  },
+  "firebaseUnavailable": "Unable to connect. Please close and reopen the app.",
+  "@firebaseUnavailable": {
+    "description": "Message shown when Firebase initialization fails."
   }
 }

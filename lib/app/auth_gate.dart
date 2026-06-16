@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../features/home/home_page.dart';
 import '../features/auth/login_page.dart';
@@ -39,9 +40,40 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     if (!StartupWidget.firebaseReady) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0A1628),
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      final l10n = AppLocalizations.of(context);
+      return Scaffold(
+        backgroundColor: const Color(0xFF0A1628),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.directions_boat_filled,
+                color: Color(0xFF64B5F6),
+                size: 64,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'ShipRate',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  l10n?.firebaseUnavailable ??
+                      'Unable to connect. Please close and reopen the app.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

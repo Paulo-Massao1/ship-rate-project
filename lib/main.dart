@@ -17,15 +17,6 @@ final localeController = LocaleController();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  ErrorWidget.builder = (details) => Scaffold(
-    backgroundColor: Color(0xFF0A1628),
-    body: Center(
-      child: Text(
-        '${details.exception}',
-        style: TextStyle(color: Colors.red),
-      ),
-    ),
-  );
   runApp(const StartupWidget());
 }
 
@@ -33,7 +24,6 @@ class StartupWidget extends StatefulWidget {
   const StartupWidget({super.key});
 
   static bool firebaseReady = false;
-  static String? firebaseInitError;
 
   @override
   State<StartupWidget> createState() => _StartupWidgetState();
@@ -52,7 +42,6 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   Future<void> _initializeApp() async {
     StartupWidget.firebaseReady = false;
-    StartupWidget.firebaseInitError = null;
 
     // On iOS the native app is configured from GoogleService-Info.plist.
     // Initialize Dart Firebase from that default app first, then fall back.
@@ -93,11 +82,10 @@ class _StartupWidgetState extends State<StartupWidget> {
       } catch (e2, stackTrace2) {
         debugPrint('Firebase init completely failed: $e2');
         debugPrintStack(stackTrace: stackTrace2);
-        final error =
-            'Firebase init failed:\n\n'
-            'Primary attempt:\n$e\n\n'
-            'Fallback attempt:\n$e2';
-        StartupWidget.firebaseInitError = error;
+        debugPrint(
+            'Firebase init failed:\n'
+            'Primary: $e\n'
+            'Fallback: $e2');
       }
     }
 
@@ -161,26 +149,6 @@ class _StartupWidgetState extends State<StartupWidget> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           backgroundColor: Color(0xFF0A1628),
-        ),
-      );
-    }
-
-    if (!StartupWidget.firebaseReady) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: const Color(0xFF0A1628),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                StartupWidget.firebaseInitError ??
-                    'Firebase init failed before authentication.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ),
         ),
       );
     }
