@@ -140,22 +140,11 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_initialized || _error != null) {
-      return MaterialApp(
+    if (!_initialized) {
+      return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          backgroundColor: const Color(0xFF0A1628),
-          body: _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                )
-              : null,
+          backgroundColor: Color(0xFF0A1628),
         ),
       );
     }

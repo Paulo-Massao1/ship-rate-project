@@ -5,8 +5,6 @@ import FirebaseCore
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-  private lazy var flutterEngine = FlutterEngine(name: "shiprate_engine")
-
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -15,18 +13,7 @@ import FirebaseCore
       FirebaseApp.configure()
     }
 
-    flutterEngine.run()
-    GeneratedPluginRegistrant.register(with: flutterEngine)
-
-    let flutterViewController = FlutterViewController(
-      engine: flutterEngine,
-      nibName: nil,
-      bundle: nil
-    )
-    window = UIWindow(frame: UIScreen.main.bounds)
-    window?.rootViewController = flutterViewController
-    window?.makeKeyAndVisible()
-
+    GeneratedPluginRegistrant.register(with: self)
     UNUserNotificationCenter.current().delegate = self
     application.registerForRemoteNotifications()
 

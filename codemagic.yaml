@@ -50,8 +50,11 @@ workflows:
       - name: Clean Flutter and iOS generated state
         script: |
           flutter clean
-          rm -rf ios/Pods ios/.symlinks
-          rm -f ios/Podfile.lock
+          cd ios
+          pod deintegrate || true
+          rm -rf Pods .symlinks
+          rm -f Podfile.lock
+          cd ..
       - name: Install Flutter dependencies
         script: flutter pub get
       - name: Generate launcher icons
@@ -73,8 +76,11 @@ workflows:
       - name: Verify iOS Firebase plugin registration
         script: |
           REGISTRANT="$CM_BUILD_DIR/ios/Runner/GeneratedPluginRegistrant.m"
+          WORKSPACE="$CM_BUILD_DIR/ios/Runner.xcworkspace/contents.xcworkspacedata"
           test -f "$REGISTRANT"
+          test -f "$WORKSPACE"
           grep -q "FLTFirebaseCorePlugin" "$REGISTRANT"
+          grep -q "Pods.xcodeproj" "$WORKSPACE"
           grep -q "firebase_core" "$CM_BUILD_DIR/ios/Podfile.lock"
           grep -q "firebase_core" "$CM_BUILD_DIR/ios/Pods/Manifest.lock"
           echo "iOS Firebase plugin registration OK"
