@@ -117,7 +117,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateAvailable => 'New update available';
 
   @override
-  String get updateAvailableWeb => 'New update available. Close and reopen to update.';
+  String get updateAvailableWeb => 'New update available. Close and reopen the app to update.';
 
   @override
   String get updateButton => 'Update';

@@ -20,7 +20,9 @@ class VersionService {
       final versionField = _versionFieldForCurrentPlatform;
       if (versionField == null) return _noUpdateResult();
 
-      final packageInfo = await PackageInfo.fromPlatform();
+      final packageInfo = await PackageInfo.fromPlatform(
+        baseUrl: kIsWeb ? Uri.base.origin : null,
+      );
       final installedVersion = packageInfo.version.trim();
       if (installedVersion.isEmpty) return _noUpdateResult();
 
@@ -41,8 +43,10 @@ class VersionService {
         ),
         'version': remoteVersion,
       };
-    } catch (_) {
+    } catch (error, stackTrace) {
       // Fail safely when Firestore is unavailable or contains invalid data.
+      debugPrint('[VersionService] Update check failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
       return _noUpdateResult();
     }
   }

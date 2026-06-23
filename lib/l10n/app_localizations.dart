@@ -314,7 +314,7 @@ abstract class AppLocalizations {
   /// Update banner message shown on web.
   ///
   /// In pt, this message translates to:
-  /// **'Nova atualização disponível. Feche e abra novamente para atualizar.'**
+  /// **'Nova atualização disponível. Feche e abra o app novamente para atualizar.'**
   String get updateAvailableWeb;
 
   /// Button label for opening the app store update page.

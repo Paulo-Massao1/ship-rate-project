@@ -144,7 +144,7 @@
   "@updateAvailable": {
     "description": "Localized text for update available."
   },
-  "updateAvailableWeb": "Nova atualização disponível. Feche e abra novamente para atualizar.",
+  "updateAvailableWeb": "Nova atualização disponível. Feche e abra o app novamente para atualizar.",
   "@updateAvailableWeb": {
     "description": "Update banner message shown on web."
   },
