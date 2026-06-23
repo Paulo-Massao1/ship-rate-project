@@ -152,7 +152,7 @@
   "@copyLink": {
     "description": "Localized text for copy link."
   },
-  "shareText": "Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app",
+  "shareText": "Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989",
   "@shareText": {
     "description": "Localized text for share text."
   },

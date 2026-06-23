@@ -123,7 +123,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get copyLink => 'Copiar Link';
 
   @override
-  String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app';
+  String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   @override
   String get shareMoreInfo => 'Para informar seu cruzamento, acesse:';

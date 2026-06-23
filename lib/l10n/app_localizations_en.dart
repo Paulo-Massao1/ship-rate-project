@@ -123,7 +123,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyLink => 'Copy Link';
 
   @override
-  String get shareText => 'Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths. Download here: https://shiprate-daf18.web.app';
+  String get shareText => 'Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths. Download here: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   @override
   String get shareMoreInfo => 'To report your crossing, visit:';

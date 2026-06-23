@@ -326,7 +326,7 @@ abstract class AppLocalizations {
   /// Localized text for share text.
   ///
   /// In pt, this message translates to:
-  /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://shiprate-daf18.web.app'**
+  /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989'**
   String get shareText;
 
   /// Texto curto exibido antes do link do app nas mensagens de compartilhamento.

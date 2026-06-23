@@ -168,7 +168,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         '\u{1F4CF} Profundidade total: $depth\n'
         '${nomeGuerra.isNotEmpty ? '\u{1F464} Prático: $nomeGuerra\n' : ''}'
         '\u{1F4C5} Data: $dateStr\n\n'
-        'Abra o app para mais detalhes: https://shiprate-daf18.web.app';
+        'Abra o app para mais detalhes: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
     UrlLauncherService.openWhatsAppShare(shareText);
   }

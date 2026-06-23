@@ -27,7 +27,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   // CONSTANTS
   // ===========================================================================
 
-  static const _shareUrl = 'https://shiprate-daf18.web.app/';
+  static const _shareUrl = 'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   // ===========================================================================
   // STATE

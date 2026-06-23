@@ -150,8 +150,10 @@ class NavSafetyController extends ChangeNotifier {
       _locations = await Future.wait(futures);
 
       _locations.sort((a, b) {
-        final aTs = a.latestRecord?['data'] as Timestamp?;
-        final bTs = b.latestRecord?['data'] as Timestamp?;
+        final aData = a.latestRecord?['data'];
+        final bData = b.latestRecord?['data'];
+        final aTs = aData is Timestamp ? aData : null;
+        final bTs = bData is Timestamp ? bData : null;
         if (aTs != null && bTs != null) return bTs.compareTo(aTs);
         if (aTs != null) return -1;
         if (bTs != null) return 1;
