@@ -1,141 +1,113 @@
 // lib/data/services/version_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-/// Service responsible for app version checking and update banner management.
-///
-/// Compares the locally stored version with the remote version (Firestore)
-/// to determine if an update banner should be displayed.
-///
-/// Flow:
-/// 1. User opens app
-/// 2. Service fetches remote version from Firestore
-/// 3. Compares with the locally stored version
-/// 4. If version changed AND banner not seen → show banner
-/// 5. User clicks OK → marks as seen
-/// 6. User reopens app → local version updates
+/// Service responsible for checking whether a newer app version is available.
 class VersionService {
-  // ===========================================================================
-  // CONSTANTS
-  // ===========================================================================
-
-  /// Local preference key for the current running version.
-  static const String _localVersionKey = 'app_local_version';
-
-  /// Local preference key for the version whose banner was already seen.
-  static const String _seenVersionKey = 'seen_banner_version';
-
-  /// Firestore collection and document path.
   static const String _configCollection = 'config';
   static const String _versionDocument = 'app_version';
 
+  /// Firestore fields to update after each platform release is available.
+  static const String iosVersionField = 'iosVersion';
+  static const String webVersionField = 'webVersion';
+  static const String _legacyVersionField = 'version';
 
-  // ===========================================================================
-  // PUBLIC METHODS
-  // ===========================================================================
-
-  /// Checks if the update banner should be displayed.
-  ///
-  /// Returns a Map containing:
-  /// - `shouldShow` (bool): Whether to display the banner
-  /// - `message` (String?): Custom message from Firestore
-  /// - `version` (String?): Remote version number
-  ///
-  /// Decision logic:
-  /// - First time → Save version, don't show banner
-  /// - Same version → Don't show banner
-  /// - Already saw banner for this version → Update local, don't show
-  /// - New version detected → Show banner!
+  /// Checks the installed version against the current platform's remote version.
   static Future<Map<String, dynamic>> shouldShowUpdateBanner() async {
     try {
+      final versionField = _versionFieldForCurrentPlatform;
+      if (versionField == null) return _noUpdateResult();
+
+      final packageInfo = await PackageInfo.fromPlatform();
+      final installedVersion = packageInfo.version.trim();
+      if (installedVersion.isEmpty) return _noUpdateResult();
+
       final remoteData = await _fetchRemoteVersion();
-      if (remoteData == null) {
+      final remoteValue =
+          remoteData?[versionField] ?? remoteData?[_legacyVersionField];
+
+      if (remoteValue is! String || remoteValue.trim().isEmpty) {
         return _noUpdateResult();
       }
 
-      final remoteVersion = remoteData['version'] as String?;
-      if (remoteVersion == null) {
-        return _noUpdateResult();
-      }
+      final remoteVersion = remoteValue.trim();
 
-      final message = remoteData['message'] as String?;
-      final preferences = await SharedPreferences.getInstance();
-      final localVersion = preferences.getString(_localVersionKey);
-      final seenVersion = preferences.getString(_seenVersionKey);
-
-      // First time user - save version and skip banner
-      if (localVersion == null) {
-        await preferences.setString(_localVersionKey, remoteVersion);
-        return _noUpdateResult();
-      }
-
-      // Same version - no update needed
-      if (localVersion == remoteVersion) {
-        return _noUpdateResult();
-      }
-
-      // Already saw banner - update local version
-      if (seenVersion == remoteVersion) {
-        await preferences.setString(_localVersionKey, remoteVersion);
-        return _noUpdateResult();
-      }
-
-      // New version detected - show banner!
       return {
-        'shouldShow': true,
-        'message': message,
+        'shouldShow': _isNewerVersion(
+          candidateVersion: remoteVersion,
+          currentVersion: installedVersion,
+        ),
         'version': remoteVersion,
       };
-    } catch (e) {
-      // Fail-safe: don't show banner on error
+    } catch (_) {
+      // Fail safely when Firestore is unavailable or contains invalid data.
       return _noUpdateResult();
     }
   }
 
-  /// Marks the current version's banner as seen.
-  ///
-  /// Called when user clicks "OK" on the update banner.
-  /// Prevents showing the same banner again.
-  static Future<void> markBannerAsSeen() async {
-    try {
-      final remoteData = await _fetchRemoteVersion();
-      final remoteVersion = remoteData?['version'] as String?;
-
-      if (remoteVersion != null) {
-        final preferences = await SharedPreferences.getInstance();
-        await preferences.setString(_seenVersionKey, remoteVersion);
-      }
-    } catch (e) {
-      // Silently ignore - not critical
-    }
+  static String? get _versionFieldForCurrentPlatform {
+    if (kIsWeb) return webVersionField;
+    if (defaultTargetPlatform == TargetPlatform.iOS) return iosVersionField;
+    return null;
   }
 
-  /// Clears all locally stored version data.
-  ///
-  /// Useful for testing and debugging purposes only.
-  static Future<void> clearVersionData() async {
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.remove(_localVersionKey);
-    await preferences.remove(_seenVersionKey);
-  }
-
-  // ===========================================================================
-  // PRIVATE METHODS
-  // ===========================================================================
-
-  /// Fetches version data from Firestore.
   static Future<Map<String, dynamic>?> _fetchRemoteVersion() async {
-    final doc = await FirebaseFirestore.instance
-        .collection(_configCollection)
-        .doc(_versionDocument)
-        .get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection(_configCollection)
+            .doc(_versionDocument)
+            .get();
 
     return doc.exists ? doc.data() : null;
   }
 
-  /// Returns a standard "no update" result.
+  static bool _isNewerVersion({
+    required String candidateVersion,
+    required String currentVersion,
+  }) {
+    final candidateParts = _parseVersion(candidateVersion);
+    final currentParts = _parseVersion(currentVersion);
+
+    if (candidateParts == null || currentParts == null) return false;
+
+    final partCount =
+        candidateParts.length > currentParts.length
+            ? candidateParts.length
+            : currentParts.length;
+
+    for (var index = 0; index < partCount; index++) {
+      final candidatePart =
+          index < candidateParts.length ? candidateParts[index] : 0;
+      final currentPart = index < currentParts.length ? currentParts[index] : 0;
+
+      if (candidatePart > currentPart) return true;
+      if (candidatePart < currentPart) return false;
+    }
+
+    return false;
+  }
+
+  static List<int>? _parseVersion(String version) {
+    var normalized = version.trim().split('+').first.split('-').first;
+    if (normalized.toLowerCase().startsWith('v')) {
+      normalized = normalized.substring(1);
+    }
+
+    if (normalized.isEmpty) return null;
+
+    final parts = <int>[];
+    for (final part in normalized.split('.')) {
+      final parsedPart = int.tryParse(part);
+      if (parsedPart == null) return null;
+      parts.add(parsedPart);
+    }
+
+    return parts;
+  }
+
   static Map<String, dynamic> _noUpdateResult() {
-    return {'shouldShow': false, 'message': null};
+    return {'shouldShow': false, 'version': null};
   }
 }

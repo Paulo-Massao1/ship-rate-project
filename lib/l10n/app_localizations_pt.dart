@@ -114,7 +114,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get linkCopied => 'Link copiado para a área de transferência!';
 
   @override
-  String get updateAvailable => 'Atualização Disponível';
+  String get updateAvailable => 'Nova atualização disponível';
+
+  @override
+  String get updateAvailableWeb => 'Nova atualização disponível. Feche e abra novamente para atualizar.';
+
+  @override
+  String get updateButton => 'Atualizar';
 
   @override
   String get shareShipRate => 'Compartilhar ShipRate';

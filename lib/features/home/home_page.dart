@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
@@ -18,6 +19,7 @@ import '../../controllers/dashboard_controller.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../core/app_cache.dart';
 import '../../data/services/version_service.dart';
+import '../../data/services/url_launcher_service.dart';
 
 /// Home screen displayed after login with module selection cards.
 class HomePage extends StatefulWidget {
@@ -32,6 +34,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // CONSTANTS
   // ===========================================================================
 
+  static const String _appStoreUrl =
+      'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+
   // ===========================================================================
   // STATE
   // ===========================================================================
@@ -40,7 +45,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static final Map<String, String> _cachedNomeGuerraByUid = {};
   static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
   bool _showUpdateBanner = false;
-  String _updateMessage = '';
+  bool _updateBannerDismissed = false;
   String? _nomeGuerra = AppCache.nomeGuerra;
   bool _isCspam = false;
   bool _showNotificationSetupBanner = false;
@@ -332,21 +337,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _checkForUpdates() async {
-    final result = await VersionService.shouldShowUpdateBanner();
-    if (!mounted) return;
+    if (_updateBannerDismissed || !_supportsUpdateBanner) return;
 
-    final l10n = AppLocalizations.of(context)!;
-    if (result['shouldShow'] == true) {
-      setState(() {
-        _showUpdateBanner = true;
-        _updateMessage = result['message'] ?? l10n.defaultUpdateMessage;
-      });
-    }
+    final result = await VersionService.shouldShowUpdateBanner();
+    if (!mounted || _updateBannerDismissed) return;
+
+    setState(() => _showUpdateBanner = result['shouldShow'] == true);
   }
 
-  Future<void> _dismissUpdateBanner() async {
-    await VersionService.markBannerAsSeen();
-    setState(() => _showUpdateBanner = false);
+  bool get _supportsUpdateBanner {
+    return kIsWeb || defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  void _dismissUpdateBanner() {
+    setState(() {
+      _updateBannerDismissed = true;
+      _showUpdateBanner = false;
+    });
+  }
+
+  Future<void> _openAppStore() async {
+    await UrlLauncherService.openExternalUrl(_appStoreUrl);
   }
 
   Future<void> _checkNotificationSetupBanner() async {
@@ -920,51 +931,55 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (!_showUpdateBanner) return const SizedBox.shrink();
 
     final l10n = AppLocalizations.of(context)!;
+    final message = kIsWeb
+        ? l10n.updateAvailableWeb
+        : l10n.updateAvailable;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade700, Colors.blue.shade600],
+          colors: [Color(0x4064B5F6), Color(0x1A64B5F6)],
         ),
-        boxShadow: const [
-          BoxShadow(
-              color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
+        border: Border(
+          bottom: BorderSide(color: Color(0x6664B5F6)),
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.system_update, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
+          const Icon(
+            Icons.system_update,
+            color: Color(0xFF64B5F6),
+            size: 24,
+          ),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.updateAvailable,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _updateMessage,
-                  style:
-                      const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                height: 1.3,
+              ),
             ),
           ),
-          TextButton(
-            onPressed: _dismissUpdateBanner,
-            child: const Text(
-              'OK',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          if (!kIsWeb)
+            TextButton(
+              onPressed: _openAppStore,
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF64B5F6),
+              ),
+              child: Text(
+                l10n.updateButton,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
+          IconButton(
+            onPressed: _dismissUpdateBanner,
+            icon: const Icon(Icons.close, color: Colors.white70, size: 19),
+            tooltip: l10n.close,
           ),
         ],
       ),

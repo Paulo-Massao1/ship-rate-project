@@ -140,9 +140,17 @@
   "@linkCopied": {
     "description": "Localized text for link copied."
   },
-  "updateAvailable": "Update Available",
+  "updateAvailable": "New update available",
   "@updateAvailable": {
     "description": "Localized text for update available."
+  },
+  "updateAvailableWeb": "New update available. Close and reopen to update.",
+  "@updateAvailableWeb": {
+    "description": "Update banner message shown on web."
+  },
+  "updateButton": "Update",
+  "@updateButton": {
+    "description": "Button label for opening the app store update page."
   },
   "shareShipRate": "Share ShipRate",
   "@shareShipRate": {

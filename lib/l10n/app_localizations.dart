@@ -308,8 +308,20 @@ abstract class AppLocalizations {
   /// Localized text for update available.
   ///
   /// In pt, this message translates to:
-  /// **'Atualização Disponível'**
+  /// **'Nova atualização disponível'**
   String get updateAvailable;
+
+  /// Update banner message shown on web.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova atualização disponível. Feche e abra novamente para atualizar.'**
+  String get updateAvailableWeb;
+
+  /// Button label for opening the app store update page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atualizar'**
+  String get updateButton;
 
   /// Localized text for share ship rate.
   ///

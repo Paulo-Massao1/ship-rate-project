@@ -114,7 +114,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkCopied => 'Link copied to clipboard!';
 
   @override
-  String get updateAvailable => 'Update Available';
+  String get updateAvailable => 'New update available';
+
+  @override
+  String get updateAvailableWeb => 'New update available. Close and reopen to update.';
+
+  @override
+  String get updateButton => 'Update';
 
   @override
   String get shareShipRate => 'Share ShipRate';

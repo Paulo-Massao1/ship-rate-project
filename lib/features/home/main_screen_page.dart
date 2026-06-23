@@ -9,7 +9,6 @@ import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
 import '../../data/services/url_launcher_service.dart';
-import '../../data/services/version_service.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../main.dart';
 
@@ -17,18 +16,7 @@ import '../../main.dart';
 ///
 /// Responsibilities:
 /// - Manage main navigation drawer
-/// - Control app lifecycle (foreground/background)
-/// - Force data refresh when returning to app
-/// - Display update banner when available
 /// - Handle navigation between main screens
-///
-/// Versioning System:
-/// - Checks version on app open (initState)
-/// - Checks version when returning to app (resumed)
-/// - Compares local version (localStorage) with remote (Firestore)
-/// - Shows blue banner when update is available
-/// - User clicks OK → banner disappears
-/// - On app reopen → updated code is applied
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -36,7 +24,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
+class _MainScreenState extends State<MainScreen> {
   // ===========================================================================
   // CONSTANTS
   // ===========================================================================
@@ -44,68 +32,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   static const _shareUrl = 'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   // ===========================================================================
-  // STATE
-  // ===========================================================================
-
-  /// Controls update banner visibility.
-  bool _showUpdateBanner = false;
-
-  /// Custom message displayed in banner (from Firestore).
-  String _updateMessage = '';
-
-  // ===========================================================================
-  // LIFECYCLE
-  // ===========================================================================
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _checkForUpdates();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  /// Called when the app changes state (resumed, paused, detached).
-  ///
-  /// Behavior:
-  /// - resumed: App returned to foreground → force refresh and check updates
-  /// - paused: App went to background → no action
-  /// - detached: App was closed → no action
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkForUpdates();
-    }
-  }
-
-  // ===========================================================================
   // ACTIONS
   // ===========================================================================
-
-  /// Checks if an update is available.
-  ///
-  /// Queries VersionService which compares local version with remote (Firestore).
-  /// If there's a difference and user hasn't seen banner, shows blue banner.
-  Future<void> _checkForUpdates() async {
-    final result = await VersionService.shouldShowUpdateBanner();
-
-    if (!mounted) return;
-
-    final l10n = AppLocalizations.of(context)!;
-
-    if (result['shouldShow'] == true) {
-      setState(() {
-        _showUpdateBanner = true;
-        _updateMessage = result['message'] ??
-            l10n.defaultUpdateMessage;
-      });
-    }
-  }
 
   /// Toggles between PT and EN locales.
   void _toggleLocale() {
@@ -114,12 +42,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ? const Locale('en')
         : const Locale('pt');
     localeController.changeLocale(next);
-  }
-
-  /// Dismisses the update banner.
-  Future<void> _dismissUpdateBanner() async {
-    await VersionService.markBannerAsSeen();
-    setState(() => _showUpdateBanner = false);
   }
 
   /// Shows share app bottom sheet.
@@ -209,7 +131,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               ),
               child: Column(
                 children: [
-                  _buildUpdateBanner(),
                   const Expanded(child: SearchAndRateShipPage()),
                 ],
               ),
@@ -360,64 +281,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return !email.toLowerCase().endsWith('@cspam.com.br');
   }
 
-  /// Builds update banner displayed at top when update is available.
-  ///
-  /// Design:
-  /// - Blue gradient
-  /// - Update icon
-  /// - Two-line message
-  /// - OK button aligned to the right
-  Widget _buildUpdateBanner() {
-    if (!_showUpdateBanner) return const SizedBox.shrink();
-
-    final l10n = AppLocalizations.of(context)!;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade700, Colors.blue.shade600],
-        ),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.system_update, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.updateAvailable,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _updateMessage,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: _dismissUpdateBanner,
-            child: const Text(
-              'OK',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // =============================================================================
