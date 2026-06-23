@@ -334,7 +334,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveChanges => 'Salvar Alterações';
 
   @override
-  String get editWarningBanner => 'Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.';
+  String get editRatingBanner => 'Edite apenas para corrigir erros ou inserir informações de sua viagem. Se o navio mudou de condição, crie uma nova avaliação.';
 
   @override
   String get ratingUpdatedSuccess => 'Avaliação atualizada com sucesso!';
@@ -414,27 +414,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String errorGeneratingPdf(String error) {
     return 'Erro ao gerar PDF: $error';
   }
-
-  @override
-  String get editWarningTitle => 'Atenção';
-
-  @override
-  String get editWarningCorrectionsOnly => 'Edite apenas para corrigir erros';
-
-  @override
-  String get editWarningDescription => 'Esta função serve para corrigir erros de digitação ou informações incorretas.';
-
-  @override
-  String get editWarningImportant => 'Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.';
-
-  @override
-  String get editWarningNewRating => 'Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.';
-
-  @override
-  String get editWarningHistory => 'Manter histórico ajuda outros práticos!';
-
-  @override
-  String get editWarningConfirm => 'Entendi, quero editar';
 
   @override
   String get deleteRatingTitle => 'Excluir Avaliação';

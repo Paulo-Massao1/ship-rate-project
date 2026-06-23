@@ -40,6 +40,9 @@ class NavSafetyController extends ChangeNotifier {
   /// Cached total records count.
   static int? _cachedTotalRecordsCount;
 
+  /// UID the like states were cached for; cleared on user change.
+  static String? _cachedLikeStatesUid;
+
   /// Cached like states: { "locationId/recordId": true/false }
   static final Map<String, bool> _cachedLikeStates = {};
 
@@ -388,6 +391,11 @@ class NavSafetyController extends ChangeNotifier {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
+    if (_cachedLikeStatesUid != uid) {
+      _cachedLikeStates.clear();
+      _cachedLikeStatesUid = uid;
+    }
+
     final futures = locations.map((loc) async {
       final latestRecord = loc.latestRecord;
       final recordId = latestRecord?['recordId'] as String?;
@@ -411,6 +419,11 @@ class NavSafetyController extends ChangeNotifier {
       {bool notify = true}) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+
+    if (_cachedLikeStatesUid != uid) {
+      _cachedLikeStates.clear();
+      _cachedLikeStatesUid = uid;
+    }
 
     final futures = records.map((record) async {
       final recordId = record['recordId'] as String?;
@@ -659,6 +672,7 @@ class NavSafetyController extends ChangeNotifier {
     _cachedHistory.clear();
     _cachedMyRecords = null;
     _cachedTotalRecordsCount = null;
+    _cachedLikeStatesUid = null;
     _cachedLikeStates.clear();
     _cachedLikeCounts.clear();
     _cachedLikerNames.clear();

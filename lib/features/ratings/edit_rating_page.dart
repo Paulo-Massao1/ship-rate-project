@@ -27,7 +27,6 @@ class _EditRatingPageState extends State<EditRatingPage> {
   static const _hintColor = Color(0x59FFFFFF);
   static const _labelColor = Color(0x99FFFFFF);
   static const _iconBg = Color(0x2664B5F6);
-  static const _warningColor = Colors.orange;
 
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
   static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
@@ -627,23 +626,22 @@ class _EditRatingPageState extends State<EditRatingPage> {
   Widget _buildWarningBanner() {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _warningColor.withAlpha(26),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _warningColor.withAlpha(77)),
+        color: const Color(0x1AFFB74D),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, color: _warningColor, size: 24),
-          const SizedBox(width: 12),
+          const Icon(Icons.info_outline, color: Color(0xFFFFB74D), size: 22),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              l10n.editWarningBanner,
+              l10n.editRatingBanner,
               style: const TextStyle(
                 fontSize: 13,
-                color: _warningColor,
-                fontWeight: FontWeight.w600,
+                color: Color(0xFFFFB74D),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

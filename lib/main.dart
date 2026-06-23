@@ -179,6 +179,13 @@ class ShipRateApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          builder: (context, child) {
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: child,
+            );
+          },
           home: const AuthGate(),
         );
       },

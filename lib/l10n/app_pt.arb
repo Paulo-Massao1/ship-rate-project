@@ -438,9 +438,9 @@
   "@saveChanges": {
     "description": "Localized text for save changes."
   },
-  "editWarningBanner": "Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.",
-  "@editWarningBanner": {
-    "description": "Localized text for edit warning banner."
+  "editRatingBanner": "Edite apenas para corrigir erros ou inserir informações de sua viagem. Se o navio mudou de condição, crie uma nova avaliação.",
+  "@editRatingBanner": {
+    "description": "Banner text shown at the top of the edit rating page."
   },
   "ratingUpdatedSuccess": "Avaliação atualizada com sucesso!",
   "@ratingUpdatedSuccess": {
@@ -550,34 +550,6 @@
         "type": "String"
       }
     }
-  },
-  "editWarningTitle": "Atenção",
-  "@editWarningTitle": {
-    "description": "Title text for edit warning."
-  },
-  "editWarningCorrectionsOnly": "Edite apenas para corrigir erros",
-  "@editWarningCorrectionsOnly": {
-    "description": "Localized text for edit warning corrections only."
-  },
-  "editWarningDescription": "Esta função serve para corrigir erros de digitação ou informações incorretas.",
-  "@editWarningDescription": {
-    "description": "Localized text for edit warning description."
-  },
-  "editWarningImportant": "Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.",
-  "@editWarningImportant": {
-    "description": "Localized text for edit warning important."
-  },
-  "editWarningNewRating": "Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.",
-  "@editWarningNewRating": {
-    "description": "Localized text for edit warning new rating."
-  },
-  "editWarningHistory": "Manter histórico ajuda outros práticos!",
-  "@editWarningHistory": {
-    "description": "Localized text for edit warning history."
-  },
-  "editWarningConfirm": "Entendi, quero editar",
-  "@editWarningConfirm": {
-    "description": "Localized text for edit warning confirm."
   },
   "deleteRatingTitle": "Excluir Avaliação",
   "@deleteRatingTitle": {

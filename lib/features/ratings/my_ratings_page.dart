@@ -12,7 +12,7 @@ import 'edit_rating_page.dart';
 /// - Lists all user's ratings sorted by date (newest first)
 /// - Pull-to-refresh support
 /// - View rating details
-/// - Edit rating (with warning dialog)
+/// - Edit rating
 /// - Delete rating (with confirmation dialog)
 /// - Export rating to PDF
 class MyRatingsPage extends StatefulWidget {
@@ -91,22 +91,15 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
   // ACTIONS
   // ===========================================================================
 
-  Future<void> _showEditWarning(RatingWithShipInfo item) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const _EditWarningDialog(),
+  Future<void> _editRating(RatingWithShipInfo item) async {
+    final edited = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => EditRatingPage(rating: item.rating)),
     );
 
-    if (confirmed == true && mounted) {
-      final edited = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => EditRatingPage(rating: item.rating)),
-      );
-
-      if (edited == true) {
-        _loadRatings();
-        notifyDataChanged();
-      }
+    if (edited == true && mounted) {
+      _loadRatings();
+      notifyDataChanged();
     }
   }
 
@@ -555,7 +548,7 @@ class _MyRatingsPageState extends State<MyRatingsPage> {
           icon: Icons.edit,
           label: l10n.editLabel,
           color: Colors.orange,
-          onTap: () => _showEditWarning(item),
+          onTap: () => _editRating(item),
         ),
         const SizedBox(width: 8),
         _ActionButton(
@@ -695,85 +688,6 @@ class _ActionButton extends StatelessWidget {
         backgroundColor: color.withAlpha(26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-    );
-  }
-}
-
-class _EditWarningDialog extends StatelessWidget {
-  const _EditWarningDialog();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Row(
-        children: [
-          const Icon(Icons.warning_amber, color: Colors.orange, size: 28),
-          const SizedBox(width: 8),
-          Text(l10n.editWarningTitle),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.editWarningCorrectionsOnly,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 12),
-          Text(l10n.editWarningDescription),
-          const SizedBox(height: 8),
-          Text(
-            l10n.editWarningImportant,
-            style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.editWarningNewRating,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.orange.withAlpha(26),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.withAlpha(77)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: Colors.orange, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.editWarningHistory,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l10n.cancel),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-          ),
-          child: Text(l10n.editWarningConfirm),
-        ),
-      ],
     );
   }
 }

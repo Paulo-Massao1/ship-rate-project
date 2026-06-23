@@ -737,11 +737,11 @@ abstract class AppLocalizations {
   /// **'Salvar Alterações'**
   String get saveChanges;
 
-  /// Localized text for edit warning banner.
+  /// Banner text shown at the top of the edit rating page.
   ///
   /// In pt, this message translates to:
-  /// **'Edite apenas erros de digitação. Para mudanças no navio, crie nova avaliação.'**
-  String get editWarningBanner;
+  /// **'Edite apenas para corrigir erros ou inserir informações de sua viagem. Se o navio mudou de condição, crie uma nova avaliação.'**
+  String get editRatingBanner;
 
   /// Localized text for rating updated success.
   ///
@@ -868,48 +868,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Erro ao gerar PDF: {error}'**
   String errorGeneratingPdf(String error);
-
-  /// Title text for edit warning.
-  ///
-  /// In pt, this message translates to:
-  /// **'Atenção'**
-  String get editWarningTitle;
-
-  /// Localized text for edit warning corrections only.
-  ///
-  /// In pt, this message translates to:
-  /// **'Edite apenas para corrigir erros'**
-  String get editWarningCorrectionsOnly;
-
-  /// Localized text for edit warning description.
-  ///
-  /// In pt, this message translates to:
-  /// **'Esta função serve para corrigir erros de digitação ou informações incorretas.'**
-  String get editWarningDescription;
-
-  /// Localized text for edit warning important.
-  ///
-  /// In pt, this message translates to:
-  /// **'Importante: Use apenas para correções, não para atualizar mudanças no navio ao longo do tempo.'**
-  String get editWarningImportant;
-
-  /// Localized text for edit warning new rating.
-  ///
-  /// In pt, this message translates to:
-  /// **'Se o navio mudou de condição desde sua última avaliação, crie uma NOVA avaliação em vez de editar esta.'**
-  String get editWarningNewRating;
-
-  /// Localized text for edit warning history.
-  ///
-  /// In pt, this message translates to:
-  /// **'Manter histórico ajuda outros práticos!'**
-  String get editWarningHistory;
-
-  /// Localized text for edit warning confirm.
-  ///
-  /// In pt, this message translates to:
-  /// **'Entendi, quero editar'**
-  String get editWarningConfirm;
 
   /// Title text for delete rating.
   ///

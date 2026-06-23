@@ -436,9 +436,9 @@
   "@saveChanges": {
     "description": "Localized text for save changes."
   },
-  "editWarningBanner": "Edit only typos. For ship changes, create a new rating.",
-  "@editWarningBanner": {
-    "description": "Localized text for edit warning banner."
+  "editRatingBanner": "Edit only to correct errors or add information from your voyage. If the ship's condition has changed, create a new rating instead.",
+  "@editRatingBanner": {
+    "description": "Banner text shown at the top of the edit rating page."
   },
   "ratingUpdatedSuccess": "Rating updated successfully!",
   "@ratingUpdatedSuccess": {
@@ -543,34 +543,6 @@
         "type": "String"
       }
     }
-  },
-  "editWarningTitle": "Warning",
-  "@editWarningTitle": {
-    "description": "Title text for edit warning."
-  },
-  "editWarningCorrectionsOnly": "Edit only to correct errors",
-  "@editWarningCorrectionsOnly": {
-    "description": "Localized text for edit warning corrections only."
-  },
-  "editWarningDescription": "This feature is for correcting typos or incorrect information.",
-  "@editWarningDescription": {
-    "description": "Localized text for edit warning description."
-  },
-  "editWarningImportant": "Important: Use only for corrections, not to update ship changes over time.",
-  "@editWarningImportant": {
-    "description": "Localized text for edit warning important."
-  },
-  "editWarningNewRating": "If the ship's condition has changed since your last rating, create a NEW rating instead of editing this one.",
-  "@editWarningNewRating": {
-    "description": "Localized text for edit warning new rating."
-  },
-  "editWarningHistory": "Keeping history helps other pilots!",
-  "@editWarningHistory": {
-    "description": "Localized text for edit warning history."
-  },
-  "editWarningConfirm": "I understand, I want to edit",
-  "@editWarningConfirm": {
-    "description": "Localized text for edit warning confirm."
   },
   "deleteRatingTitle": "Delete Rating",
   "@deleteRatingTitle": {

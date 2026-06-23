@@ -334,7 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveChanges => 'Save Changes';
 
   @override
-  String get editWarningBanner => 'Edit only typos. For ship changes, create a new rating.';
+  String get editRatingBanner => 'Edit only to correct errors or add information from your voyage. If the ship\'s condition has changed, create a new rating instead.';
 
   @override
   String get ratingUpdatedSuccess => 'Rating updated successfully!';
@@ -414,27 +414,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorGeneratingPdf(String error) {
     return 'Error generating PDF: $error';
   }
-
-  @override
-  String get editWarningTitle => 'Warning';
-
-  @override
-  String get editWarningCorrectionsOnly => 'Edit only to correct errors';
-
-  @override
-  String get editWarningDescription => 'This feature is for correcting typos or incorrect information.';
-
-  @override
-  String get editWarningImportant => 'Important: Use only for corrections, not to update ship changes over time.';
-
-  @override
-  String get editWarningNewRating => 'If the ship\'s condition has changed since your last rating, create a NEW rating instead of editing this one.';
-
-  @override
-  String get editWarningHistory => 'Keeping history helps other pilots!';
-
-  @override
-  String get editWarningConfirm => 'I understand, I want to edit';
 
   @override
   String get deleteRatingTitle => 'Delete Rating';

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../crossing/crossing_page.dart';
+import '../ratings/last_rated_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
@@ -626,6 +627,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 Icons.directions_boat,
                 data.totalShips.toString(),
                 l10n.totalShipsLabel,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LastRatedPage()),
+                ),
               ),
               _buildStatDivider(),
               _buildStatItem(
@@ -679,30 +684,48 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String value,
     String label, {
     Color iconColor = const Color(0xFF64B5F6),
+    VoidCallback? onTap,
   }) {
+    final content = Column(
+      children: [
+        Icon(icon, color: iconColor, size: 22),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.4),
+                fontSize: 11,
+              ),
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: 2),
+              Icon(
+                Icons.chevron_right,
+                size: 14,
+                color: Colors.white.withValues(alpha: 0.4),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+
     return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: iconColor, size: 22),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
-              fontSize: 11,
-            ),
-          ),
-        ],
-      ),
+      child: onTap != null
+          ? GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: content)
+          : content,
     );
   }
 
