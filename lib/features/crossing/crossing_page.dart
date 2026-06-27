@@ -191,6 +191,11 @@ class _CrossingPageState extends State<CrossingPage> {
     }
   }
 
+  void _showMyCrossingsFromDrawer() {
+    Navigator.pop(context);
+    setState(() => _selectedTab = _CrossingTab.mine);
+  }
+
   Future<void> _navigateToEditCrossing(Map<String, dynamic> crossing) async {
     final updated = await Navigator.push<bool>(
       context,
@@ -367,10 +372,27 @@ class _CrossingPageState extends State<CrossingPage> {
         .toList(growable: false);
   }
 
-  bool get _showCrossingStats =>
-      _selectedTab == _CrossingTab.active &&
+  bool get _showCrossingStats => _crossingStats != null;
+
+  bool get _showCrossingRanking =>
       _crossingStats != null &&
-      _crossingStats!.totalCrossings > 0;
+      _crossingRankingTotal > 0;
+
+  int get _crossingRankingPosition {
+    final data = _crossingStats!;
+    final total = _crossingRankingTotal;
+    final position = data.userCrossingRanking > 0
+        ? data.userCrossingRanking
+        : data.totalCrossingPilots > 0
+            ? data.totalCrossingPilots + 1
+            : total;
+    return position > total ? total : position;
+  }
+
+  int get _crossingRankingTotal {
+    final data = _crossingStats!;
+    return data.totalUsers > 0 ? data.totalUsers : data.totalCrossingPilots;
+  }
 
   bool get _showNavSafetyModule {
     final email = FirebaseAuth.instance.currentUser?.email ?? '';
@@ -481,6 +503,13 @@ class _CrossingPageState extends State<CrossingPage> {
       drawer: AppDrawer(
         currentScreen: AppScreen.crossing,
         showNavSafety: _showNavSafetyModule,
+        additionalItems: [
+          DrawerItem(
+            icon: Icons.assignment_turned_in_outlined,
+            label: l10n.myCrossings,
+            onTap: _showMyCrossingsFromDrawer,
+          ),
+        ],
         bottomItems: [
           DrawerItem(
             icon: Icons.lightbulb_outline,
@@ -524,7 +553,9 @@ class _CrossingPageState extends State<CrossingPage> {
                   ),
                   child: Column(
                     children: [
+                      if (_showCrossingStats) _buildCrossingStatsCard(l10n),
                       _buildAlertToggle(l10n),
+                      if (_showCrossingStats) _buildMotivationalMessage(l10n),
                       _buildTabPills(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
@@ -767,10 +798,6 @@ class _CrossingPageState extends State<CrossingPage> {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                if (_showCrossingStats) ...[
-                  const SizedBox(height: 8),
-                  _buildCrossingStatsCard(l10n),
-                ],
                 const SizedBox(height: 96),
                 _buildEmptyState(l10n),
               ],
@@ -778,14 +805,10 @@ class _CrossingPageState extends State<CrossingPage> {
           : ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-              itemCount: items.length + 1 + (_showCrossingStats ? 1 : 0),
+              itemCount: items.length + 1,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
-                if (_showCrossingStats && index == 0) {
-                  return _buildCrossingStatsCard(l10n);
-                }
-                final adjusted = index - (_showCrossingStats ? 1 : 0);
-                if (adjusted == 0) {
+                if (index == 0) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 2),
                     child: Text(
@@ -798,7 +821,7 @@ class _CrossingPageState extends State<CrossingPage> {
                   );
                 }
 
-                final crossing = items[adjusted - 1];
+                final crossing = items[index - 1];
                 return _buildCrossingCard(
                   crossing,
                   l10n,
@@ -849,7 +872,7 @@ class _CrossingPageState extends State<CrossingPage> {
     final data = _crossingStats!;
 
     return Container(
-      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
@@ -859,62 +882,36 @@ class _CrossingPageState extends State<CrossingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.crossingsDashboardTitle.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.0,
-              color: _amber.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-            decoration: BoxDecoration(
-              color: _amberLight,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.compare_arrows,
-                  color: Colors.white.withValues(alpha: 0.7),
-                  size: 22,
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  l10n.myCrossings,
+          Row(
+            children: [
+              const Icon(Icons.compare_arrows, color: _amber, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.crossingStatsCount(
+                    data.userCrossingCount,
+                    data.totalCrossings,
+                  ),
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  data.userCrossingCount.toString(),
-                  style: const TextStyle(
-                    color: _amber,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          if (data.userCrossingRanking > 0) ...[
-            const SizedBox(height: 10),
+          if (_showCrossingRanking) ...[
+            const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(Icons.emoji_events, size: 16, color: _amber),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     l10n.crossingRankingPosition(
-                      '#${data.userCrossingRanking}',
-                      data.totalCrossingPilots,
+                      _crossingRankingPosition,
+                      _crossingRankingTotal,
                     ),
                     style: const TextStyle(
                       color: _amber,
@@ -926,49 +923,30 @@ class _CrossingPageState extends State<CrossingPage> {
               ],
             ),
           ],
-          if (data.topCrosserCount > 0) ...[
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.emoji_events,
-                  size: 14,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    l10n.crossingTopCrosser(data.topCrosserCount),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 14),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: _amber.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _amberBorder),
-            ),
-            child: Text(
-              l10n.crossingsMotivational(data.totalCrossings),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMotivationalMessage(AppLocalizations l10n) {
+    final data = _crossingStats!;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _amber.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _amberBorder),
+      ),
+      child: Text(
+        l10n.crossingsMotivational(data.totalCrossings),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.6),
+          fontSize: 12,
+          fontStyle: FontStyle.italic,
+        ),
       ),
     );
   }

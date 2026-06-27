@@ -1,13 +1,42 @@
 const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 const { transporter, smtpEmail } = require("../shared/mailer");
-const { TEST_EMAILS } = require("../shared/constants");
+const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
+
+async function incrementDepthRecordCounters(pilotId) {
+  const statsUpdate = {
+    totalCount: admin.firestore.FieldValue.increment(1),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  if (pilotId && pilotId !== CSPAM_UID) {
+    statsUpdate.pilotRecordCount = admin.firestore.FieldValue.increment(1);
+  }
+
+  await db.collection("stats").doc("depthRecords").set(
+    statsUpdate,
+    { merge: true },
+  );
+
+  if (!pilotId || pilotId === CSPAM_UID) return;
+
+  await db.collection("usuarios").doc(pilotId).set(
+    { depthRecordCount: admin.firestore.FieldValue.increment(1) },
+    { merge: true },
+  );
+}
 
 exports.onNewRecord = functions.firestore
   .document("locais/{locationId}/registros/{registroId}")
   .onCreate(async (snap, context) => {
     const record = snap.data();
     const { locationId } = context.params;
+
+    try {
+      await incrementDepthRecordCounters(record.pilotId);
+    } catch (err) {
+      console.error("Error updating depth record counters:", err);
+    }
 
     if (!record.pilotId) {
       console.log("Skipping notification — no pilotId (likely seed/batch).");

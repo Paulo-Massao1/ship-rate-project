@@ -17,6 +17,9 @@ const {
   finalizeNavSafetyImages,
   deleteNavSafetyImages,
 } = require("./navigation_safety/image_uploads");
+const {
+  backfillDepthRecordCounts,
+} = require("./navigation_safety/backfill_depth_counts");
 const { getUserCount } = require("./stats/get_user_count");
 const { onLikeCreated, onLikeDeleted } = require("./navigation_safety/on_like");
 const { inactivityReminder } = require("./notifications/inactivity_reminder");
@@ -37,6 +40,7 @@ exports.onRecordDeleted = onRecordDeleted;
 exports.createNavSafetyImageUploadUrls = createNavSafetyImageUploadUrls;
 exports.finalizeNavSafetyImages = finalizeNavSafetyImages;
 exports.deleteNavSafetyImages = deleteNavSafetyImages;
+exports.backfillDepthRecordCounts = backfillDepthRecordCounts;
 exports.sendPasswordReset = sendPasswordReset;
 exports.getUserCount = getUserCount;
 exports.onLikeCreated = onLikeCreated;

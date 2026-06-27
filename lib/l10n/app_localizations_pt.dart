@@ -1145,8 +1145,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get myCrossings => 'Meus cruzamentos';
 
   @override
-  String crossingRankingPosition(String position, int total) {
-    return 'Sua posição: $position de $total práticos';
+  String crossingRankingPosition(int position, int total) {
+    return 'Sua posição: #$position de $total práticos';
   }
 
   @override
@@ -1292,4 +1292,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get firebaseUnavailable => 'Não foi possível conectar. Por favor, feche e reabra o aplicativo.';
+
+  @override
+  String crossingStatsCount(int count, int total) {
+    return 'Você informou $count cruzamentos de um total de $total';
+  }
+
+  @override
+  String depthStatsCount(int count, int total) {
+    return 'Você informou $count profundidades de um total de $total';
+  }
+
+  @override
+  String depthStatsRanking(int position, int total) {
+    return 'Sua posição: #$position de $total práticos';
+  }
 }

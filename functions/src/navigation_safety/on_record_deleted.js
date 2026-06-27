@@ -1,10 +1,63 @@
 const functions = require("firebase-functions");
-const { admin } = require("../shared/firestore");
+const { admin, db } = require("../shared/firestore");
+const { CSPAM_UID } = require("../shared/constants");
+
+async function decrementDepthRecordCounters(pilotId) {
+  const statsRef = db.collection("stats").doc("depthRecords");
+  const hasRankedPilot = pilotId && pilotId !== CSPAM_UID;
+  const userRef = hasRankedPilot ? db.collection("usuarios").doc(pilotId) : null;
+
+  await db.runTransaction(async (transaction) => {
+    const statsDoc = await transaction.get(statsRef);
+    const statsCount = statsDoc.exists
+      ? (statsDoc.data().totalCount || 0)
+      : 0;
+    const statsPilotCount = statsDoc.exists
+      ? (statsDoc.data().pilotRecordCount || 0)
+      : 0;
+
+    const userDoc = userRef ? await transaction.get(userRef) : null;
+    const userCount = userDoc && userDoc.exists
+      ? (userDoc.data().depthRecordCount || 0)
+      : 0;
+
+    const statsUpdate = {
+      totalCount: Math.max(statsCount - 1, 0),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (hasRankedPilot) {
+      statsUpdate.pilotRecordCount = Math.max(statsPilotCount - 1, 0);
+    }
+
+    transaction.set(statsRef, statsUpdate, { merge: true });
+
+    if (!userRef) return;
+
+    if (userCount <= 0) return;
+
+    transaction.set(
+      userRef,
+      { depthRecordCount: userCount - 1 },
+      { merge: true },
+    );
+  });
+}
 
 exports.onRecordDeleted = functions.firestore
   .document("locais/{locationId}/registros/{recordId}")
-  .onDelete(async (_, context) => {
+  .onDelete(async (snap, context) => {
     const { locationId, recordId } = context.params;
+    const deletedData = snap.data();
+
+    // Decrement depth record counters.
+    try {
+      await decrementDepthRecordCounters(deletedData.pilotId);
+    } catch (err) {
+      console.error("Error decrementing depth record counters:", err);
+    }
+
+    // Clean up storage files
     const prefix = `registros/${locationId}/${recordId}/`;
     const bucket = admin.storage().bucket();
 

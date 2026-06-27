@@ -1145,8 +1145,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myCrossings => 'My crossings';
 
   @override
-  String crossingRankingPosition(String position, int total) {
-    return 'Your position: $position of $total pilots';
+  String crossingRankingPosition(int position, int total) {
+    return 'Your position: #$position of $total pilots';
   }
 
   @override
@@ -1292,4 +1292,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firebaseUnavailable => 'Unable to connect. Please close and reopen the app.';
+
+  @override
+  String crossingStatsCount(int count, int total) {
+    return 'You reported $count crossings out of $total total';
+  }
+
+  @override
+  String depthStatsCount(int count, int total) {
+    return 'You reported $count depths out of $total total';
+  }
+
+  @override
+  String depthStatsRanking(int position, int total) {
+    return 'Your position: #$position of $total pilots';
+  }
 }

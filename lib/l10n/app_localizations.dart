@@ -2246,8 +2246,8 @@ abstract class AppLocalizations {
   /// User crossing ranking position shown on the my crossings tab.
   ///
   /// In pt, this message translates to:
-  /// **'Sua posição: {position} de {total} práticos'**
-  String crossingRankingPosition(String position, int total);
+  /// **'Sua posição: #{position} de {total} práticos'**
+  String crossingRankingPosition(int position, int total);
 
   /// Top crossing count shown on the my crossings tab.
   ///
@@ -2488,6 +2488,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível conectar. Por favor, feche e reabra o aplicativo.'**
   String get firebaseUnavailable;
+
+  /// Stats text showing user crossing count vs total.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você informou {count} cruzamentos de um total de {total}'**
+  String crossingStatsCount(int count, int total);
+
+  /// Stats text showing user depth record count vs total.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você informou {count} profundidades de um total de {total}'**
+  String depthStatsCount(int count, int total);
+
+  /// User depth ranking position.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua posição: #{position} de {total} práticos'**
+  String depthStatsRanking(int position, int total);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

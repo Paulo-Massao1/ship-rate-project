@@ -5,6 +5,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../controllers/dashboard_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
@@ -34,6 +35,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   // ===========================================================================
 
   final NavSafetyController _controller = NavSafetyController();
+  final DashboardController _dashboardController = DashboardController();
+  DashboardData? _depthStats;
   bool _showLocationsDropdown = false;
 
   bool get _showNavSafetyModule {
@@ -50,6 +53,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     super.initState();
     _controller.addListener(_onControllerChanged);
     _controller.fetchLocationsWithLatestRecord();
+    _loadDepthStats();
   }
 
   @override
@@ -61,6 +65,41 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   void _onControllerChanged() {
     if (mounted) setState(() {});
+  }
+
+  bool get _showDepthStats => _depthStats != null;
+
+  bool get _showDepthRanking =>
+      _depthStats != null &&
+      _depthRankingTotal > 0;
+
+  int get _depthRankingPosition {
+    final data = _depthStats!;
+    final total = _depthRankingTotal;
+    final position = data.userDepthRanking > 0
+        ? data.userDepthRanking
+        : data.totalDepthPilots > 0
+            ? data.totalDepthPilots + 1
+            : total;
+    return position > total ? total : position;
+  }
+
+  int get _depthRankingTotal {
+    final data = _depthStats!;
+    return data.totalUsers > 0 ? data.totalUsers : data.totalDepthPilots;
+  }
+
+  Future<void> _loadDepthStats() async {
+    _depthStats = DashboardController.cachedData;
+    if (DashboardController.isCacheFresh && _depthStats != null) return;
+    try {
+      final data = await _dashboardController.loadDashboardData();
+      if (mounted) {
+        setState(() => _depthStats = data);
+      }
+    } catch (e) {
+      debugPrint('[NavSafety] Error loading depth stats: $e');
+    }
   }
 
   // ===========================================================================
@@ -219,6 +258,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   ),
                   child: Column(
                     children: [
+                      if (_showDepthStats) _buildDepthStatsCard(l10n),
                       _buildTabPills(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
@@ -297,6 +337,70 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDepthStatsCard(AppLocalizations l10n) {
+    final data = _depthStats!;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0x4026A69A)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.waves, color: Color(0xFF26A69A), size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.depthStatsCount(
+                    data.userDepthRecordCount,
+                    data.totalDepthRecords,
+                  ),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_showDepthRanking) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.emoji_events,
+                  size: 16,
+                  color: Color(0xFF26A69A),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.depthStatsRanking(
+                      _depthRankingPosition,
+                      _depthRankingTotal,
+                    ),
+                    style: const TextStyle(
+                      color: Color(0xFF26A69A),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

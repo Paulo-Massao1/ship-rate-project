@@ -1554,12 +1554,12 @@
   "@myCrossings": {
     "description": "Label for my crossings section."
   },
-  "crossingRankingPosition": "Your position: {position} of {total} pilots",
+  "crossingRankingPosition": "Your position: #{position} of {total} pilots",
   "@crossingRankingPosition": {
     "description": "User crossing ranking position shown on the my crossings tab.",
     "placeholders": {
       "position": {
-        "type": "String"
+        "type": "int"
       },
       "total": {
         "type": "int"
@@ -1755,5 +1755,41 @@
   "firebaseUnavailable": "Unable to connect. Please close and reopen the app.",
   "@firebaseUnavailable": {
     "description": "Message shown when Firebase initialization fails."
+  },
+  "crossingStatsCount": "You reported {count} crossings out of {total} total",
+  "@crossingStatsCount": {
+    "description": "Stats text showing user crossing count vs total.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "depthStatsCount": "You reported {count} depths out of {total} total",
+  "@depthStatsCount": {
+    "description": "Stats text showing user depth record count vs total.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "depthStatsRanking": "Your position: #{position} of {total} pilots",
+  "@depthStatsRanking": {
+    "description": "User depth ranking position.",
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

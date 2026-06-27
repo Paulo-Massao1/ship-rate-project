@@ -7,16 +7,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../crossing/crossing_page.dart';
 import '../ratings/last_rated_page.dart';
+import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../main.dart';
 import '../../core/app_cache.dart';
 import '../../data/services/version_service.dart';
 import '../../data/services/url_launcher_service.dart';
@@ -68,6 +71,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               topCrosserCount: 0,
               userCrossingRanking: 0,
               totalCrossingPilots: 0,
+              totalDepthRecords: 0,
+              userDepthRecordCount: 0,
+              topDepthContributorCount: 0,
+              userDepthRanking: 0,
+              totalDepthPilots: 0,
               recentRatings: const [],
             )
           : DashboardData.empty());
@@ -447,6 +455,62 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   // ===========================================================================
+  // DRAWER ACTIONS
+  // ===========================================================================
+
+  void _navigateToSuggestions() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SuggestionPage()),
+    );
+  }
+
+  void _toggleLocale() {
+    Navigator.pop(context);
+    final next = localeController.locale.languageCode == 'pt'
+        ? const Locale('en')
+        : const Locale('pt');
+    localeController.changeLocale(next);
+  }
+
+  void _shareApp() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _ShareBottomSheet(
+        onWhatsAppTap: _shareViaWhatsApp,
+        onCopyLinkTap: _copyLinkToClipboard,
+      ),
+    );
+  }
+
+  void _shareViaWhatsApp() {
+    Navigator.pop(context);
+    final l10n = AppLocalizations.of(context)!;
+    UrlLauncherService.openWhatsAppShare(l10n.shareText);
+  }
+
+  Future<void> _copyLinkToClipboard() async {
+    Navigator.pop(context);
+    await Clipboard.setData(const ClipboardData(text: _appStoreUrl));
+
+    if (!mounted) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.linkCopied),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // ===========================================================================
   // NAVIGATION
   // ===========================================================================
 
@@ -496,6 +560,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _notificationsInitialized = false;
           _cachedNomeGuerraByUid.clear();
         },
+        bottomItems: [
+          DrawerItem(
+            icon: Icons.lightbulb_outline,
+            label: AppLocalizations.of(context)!.drawerSendSuggestion,
+            onTap: _navigateToSuggestions,
+          ),
+          DrawerItem(
+            icon: Icons.share,
+            label: AppLocalizations.of(context)!.drawerShareApp,
+            onTap: () {
+              Navigator.pop(context);
+              _shareApp();
+            },
+          ),
+          DrawerItem(
+            icon: Icons.language,
+            label: localeController.locale.languageCode == 'pt'
+                ? 'English'
+                : 'Português',
+            onTap: _toggleLocale,
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -982,6 +1068,101 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             tooltip: l10n.close,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ShareBottomSheet extends StatelessWidget {
+  final VoidCallback onWhatsAppTap;
+  final VoidCallback onCopyLinkTap;
+
+  const _ShareBottomSheet({
+    required this.onWhatsAppTap,
+    required this.onCopyLinkTap,
+  });
+
+  static const _whatsAppColor = Color(0xFF25D366);
+  static const _primaryColor = Color(0xFF3F51B5);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.shareShipRate,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _ShareOption(
+                  icon: Icons.message,
+                  label: 'WhatsApp',
+                  color: _whatsAppColor,
+                  onTap: onWhatsAppTap,
+                ),
+                _ShareOption(
+                  icon: Icons.link,
+                  label: l10n.copyLink,
+                  color: _primaryColor,
+                  onTap: onCopyLinkTap,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShareOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ShareOption({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 32),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

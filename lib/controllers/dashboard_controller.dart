@@ -109,12 +109,14 @@ class DashboardController {
         _firestore.collection(AppConstants.shipsCollection).get().timeout(_queryTimeout),
         _getUserCount(),
         _getCrossingStats(userId),
+        _getDepthRecordStats(userId),
       ]);
 
       final callSign = results[0] as String?;
       final shipsSnapshot = results[1] as QuerySnapshot;
       final cloudUserCount = results[2] as int?;
       final crossingStats = results[3] as _CrossingDashboardStats;
+      final depthStats = results[4] as _DepthDashboardStats;
 
       int totalRatings = 0;
       int userRatings = 0;
@@ -243,6 +245,11 @@ class DashboardController {
         topCrosserCount: crossingStats.topCrosserCount,
         userCrossingRanking: crossingStats.userCrossingRanking,
         totalCrossingPilots: crossingStats.totalCrossingPilots,
+        totalDepthRecords: depthStats.totalDepthRecords,
+        userDepthRecordCount: depthStats.userDepthRecordCount,
+        topDepthContributorCount: depthStats.topDepthContributorCount,
+        userDepthRanking: depthStats.userDepthRanking,
+        totalDepthPilots: depthStats.totalDepthPilots,
         totalUsers: totalUsers,
         userRatings: userRatings,
         topRaterCount: topRaterCount,
@@ -341,6 +348,161 @@ class DashboardController {
     );
   }
 
+  Future<_DepthDashboardStats> _getDepthRecordStats(String userId) async {
+    int totalDepthRecords = 0;
+    int? expectedPilotRecordCount;
+    final depthsPerPilot = <String, int>{};
+
+    try {
+      final statsDoc = await _firestore
+          .collection('stats')
+          .doc('depthRecords')
+          .get()
+          .timeout(_queryTimeout);
+      if (statsDoc.exists) {
+        final statsData = statsDoc.data();
+        totalDepthRecords = (statsData?['totalCount'] as int?) ?? 0;
+        expectedPilotRecordCount = statsData?['pilotRecordCount'] as int?;
+      }
+    } catch (e) {
+      debugPrint('[Dashboard] Error fetching depth record stats doc: $e');
+    }
+
+    try {
+      final usersSnapshot = await _firestore
+          .collection(AppConstants.usersCollection)
+          .where('depthRecordCount', isGreaterThan: 0)
+          .get()
+          .timeout(_queryTimeout);
+
+      for (final doc in usersSnapshot.docs) {
+        if (doc.id == AppConstants.cspamUid) continue;
+        final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
+        depthsPerPilot[doc.id] = count;
+      }
+    } catch (e) {
+      debugPrint('[Dashboard] Error fetching usuario depth record counts: $e');
+    }
+
+    final counterTotal = depthsPerPilot.values.fold(0, (a, b) => a + b);
+    if (counterTotal > totalDepthRecords) {
+      totalDepthRecords = counterTotal;
+    }
+
+    final aggregateTotal = await _getDepthRecordsAggregateCount();
+    if (aggregateTotal > totalDepthRecords) {
+      totalDepthRecords = aggregateTotal;
+    }
+
+    final counterUserCount = depthsPerPilot[userId] ?? 0;
+    final aggregateUserCount = await _getUserDepthRecordsAggregateCount(userId);
+    final userCount = aggregateUserCount > counterUserCount
+        ? aggregateUserCount
+        : counterUserCount;
+
+    final countersNeedFallback = depthsPerPilot.isEmpty ||
+        (expectedPilotRecordCount != null &&
+            counterTotal < expectedPilotRecordCount);
+
+    if (countersNeedFallback && aggregateTotal > 0) {
+      final fallbackStats = await _getDepthRecordStatsFromRecords(userId);
+      if (fallbackStats != null) {
+        return fallbackStats.copyWith(
+          totalDepthRecords: totalDepthRecords,
+        );
+      }
+    }
+
+    if (userCount > 0) {
+      depthsPerPilot[userId] = userCount;
+    }
+
+    final sortedCounts = depthsPerPilot.values.toList()
+      ..sort((a, b) => b.compareTo(a));
+    final userRanking = userCount > 0
+        ? sortedCounts.where((c) => c > userCount).length + 1
+        : 0;
+
+    return _DepthDashboardStats(
+      totalDepthRecords: totalDepthRecords,
+      userDepthRecordCount: userCount,
+      topDepthContributorCount: sortedCounts.isEmpty ? 0 : sortedCounts.first,
+      userDepthRanking: userRanking,
+      totalDepthPilots: depthsPerPilot.length,
+    );
+  }
+
+  Future<int> _getDepthRecordsAggregateCount() async {
+    try {
+      final snapshot = await _firestore
+          .collectionGroup(AppConstants.recordsSubcollection)
+          .count()
+          .get()
+          .timeout(_queryTimeout);
+      return snapshot.count ?? 0;
+    } catch (e) {
+      debugPrint('[Dashboard] Error aggregate-counting depth records: $e');
+      return 0;
+    }
+  }
+
+  Future<int> _getUserDepthRecordsAggregateCount(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collectionGroup(AppConstants.recordsSubcollection)
+          .where('pilotId', isEqualTo: userId)
+          .count()
+          .get()
+          .timeout(_queryTimeout);
+      return snapshot.count ?? 0;
+    } catch (e) {
+      debugPrint('[Dashboard] Error aggregate-counting user depth records: $e');
+      return 0;
+    }
+  }
+
+  Future<_DepthDashboardStats?> _getDepthRecordStatsFromRecords(
+    String userId,
+  ) async {
+    try {
+      final recordsSnapshot = await _firestore
+          .collectionGroup(AppConstants.recordsSubcollection)
+          .get()
+          .timeout(_queryTimeout);
+      if (recordsSnapshot.docs.isEmpty) return null;
+
+      final depthsPerPilot = <String, int>{};
+      for (final doc in recordsSnapshot.docs) {
+        final data = doc.data();
+        final pilotId = (data['pilotId'] as String?)?.trim();
+        if (pilotId == null ||
+            pilotId.isEmpty ||
+            pilotId == AppConstants.cspamUid) {
+          continue;
+        }
+        depthsPerPilot[pilotId] = (depthsPerPilot[pilotId] ?? 0) + 1;
+      }
+
+      final sortedCounts = depthsPerPilot.values.toList()
+        ..sort((a, b) => b.compareTo(a));
+      final userCount = depthsPerPilot[userId] ?? 0;
+      final userRanking = userCount > 0
+          ? sortedCounts.where((c) => c > userCount).length + 1
+          : 0;
+
+      return _DepthDashboardStats(
+        totalDepthRecords: recordsSnapshot.docs.length,
+        userDepthRecordCount: userCount,
+        topDepthContributorCount: sortedCounts.isEmpty ? 0 : sortedCounts.first,
+        userDepthRanking: userRanking,
+        totalDepthPilots: depthsPerPilot.length,
+      );
+    } catch (e) {
+      debugPrint('[Dashboard] Error grouping depth records fallback: $e');
+      return null;
+    }
+  }
+
   /// Gets user callSign. Returns null on failure so dashboard can still load.
   Future<String?> _getUserCallSign(String userId) async {
     try {
@@ -431,7 +593,40 @@ class _CrossingDashboardStats {
     required this.userCrossingRanking,
     required this.totalCrossingPilots,
   });
+}
 
+class _DepthDashboardStats {
+  final int totalDepthRecords;
+  final int userDepthRecordCount;
+  final int topDepthContributorCount;
+  final int userDepthRanking;
+  final int totalDepthPilots;
+
+  const _DepthDashboardStats({
+    required this.totalDepthRecords,
+    required this.userDepthRecordCount,
+    required this.topDepthContributorCount,
+    required this.userDepthRanking,
+    required this.totalDepthPilots,
+  });
+
+  _DepthDashboardStats copyWith({
+    int? totalDepthRecords,
+    int? userDepthRecordCount,
+    int? topDepthContributorCount,
+    int? userDepthRanking,
+    int? totalDepthPilots,
+  }) {
+    return _DepthDashboardStats(
+      totalDepthRecords: totalDepthRecords ?? this.totalDepthRecords,
+      userDepthRecordCount:
+          userDepthRecordCount ?? this.userDepthRecordCount,
+      topDepthContributorCount:
+          topDepthContributorCount ?? this.topDepthContributorCount,
+      userDepthRanking: userDepthRanking ?? this.userDepthRanking,
+      totalDepthPilots: totalDepthPilots ?? this.totalDepthPilots,
+    );
+  }
 }
 
 /// Internal helper to hold the result of a parallel ship ratings query.
@@ -475,6 +670,11 @@ class DashboardData {
   final int topCrosserCount;
   final int userCrossingRanking;
   final int totalCrossingPilots;
+  final int totalDepthRecords;
+  final int userDepthRecordCount;
+  final int topDepthContributorCount;
+  final int userDepthRanking;
+  final int totalDepthPilots;
   final List<RecentRating> recentRatings;
   final String? lastRatedShipName;
   final String? lastRatedByPilot;
@@ -495,6 +695,11 @@ class DashboardData {
     required this.topCrosserCount,
     required this.userCrossingRanking,
     required this.totalCrossingPilots,
+    required this.totalDepthRecords,
+    required this.userDepthRecordCount,
+    required this.topDepthContributorCount,
+    required this.userDepthRanking,
+    required this.totalDepthPilots,
     required this.recentRatings,
     this.lastRatedShipName,
     this.lastRatedByPilot,
@@ -516,6 +721,11 @@ class DashboardData {
         topCrosserCount: 0,
         userCrossingRanking: 0,
         totalCrossingPilots: 0,
+        totalDepthRecords: 0,
+        userDepthRecordCount: 0,
+        topDepthContributorCount: 0,
+        userDepthRanking: 0,
+        totalDepthPilots: 0,
         recentRatings: [],
       );
 }

@@ -1581,12 +1581,12 @@
   "@myCrossings": {
     "description": "Label for my crossings section."
   },
-  "crossingRankingPosition": "Sua posição: {position} de {total} práticos",
+  "crossingRankingPosition": "Sua posição: #{position} de {total} práticos",
   "@crossingRankingPosition": {
     "description": "User crossing ranking position shown on the my crossings tab.",
     "placeholders": {
       "position": {
-        "type": "String"
+        "type": "int"
       },
       "total": {
         "type": "int"
@@ -1782,5 +1782,41 @@
   "firebaseUnavailable": "Não foi possível conectar. Por favor, feche e reabra o aplicativo.",
   "@firebaseUnavailable": {
     "description": "Message shown when Firebase initialization fails."
+  },
+  "crossingStatsCount": "Você informou {count} cruzamentos de um total de {total}",
+  "@crossingStatsCount": {
+    "description": "Stats text showing user crossing count vs total.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "depthStatsCount": "Você informou {count} profundidades de um total de {total}",
+  "@depthStatsCount": {
+    "description": "Stats text showing user depth record count vs total.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "depthStatsRanking": "Sua posição: #{position} de {total} práticos",
+  "@depthStatsRanking": {
+    "description": "User depth ranking position.",
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }
