@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 
+const { admin } = require("../shared/firestore");
 const { db } = require("../shared/firestore");
 
 const BATCH_LIMIT = 499;
@@ -15,22 +16,33 @@ exports.cleanupCrossings = functions.pubsub
       .get();
 
     if (snapshot.empty) {
-      console.log("No expired crossings to clean up.");
+      console.log("No crossings to mark as expired.");
       return;
     }
 
-    let deletedCount = 0;
+    let expiredCount = 0;
     for (let i = 0; i < snapshot.docs.length; i += BATCH_LIMIT) {
       const batch = db.batch();
-      const docs = snapshot.docs.slice(i, i + BATCH_LIMIT);
+      const docs = snapshot.docs
+        .slice(i, i + BATCH_LIMIT)
+        .filter((doc) => doc.data().status !== "expired");
+
+      if (docs.length === 0) continue;
 
       docs.forEach((doc) => {
-        batch.delete(doc.ref);
+        batch.set(
+          doc.ref,
+          {
+            status: "expired",
+            expiredAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
       });
 
       await batch.commit();
-      deletedCount += docs.length;
+      expiredCount += docs.length;
     }
 
-    console.log(`Cleaned up ${deletedCount} expired crossings.`);
+    console.log(`Marked ${expiredCount} crossings as expired.`);
   });

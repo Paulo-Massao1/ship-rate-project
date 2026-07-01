@@ -17,7 +17,11 @@ class NotificationService {
 
   static String? pendingRoute;
 
+  static Future<bool> isMessagingSupported() => _isMessagingSupported();
+
   static Future<void> setupNotificationTapHandlers() async {
+    if (!await _isMessagingSupported()) return;
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       final type = message.data['type'] as String?;
       if (type == 'nav_safety' || type == 'crossing') {
@@ -46,6 +50,8 @@ class NotificationService {
     ScaffoldMessengerState messengerState,
   ) async {
     try {
+      if (!await _isMessagingSupported()) return;
+
       final settings = await _messaging.getNotificationSettings();
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized ||
@@ -64,6 +70,8 @@ class NotificationService {
   /// Returns true if permission was granted.
   static Future<bool> requestPermissionAndEnable() async {
     try {
+      if (!await _isMessagingSupported()) return false;
+
       final settings = await _messaging.requestPermission(
         alert: true,
         badge: true,
@@ -88,6 +96,8 @@ class NotificationService {
   /// Check current permission status without requesting it.
   static Future<bool> isPermissionGranted() async {
     try {
+      if (!await _isMessagingSupported()) return false;
+
       final settings = await _messaging.getNotificationSettings();
       return settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional;
@@ -100,6 +110,17 @@ class NotificationService {
   // ---------------------------------------------------------------------------
   // PRIVATE
   // ---------------------------------------------------------------------------
+
+  static Future<bool> _isMessagingSupported() async {
+    if (!kIsWeb) return true;
+
+    try {
+      return await _messaging.isSupported().timeout(const Duration(seconds: 3));
+    } catch (e) {
+      debugPrint('NotificationService messaging unsupported: $e');
+      return false;
+    }
+  }
 
   static void _listenForegroundMessages(
     ScaffoldMessengerState messengerState,

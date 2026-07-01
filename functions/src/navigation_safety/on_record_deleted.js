@@ -6,6 +6,9 @@ async function decrementDepthRecordCounters(pilotId) {
   const statsRef = db.collection("stats").doc("depthRecords");
   const hasRankedPilot = pilotId && pilotId !== CSPAM_UID;
   const userRef = hasRankedPilot ? db.collection("usuarios").doc(pilotId) : null;
+  const pilotStatsRef = hasRankedPilot
+    ? db.collection("pilotStats").doc(pilotId)
+    : null;
 
   await db.runTransaction(async (transaction) => {
     const statsDoc = await transaction.get(statsRef);
@@ -20,6 +23,12 @@ async function decrementDepthRecordCounters(pilotId) {
     const userCount = userDoc && userDoc.exists
       ? (userDoc.data().depthRecordCount || 0)
       : 0;
+    const pilotStatsDoc = pilotStatsRef
+      ? await transaction.get(pilotStatsRef)
+      : null;
+    const pilotStatsCount = pilotStatsDoc && pilotStatsDoc.exists
+      ? (pilotStatsDoc.data().depthRecordCount || 0)
+      : 0;
 
     const statsUpdate = {
       totalCount: Math.max(statsCount - 1, 0),
@@ -32,15 +41,26 @@ async function decrementDepthRecordCounters(pilotId) {
 
     transaction.set(statsRef, statsUpdate, { merge: true });
 
-    if (!userRef) return;
+    if (!hasRankedPilot) return;
 
-    if (userCount <= 0) return;
+    if (userRef && userCount > 0) {
+      transaction.set(
+        userRef,
+        { depthRecordCount: userCount - 1 },
+        { merge: true },
+      );
+    }
 
-    transaction.set(
-      userRef,
-      { depthRecordCount: userCount - 1 },
-      { merge: true },
-    );
+    if (pilotStatsRef && pilotStatsCount > 0) {
+      transaction.set(
+        pilotStatsRef,
+        {
+          depthRecordCount: pilotStatsCount - 1,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+    }
   });
 }
 

@@ -58,7 +58,13 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   Future<void> _loadInitialData() async {
-    _crossingStats = DashboardController.cachedData;
+    _crossingStats =
+        DashboardController.cachedCrossingData ?? DashboardController.cachedData;
+    final cachedStats =
+        await DashboardController.loadCachedCrossingDashboardData();
+    if (mounted && cachedStats != null) {
+      setState(() => _crossingStats = cachedStats);
+    }
     _loadCrossingStats();
     await Future.wait([
       _controller.fetchActiveCrossings(),
@@ -66,10 +72,14 @@ class _CrossingPageState extends State<CrossingPage> {
     ]);
   }
 
-  Future<void> _loadCrossingStats() async {
-    if (DashboardController.isCacheFresh && _crossingStats != null) return;
+  Future<void> _loadCrossingStats({bool force = false}) async {
+    if (!force &&
+        DashboardController.isCrossingCacheFresh &&
+        _crossingStats != null) {
+      return;
+    }
     try {
-      final data = await _dashboardController.loadDashboardData();
+      final data = await _dashboardController.loadCrossingDashboardData();
       if (mounted) {
         setState(() => _crossingStats = data);
       }
@@ -99,7 +109,17 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   Future<void> _refreshCrossings() async {
-    await _controller.fetchActiveCrossings();
+    DashboardController.invalidateCache();
+    await Future.wait([
+      _loadCurrentCrossingList(),
+      _loadCrossingStats(force: true),
+    ]);
+  }
+
+  Future<void> _loadCurrentCrossingList() {
+    return _selectedTab == _CrossingTab.active
+        ? _controller.fetchActiveCrossings()
+        : _controller.fetchMyCrossings();
   }
 
   Future<void> _togglePushAlerts(bool value) async {
@@ -193,7 +213,17 @@ class _CrossingPageState extends State<CrossingPage> {
 
   void _showMyCrossingsFromDrawer() {
     Navigator.pop(context);
+    _showMyCrossings();
+  }
+
+  void _showActiveCrossings() {
+    setState(() => _selectedTab = _CrossingTab.active);
+    _controller.fetchActiveCrossings();
+  }
+
+  void _showMyCrossings() {
     setState(() => _selectedTab = _CrossingTab.mine);
+    _controller.fetchMyCrossings();
   }
 
   Future<void> _navigateToEditCrossing(Map<String, dynamic> crossing) async {
@@ -330,7 +360,7 @@ class _CrossingPageState extends State<CrossingPage> {
         '\u2693 ${l10n.draftLabel}: $draft\n'
         '\u2195\uFE0F $direction'
         '$contactLine\n\n'
-        '${l10n.shareMoreInfo} '
+        '${l10n.shareDepthFooter}\n'
         '${AppConstants.appUrl}';
 
     await UrlLauncherService.openWhatsAppShare(shareText);
@@ -364,12 +394,7 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   List<Map<String, dynamic>> get _myCrossings {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return const [];
-
-    return _sortedCrossings
-        .where((item) => item['pilotoId'] == uid)
-        .toList(growable: false);
+    return _controller.myCrossings;
   }
 
   bool get _showCrossingStats => _crossingStats != null;
@@ -732,7 +757,7 @@ class _CrossingPageState extends State<CrossingPage> {
           _buildPill(
             label: l10n.activeCrossings,
             isActive: _selectedTab == _CrossingTab.active,
-            onTap: () => setState(() => _selectedTab = _CrossingTab.active),
+            onTap: _showActiveCrossings,
           ),
           const SizedBox(width: 8),
           _buildPill(
@@ -744,7 +769,7 @@ class _CrossingPageState extends State<CrossingPage> {
           _buildPill(
             label: l10n.myCrossings,
             isActive: _selectedTab == _CrossingTab.mine,
-            onTap: () => setState(() => _selectedTab = _CrossingTab.mine),
+            onTap: _showMyCrossings,
           ),
         ],
       ),
@@ -780,15 +805,15 @@ class _CrossingPageState extends State<CrossingPage> {
   }
 
   Widget _buildBody(AppLocalizations l10n) {
-    if (_controller.isLoading && _controller.crossings.isEmpty) {
+    final items = _selectedTab == _CrossingTab.active
+        ? _sortedCrossings
+        : _myCrossings;
+
+    if (_controller.isLoading && items.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(color: _amber),
       );
     }
-
-    final items = _selectedTab == _CrossingTab.active
-        ? _sortedCrossings
-        : _myCrossings;
 
     return RefreshIndicator(
       color: _amber,
@@ -944,7 +969,7 @@ class _CrossingPageState extends State<CrossingPage> {
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white.withValues(alpha: 0.6),
-          fontSize: 12,
+          fontSize: 14,
           fontStyle: FontStyle.italic,
         ),
       ),

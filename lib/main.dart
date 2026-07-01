@@ -24,6 +24,7 @@ class StartupWidget extends StatefulWidget {
   const StartupWidget({super.key});
 
   static bool firebaseReady = false;
+  static String? firebaseError;
 
   @override
   State<StartupWidget> createState() => _StartupWidgetState();
@@ -42,58 +43,27 @@ class _StartupWidgetState extends State<StartupWidget> {
 
   Future<void> _initializeApp() async {
     StartupWidget.firebaseReady = false;
+    StartupWidget.firebaseError = null;
 
-    // On iOS the native app is configured from GoogleService-Info.plist.
-    // Initialize Dart Firebase from that default app first, then fall back.
     try {
-      if (Firebase.apps.isEmpty) {
-        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-          await Firebase.initializeApp()
-              .timeout(const Duration(seconds: 10));
-        } else {
-          await Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          ).timeout(const Duration(seconds: 10));
-        }
-      }
+      await _initializeFirebase();
       StartupWidget.firebaseReady = true;
       debugPrint('Firebase init SUCCESS');
     } catch (e, stackTrace) {
-      debugPrint('Firebase init primary attempt failed: $e');
+      StartupWidget.firebaseError = e.toString();
+      debugPrint('Firebase init failed: $e');
       debugPrintStack(stackTrace: stackTrace);
-
-      // Fallback to the opposite initialization mode for recovery diagnostics.
-      try {
-        if (Firebase.apps.isNotEmpty) {
-          StartupWidget.firebaseReady = true;
-          debugPrint('Firebase already initialized natively');
-        } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-          await Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          ).timeout(const Duration(seconds: 10));
-          StartupWidget.firebaseReady = true;
-          debugPrint('Firebase init SUCCESS with options fallback');
-        } else {
-          await Firebase.initializeApp()
-              .timeout(const Duration(seconds: 10));
-          StartupWidget.firebaseReady = true;
-          debugPrint('Firebase init SUCCESS without options fallback');
-        }
-      } catch (e2, stackTrace2) {
-        debugPrint('Firebase init completely failed: $e2');
-        debugPrintStack(stackTrace: stackTrace2);
-        debugPrint(
-            'Firebase init failed:\n'
-            'Primary: $e\n'
-            'Fallback: $e2');
-      }
     }
 
     if (StartupWidget.firebaseReady && kIsWeb) {
-      FirebaseFirestore.instance.settings = const Settings(
-        persistenceEnabled: true,
-        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-      );
+      try {
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: true,
+          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        );
+      } catch (e) {
+        debugPrint('Firestore web persistence setup skipped: $e');
+      }
     }
 
     try {
@@ -140,6 +110,50 @@ class _StartupWidgetState extends State<StartupWidget> {
         _initialized = true;
       });
     }
+  }
+
+  Future<void> _initializeFirebase() async {
+    if (Firebase.apps.isNotEmpty) return;
+
+    if (kIsWeb) {
+      await _initializeFirebaseWeb();
+      return;
+    }
+
+    // On iOS the native app is configured from GoogleService-Info.plist.
+    // Initialize Dart Firebase from that default app first, then fall back.
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      try {
+        await Firebase.initializeApp().timeout(const Duration(seconds: 20));
+        return;
+      } catch (e) {
+        debugPrint('Native iOS Firebase default init failed: $e');
+      }
+    }
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(const Duration(seconds: 20));
+  }
+
+  Future<void> _initializeFirebaseWeb() async {
+    const timeout = Duration(seconds: 45);
+
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.web,
+      ).timeout(timeout);
+      return;
+    } catch (e) {
+      debugPrint('Firebase web init first attempt failed: $e');
+    }
+
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (Firebase.apps.isNotEmpty) return;
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.web,
+    ).timeout(timeout);
   }
 
   @override

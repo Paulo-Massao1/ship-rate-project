@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,19 +34,39 @@ class DashboardController {
   // ===========================================================================
 
   static DashboardData? _cachedData;
+  static DashboardData? _cachedCrossingData;
+  static DashboardData? _cachedDepthData;
   static DateTime? _cacheTimestamp;
+  static DateTime? _crossingCacheTimestamp;
+  static DateTime? _depthCacheTimestamp;
   static const Duration _cacheDuration = Duration(seconds: 60);
 
   static DashboardData? get cachedData => _cachedData;
+  static DashboardData? get cachedCrossingData => _cachedCrossingData;
+  static DashboardData? get cachedDepthData => _cachedDepthData;
 
   static bool get isCacheFresh =>
       _cachedData != null &&
       _cacheTimestamp != null &&
       DateTime.now().difference(_cacheTimestamp!) < _cacheDuration;
 
+  static bool get isCrossingCacheFresh =>
+      _cachedCrossingData != null &&
+      _crossingCacheTimestamp != null &&
+      DateTime.now().difference(_crossingCacheTimestamp!) < _cacheDuration;
+
+  static bool get isDepthCacheFresh =>
+      _cachedDepthData != null &&
+      _depthCacheTimestamp != null &&
+      DateTime.now().difference(_depthCacheTimestamp!) < _cacheDuration;
+
   static void invalidateCache() {
     _cachedData = null;
+    _cachedCrossingData = null;
+    _cachedDepthData = null;
     _cacheTimestamp = null;
+    _crossingCacheTimestamp = null;
+    _depthCacheTimestamp = null;
   }
 
   // ===========================================================================
@@ -77,12 +99,203 @@ class DashboardController {
     };
   }
 
+  static Future<DashboardData?> loadCachedCrossingDashboardData() async {
+    if (_cachedCrossingData != null) return _cachedCrossingData;
+
+    final prefs = await SharedPreferences.getInstance();
+    final timestampMs = prefs.getInt('cached_crossing_stats_timestamp');
+    if (timestampMs == null) return null;
+
+    final data = DashboardData(
+      totalShips: 0,
+      totalRatings: 0,
+      totalCrossings: prefs.getInt('cached_crossing_total') ?? 0,
+      totalUsers: prefs.getInt('cached_crossing_total_users') ?? 0,
+      userRatings: 0,
+      topRaterCount: 0,
+      userRankingPosition: 0,
+      totalPilotsWhoRated: 0,
+      userCrossingCount: prefs.getInt('cached_crossing_user_count') ?? 0,
+      topCrosserCount: prefs.getInt('cached_crossing_top_count') ?? 0,
+      userCrossingRanking: prefs.getInt('cached_crossing_user_ranking') ?? 0,
+      totalCrossingPilots: prefs.getInt('cached_crossing_total_pilots') ?? 0,
+      totalDepthRecords: 0,
+      userDepthRecordCount: 0,
+      topDepthContributorCount: 0,
+      userDepthRanking: 0,
+      totalDepthPilots: 0,
+      recentRatings: const [],
+    );
+
+    _cachedCrossingData = data;
+    _crossingCacheTimestamp = DateTime.fromMillisecondsSinceEpoch(timestampMs);
+    return data;
+  }
+
+  static Future<DashboardData?> loadCachedDepthDashboardData() async {
+    if (_cachedDepthData != null) return _cachedDepthData;
+
+    final prefs = await SharedPreferences.getInstance();
+    final timestampMs = prefs.getInt('cached_depth_stats_timestamp');
+    if (timestampMs == null) return null;
+
+    final data = DashboardData(
+      totalShips: 0,
+      totalRatings: 0,
+      totalCrossings: 0,
+      totalUsers: prefs.getInt('cached_depth_total_users') ?? 0,
+      userRatings: 0,
+      topRaterCount: 0,
+      userRankingPosition: 0,
+      totalPilotsWhoRated: 0,
+      userCrossingCount: 0,
+      topCrosserCount: 0,
+      userCrossingRanking: 0,
+      totalCrossingPilots: 0,
+      totalDepthRecords: prefs.getInt('cached_depth_total') ?? 0,
+      userDepthRecordCount: prefs.getInt('cached_depth_user_count') ?? 0,
+      topDepthContributorCount: prefs.getInt('cached_depth_top_count') ?? 0,
+      userDepthRanking: prefs.getInt('cached_depth_user_ranking') ?? 0,
+      totalDepthPilots: prefs.getInt('cached_depth_total_pilots') ?? 0,
+      recentRatings: const [],
+    );
+
+    _cachedDepthData = data;
+    _depthCacheTimestamp = DateTime.fromMillisecondsSinceEpoch(timestampMs);
+    return data;
+  }
+
+  static Future<void> _persistCrossingStats(DashboardData data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.setInt('cached_crossing_total', data.totalCrossings),
+      prefs.setInt('cached_crossing_total_users', data.totalUsers),
+      prefs.setInt('cached_crossing_user_count', data.userCrossingCount),
+      prefs.setInt('cached_crossing_top_count', data.topCrosserCount),
+      prefs.setInt('cached_crossing_user_ranking', data.userCrossingRanking),
+      prefs.setInt('cached_crossing_total_pilots', data.totalCrossingPilots),
+      prefs.setInt(
+        'cached_crossing_stats_timestamp',
+        DateTime.now().millisecondsSinceEpoch,
+      ),
+    ]);
+  }
+
+  static Future<void> _persistDepthStats(DashboardData data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.setInt('cached_depth_total', data.totalDepthRecords),
+      prefs.setInt('cached_depth_total_users', data.totalUsers),
+      prefs.setInt('cached_depth_user_count', data.userDepthRecordCount),
+      prefs.setInt('cached_depth_top_count', data.topDepthContributorCount),
+      prefs.setInt('cached_depth_user_ranking', data.userDepthRanking),
+      prefs.setInt('cached_depth_total_pilots', data.totalDepthPilots),
+      prefs.setInt(
+        'cached_depth_stats_timestamp',
+        DateTime.now().millisecondsSinceEpoch,
+      ),
+    ]);
+  }
+
   // ===========================================================================
   // PUBLIC METHODS
   // ===========================================================================
 
   /// Gets the current user's ID.
   String? get currentUserId => _auth.currentUser?.uid;
+
+  /// Loads only crossing statistics for the crossing module.
+  ///
+  /// This avoids the full dashboard pass over ships and ratings, keeping the
+  /// crossing page responsive on web and mobile.
+  Future<DashboardData> loadCrossingDashboardData() async {
+    final user = _auth.currentUser;
+    if (user == null) return DashboardData.empty();
+
+    if (isCrossingCacheFresh) return _cachedCrossingData!;
+
+    final userId = user.uid;
+
+    await user.getIdToken().timeout(_queryTimeout);
+
+    final cachedGeneralStats = await loadCachedStats();
+    final cachedUserCount = cachedGeneralStats['pilots'] ?? 0;
+    final callSign = await _getUserCallSign(userId);
+    final crossingStats = await _getCrossingStats(userId, callSign);
+
+    final result = DashboardData(
+      totalShips: 0,
+      totalRatings: 0,
+      totalCrossings: crossingStats.totalCrossings,
+      totalUsers: cachedUserCount > 0
+          ? cachedUserCount
+          : crossingStats.totalCrossingPilots,
+      userRatings: 0,
+      topRaterCount: 0,
+      userRankingPosition: 0,
+      totalPilotsWhoRated: 0,
+      userCrossingCount: crossingStats.userCrossingCount,
+      topCrosserCount: crossingStats.topCrosserCount,
+      userCrossingRanking: crossingStats.userCrossingRanking,
+      totalCrossingPilots: crossingStats.totalCrossingPilots,
+      totalDepthRecords: 0,
+      userDepthRecordCount: 0,
+      topDepthContributorCount: 0,
+      userDepthRanking: 0,
+      totalDepthPilots: 0,
+      recentRatings: const [],
+    );
+
+    _cachedCrossingData = result;
+    _crossingCacheTimestamp = DateTime.now();
+    unawaited(_persistCrossingStats(result));
+
+    return result;
+  }
+
+  /// Loads only depth statistics for the navigation-safety module.
+  Future<DashboardData> loadDepthDashboardData() async {
+    final user = _auth.currentUser;
+    if (user == null) return DashboardData.empty();
+
+    if (isDepthCacheFresh) return _cachedDepthData!;
+
+    final userId = user.uid;
+
+    await user.getIdToken().timeout(_queryTimeout);
+
+    final cachedGeneralStats = await loadCachedStats();
+    final cachedUserCount = cachedGeneralStats['pilots'] ?? 0;
+    final depthStats = await _getDepthRecordStats(userId);
+
+    final result = DashboardData(
+      totalShips: 0,
+      totalRatings: 0,
+      totalCrossings: 0,
+      totalUsers:
+          cachedUserCount > 0 ? cachedUserCount : depthStats.totalDepthPilots,
+      userRatings: 0,
+      topRaterCount: 0,
+      userRankingPosition: 0,
+      totalPilotsWhoRated: 0,
+      userCrossingCount: 0,
+      topCrosserCount: 0,
+      userCrossingRanking: 0,
+      totalCrossingPilots: 0,
+      totalDepthRecords: depthStats.totalDepthRecords,
+      userDepthRecordCount: depthStats.userDepthRecordCount,
+      topDepthContributorCount: depthStats.topDepthContributorCount,
+      userDepthRanking: depthStats.userDepthRanking,
+      totalDepthPilots: depthStats.totalDepthPilots,
+      recentRatings: const [],
+    );
+
+    _cachedDepthData = result;
+    _depthCacheTimestamp = DateTime.now();
+    unawaited(_persistDepthStats(result));
+
+    return result;
+  }
 
   /// Loads all dashboard data in a single pass over Firestore.
   ///
@@ -103,20 +316,28 @@ class DashboardController {
       // On Flutter Web, the Firestore JS SDK needs a valid auth token.
       await user.getIdToken().timeout(_queryTimeout);
 
-      // Fetch callSign, ships, user count, and crossing count in parallel
+      // Start independent dashboard queries in parallel.
+      final callSignFuture = _getUserCallSign(userId);
+      final shipsFuture = _firestore
+          .collection(AppConstants.shipsCollection)
+          .get()
+          .timeout(_queryTimeout);
+      final userCountFuture = _getUserCount();
+      final depthStatsFuture = _getDepthRecordStats(userId);
+
+      final callSign = await callSignFuture;
+      final crossingStatsFuture = _getCrossingStats(userId, callSign);
       final results = await Future.wait([
-        _getUserCallSign(userId),
-        _firestore.collection(AppConstants.shipsCollection).get().timeout(_queryTimeout),
-        _getUserCount(),
-        _getCrossingStats(userId),
-        _getDepthRecordStats(userId),
+        shipsFuture,
+        userCountFuture,
+        crossingStatsFuture,
+        depthStatsFuture,
       ]);
 
-      final callSign = results[0] as String?;
-      final shipsSnapshot = results[1] as QuerySnapshot;
-      final cloudUserCount = results[2] as int?;
-      final crossingStats = results[3] as _CrossingDashboardStats;
-      final depthStats = results[4] as _DepthDashboardStats;
+      final shipsSnapshot = results[0] as QuerySnapshot;
+      final cloudUserCount = results[1] as int?;
+      final crossingStats = results[2] as _CrossingDashboardStats;
+      final depthStats = results[3] as _DepthDashboardStats;
 
       int totalRatings = 0;
       int userRatings = 0;
@@ -254,7 +475,7 @@ class DashboardController {
         userRatings: userRatings,
         topRaterCount: topRaterCount,
         userRankingPosition: userRankingPosition,
-        totalPilotsWhoRated: totalPilotsWhoRated,
+        totalPilotsWhoRated: totalUsers,
         recentRatings: recentRatings,
         lastRatedShipName: lastRatedShipName,
         lastRatedByPilot: lastRatedByPilot,
@@ -263,15 +484,23 @@ class DashboardController {
         lastRatedRatingId: lastRatedRatingId,
       );
       _cachedData = result;
+      _cachedCrossingData = result;
+      _cachedDepthData = result;
       _cacheTimestamp = DateTime.now();
+      _crossingCacheTimestamp = _cacheTimestamp;
+      _depthCacheTimestamp = _cacheTimestamp;
 
-      _persistStats(
-        ships: result.totalShips,
-        ratings: result.totalRatings,
-        crossings: result.totalCrossings,
-        pilots: result.totalUsers,
-        topRaterCount: result.topRaterCount,
+      unawaited(
+        _persistStats(
+          ships: result.totalShips,
+          ratings: result.totalRatings,
+          crossings: result.totalCrossings,
+          pilots: result.totalUsers,
+          topRaterCount: result.topRaterCount,
+        ),
       );
+      unawaited(_persistCrossingStats(result));
+      unawaited(_persistDepthStats(result));
 
       return result;
     } catch (e) {
@@ -298,9 +527,13 @@ class DashboardController {
     }
   }
 
-  Future<_CrossingDashboardStats> _getCrossingStats(String userId) async {
+  Future<_CrossingDashboardStats> _getCrossingStats(
+    String userId,
+    String? callSign,
+  ) async {
     int totalCrossings = 0;
     final crossingsPerPilot = <String, int>{};
+    var hasPreAggregatedPilotStats = false;
 
     try {
       final statsDoc = await _firestore
@@ -309,32 +542,67 @@ class DashboardController {
           .get()
           .timeout(_queryTimeout);
       if (statsDoc.exists) {
-        final rawCount = (statsDoc.data()?['totalCount'] as int?) ?? 0;
-        totalCrossings = rawCount;
+        totalCrossings = (statsDoc.data()?['totalCount'] as int?) ?? 0;
       }
     } catch (e) {
       debugPrint('[Dashboard] Error fetching crossing stats doc: $e');
     }
 
     try {
-      final usersSnapshot = await _firestore
-          .collection(AppConstants.usersCollection)
+      final pilotStatsSnapshot = await _firestore
+          .collection(AppConstants.pilotStatsCollection)
           .where('crossingCount', isGreaterThan: 0)
           .get()
           .timeout(_queryTimeout);
 
-      for (final doc in usersSnapshot.docs) {
+      for (final doc in pilotStatsSnapshot.docs) {
         if (doc.id == AppConstants.cspamUid) continue;
         final count = (doc.data()['crossingCount'] as int?) ?? 0;
         crossingsPerPilot[doc.id] = count;
       }
+      hasPreAggregatedPilotStats = crossingsPerPilot.isNotEmpty;
     } catch (e) {
-      debugPrint('[Dashboard] Error fetching usuario crossing counts: $e');
+      debugPrint('[Dashboard] Error fetching pilot crossing counts: $e');
+    }
+
+    // Self-heal: if the current user's counter is 0, validate against real data
+    final preAggregatedUserCount = crossingsPerPilot[userId] ?? 0;
+    if (preAggregatedUserCount == 0) {
+      try {
+        final realCountSnapshot = await _firestore
+            .collection(AppConstants.cruzamentosCollection)
+            .where('pilotoId', isEqualTo: userId)
+            .count()
+            .get()
+            .timeout(_queryTimeout);
+        final realCount = realCountSnapshot.count ?? 0;
+
+        if (realCount > 0) {
+          crossingsPerPilot[userId] = realCount;
+        }
+      } catch (e) {
+        debugPrint('[Dashboard] Error validating user crossing count: $e');
+      }
+    }
+
+    final counterTotal = crossingsPerPilot.values.fold(0, (a, b) => a + b);
+    if (counterTotal > totalCrossings) {
+      totalCrossings = counterTotal;
+    }
+
+    if (!hasPreAggregatedPilotStats) {
+      final recordStats = await _getCrossingStatsFromRecords(userId, callSign);
+      if (recordStats != null) return recordStats;
     }
 
     final sortedCounts = crossingsPerPilot.values.toList()
       ..sort((a, b) => b.compareTo(a));
-    final userCount = crossingsPerPilot[userId] ?? 0;
+    final userKey = crossingsPerPilot.containsKey(userId)
+        ? userId
+        : (callSign != null && crossingsPerPilot.containsKey(callSign)
+            ? callSign
+            : null);
+    final userCount = userKey == null ? 0 : crossingsPerPilot[userKey] ?? 0;
     final userRanking = userCount > 0
         ? sortedCounts.where((c) => c > userCount).length + 1
         : 0;
@@ -346,6 +614,64 @@ class DashboardController {
       userCrossingRanking: userRanking,
       totalCrossingPilots: crossingsPerPilot.length,
     );
+  }
+
+  Future<_CrossingDashboardStats?> _getCrossingStatsFromRecords(
+    String userId,
+    String? callSign,
+  ) async {
+    try {
+      final crossingsSnapshot = await _firestore
+          .collection(AppConstants.cruzamentosCollection)
+          .get()
+          .timeout(_queryTimeout);
+      if (crossingsSnapshot.docs.isEmpty) return null;
+
+      final crossingsPerPilot = <String, int>{};
+      for (final doc in crossingsSnapshot.docs) {
+        final data = doc.data();
+        final pilotKey = _resolveCrossingPilotKey(data);
+        if (pilotKey == null || pilotKey == AppConstants.cspamUid) continue;
+        crossingsPerPilot[pilotKey] =
+            (crossingsPerPilot[pilotKey] ?? 0) + 1;
+      }
+
+      final sortedCounts = crossingsPerPilot.values.toList()
+        ..sort((a, b) => b.compareTo(a));
+      final userKey = crossingsPerPilot.containsKey(userId)
+          ? userId
+          : (callSign != null && crossingsPerPilot.containsKey(callSign)
+              ? callSign
+              : null);
+      final userCount = userKey == null ? 0 : crossingsPerPilot[userKey] ?? 0;
+      final userRanking = userCount > 0
+          ? sortedCounts.where((c) => c > userCount).length + 1
+          : 0;
+
+      return _CrossingDashboardStats(
+        totalCrossings: crossingsSnapshot.docs.length,
+        userCrossingCount: userCount,
+        topCrosserCount: sortedCounts.isEmpty ? 0 : sortedCounts.first,
+        userCrossingRanking: userRanking,
+        totalCrossingPilots: crossingsPerPilot.length,
+      );
+    } catch (e) {
+      debugPrint('[Dashboard] Error grouping crossing records: $e');
+      return null;
+    }
+  }
+
+  String? _resolveCrossingPilotKey(Map<String, dynamic> data) {
+    for (final field in ['pilotoId', 'pilotId', 'usuarioId', 'userId']) {
+      final rawValue = data[field];
+      final value = rawValue?.toString().trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+
+    final rawCallSign = data['nomeGuerra'];
+    final callSign = rawCallSign?.toString().trim();
+    if (callSign != null && callSign.isNotEmpty) return callSign;
+    return null;
   }
 
   Future<_DepthDashboardStats> _getDepthRecordStats(String userId) async {
@@ -369,19 +695,19 @@ class DashboardController {
     }
 
     try {
-      final usersSnapshot = await _firestore
-          .collection(AppConstants.usersCollection)
+      final pilotStatsSnapshot = await _firestore
+          .collection(AppConstants.pilotStatsCollection)
           .where('depthRecordCount', isGreaterThan: 0)
           .get()
           .timeout(_queryTimeout);
 
-      for (final doc in usersSnapshot.docs) {
+      for (final doc in pilotStatsSnapshot.docs) {
         if (doc.id == AppConstants.cspamUid) continue;
         final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
         depthsPerPilot[doc.id] = count;
       }
     } catch (e) {
-      debugPrint('[Dashboard] Error fetching usuario depth record counts: $e');
+      debugPrint('[Dashboard] Error fetching pilot depth record counts: $e');
     }
 
     final counterTotal = depthsPerPilot.values.fold(0, (a, b) => a + b);
@@ -389,33 +715,16 @@ class DashboardController {
       totalDepthRecords = counterTotal;
     }
 
-    final aggregateTotal = await _getDepthRecordsAggregateCount();
-    if (aggregateTotal > totalDepthRecords) {
-      totalDepthRecords = aggregateTotal;
+    final countersNeedBackfill = expectedPilotRecordCount != null &&
+        counterTotal < expectedPilotRecordCount;
+    if (countersNeedBackfill) {
+      debugPrint(
+        '[Dashboard] depth pilot stats need backfill: '
+        '$counterTotal/$expectedPilotRecordCount',
+      );
     }
 
-    final counterUserCount = depthsPerPilot[userId] ?? 0;
-    final aggregateUserCount = await _getUserDepthRecordsAggregateCount(userId);
-    final userCount = aggregateUserCount > counterUserCount
-        ? aggregateUserCount
-        : counterUserCount;
-
-    final countersNeedFallback = depthsPerPilot.isEmpty ||
-        (expectedPilotRecordCount != null &&
-            counterTotal < expectedPilotRecordCount);
-
-    if (countersNeedFallback && aggregateTotal > 0) {
-      final fallbackStats = await _getDepthRecordStatsFromRecords(userId);
-      if (fallbackStats != null) {
-        return fallbackStats.copyWith(
-          totalDepthRecords: totalDepthRecords,
-        );
-      }
-    }
-
-    if (userCount > 0) {
-      depthsPerPilot[userId] = userCount;
-    }
+    final userCount = depthsPerPilot[userId] ?? 0;
 
     final sortedCounts = depthsPerPilot.values.toList()
       ..sort((a, b) => b.compareTo(a));
@@ -430,77 +739,6 @@ class DashboardController {
       userDepthRanking: userRanking,
       totalDepthPilots: depthsPerPilot.length,
     );
-  }
-
-  Future<int> _getDepthRecordsAggregateCount() async {
-    try {
-      final snapshot = await _firestore
-          .collectionGroup(AppConstants.recordsSubcollection)
-          .count()
-          .get()
-          .timeout(_queryTimeout);
-      return snapshot.count ?? 0;
-    } catch (e) {
-      debugPrint('[Dashboard] Error aggregate-counting depth records: $e');
-      return 0;
-    }
-  }
-
-  Future<int> _getUserDepthRecordsAggregateCount(String userId) async {
-    try {
-      final snapshot = await _firestore
-          .collectionGroup(AppConstants.recordsSubcollection)
-          .where('pilotId', isEqualTo: userId)
-          .count()
-          .get()
-          .timeout(_queryTimeout);
-      return snapshot.count ?? 0;
-    } catch (e) {
-      debugPrint('[Dashboard] Error aggregate-counting user depth records: $e');
-      return 0;
-    }
-  }
-
-  Future<_DepthDashboardStats?> _getDepthRecordStatsFromRecords(
-    String userId,
-  ) async {
-    try {
-      final recordsSnapshot = await _firestore
-          .collectionGroup(AppConstants.recordsSubcollection)
-          .get()
-          .timeout(_queryTimeout);
-      if (recordsSnapshot.docs.isEmpty) return null;
-
-      final depthsPerPilot = <String, int>{};
-      for (final doc in recordsSnapshot.docs) {
-        final data = doc.data();
-        final pilotId = (data['pilotId'] as String?)?.trim();
-        if (pilotId == null ||
-            pilotId.isEmpty ||
-            pilotId == AppConstants.cspamUid) {
-          continue;
-        }
-        depthsPerPilot[pilotId] = (depthsPerPilot[pilotId] ?? 0) + 1;
-      }
-
-      final sortedCounts = depthsPerPilot.values.toList()
-        ..sort((a, b) => b.compareTo(a));
-      final userCount = depthsPerPilot[userId] ?? 0;
-      final userRanking = userCount > 0
-          ? sortedCounts.where((c) => c > userCount).length + 1
-          : 0;
-
-      return _DepthDashboardStats(
-        totalDepthRecords: recordsSnapshot.docs.length,
-        userDepthRecordCount: userCount,
-        topDepthContributorCount: sortedCounts.isEmpty ? 0 : sortedCounts.first,
-        userDepthRanking: userRanking,
-        totalDepthPilots: depthsPerPilot.length,
-      );
-    } catch (e) {
-      debugPrint('[Dashboard] Error grouping depth records fallback: $e');
-      return null;
-    }
   }
 
   /// Gets user callSign. Returns null on failure so dashboard can still load.
@@ -609,24 +847,6 @@ class _DepthDashboardStats {
     required this.userDepthRanking,
     required this.totalDepthPilots,
   });
-
-  _DepthDashboardStats copyWith({
-    int? totalDepthRecords,
-    int? userDepthRecordCount,
-    int? topDepthContributorCount,
-    int? userDepthRanking,
-    int? totalDepthPilots,
-  }) {
-    return _DepthDashboardStats(
-      totalDepthRecords: totalDepthRecords ?? this.totalDepthRecords,
-      userDepthRecordCount:
-          userDepthRecordCount ?? this.userDepthRecordCount,
-      topDepthContributorCount:
-          topDepthContributorCount ?? this.topDepthContributorCount,
-      userDepthRanking: userDepthRanking ?? this.userDepthRanking,
-      totalDepthPilots: totalDepthPilots ?? this.totalDepthPilots,
-    );
-  }
 }
 
 /// Internal helper to hold the result of a parallel ship ratings query.

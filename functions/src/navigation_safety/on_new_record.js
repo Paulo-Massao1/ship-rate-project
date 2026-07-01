@@ -4,26 +4,42 @@ const { transporter, smtpEmail } = require("../shared/mailer");
 const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
 
 async function incrementDepthRecordCounters(pilotId) {
+  const batch = db.batch();
+  const increment = admin.firestore.FieldValue.increment(1);
+  const updatedAt = admin.firestore.FieldValue.serverTimestamp();
   const statsUpdate = {
-    totalCount: admin.firestore.FieldValue.increment(1),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    totalCount: increment,
+    updatedAt,
   };
 
   if (pilotId && pilotId !== CSPAM_UID) {
-    statsUpdate.pilotRecordCount = admin.firestore.FieldValue.increment(1);
+    statsUpdate.pilotRecordCount = increment;
   }
 
-  await db.collection("stats").doc("depthRecords").set(
+  batch.set(
+    db.collection("stats").doc("depthRecords"),
     statsUpdate,
     { merge: true },
   );
 
-  if (!pilotId || pilotId === CSPAM_UID) return;
+  if (pilotId && pilotId !== CSPAM_UID) {
+    batch.set(
+      db.collection("usuarios").doc(pilotId),
+      { depthRecordCount: increment },
+      { merge: true },
+    );
 
-  await db.collection("usuarios").doc(pilotId).set(
-    { depthRecordCount: admin.firestore.FieldValue.increment(1) },
-    { merge: true },
-  );
+    batch.set(
+      db.collection("pilotStats").doc(pilotId),
+      {
+        depthRecordCount: increment,
+        updatedAt,
+      },
+      { merge: true },
+    );
+  }
+
+  await batch.commit();
 }
 
 exports.onNewRecord = functions.firestore

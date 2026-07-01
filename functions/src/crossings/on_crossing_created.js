@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 
 const { admin, db } = require("../shared/firestore");
-const { TEST_EMAILS } = require("../shared/constants");
+const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
 
 function formatBrasiliaTime(timestamp) {
   const brasiliaTime = new Date(
@@ -29,17 +29,37 @@ function formatDraft(value) {
 }
 
 async function updateCrossingCounters(pilotId) {
-  await db.collection("stats").doc("crossings").set(
-    { totalCount: admin.firestore.FieldValue.increment(1) },
+  const batch = db.batch();
+  const increment = admin.firestore.FieldValue.increment(1);
+  const updatedAt = admin.firestore.FieldValue.serverTimestamp();
+
+  batch.set(
+    db.collection("stats").doc("crossings"),
+    {
+      totalCount: increment,
+      updatedAt,
+    },
     { merge: true },
   );
 
-  if (!pilotId) return;
+  if (pilotId && pilotId !== CSPAM_UID) {
+    batch.set(
+      db.collection("usuarios").doc(pilotId),
+      { crossingCount: increment },
+      { merge: true },
+    );
 
-  await db.collection("usuarios").doc(pilotId).set(
-    { crossingCount: admin.firestore.FieldValue.increment(1) },
-    { merge: true },
-  );
+    batch.set(
+      db.collection("pilotStats").doc(pilotId),
+      {
+        crossingCount: increment,
+        updatedAt,
+      },
+      { merge: true },
+    );
+  }
+
+  await batch.commit();
 }
 
 exports.onCrossingCreated = functions.firestore
@@ -62,6 +82,12 @@ exports.onCrossingCreated = functions.firestore
     }
 
     try {
+      await updateCrossingCounters(pilotId);
+    } catch (error) {
+      console.error("Error updating crossing counters:", error);
+    }
+
+    try {
       const pilotDoc = await db.collection("usuarios").doc(pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
       if (TEST_EMAILS.includes(pilotEmail)) {
@@ -70,12 +96,6 @@ exports.onCrossingCreated = functions.firestore
       }
     } catch (error) {
       console.error("Error checking test account:", error);
-    }
-
-    try {
-      await updateCrossingCounters(pilotId);
-    } catch (error) {
-      console.error("Error updating crossing counters:", error);
     }
 
     const formattedTime = formatBrasiliaTime(crossingDateTime);

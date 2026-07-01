@@ -160,7 +160,7 @@
   "@copyLink": {
     "description": "Localized text for copy link."
   },
-  "shareText": "Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989",
+  "shareText": "Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados.\n\nBaixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989",
   "@shareText": {
     "description": "Localized text for share text."
   },
@@ -917,15 +917,15 @@
   "@shipRatingModule": {
     "description": "Localized text for ship rating module."
   },
-  "shipRatingDesc": "Avalie navios e compartilhe experiências",
+  "shipRatingDesc": "Compartilhe experiências",
   "@shipRatingDesc": {
     "description": "Description text for ship rating."
   },
-  "navSafetyModule": "Profundidades - Registro",
+  "navSafetyModule": "Profundidades",
   "@navSafetyModule": {
     "description": "Localized text for nav safety module."
   },
-  "navSafetyDesc": "Profundidades, calado e condições dos trechos",
+  "navSafetyDesc": "Atualizações e Histórico",
   "@navSafetyDesc": {
     "description": "Description text for nav safety."
   },
@@ -1401,7 +1401,7 @@
       }
     }
   },
-  "switchToNavSafety": "Alternar para Profundidades - Registro",
+  "switchToNavSafety": "Alternar para Profundidades",
   "@switchToNavSafety": {
     "description": "Drawer item to switch to nav safety module."
   },
@@ -1569,7 +1569,7 @@
   "@shareCrossingPrompt": {
     "description": "Dialog body asking to share crossing."
   },
-  "pushNavSafetyLabel": "Profundidades - Registro",
+  "pushNavSafetyLabel": "Profundidades",
   "@pushNavSafetyLabel": {
     "description": "Label for nav safety push toggle."
   },
@@ -1602,7 +1602,7 @@
       }
     }
   },
-  "crossingsMotivational": "{count, plural, =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}",
+  "crossingsMotivational": "{count, plural, =0{0 cruzamentos realizados com segurança, graças à sua participação} =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}",
   "@crossingsMotivational": {
     "description": "Motivational message about crossings shown on the dashboard.",
     "placeholders": {
@@ -1775,7 +1775,7 @@
   "@shareDepthTitle": {
     "description": "Title line in WhatsApp share message for depth records."
   },
-  "shareDepthFooter": "Abra o app para ver os históricos de profundidades",
+  "shareDepthFooter": "Baixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.",
   "@shareDepthFooter": {
     "description": "Footer line in WhatsApp share message for depth records."
   },
@@ -1818,5 +1818,165 @@
         "type": "int"
       }
     }
+  },
+  "navInfoModule": "Informações de Navegação",
+  "@navInfoModule": {
+    "description": "Module name for navigation info."
+  },
+  "navInfoDesc": "Marés, Barra Norte e Restrições",
+  "@navInfoDesc": {
+    "description": "Description for navigation info module."
+  },
+  "comingSoon": "Em breve",
+  "@comingSoon": {
+    "description": "Placeholder text for features coming soon."
+  },
+  "tideTableTitle": "Tábua de Marés",
+  "@tideTableTitle": {
+    "description": "Title for the tide table sub-item."
+  },
+  "tideTableSubtitle": "Previsões de maré por localidade",
+  "@tideTableSubtitle": {
+    "description": "Subtitle for the tide table sub-item."
+  },
+  "barraNorteTitle": "Barra Norte",
+  "@barraNorteTitle": {
+    "description": "Title for the Barra Norte sub-item."
+  },
+  "barraNorteSubtitle": "Procedimentos e instruções",
+  "@barraNorteSubtitle": {
+    "description": "Subtitle for the Barra Norte sub-item."
+  },
+  "barraNorteBadge": "ÁREA RESTRITA",
+  "@barraNorteBadge": {
+    "description": "Badge label for the restricted Barra Norte card."
+  },
+  "barraNorteBlocked": "Acesso restrito a práticos",
+  "@barraNorteBlocked": {
+    "description": "Snackbar message when CSPAM user tries to access Barra Norte."
+  },
+  "barraNorteSchedulePobs": "A. Agendamento de POB's",
+  "@barraNorteSchedulePobs": {
+    "description": "Barra Norte section title for POB scheduling."
+  },
+  "barraNorteInstruction": "Instrução",
+  "@barraNorteInstruction": {
+    "description": "Barra Norte PDF item for instructions."
+  },
+  "barraNorteCalendar": "Calendário",
+  "@barraNorteCalendar": {
+    "description": "Barra Norte PDF item for calendar."
+  },
+  "barraNorteOnePilotProcedure": "B. Procedimento com 1 Prático",
+  "@barraNorteOnePilotProcedure": {
+    "description": "Barra Norte section title for one-pilot procedure."
+  },
+  "barraNorteTwoPilotsProcedure": "C. Procedimento com 2 Práticos",
+  "@barraNorteTwoPilotsProcedure": {
+    "description": "Barra Norte section title for two-pilot procedure."
+  },
+  "barraNorteShipWaypoints": "D. Waypoints para Navios",
+  "@barraNorteShipWaypoints": {
+    "description": "Barra Norte section title for ship waypoints."
+  },
+  "barraNorteEntry": "Entrada",
+  "@barraNorteEntry": {
+    "description": "Barra Norte entry direction label."
+  },
+  "barraNorteExit": "Saída",
+  "@barraNorteExit": {
+    "description": "Barra Norte exit direction label."
+  },
+  "barraNorteDraftGreater": "Calado > 11,50m",
+  "@barraNorteDraftGreater": {
+    "description": "Barra Norte draft greater than 11.50m label."
+  },
+  "barraNorteDraftLessOrEqual": "Calado ≤ 11,50m",
+  "@barraNorteDraftLessOrEqual": {
+    "description": "Barra Norte draft less than or equal to 11.50m label."
+  },
+  "barraNorteAmazonRiver": "Rio Amazonas",
+  "@barraNorteAmazonRiver": {
+    "description": "Barra Norte Amazon River waypoint group label."
+  },
+  "barraNorteSharePdf": "Compartilhar PDF",
+  "@barraNorteSharePdf": {
+    "description": "Tooltip for sharing a Barra Norte PDF."
+  },
+  "tideTableRegionAmapa": "Amapá",
+  "@tideTableRegionAmapa": {
+    "description": "Region header for Amapa tide locations."
+  },
+  "tideTableRegionBarraNorte": "Barra Norte",
+  "@tideTableRegionBarraNorte": {
+    "description": "Region header for Barra Norte tide locations."
+  },
+  "tideTableRegionPara": "Pará",
+  "@tideTableRegionPara": {
+    "description": "Region header for Para tide locations."
+  },
+  "tideTableLocationSantana": "Porto de Santana",
+  "@tideTableLocationSantana": {
+    "description": "Tide table location name for Porto de Santana."
+  },
+  "tideTableLocationArcoLamoso": "Arco Lamoso",
+  "@tideTableLocationArcoLamoso": {
+    "description": "Tide table location name for Arco Lamoso."
+  },
+  "tideTableLocationPem15": "PEM 15",
+  "@tideTableLocationPem15": {
+    "description": "Tide table location name for PEM 15."
+  },
+  "tideTableLocationCurua": "Igarapé Grande do Curuá",
+  "@tideTableLocationCurua": {
+    "description": "Tide table location name for Igarape Grande do Curua."
+  },
+  "tideTableLocationBreves": "Atracadouro de Breves",
+  "@tideTableLocationBreves": {
+    "description": "Tide table location name for Atracadouro de Breves."
+  },
+  "tideTableRestrictedBadge": "Restrito",
+  "@tideTableRestrictedBadge": {
+    "description": "Badge shown beside restricted tide table locations."
+  },
+  "tideTableConsult": "Consultar",
+  "@tideTableConsult": {
+    "description": "Button label for consulting tide table results."
+  },
+  "tideTableHighTide": "Preamar",
+  "@tideTableHighTide": {
+    "description": "Legend label for high tide entries."
+  },
+  "tideTableLowTide": "Baixamar",
+  "@tideTableLowTide": {
+    "description": "Legend label for low tide entries."
+  },
+  "tideTableSelectedDateLabel": "(data selecionada)",
+  "@tideTableSelectedDateLabel": {
+    "description": "Label shown on the selected tide day card."
+  },
+  "tideTablePreviousDayLabel": "(dia anterior)",
+  "@tideTablePreviousDayLabel": {
+    "description": "Label shown on the day-before tide day card."
+  },
+  "operationalRestrictionsTitle": "Restrições Operacionais",
+  "@operationalRestrictionsTitle": {
+    "description": "Title for the operational restrictions sub-item."
+  },
+  "operationalRestrictionsShareTooltip": "Compartilhar PDF",
+  "@operationalRestrictionsShareTooltip": {
+    "description": "Tooltip for sharing the operational restrictions PDF."
+  },
+  "operationalRestrictionsPdfFileName": "parametros_operacionais.pdf",
+  "@operationalRestrictionsPdfFileName": {
+    "description": "File name used when sharing the operational restrictions PDF."
+  },
+  "operationalRestrictionsSubtitle": "Limitações e Parâmetros",
+  "@operationalRestrictionsSubtitle": {
+    "description": "Subtitle for the operational restrictions sub-item."
+  },
+  "ratingsRecordedLabel": "avaliações registradas",
+  "@ratingsRecordedLabel": {
+    "description": "Muted label shown below the main rating stat."
   }
 }

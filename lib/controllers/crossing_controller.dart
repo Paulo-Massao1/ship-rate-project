@@ -10,6 +10,9 @@ class CrossingController extends ChangeNotifier {
 
   static List<Map<String, dynamic>>? _cachedCrossings;
   static DateTime? _crossingsFetchTime;
+  static List<Map<String, dynamic>>? _cachedMyCrossings;
+  static DateTime? _myCrossingsFetchTime;
+  static String? _cachedMyCrossingsUserId;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -22,9 +25,62 @@ class CrossingController extends ChangeNotifier {
   List<Map<String, dynamic>> _crossings = [];
   List<Map<String, dynamic>> get crossings => _crossings;
 
+  List<Map<String, dynamic>> _myCrossings = [];
+  List<Map<String, dynamic>> get myCrossings => _myCrossings;
+
   Future<void> fetchActiveCrossings() async {
     if (_cachedCrossings != null && !_isCacheStale(_crossingsFetchTime)) {
-      _crossings = _filterExpired(_cachedCrossings!);
+      _crossings = _cachedCrossings!;
+      _isLoading = false;
+      _error = null;
+      notifyListeners();
+      return;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final nowUtc = Timestamp.fromDate(DateTime.now().toUtc());
+      final snapshot = await _firestore
+          .collection(AppConstants.cruzamentosCollection)
+          .where('dataHora', isGreaterThan: nowUtc)
+          .orderBy('dataHora')
+          .get();
+
+      final all = snapshot.docs
+          .map((doc) => {
+                ...doc.data(),
+                'id': doc.id,
+              })
+          .toList();
+
+      _cachedCrossings = all;
+      _crossingsFetchTime = DateTime.now();
+      _crossings = all;
+    } catch (e) {
+      debugPrint('[Crossing] Error fetching crossings: $e');
+      _error = e.toString();
+      _crossings = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMyCrossings() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      _myCrossings = [];
+      notifyListeners();
+      return;
+    }
+
+    if (_cachedMyCrossings != null &&
+        _cachedMyCrossingsUserId == uid &&
+        !_isCacheStale(_myCrossingsFetchTime)) {
+      _myCrossings = _cachedMyCrossings!;
       _isLoading = false;
       _error = null;
       notifyListeners();
@@ -38,7 +94,7 @@ class CrossingController extends ChangeNotifier {
     try {
       final snapshot = await _firestore
           .collection(AppConstants.cruzamentosCollection)
-          .orderBy('dataHora')
+          .where('pilotoId', isEqualTo: uid)
           .get();
 
       final all = snapshot.docs
@@ -48,13 +104,23 @@ class CrossingController extends ChangeNotifier {
               })
           .toList();
 
-      _cachedCrossings = all;
-      _crossingsFetchTime = DateTime.now();
-      _crossings = _filterExpired(all);
+      all.sort((a, b) {
+        final aDate = _resolveDateTime(a['dataHora']);
+        final bDate = _resolveDateTime(b['dataHora']);
+        if (aDate == null && bDate == null) return 0;
+        if (aDate == null) return 1;
+        if (bDate == null) return -1;
+        return bDate.compareTo(aDate);
+      });
+
+      _cachedMyCrossings = all;
+      _cachedMyCrossingsUserId = uid;
+      _myCrossingsFetchTime = DateTime.now();
+      _myCrossings = all;
     } catch (e) {
-      debugPrint('[Crossing] Error fetching crossings: $e');
+      debugPrint('[Crossing] Error fetching my crossings: $e');
       _error = e.toString();
-      _crossings = [];
+      _myCrossings = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -199,25 +265,14 @@ class CrossingController extends ChangeNotifier {
   static void clearCache() {
     _cachedCrossings = null;
     _crossingsFetchTime = null;
+    _cachedMyCrossings = null;
+    _myCrossingsFetchTime = null;
+    _cachedMyCrossingsUserId = null;
   }
 
   bool _isCacheStale(DateTime? fetchTime) {
     if (fetchTime == null) return true;
     return DateTime.now().difference(fetchTime) > _cacheStaleThreshold;
-  }
-
-  List<Map<String, dynamic>> _filterExpired(List<Map<String, dynamic>> items) {
-    final nowUtc = DateTime.now().toUtc();
-    return items.where((item) {
-      final crossingDateTime = item['dataHora'];
-      if (crossingDateTime is Timestamp) {
-        return crossingDateTime.toDate().toUtc().isAfter(nowUtc);
-      }
-      if (crossingDateTime is DateTime) {
-        return crossingDateTime.toUtc().isAfter(nowUtc);
-      }
-      return true;
-    }).toList();
   }
 
   DateTime? _resolveDateTime(dynamic value) {
@@ -229,6 +284,9 @@ class CrossingController extends ChangeNotifier {
   void _invalidateCache() {
     _cachedCrossings = null;
     _crossingsFetchTime = null;
+    _cachedMyCrossings = null;
+    _myCrossingsFetchTime = null;
+    _cachedMyCrossingsUserId = null;
   }
 
   Future<String> _resolveCurrentUserCallSign() async {
@@ -250,4 +308,3 @@ class CrossingController extends ChangeNotifier {
     }
   }
 }
-

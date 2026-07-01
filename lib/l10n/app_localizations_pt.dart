@@ -129,7 +129,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get copyLink => 'Copiar Link';
 
   @override
-  String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+  String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados.\n\nBaixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   @override
   String get shareMoreInfo => 'Para informar seu cruzamento, acesse:';
@@ -665,13 +665,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shipRatingModule => 'Avaliação de Navios';
 
   @override
-  String get shipRatingDesc => 'Avalie navios e compartilhe experiências';
+  String get shipRatingDesc => 'Compartilhe experiências';
 
   @override
-  String get navSafetyModule => 'Profundidades - Registro';
+  String get navSafetyModule => 'Profundidades';
 
   @override
-  String get navSafetyDesc => 'Profundidades, calado e condições dos trechos';
+  String get navSafetyDesc => 'Atualizações e Histórico';
 
   @override
   String get latestDepths => 'Últimas Profundidades';
@@ -1014,7 +1014,7 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get switchToNavSafety => 'Alternar para Profundidades - Registro';
+  String get switchToNavSafety => 'Alternar para Profundidades';
 
   @override
   String get switchToShipRating => 'Alternar para Avaliação de Navios';
@@ -1136,7 +1136,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shareCrossingPrompt => 'Deseja compartilhar este cruzamento com outros práticos?';
 
   @override
-  String get pushNavSafetyLabel => 'Profundidades - Registro';
+  String get pushNavSafetyLabel => 'Profundidades';
 
   @override
   String get pushRatingsLabel => 'Avaliações e Likes';
@@ -1167,6 +1167,7 @@ class AppLocalizationsPt extends AppLocalizations {
       locale: localeName,
       other: '$count cruzamentos realizados com segurança, graças à sua participação',
       one: '1 cruzamento realizado com segurança, graças à sua participação',
+      zero: '0 cruzamentos realizados com segurança, graças à sua participação',
     );
     return '$_temp0';
   }
@@ -1288,7 +1289,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shareDepthTitle => 'Nova profundidade registrada';
 
   @override
-  String get shareDepthFooter => 'Abra o app para ver os históricos de profundidades';
+  String get shareDepthFooter => 'Baixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.';
 
   @override
   String get firebaseUnavailable => 'Não foi possível conectar. Por favor, feche e reabra o aplicativo.';
@@ -1307,4 +1308,124 @@ class AppLocalizationsPt extends AppLocalizations {
   String depthStatsRanking(int position, int total) {
     return 'Sua posição: #$position de $total práticos';
   }
+
+  @override
+  String get navInfoModule => 'Informações de Navegação';
+
+  @override
+  String get navInfoDesc => 'Marés, Barra Norte e Restrições';
+
+  @override
+  String get comingSoon => 'Em breve';
+
+  @override
+  String get tideTableTitle => 'Tábua de Marés';
+
+  @override
+  String get tideTableSubtitle => 'Previsões de maré por localidade';
+
+  @override
+  String get barraNorteTitle => 'Barra Norte';
+
+  @override
+  String get barraNorteSubtitle => 'Procedimentos e instruções';
+
+  @override
+  String get barraNorteBadge => 'ÁREA RESTRITA';
+
+  @override
+  String get barraNorteBlocked => 'Acesso restrito a práticos';
+
+  @override
+  String get barraNorteSchedulePobs => 'A. Agendamento de POB\'s';
+
+  @override
+  String get barraNorteInstruction => 'Instrução';
+
+  @override
+  String get barraNorteCalendar => 'Calendário';
+
+  @override
+  String get barraNorteOnePilotProcedure => 'B. Procedimento com 1 Prático';
+
+  @override
+  String get barraNorteTwoPilotsProcedure => 'C. Procedimento com 2 Práticos';
+
+  @override
+  String get barraNorteShipWaypoints => 'D. Waypoints para Navios';
+
+  @override
+  String get barraNorteEntry => 'Entrada';
+
+  @override
+  String get barraNorteExit => 'Saída';
+
+  @override
+  String get barraNorteDraftGreater => 'Calado > 11,50m';
+
+  @override
+  String get barraNorteDraftLessOrEqual => 'Calado ≤ 11,50m';
+
+  @override
+  String get barraNorteAmazonRiver => 'Rio Amazonas';
+
+  @override
+  String get barraNorteSharePdf => 'Compartilhar PDF';
+
+  @override
+  String get tideTableRegionAmapa => 'Amapá';
+
+  @override
+  String get tideTableRegionBarraNorte => 'Barra Norte';
+
+  @override
+  String get tideTableRegionPara => 'Pará';
+
+  @override
+  String get tideTableLocationSantana => 'Porto de Santana';
+
+  @override
+  String get tideTableLocationArcoLamoso => 'Arco Lamoso';
+
+  @override
+  String get tideTableLocationPem15 => 'PEM 15';
+
+  @override
+  String get tideTableLocationCurua => 'Igarapé Grande do Curuá';
+
+  @override
+  String get tideTableLocationBreves => 'Atracadouro de Breves';
+
+  @override
+  String get tideTableRestrictedBadge => 'Restrito';
+
+  @override
+  String get tideTableConsult => 'Consultar';
+
+  @override
+  String get tideTableHighTide => 'Preamar';
+
+  @override
+  String get tideTableLowTide => 'Baixamar';
+
+  @override
+  String get tideTableSelectedDateLabel => '(data selecionada)';
+
+  @override
+  String get tideTablePreviousDayLabel => '(dia anterior)';
+
+  @override
+  String get operationalRestrictionsTitle => 'Restrições Operacionais';
+
+  @override
+  String get operationalRestrictionsShareTooltip => 'Compartilhar PDF';
+
+  @override
+  String get operationalRestrictionsPdfFileName => 'parametros_operacionais.pdf';
+
+  @override
+  String get operationalRestrictionsSubtitle => 'Limitações e Parâmetros';
+
+  @override
+  String get ratingsRecordedLabel => 'avaliações registradas';
 }

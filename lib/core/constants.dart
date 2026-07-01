@@ -13,4 +13,5 @@ class AppConstants {
   static const recordsSubcollection = 'registros';
   static const likesSubcollection = 'likes';
   static const cruzamentosCollection = 'cruzamentos';
+  static const pilotStatsCollection = 'pilotStats';
 }

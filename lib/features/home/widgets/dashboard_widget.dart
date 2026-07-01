@@ -568,11 +568,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   // BLOCK 2 — USER ACTIVITY
   // ===========================================================================
 
-  /// Dark card with user ratings count, progress bar, and recent.
   Widget _buildUserActivityBlock(DashboardData data, AppLocalizations l10n) {
-    final progress =
-        data.totalRatings > 0 ? data.userRatings / data.totalRatings : 0.0;
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -589,134 +585,176 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           _SectionTitle(label: l10n.dashboardYourActivity),
           const SizedBox(height: 14),
 
-          // User rating count — highlighted
-          _buildUserRatingsBadge(data, l10n),
+          _buildUserActivitySummary(data, l10n),
           const SizedBox(height: 14),
 
-          // Contribution progress
-          _buildContribution(data, l10n, progress),
-
-          if (data.userRankingPosition > 0) ...[
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(
-                  Icons.emoji_events,
-                  size: 16,
-                  color: Color(0xFF4DB6AC),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.userRankingPosition(
-                    data.userRankingPosition.toString(),
-                    data.totalUsers.toString(),
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFF4DB6AC),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 14),
-
-          // Recent activity
           _buildRecentActivity(data, l10n),
         ],
       ),
     );
   }
 
-  /// Highlighted badge showing user's total ratings.
-  Widget _buildUserRatingsBadge(DashboardData data, AppLocalizations l10n) {
+  Widget _buildUserActivitySummary(
+    DashboardData data,
+    AppLocalizations l10n,
+  ) {
+    final hasTopRater = data.topRaterCount > 0;
+    final hasRanking =
+        data.userRankingPosition > 0 && data.totalPilotsWhoRated > 0;
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF64B5F6).withValues(alpha: 0.18),
+        ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.person_outline,
-            color: Colors.white.withValues(alpha: 0.7),
-            size: 22,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            l10n.yourRatingsLabel,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+          _buildRatingsMetric(data, l10n),
+          if (hasTopRater || hasRanking) ...[
+            const SizedBox(height: 12),
+            Divider(
+              height: 1,
+              color: Colors.white.withValues(alpha: 0.08),
             ),
-          ),
-          const Spacer(),
-          Text(
-            data.userRatings.toString(),
-            style: const TextStyle(
-              color: Color(0xFF64B5F6),
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+            const SizedBox(height: 10),
+            _buildActivityInsights(data, l10n),
+          ],
         ],
       ),
     );
   }
 
-  /// Progress bar with motivational summary text.
-  Widget _buildContribution(
-    DashboardData data,
-    AppLocalizations l10n,
-    double progress,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildRatingsMetric(DashboardData data, AppLocalizations l10n) {
+    return Row(
       children: [
-        Text(
-          l10n.yourContribution,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.7),
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+            ),
+          ),
+          child: Icon(
+            Icons.person_outline,
+            color: Colors.white.withValues(alpha: 0.82),
+            size: 21,
           ),
         ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Container(
-            height: 7,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: progress.clamp(0.0, 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                  ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${data.userRatings} de ${data.totalRatings}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0,
+                  height: 1,
                 ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.ratingsRecordedLabel,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.62),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                  letterSpacing: 0,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.contributionSummary(
-            data.userRatings.toString(),
-            data.totalRatings.toString(),
+      ],
+    );
+  }
+
+  Widget _buildActivityInsights(DashboardData data, AppLocalizations l10n) {
+    final rows = <Widget>[];
+
+    if (data.topRaterCount > 0) {
+      rows.add(
+        _buildActivityInsightRow(
+          icon: Icons.leaderboard_outlined,
+          text: l10n.topRaterInfo(data.topRaterCount.toString()),
+          muted: true,
+        ),
+      );
+    }
+
+    if (data.userRankingPosition > 0 && data.totalPilotsWhoRated > 0) {
+      if (rows.isNotEmpty) {
+        rows.add(const SizedBox(height: 8));
+      }
+
+      rows.add(
+        _buildActivityInsightRow(
+          icon: Icons.emoji_events,
+          text: l10n.userRankingPosition(
+            data.userRankingPosition.toString(),
+            data.totalPilotsWhoRated.toString(),
           ),
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.35),
-            fontSize: 11,
+        ),
+      );
+    }
+
+    if (rows.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: rows,
+    );
+  }
+
+  Widget _buildActivityInsightRow({
+    required IconData icon,
+    required String text,
+    bool muted = false,
+  }) {
+    final color = muted
+        ? Colors.white.withValues(alpha: 0.62)
+        : Colors.white;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          color: muted
+              ? Colors.white.withValues(alpha: 0.52)
+              : const Color(0xFFFFB74D),
+          size: 16,
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontSize: muted ? 13.0 : 13.5,
+              fontWeight: muted ? FontWeight.w500 : FontWeight.w700,
+              height: 1.25,
+              letterSpacing: 0,
+            ),
           ),
         ),
       ],

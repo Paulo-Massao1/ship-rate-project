@@ -2,7 +2,7 @@ name: ship_rate
 description: "ShipRate - Ship evaluation and navigation safety"
 publish_to: 'none'
 
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ">=3.7.0 <4.0.0"
@@ -59,6 +59,10 @@ flutter:
     - assets/images/navio.jpg
     - assets/images/navio2.png
     - assets/images/navio3.jpg
+    - assets/tide_data/
+    - assets/tide_data_source/
+    - assets/documents/parametros_operacionais.pdf
+    - assets/documents/barra_norte/
 
 flutter_launcher_icons:
   ios: true

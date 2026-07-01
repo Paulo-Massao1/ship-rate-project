@@ -17,19 +17,23 @@ exports.backfillDepthRecordCounts = functions.https.onCall(async () => {
     countsPerPilot[pilotId] = (countsPerPilot[pilotId] || 0) + 1;
   });
 
-  const existingCountersSnapshot = await db
-    .collection("usuarios")
-    .where("depthRecordCount", ">", 0)
-    .get();
+  const [existingUserCountersSnapshot, existingPilotStatsSnapshot] =
+    await Promise.all([
+      db.collection("usuarios").where("depthRecordCount", ">", 0).get(),
+      db.collection("pilotStats").where("depthRecordCount", ">", 0).get(),
+    ]);
 
   const pilotIds = new Set(Object.keys(countsPerPilot));
-  existingCountersSnapshot.docs.forEach((doc) => {
+  existingUserCountersSnapshot.docs.forEach((doc) => {
+    if (doc.id !== CSPAM_UID) pilotIds.add(doc.id);
+  });
+  existingPilotStatsSnapshot.docs.forEach((doc) => {
     if (doc.id !== CSPAM_UID) pilotIds.add(doc.id);
   });
 
   const pilotIdsToWrite = Array.from(pilotIds);
 
-  const batchSize = 500;
+  const batchSize = 250;
   let totalUpdated = 0;
   let totalReset = 0;
 
@@ -38,12 +42,19 @@ exports.backfillDepthRecordCounts = functions.https.onCall(async () => {
     const chunk = pilotIdsToWrite.slice(i, i + batchSize);
 
     chunk.forEach((pilotId) => {
-      const ref = db.collection("usuarios").doc(pilotId);
       const count = countsPerPilot[pilotId] || 0;
       if (count === 0) totalReset++;
       batch.set(
-        ref,
+        db.collection("usuarios").doc(pilotId),
         { depthRecordCount: count },
+        { merge: true },
+      );
+      batch.set(
+        db.collection("pilotStats").doc(pilotId),
+        {
+          depthRecordCount: count,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
         { merge: true },
       );
     });

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
@@ -41,6 +42,9 @@ class _AuthGateState extends State<AuthGate> {
   Widget build(BuildContext context) {
     if (!StartupWidget.firebaseReady) {
       final l10n = AppLocalizations.of(context);
+      final showBootDebug = kIsWeb &&
+          Uri.base.queryParameters['debugBoot'] == '1' &&
+          StartupWidget.firebaseError != null;
       return Scaffold(
         backgroundColor: const Color(0xFF0A1628),
         body: Center(
@@ -71,6 +75,20 @@ class _AuthGateState extends State<AuthGate> {
                   style: const TextStyle(color: Colors.white70, fontSize: 16),
                 ),
               ),
+              if (showBootDebug) ...[
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: SelectableText(
+                    'Firebase boot error: ${StartupWidget.firebaseError}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

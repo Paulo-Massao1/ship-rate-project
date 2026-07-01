@@ -15,6 +15,7 @@ import '../crossing/crossing_page.dart';
 import '../ratings/last_rated_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
+import '../nav_info/nav_info_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
@@ -129,15 +130,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     }
 
-    _notificationTapSubscription = FirebaseMessaging.onMessageOpenedApp
-        .listen((RemoteMessage message) {
-      final type = message.data['type'] as String?;
-      if (type == 'nav_safety') {
-        _navigateToNavSafety();
-      } else if (type == 'crossing') {
-        _navigateToCrossing();
-      }
-    });
+    _listenNotificationTapsIfSupported();
+  }
+
+  Future<void> _listenNotificationTapsIfSupported() async {
+    if (!await NotificationService.isMessagingSupported()) return;
+    if (!mounted || _notificationTapSubscription != null) return;
+
+    _notificationTapSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      (RemoteMessage message) {
+        final type = message.data['type'] as String?;
+        if (type == 'nav_safety') {
+          _navigateToNavSafety();
+        } else if (type == 'crossing') {
+          _navigateToCrossing();
+        }
+      },
+      onError: (Object error) {
+        debugPrint('[Home] Notification tap listener error: $error');
+      },
+    );
   }
 
   void _checkUserDomain() {
@@ -544,6 +556,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
+  void _navigateToNavInfo() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NavInfoPage()),
+    );
+  }
 
   // ===========================================================================
   // BUILD
@@ -649,6 +667,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           title: AppLocalizations.of(context)!.cruzamentoModule,
                           subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
                           onTap: _navigateToCrossing,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildModuleCard(
+                          icon: Icons.explore,
+                          iconBgColor: const Color(0x1FB388FF),
+                          iconBorderColor: const Color(0x26B388FF),
+                          iconColor: const Color(0xFFB388FF),
+                          borderColor: const Color(0x26B388FF),
+                          title: AppLocalizations.of(context)!.navInfoModule,
+                          subtitle: AppLocalizations.of(context)!.navInfoDesc,
+                          onTap: _navigateToNavInfo,
                         ),
                       ],
                     ),

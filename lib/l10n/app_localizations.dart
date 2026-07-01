@@ -338,7 +338,7 @@ abstract class AppLocalizations {
   /// Localized text for share text.
   ///
   /// In pt, this message translates to:
-  /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados. Baixe aqui: https://apps.apple.com/br/app/shiprate-pro/id6777518989'**
+  /// **'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados.\n\nBaixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989'**
   String get shareText;
 
   /// Texto curto exibido antes do link do app nas mensagens de compartilhamento.
@@ -1322,19 +1322,19 @@ abstract class AppLocalizations {
   /// Description text for ship rating.
   ///
   /// In pt, this message translates to:
-  /// **'Avalie navios e compartilhe experiências'**
+  /// **'Compartilhe experiências'**
   String get shipRatingDesc;
 
   /// Localized text for nav safety module.
   ///
   /// In pt, this message translates to:
-  /// **'Profundidades - Registro'**
+  /// **'Profundidades'**
   String get navSafetyModule;
 
   /// Description text for nav safety.
   ///
   /// In pt, this message translates to:
-  /// **'Profundidades, calado e condições dos trechos'**
+  /// **'Atualizações e Histórico'**
   String get navSafetyDesc;
 
   /// Localized text for latest depths.
@@ -1988,7 +1988,7 @@ abstract class AppLocalizations {
   /// Drawer item to switch to nav safety module.
   ///
   /// In pt, this message translates to:
-  /// **'Alternar para Profundidades - Registro'**
+  /// **'Alternar para Profundidades'**
   String get switchToNavSafety;
 
   /// Drawer item to switch to ship rating module.
@@ -2228,7 +2228,7 @@ abstract class AppLocalizations {
   /// Label for nav safety push toggle.
   ///
   /// In pt, this message translates to:
-  /// **'Profundidades - Registro'**
+  /// **'Profundidades'**
   String get pushNavSafetyLabel;
 
   /// Label for ratings push toggle.
@@ -2258,7 +2258,7 @@ abstract class AppLocalizations {
   /// Motivational message about crossings shown on the dashboard.
   ///
   /// In pt, this message translates to:
-  /// **'{count, plural, =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}'**
+  /// **'{count, plural, =0{0 cruzamentos realizados com segurança, graças à sua participação} =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}'**
   String crossingsMotivational(int count);
 
   /// Section title for crossings on the dashboard.
@@ -2480,7 +2480,7 @@ abstract class AppLocalizations {
   /// Footer line in WhatsApp share message for depth records.
   ///
   /// In pt, this message translates to:
-  /// **'Abra o app para ver os históricos de profundidades'**
+  /// **'Baixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.'**
   String get shareDepthFooter;
 
   /// Message shown when Firebase initialization fails.
@@ -2506,6 +2506,246 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Sua posição: #{position} de {total} práticos'**
   String depthStatsRanking(int position, int total);
+
+  /// Module name for navigation info.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações de Navegação'**
+  String get navInfoModule;
+
+  /// Description for navigation info module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Marés, Barra Norte e Restrições'**
+  String get navInfoDesc;
+
+  /// Placeholder text for features coming soon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em breve'**
+  String get comingSoon;
+
+  /// Title for the tide table sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tábua de Marés'**
+  String get tideTableTitle;
+
+  /// Subtitle for the tide table sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Previsões de maré por localidade'**
+  String get tideTableSubtitle;
+
+  /// Title for the Barra Norte sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Barra Norte'**
+  String get barraNorteTitle;
+
+  /// Subtitle for the Barra Norte sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Procedimentos e instruções'**
+  String get barraNorteSubtitle;
+
+  /// Badge label for the restricted Barra Norte card.
+  ///
+  /// In pt, this message translates to:
+  /// **'ÁREA RESTRITA'**
+  String get barraNorteBadge;
+
+  /// Snackbar message when CSPAM user tries to access Barra Norte.
+  ///
+  /// In pt, this message translates to:
+  /// **'Acesso restrito a práticos'**
+  String get barraNorteBlocked;
+
+  /// Barra Norte section title for POB scheduling.
+  ///
+  /// In pt, this message translates to:
+  /// **'A. Agendamento de POB\'s'**
+  String get barraNorteSchedulePobs;
+
+  /// Barra Norte PDF item for instructions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Instrução'**
+  String get barraNorteInstruction;
+
+  /// Barra Norte PDF item for calendar.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calendário'**
+  String get barraNorteCalendar;
+
+  /// Barra Norte section title for one-pilot procedure.
+  ///
+  /// In pt, this message translates to:
+  /// **'B. Procedimento com 1 Prático'**
+  String get barraNorteOnePilotProcedure;
+
+  /// Barra Norte section title for two-pilot procedure.
+  ///
+  /// In pt, this message translates to:
+  /// **'C. Procedimento com 2 Práticos'**
+  String get barraNorteTwoPilotsProcedure;
+
+  /// Barra Norte section title for ship waypoints.
+  ///
+  /// In pt, this message translates to:
+  /// **'D. Waypoints para Navios'**
+  String get barraNorteShipWaypoints;
+
+  /// Barra Norte entry direction label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrada'**
+  String get barraNorteEntry;
+
+  /// Barra Norte exit direction label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saída'**
+  String get barraNorteExit;
+
+  /// Barra Norte draft greater than 11.50m label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado > 11,50m'**
+  String get barraNorteDraftGreater;
+
+  /// Barra Norte draft less than or equal to 11.50m label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado ≤ 11,50m'**
+  String get barraNorteDraftLessOrEqual;
+
+  /// Barra Norte Amazon River waypoint group label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rio Amazonas'**
+  String get barraNorteAmazonRiver;
+
+  /// Tooltip for sharing a Barra Norte PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compartilhar PDF'**
+  String get barraNorteSharePdf;
+
+  /// Region header for Amapa tide locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Amapá'**
+  String get tideTableRegionAmapa;
+
+  /// Region header for Barra Norte tide locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Barra Norte'**
+  String get tideTableRegionBarraNorte;
+
+  /// Region header for Para tide locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pará'**
+  String get tideTableRegionPara;
+
+  /// Tide table location name for Porto de Santana.
+  ///
+  /// In pt, this message translates to:
+  /// **'Porto de Santana'**
+  String get tideTableLocationSantana;
+
+  /// Tide table location name for Arco Lamoso.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arco Lamoso'**
+  String get tideTableLocationArcoLamoso;
+
+  /// Tide table location name for PEM 15.
+  ///
+  /// In pt, this message translates to:
+  /// **'PEM 15'**
+  String get tideTableLocationPem15;
+
+  /// Tide table location name for Igarape Grande do Curua.
+  ///
+  /// In pt, this message translates to:
+  /// **'Igarapé Grande do Curuá'**
+  String get tideTableLocationCurua;
+
+  /// Tide table location name for Atracadouro de Breves.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atracadouro de Breves'**
+  String get tideTableLocationBreves;
+
+  /// Badge shown beside restricted tide table locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restrito'**
+  String get tideTableRestrictedBadge;
+
+  /// Button label for consulting tide table results.
+  ///
+  /// In pt, this message translates to:
+  /// **'Consultar'**
+  String get tideTableConsult;
+
+  /// Legend label for high tide entries.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preamar'**
+  String get tideTableHighTide;
+
+  /// Legend label for low tide entries.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixamar'**
+  String get tideTableLowTide;
+
+  /// Label shown on the selected tide day card.
+  ///
+  /// In pt, this message translates to:
+  /// **'(data selecionada)'**
+  String get tideTableSelectedDateLabel;
+
+  /// Label shown on the day-before tide day card.
+  ///
+  /// In pt, this message translates to:
+  /// **'(dia anterior)'**
+  String get tideTablePreviousDayLabel;
+
+  /// Title for the operational restrictions sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restrições Operacionais'**
+  String get operationalRestrictionsTitle;
+
+  /// Tooltip for sharing the operational restrictions PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compartilhar PDF'**
+  String get operationalRestrictionsShareTooltip;
+
+  /// File name used when sharing the operational restrictions PDF.
+  ///
+  /// In pt, this message translates to:
+  /// **'parametros_operacionais.pdf'**
+  String get operationalRestrictionsPdfFileName;
+
+  /// Subtitle for the operational restrictions sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limitações e Parâmetros'**
+  String get operationalRestrictionsSubtitle;
+
+  /// Muted label shown below the main rating stat.
+  ///
+  /// In pt, this message translates to:
+  /// **'avaliações registradas'**
+  String get ratingsRecordedLabel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

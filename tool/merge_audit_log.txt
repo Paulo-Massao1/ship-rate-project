@@ -1,0 +1,106 @@
+[2026-06-29T05:51:27.974Z] ShipRate — Merge Duplicate Ships
+[2026-06-29T05:51:27.976Z] Started at 2026-06-29T05:51:27.976Z
+[2026-06-29T05:51:27.976Z] 
+[2026-06-29T05:51:27.977Z] ========== DRY RUN ==========
+[2026-06-29T05:51:27.977Z] 
+[2026-06-29T05:51:27.977Z] --- STEP 1: Delete empty exact duplicates ---
+[2026-06-29T05:51:29.452Z]   DELETE TUCUNARÉ (3j1tz0TradY8yUm7MBqe) — OK (0 ratings)
+[2026-06-29T05:51:29.741Z]   DELETE ALI M (4blpDgos3rCHh4Av71H4) — OK (0 ratings)
+[2026-06-29T05:51:30.605Z]   DELETE MERCOSUL FORTALEZA (4rm2bbp7rXGKpmzaZH3d) — OK (0 ratings)
+[2026-06-29T05:51:30.929Z]   DELETE LOGIN POLARIS (jOMiT5h3ZJsJf4j9Te9l) — OK (0 ratings)
+[2026-06-29T05:51:31.766Z]   DELETE VIVALDI (ajRDO5dNg1Ud5aocLgNW) — OK (0 ratings)
+[2026-06-29T05:51:31.766Z] 
+[2026-06-29T05:51:31.766Z] --- STEP 2: Transfer ratings and delete sources ---
+[2026-06-29T05:51:32.145Z]   [TELLUS]
+[2026-06-29T05:51:32.145Z]     PRIMARY: Xd4O4kMlKvhCltxIQPtl (2 ratings)
+[2026-06-29T05:51:32.898Z]     SOURCE:  svRs41NMIYd6uFPZ1zM0 (1 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:33.292Z]   [LOG IN JACARANDA]
+[2026-06-29T05:51:33.293Z]     PRIMARY: 0S2kcWKuxAh1lBdbOgk3 (2 ratings)
+[2026-06-29T05:51:34.038Z]     SOURCE:  4wttGpdtKg72wpT71pLm (2 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:34.425Z]     SOURCE:  fPpUeUKARIisXEf44BNy (1 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:35.169Z]   [LOGIN POLARIS (remaining)]
+[2026-06-29T05:51:35.169Z]     PRIMARY: AwdUQlkFDAxZulaYBO3n (4 ratings)
+[2026-06-29T05:51:35.563Z]     SOURCE:  7erBhWIoBdALoV2XGTsa (0 ratings) → just delete
+[2026-06-29T05:51:36.324Z]   [LOGIN EVOLUTION]
+[2026-06-29T05:51:36.324Z]     PRIMARY: C8RlqzLBsHa5cOKKqupf (5 ratings)
+[2026-06-29T05:51:36.687Z]     SOURCE:  RPiwhbkPpC6R1lnfqToL (2 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:36.927Z]   [ARCTOS/ARCTUS]
+[2026-06-29T05:51:36.927Z]     PRIMARY: F6HPgh1Lzud5Q7Ytj5K3 (3 ratings)
+[2026-06-29T05:51:37.162Z]     SOURCE:  L28XDgKjraMxQaVFvale (1 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:37.558Z]   [ELANDRA STAR / LEANDRA STAR]
+[2026-06-29T05:51:37.558Z]     PRIMARY: LL5enHCIjZK7PWdObTbt (4 ratings)
+[2026-06-29T05:51:37.793Z]     SOURCE:  iuW5zh9rWAy6Yi78Ojen (1 ratings) → transfer to primary, then delete
+[2026-06-29T05:51:37.793Z] 
+[2026-06-29T05:51:37.793Z] --- STEP 3: Recalculate averages on primaries that received ratings ---
+[2026-06-29T05:51:37.793Z]   RECALCULATE: TELLUS (Xd4O4kMlKvhCltxIQPtl)
+[2026-06-29T05:51:37.794Z]   RECALCULATE: LOG IN JACARANDA (0S2kcWKuxAh1lBdbOgk3)
+[2026-06-29T05:51:37.794Z]   RECALCULATE: LOGIN EVOLUTION (C8RlqzLBsHa5cOKKqupf)
+[2026-06-29T05:51:37.794Z]   RECALCULATE: ARCTOS/ARCTUS (F6HPgh1Lzud5Q7Ytj5K3)
+[2026-06-29T05:51:37.794Z]   RECALCULATE: ELANDRA STAR / LEANDRA STAR (LL5enHCIjZK7PWdObTbt)
+[2026-06-29T05:51:37.794Z] 
+[2026-06-29T05:51:37.794Z] ========== END DRY RUN ==========
+[2026-06-29T05:52:10.829Z] 
+[2026-06-29T05:52:10.830Z] ========== EXECUTING ==========
+[2026-06-29T05:52:10.830Z] 
+[2026-06-29T05:52:10.830Z] --- STEP 1: Deleting empty exact duplicates ---
+[2026-06-29T05:52:12.213Z]   DELETED TUCUNARÉ (3j1tz0TradY8yUm7MBqe)
+[2026-06-29T05:52:12.674Z]   DELETED ALI M (4blpDgos3rCHh4Av71H4)
+[2026-06-29T05:52:13.133Z]   DELETED MERCOSUL FORTALEZA (4rm2bbp7rXGKpmzaZH3d)
+[2026-06-29T05:52:13.597Z]   DELETED LOGIN POLARIS (jOMiT5h3ZJsJf4j9Te9l)
+[2026-06-29T05:52:14.055Z]   DELETED VIVALDI (ajRDO5dNg1Ud5aocLgNW)
+[2026-06-29T05:52:14.055Z] 
+[2026-06-29T05:52:14.055Z] --- STEP 2: Transferring ratings and deleting sources ---
+[2026-06-29T05:52:14.056Z]   [TELLUS]
+[2026-06-29T05:52:14.277Z]     Primary Xd4O4kMlKvhCltxIQPtl has 2 ratings before merge
+[2026-06-29T05:52:14.503Z]     Source svRs41NMIYd6uFPZ1zM0 has 1 ratings
+[2026-06-29T05:52:15.002Z]       Transferred rating ieK5mYzb2ZZMAVJUktxo from svRs41NMIYd6uFPZ1zM0 → Xd4O4kMlKvhCltxIQPtl
+[2026-06-29T05:52:15.455Z]     DELETED source svRs41NMIYd6uFPZ1zM0
+[2026-06-29T05:52:15.690Z]     Primary Xd4O4kMlKvhCltxIQPtl now has 3 ratings (was 2)
+[2026-06-29T05:52:15.691Z] 
+[2026-06-29T05:52:15.691Z]   [LOG IN JACARANDA]
+[2026-06-29T05:52:15.925Z]     Primary 0S2kcWKuxAh1lBdbOgk3 has 2 ratings before merge
+[2026-06-29T05:52:16.168Z]     Source 4wttGpdtKg72wpT71pLm has 2 ratings
+[2026-06-29T05:52:16.670Z]       Transferred rating OWSIVS1x0l4CjoGK9sWM from 4wttGpdtKg72wpT71pLm → 0S2kcWKuxAh1lBdbOgk3
+[2026-06-29T05:52:17.187Z]       Transferred rating W9fA825bQoA92VPlV1Pg from 4wttGpdtKg72wpT71pLm → 0S2kcWKuxAh1lBdbOgk3
+[2026-06-29T05:52:17.650Z]     DELETED source 4wttGpdtKg72wpT71pLm
+[2026-06-29T05:52:17.878Z]     Source fPpUeUKARIisXEf44BNy has 1 ratings
+[2026-06-29T05:52:18.390Z]       Transferred rating 8QVNQF3p7JpnPWPPQFsr from fPpUeUKARIisXEf44BNy → 0S2kcWKuxAh1lBdbOgk3
+[2026-06-29T05:52:18.846Z]     DELETED source fPpUeUKARIisXEf44BNy
+[2026-06-29T05:52:19.081Z]     Primary 0S2kcWKuxAh1lBdbOgk3 now has 5 ratings (was 2)
+[2026-06-29T05:52:19.081Z] 
+[2026-06-29T05:52:19.082Z]   [LOGIN POLARIS (remaining)]
+[2026-06-29T05:52:19.320Z]     Primary AwdUQlkFDAxZulaYBO3n has 4 ratings before merge
+[2026-06-29T05:52:19.536Z]     Source 7erBhWIoBdALoV2XGTsa has 0 ratings
+[2026-06-29T05:52:19.978Z]     DELETED source 7erBhWIoBdALoV2XGTsa
+[2026-06-29T05:52:20.213Z]     Primary AwdUQlkFDAxZulaYBO3n now has 4 ratings (was 4)
+[2026-06-29T05:52:20.214Z] 
+[2026-06-29T05:52:20.214Z]   [LOGIN EVOLUTION]
+[2026-06-29T05:52:20.475Z]     Primary C8RlqzLBsHa5cOKKqupf has 5 ratings before merge
+[2026-06-29T05:52:20.706Z]     Source RPiwhbkPpC6R1lnfqToL has 2 ratings
+[2026-06-29T05:52:21.173Z]       Transferred rating 3bJToz6gOqmqXuE2dM15 from RPiwhbkPpC6R1lnfqToL → C8RlqzLBsHa5cOKKqupf
+[2026-06-29T05:52:21.638Z]       Transferred rating 78y4hVYAzUONIERCHqbj from RPiwhbkPpC6R1lnfqToL → C8RlqzLBsHa5cOKKqupf
+[2026-06-29T05:52:22.095Z]     DELETED source RPiwhbkPpC6R1lnfqToL
+[2026-06-29T05:52:22.508Z]     Primary C8RlqzLBsHa5cOKKqupf now has 7 ratings (was 5)
+[2026-06-29T05:52:22.509Z] 
+[2026-06-29T05:52:22.509Z]   [ARCTOS/ARCTUS]
+[2026-06-29T05:52:22.748Z]     Primary F6HPgh1Lzud5Q7Ytj5K3 has 3 ratings before merge
+[2026-06-29T05:52:22.963Z]     Source L28XDgKjraMxQaVFvale has 1 ratings
+[2026-06-29T05:52:23.443Z]       Transferred rating gU9kERHFGdLVJYSwuMke from L28XDgKjraMxQaVFvale → F6HPgh1Lzud5Q7Ytj5K3
+[2026-06-29T05:52:23.889Z]     DELETED source L28XDgKjraMxQaVFvale
+[2026-06-29T05:52:24.134Z]     Primary F6HPgh1Lzud5Q7Ytj5K3 now has 4 ratings (was 3)
+[2026-06-29T05:52:24.135Z] 
+[2026-06-29T05:52:24.135Z]   [ELANDRA STAR / LEANDRA STAR]
+[2026-06-29T05:52:24.376Z]     Primary LL5enHCIjZK7PWdObTbt has 4 ratings before merge
+[2026-06-29T05:52:24.600Z]     Source iuW5zh9rWAy6Yi78Ojen has 1 ratings
+[2026-06-29T05:52:25.083Z]       Transferred rating Sc2bwdv09KblLJFz3T4k from iuW5zh9rWAy6Yi78Ojen → LL5enHCIjZK7PWdObTbt
+[2026-06-29T05:52:25.530Z]     DELETED source iuW5zh9rWAy6Yi78Ojen
+[2026-06-29T05:52:25.777Z]     Primary LL5enHCIjZK7PWdObTbt now has 5 ratings (was 4)
+[2026-06-29T05:52:25.777Z] 
+[2026-06-29T05:52:25.777Z] --- STEP 3: Recalculating averages ---
+[2026-06-29T05:52:26.396Z]   TELLUS (Xd4O4kMlKvhCltxIQPtl): recalculated from 3 ratings → {"dispositivo":3.83,"temp_cabine":4,"limpeza_cabine":2.83,"passadico_equip":3.67,"passadico_temp":4,"comida":3.33,"relacionamento":4.33}
+[2026-06-29T05:52:26.857Z]   LOG IN JACARANDA (0S2kcWKuxAh1lBdbOgk3): recalculated from 5 ratings → {"dispositivo":4.6,"temp_cabine":4.4,"limpeza_cabine":4.6,"passadico_equip":4,"passadico_temp":4.6,"comida":4.7,"relacionamento":4.6}
+[2026-06-29T05:52:27.333Z]   LOGIN EVOLUTION (C8RlqzLBsHa5cOKKqupf): recalculated from 7 ratings → {"dispositivo":5,"temp_cabine":5,"limpeza_cabine":4.86,"passadico_equip":5,"passadico_temp":4.71,"comida":4.86,"relacionamento":5}
+[2026-06-29T05:52:27.795Z]   ARCTOS/ARCTUS (F6HPgh1Lzud5Q7Ytj5K3): recalculated from 4 ratings → {"dispositivo":3.25,"temp_cabine":3.13,"limpeza_cabine":3.75,"passadico_equip":4,"passadico_temp":3.13,"comida":2.75,"relacionamento":4.38}
+[2026-06-29T05:52:28.264Z]   ELANDRA STAR / LEANDRA STAR (LL5enHCIjZK7PWdObTbt): recalculated from 5 ratings → {"dispositivo":3.7,"temp_cabine":4.3,"limpeza_cabine":3.8,"passadico_equip":3.6,"passadico_temp":4,"comida":3.9,"relacionamento":4}
+[2026-06-29T05:52:28.265Z] 
+[2026-06-29T05:52:28.265Z] ========== EXECUTION COMPLETE ==========

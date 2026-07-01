@@ -537,7 +537,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         '\u{1F4CF} Profundidade total: ${depth}m\n'
         '\u{1F464} Prático: $nomeGuerra\n'
         '\u{1F4C5} Data: $dateStr\n\n'
-        '${l10n.shareDepthFooter}: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+        '${l10n.shareDepthFooter}\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
     await showDialog<void>(
       context: context,

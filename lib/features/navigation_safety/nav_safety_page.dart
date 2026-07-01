@@ -90,10 +90,16 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   Future<void> _loadDepthStats() async {
-    _depthStats = DashboardController.cachedData;
-    if (DashboardController.isCacheFresh && _depthStats != null) return;
+    _depthStats =
+        DashboardController.cachedDepthData ?? DashboardController.cachedData;
+    final cachedStats =
+        await DashboardController.loadCachedDepthDashboardData();
+    if (mounted && cachedStats != null) {
+      setState(() => _depthStats = cachedStats);
+    }
+    if (DashboardController.isDepthCacheFresh && _depthStats != null) return;
     try {
-      final data = await _dashboardController.loadDashboardData();
+      final data = await _dashboardController.loadDepthDashboardData();
       if (mounted) {
         setState(() => _depthStats = data);
       }
@@ -365,8 +371,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     data.userDepthRecordCount,
                     data.totalDepthRecords,
                   ),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
+                  style: const TextStyle(
+                    color: Color(0xFFFFB74D),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -391,7 +397,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                       _depthRankingTotal,
                     ),
                     style: const TextStyle(
-                      color: Color(0xFF26A69A),
+                      color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),

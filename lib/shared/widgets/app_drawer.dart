@@ -8,10 +8,11 @@ import '../../controllers/nav_safety_controller.dart';
 import '../../controllers/rating_controller.dart';
 import '../../features/crossing/crossing_page.dart';
 import '../../features/home/main_screen_page.dart';
+import '../../features/nav_info/nav_info_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
 import '../../features/settings/settings_page.dart';
 
-enum AppScreen { home, shipRating, navSafety, crossing }
+enum AppScreen { home, shipRating, navSafety, crossing, navInfo }
 
 class AppDrawer extends StatelessWidget {
   final AppScreen currentScreen;
@@ -148,6 +149,13 @@ class AppDrawer extends StatelessWidget {
             isActive: false,
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          DrawerItem(
+            icon: Icons.explore,
+            label: l10n.navInfoModule,
+            color: const Color(0xFFB388FF),
+            isActive: false,
+            onTap: () => _navigateTo(context, AppScreen.navInfo),
+          ),
         ];
       case AppScreen.shipRating:
         return [
@@ -164,6 +172,12 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          _SwitchModuleItem(
+            icon: Icons.explore,
+            label: _switchToLabel(l10n, l10n.navInfoModule),
+            accentColor: const Color(0xFFB388FF),
+            onTap: () => _navigateTo(context, AppScreen.navInfo),
+          ),
         ];
       case AppScreen.navSafety:
         return [
@@ -178,6 +192,12 @@ class AppDrawer extends StatelessWidget {
             label: _switchToLabel(l10n, l10n.cruzamentoModule),
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
+          ),
+          _SwitchModuleItem(
+            icon: Icons.explore,
+            label: _switchToLabel(l10n, l10n.navInfoModule),
+            accentColor: const Color(0xFFB388FF),
+            onTap: () => _navigateTo(context, AppScreen.navInfo),
           ),
         ];
       case AppScreen.crossing:
@@ -195,6 +215,34 @@ class AppDrawer extends StatelessWidget {
               accentColor: const Color(0xFF26A69A),
               onTap: () => _navigateTo(context, AppScreen.navSafety),
             ),
+          _SwitchModuleItem(
+            icon: Icons.explore,
+            label: _switchToLabel(l10n, l10n.navInfoModule),
+            accentColor: const Color(0xFFB388FF),
+            onTap: () => _navigateTo(context, AppScreen.navInfo),
+          ),
+        ];
+      case AppScreen.navInfo:
+        return [
+          _SwitchModuleItem(
+            icon: Icons.directions_boat,
+            label: l10n.switchToShipRating,
+            accentColor: const Color(0xFF64B5F6),
+            onTap: () => _navigateTo(context, AppScreen.shipRating),
+          ),
+          if (showNavSafety)
+            _SwitchModuleItem(
+              icon: Icons.anchor,
+              label: l10n.switchToNavSafety,
+              accentColor: const Color(0xFF26A69A),
+              onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
+          _SwitchModuleItem(
+            icon: Icons.compare_arrows,
+            label: _switchToLabel(l10n, l10n.cruzamentoModule),
+            accentColor: const Color(0xFFFFB74D),
+            onTap: () => _navigateTo(context, AppScreen.crossing),
+          ),
         ];
     }
   }
@@ -202,24 +250,45 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(AppLocalizations l10n) {
     final bool isNavSafety = currentScreen == AppScreen.navSafety;
     final bool isCrossing = currentScreen == AppScreen.crossing;
+    final bool isNavInfo = currentScreen == AppScreen.navInfo;
 
-    final icon = isNavSafety
-        ? Icons.anchor
-        : (isCrossing ? Icons.compare_arrows : Icons.directions_boat);
-    final iconColor = isNavSafety
-        ? const Color(0xFF26A69A)
-        : (isCrossing ? const Color(0xFFFFB74D) : const Color(0xFF64B5F6));
-    final iconBgColor = isNavSafety
-        ? const Color(0x2626A69A)
-        : (isCrossing ? const Color(0x26FFB74D) : const Color(0x2664B5F6));
-    final title = isNavSafety
-        ? l10n.navSafetyModule
-        : (isCrossing ? l10n.cruzamentoModule : 'ShipRate');
-    final subtitle = (isNavSafety || isCrossing) ? null : l10n.appSubtitle;
-    final subtitleColor =
-        isCrossing ? const Color(0xB3FFB74D) : const Color(0xB364B5F6);
-    final borderColor =
-        isCrossing ? const Color(0x26FFB74D) : const Color(0x2664B5F6);
+    final IconData icon;
+    final Color iconColor;
+    final Color iconBgColor;
+    final String title;
+    final Color subtitleColor;
+    final Color borderColor;
+
+    if (isNavInfo) {
+      icon = Icons.explore;
+      iconColor = const Color(0xFFB388FF);
+      iconBgColor = const Color(0x26B388FF);
+      title = l10n.navInfoModule;
+      subtitleColor = const Color(0xB3B388FF);
+      borderColor = const Color(0x26B388FF);
+    } else if (isNavSafety) {
+      icon = Icons.anchor;
+      iconColor = const Color(0xFF26A69A);
+      iconBgColor = const Color(0x2626A69A);
+      title = l10n.navSafetyModule;
+      subtitleColor = const Color(0xB364B5F6);
+      borderColor = const Color(0x2664B5F6);
+    } else if (isCrossing) {
+      icon = Icons.compare_arrows;
+      iconColor = const Color(0xFFFFB74D);
+      iconBgColor = const Color(0x26FFB74D);
+      title = l10n.cruzamentoModule;
+      subtitleColor = const Color(0xB3FFB74D);
+      borderColor = const Color(0x26FFB74D);
+    } else {
+      icon = Icons.directions_boat;
+      iconColor = const Color(0xFF64B5F6);
+      iconBgColor = const Color(0x2664B5F6);
+      title = 'ShipRate';
+      subtitleColor = const Color(0xB364B5F6);
+      borderColor = const Color(0x2664B5F6);
+    }
+    final subtitle = (isNavSafety || isCrossing || isNavInfo) ? null : l10n.appSubtitle;
 
     final content = Container(
       width: double.infinity,
@@ -299,6 +368,8 @@ class AppDrawer extends StatelessWidget {
             .push(MaterialPageRoute(builder: (_) => const NavSafetyPage()));
       case AppScreen.crossing:
         navigator.push(MaterialPageRoute(builder: (_) => const CrossingPage()));
+      case AppScreen.navInfo:
+        navigator.push(MaterialPageRoute(builder: (_) => const NavInfoPage()));
       case AppScreen.home:
         break;
     }

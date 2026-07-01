@@ -22,7 +22,56 @@
 <body>
   <script>
     window.flutterfire_web_sdk_version = "11.9.1";
+    // FlutterFire injects Firebase SDKs with dynamic imports during bootstrap.
+    // iOS WebKit can fail that path before the app opens, so pre-load the
+    // essential modules with normal module scripts and let FlutterFire reuse
+    // the globals when they are available.
+    var isIOSWebKit = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOSWebKit) {
+      window.flutterfire_ignore_scripts = ['functions', 'messaging', 'storage'];
+    }
+
+    window.shipRateFirebaseRequiredSdks = new Set(['core', 'auth', 'firestore']);
+    window.shipRateFirebaseLoadedSdks = new Set();
+    window.shipRateFirebaseSdkReady = new Promise(function(resolve) {
+      window.shipRateResolveFirebaseSdkReady = resolve;
+      window.setTimeout(resolve, 8000);
+    });
+    window.shipRateMarkFirebaseSdk = function(name) {
+      window.shipRateFirebaseLoadedSdks.add(name);
+      if (window.shipRateFirebaseLoadedSdks.size >= window.shipRateFirebaseRequiredSdks.size) {
+        window.shipRateResolveFirebaseSdkReady();
+      }
+    };
   </script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script type="module">
+    import * as firebase_core from "./firebase/11.9.1/firebase-app.js";
+    window.firebase_core = firebase_core;
+    window.shipRateMarkFirebaseSdk('core');
+  </script>
+  <script type="module">
+    import * as firebase_auth from "./firebase/11.9.1/firebase-auth.js";
+    window.firebase_auth = firebase_auth;
+    window.shipRateMarkFirebaseSdk('auth');
+  </script>
+  <script type="module">
+    import * as firebase_firestore from "./firebase/11.9.1/firebase-firestore.js";
+    window.firebase_firestore = firebase_firestore;
+    window.shipRateMarkFirebaseSdk('firestore');
+  </script>
+  <script type="module">
+    import * as firebase_functions from "./firebase/11.9.1/firebase-functions.js";
+    window.firebase_functions = firebase_functions;
+  </script>
+  <script type="module">
+    import * as firebase_storage from "./firebase/11.9.1/firebase-storage.js";
+    window.firebase_storage = firebase_storage;
+  </script>
+  <script type="module">
+    import * as firebase_messaging from "./firebase/11.9.1/firebase-messaging.js";
+    window.firebase_messaging = firebase_messaging;
+  </script>
+  <script src="flutter_bootstrap.js" defer></script>
 </body>
 </html>

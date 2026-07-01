@@ -155,6 +155,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
   }
 
   void _shareRecord(MyRecord record) {
+    final l10n = AppLocalizations.of(context)!;
     final data = record.data;
     final depth = _formatMeters(data['profundidadeTotal']);
     final shipName = (data['nomeNavio'] ?? '').toString();
@@ -162,13 +163,13 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     final dateStr = _formatDate(data['data']);
 
     final shareText =
-        '⚓ Nova profundidade registrada no ShipRate\n'
+        '⚓ ${l10n.shareDepthTitle}\n'
         '\u{1F4CD} Local: ${record.locationName}\n'
         '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
         '\u{1F4CF} Profundidade total: $depth\n'
         '${nomeGuerra.isNotEmpty ? '\u{1F464} Prático: $nomeGuerra\n' : ''}'
         '\u{1F4C5} Data: $dateStr\n\n'
-        'Abra o app para mais detalhes: https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+        '${l10n.shareDepthFooter}\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
     UrlLauncherService.openWhatsAppShare(shareText);
   }
