@@ -144,7 +144,7 @@
   "@updateAvailable": {
     "description": "Localized text for update available."
   },
-  "updateAvailableWeb": "New update available. Close and reopen the app to update.",
+  "updateAvailableWeb": "New update available. Tap Update to load the latest version.",
   "@updateAvailableWeb": {
     "description": "Update banner message shown on web."
   },
@@ -1932,7 +1932,7 @@
   "@tideTablePreviousDayLabel": {
     "description": "Label shown on the day-before tide day card."
   },
-  "operationalRestrictionsTitle": "Operational Restrictions",
+  "operationalRestrictionsTitle": "Operational Parameters",
   "@operationalRestrictionsTitle": {
     "description": "Title for the operational restrictions sub-item."
   },

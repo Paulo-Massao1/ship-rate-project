@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
+import 'package:ship_rate/core/module_access.dart';
+import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 class BarraNortePage extends StatefulWidget {
@@ -15,15 +16,15 @@ class BarraNortePage extends StatefulWidget {
 
 class _BarraNortePageState extends State<BarraNortePage> {
   static const _orange = Color(0xFFFFB74D);
-  static const _red = Color(0xFFEF5350);
 
-  bool get _isCspam {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   @override
   Widget build(BuildContext context) {
+    if (!_showRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
     final text = _BarraNorteText.fromLocale(l10n.localeName);
 
@@ -37,9 +38,7 @@ class _BarraNortePageState extends State<BarraNortePage> {
             colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
           ),
         ),
-        child: _isCspam
-            ? _buildBlockedState(l10n)
-            : Center(
+        child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 760),
                   child: ListView(
@@ -165,39 +164,6 @@ class _BarraNortePageState extends State<BarraNortePage> {
             end: Alignment.bottomRight,
             colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
             stops: [0.0, 0.5, 1.0],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBlockedState(AppLocalizations l10n) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 460),
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: const Color(0x1AEF5350),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0x66EF5350)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.lock_outline, color: _red, size: 36),
-              const SizedBox(height: 14),
-              Text(
-                l10n.barraNorteBlocked,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -558,7 +524,7 @@ class _BarraNorteDocument {
       _BarraNorteDocument(
         number: 3,
         title: '${text.onePilotProcedure} - ${text.exit}',
-        assetPath: 'assets/documents/barra_norte/PDF 3 - Entrada.pdf',
+        assetPath: 'assets/documents/barra_norte/saida_curua.pdf',
       );
 
   static _BarraNorteDocument pdf4(_BarraNorteText text) =>

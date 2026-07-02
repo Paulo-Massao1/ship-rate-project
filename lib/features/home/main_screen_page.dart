@@ -1,10 +1,10 @@
 // lib/features/home/main_screen_page.dart
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/module_access.dart';
 import '../ships/search_ship_page.dart';
 import '../suggestions/suggestion_page.dart';
 import '../ratings/my_ratings_page.dart';
@@ -242,7 +242,8 @@ class _MainScreenState extends State<MainScreen> {
 
     return AppDrawer(
       currentScreen: AppScreen.shipRating,
-      showNavSafety: _showNavSafetyModule,
+      showNavSafety: _showRestrictedModules,
+      showNavInfo: _showRestrictedModules,
       headerOverlayPainter: _LinePatternPainter(opacity: 0.04),
       additionalItems: [
         DrawerItem(
@@ -276,10 +277,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  bool get _showNavSafetyModule {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return !email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
 }
 

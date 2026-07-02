@@ -1,7 +1,11 @@
 const functions = require("firebase-functions");
 const { admin, db } = require("../shared/firestore");
 const { transporter, smtpEmail } = require("../shared/mailer");
-const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
+const {
+  TEST_EMAILS,
+  CSPAM_UID,
+  isRestrictedModuleUser,
+} = require("../shared/constants");
 
 async function incrementDepthRecordCounters(pilotId) {
   const batch = db.batch();
@@ -101,7 +105,8 @@ exports.onNewRecord = functions.firestore
           u.email &&
           u.emailNotifications !== false &&
           u.email !== pilotEmail &&
-          !TEST_EMAILS.includes(u.email)
+          !TEST_EMAILS.includes(u.email) &&
+          !isRestrictedModuleUser({ email: u.email })
         )
         .map((u) => u.email);
 
@@ -162,6 +167,8 @@ exports.onNewRecord = functions.firestore
         const data = doc.data();
         // Skip the pilot who created the record
         if (doc.id === record.pilotId) return;
+        // Skip users restricted to the core modules
+        if (isRestrictedModuleUser({ email: data.email, uid: doc.id })) return;
         // Skip test accounts
         if (TEST_EMAILS.includes(data.email)) return;
         // Skip users who disabled nav safety push notifications

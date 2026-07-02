@@ -1,12 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/constants.dart';
+import '../../core/module_access.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../home/main_screen_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'barra_norte_page.dart';
 import 'operational_restrictions_page.dart';
@@ -22,15 +23,7 @@ class NavInfoPage extends StatefulWidget {
 class _NavInfoPageState extends State<NavInfoPage> {
   static const _purple = Color(0xFFB388FF);
 
-  bool get _showNavSafetyModule {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return !email.toLowerCase().endsWith('@cspam.com.br');
-  }
-
-  bool get _isCspam {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   void _navigateToSuggestions() {
     Navigator.pop(context);
@@ -90,17 +83,6 @@ class _NavInfoPageState extends State<NavInfoPage> {
   }
 
   void _onBarraNorteTap() {
-    if (_isCspam) {
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.barraNorteBlocked),
-          backgroundColor: const Color(0xFFEF5350),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const BarraNortePage()),
@@ -116,13 +98,18 @@ class _NavInfoPageState extends State<NavInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_showRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: _buildAppBar(l10n),
       drawer: AppDrawer(
         currentScreen: AppScreen.navInfo,
-        showNavSafety: _showNavSafetyModule,
+        showNavSafety: _showRestrictedModules,
+        showNavInfo: _showRestrictedModules,
         bottomItems: [
           DrawerItem(
             icon: Icons.lightbulb_outline,

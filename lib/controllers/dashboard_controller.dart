@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
+import '../core/module_access.dart';
 
 /// Controller for loading dashboard statistics and recent activity.
 ///
@@ -40,6 +41,13 @@ class DashboardController {
   static DateTime? _crossingCacheTimestamp;
   static DateTime? _depthCacheTimestamp;
   static const Duration _cacheDuration = Duration(seconds: 60);
+  static const _emptyDepthStats = _DepthDashboardStats(
+    totalDepthRecords: 0,
+    userDepthRecordCount: 0,
+    topDepthContributorCount: 0,
+    userDepthRanking: 0,
+    totalDepthPilots: 0,
+  );
 
   static DashboardData? get cachedData => _cachedData;
   static DashboardData? get cachedCrossingData => _cachedCrossingData;
@@ -257,6 +265,7 @@ class DashboardController {
   Future<DashboardData> loadDepthDashboardData() async {
     final user = _auth.currentUser;
     if (user == null) return DashboardData.empty();
+    if (!ModuleAccess.canAccessRestrictedModules) return DashboardData.empty();
 
     if (isDepthCacheFresh) return _cachedDepthData!;
 
@@ -323,7 +332,9 @@ class DashboardController {
           .get()
           .timeout(_queryTimeout);
       final userCountFuture = _getUserCount();
-      final depthStatsFuture = _getDepthRecordStats(userId);
+      final depthStatsFuture = ModuleAccess.canAccessRestrictedModules
+          ? _getDepthRecordStats(userId)
+          : Future<_DepthDashboardStats>.value(_emptyDepthStats);
 
       final callSign = await callSignFuture;
       final crossingStatsFuture = _getCrossingStats(userId, callSign);

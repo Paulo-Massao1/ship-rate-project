@@ -314,7 +314,7 @@ abstract class AppLocalizations {
   /// Update banner message shown on web.
   ///
   /// In pt, this message translates to:
-  /// **'Nova atualização disponível. Feche e abra o app novamente para atualizar.'**
+  /// **'Nova atualização disponível. Toque em Atualizar para carregar a versão mais recente.'**
   String get updateAvailableWeb;
 
   /// Button label for opening the app store update page.
@@ -2720,7 +2720,7 @@ abstract class AppLocalizations {
   /// Title for the operational restrictions sub-item.
   ///
   /// In pt, this message translates to:
-  /// **'Restrições Operacionais'**
+  /// **'Parâmetros Operacionais'**
   String get operationalRestrictionsTitle;
 
   /// Tooltip for sharing the operational restrictions PDF.

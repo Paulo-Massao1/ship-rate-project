@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
+import 'package:ship_rate/core/module_access.dart';
+import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 class OperationalRestrictionsPage extends StatefulWidget {
@@ -21,7 +23,9 @@ class _OperationalRestrictionsPageState
   @override
   void initState() {
     super.initState();
-    _pdfBytesFuture = _loadPdfBytes();
+    _pdfBytesFuture = ModuleAccess.canAccessRestrictedModules
+        ? _loadPdfBytes()
+        : Future<Uint8List>.value(Uint8List(0));
   }
 
   Future<Uint8List> _loadPdfBytes() async {
@@ -49,6 +53,10 @@ class _OperationalRestrictionsPageState
 
   @override
   Widget build(BuildContext context) {
+    if (!ModuleAccess.canAccessRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(

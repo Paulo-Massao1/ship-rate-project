@@ -17,6 +17,7 @@ enum AppScreen { home, shipRating, navSafety, crossing, navInfo }
 class AppDrawer extends StatelessWidget {
   final AppScreen currentScreen;
   final bool showNavSafety;
+  final bool showNavInfo;
   final List<Widget> additionalItems;
   final List<Widget> bottomItems;
   final VoidCallback? onBeforeLogout;
@@ -26,6 +27,7 @@ class AppDrawer extends StatelessWidget {
     super.key,
     required this.currentScreen,
     this.showNavSafety = true,
+    this.showNavInfo = true,
     this.additionalItems = const [],
     this.bottomItems = const [],
     this.onBeforeLogout,
@@ -149,13 +151,14 @@ class AppDrawer extends StatelessWidget {
             isActive: false,
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
-          DrawerItem(
-            icon: Icons.explore,
-            label: l10n.navInfoModule,
-            color: const Color(0xFFB388FF),
-            isActive: false,
-            onTap: () => _navigateTo(context, AppScreen.navInfo),
-          ),
+          if (showNavInfo)
+            DrawerItem(
+              icon: Icons.explore,
+              label: l10n.navInfoModule,
+              color: const Color(0xFFB388FF),
+              isActive: false,
+              onTap: () => _navigateTo(context, AppScreen.navInfo),
+            ),
         ];
       case AppScreen.shipRating:
         return [
@@ -172,12 +175,13 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
-          _SwitchModuleItem(
-            icon: Icons.explore,
-            label: _switchToLabel(l10n, l10n.navInfoModule),
-            accentColor: const Color(0xFFB388FF),
-            onTap: () => _navigateTo(context, AppScreen.navInfo),
-          ),
+          if (showNavInfo)
+            _SwitchModuleItem(
+              icon: Icons.explore,
+              label: _switchToLabel(l10n, l10n.navInfoModule),
+              accentColor: const Color(0xFFB388FF),
+              onTap: () => _navigateTo(context, AppScreen.navInfo),
+            ),
         ];
       case AppScreen.navSafety:
         return [
@@ -193,12 +197,13 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
-          _SwitchModuleItem(
-            icon: Icons.explore,
-            label: _switchToLabel(l10n, l10n.navInfoModule),
-            accentColor: const Color(0xFFB388FF),
-            onTap: () => _navigateTo(context, AppScreen.navInfo),
-          ),
+          if (showNavInfo)
+            _SwitchModuleItem(
+              icon: Icons.explore,
+              label: _switchToLabel(l10n, l10n.navInfoModule),
+              accentColor: const Color(0xFFB388FF),
+              onTap: () => _navigateTo(context, AppScreen.navInfo),
+            ),
         ];
       case AppScreen.crossing:
         return [
@@ -215,12 +220,13 @@ class AppDrawer extends StatelessWidget {
               accentColor: const Color(0xFF26A69A),
               onTap: () => _navigateTo(context, AppScreen.navSafety),
             ),
-          _SwitchModuleItem(
-            icon: Icons.explore,
-            label: _switchToLabel(l10n, l10n.navInfoModule),
-            accentColor: const Color(0xFFB388FF),
-            onTap: () => _navigateTo(context, AppScreen.navInfo),
-          ),
+          if (showNavInfo)
+            _SwitchModuleItem(
+              icon: Icons.explore,
+              label: _switchToLabel(l10n, l10n.navInfoModule),
+              accentColor: const Color(0xFFB388FF),
+              onTap: () => _navigateTo(context, AppScreen.navInfo),
+            ),
         ];
       case AppScreen.navInfo:
         return [
@@ -355,6 +361,12 @@ class AppDrawer extends StatelessWidget {
 
   void _navigateTo(BuildContext context, AppScreen target) {
     final navigator = Navigator.of(context);
+    if ((target == AppScreen.navSafety && !showNavSafety) ||
+        (target == AppScreen.navInfo && !showNavInfo)) {
+      navigator.pop();
+      return;
+    }
+
     if (currentScreen == target) {
       navigator.pop();
       return;

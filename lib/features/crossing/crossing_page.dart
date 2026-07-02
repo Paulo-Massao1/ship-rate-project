@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/constants.dart';
+import '../../core/module_access.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../data/services/notification_service.dart';
@@ -419,10 +420,7 @@ class _CrossingPageState extends State<CrossingPage> {
     return data.totalUsers > 0 ? data.totalUsers : data.totalCrossingPilots;
   }
 
-  bool get _showNavSafetyModule {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return !email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   DateTime? _resolveDateTime(dynamic value) {
     if (value is DateTime) return value.toUtc();
@@ -527,7 +525,8 @@ class _CrossingPageState extends State<CrossingPage> {
       ),
       drawer: AppDrawer(
         currentScreen: AppScreen.crossing,
-        showNavSafety: _showNavSafetyModule,
+        showNavSafety: _showRestrictedModules,
+        showNavInfo: _showRestrictedModules,
         additionalItems: [
           DrawerItem(
             icon: Icons.assignment_turned_in_outlined,

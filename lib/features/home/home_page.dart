@@ -19,10 +19,12 @@ import '../nav_info/nav_info_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
+import '../../core/module_access.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../main.dart';
 import '../../core/app_cache.dart';
 import '../../data/services/version_service.dart';
+import '../../data/services/web_update_service.dart';
 import '../../data/services/url_launcher_service.dart';
 
 /// Home screen displayed after login with module selection cards.
@@ -50,8 +52,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
   bool _showUpdateBanner = false;
   bool _updateBannerDismissed = false;
+  bool _isApplyingWebUpdate = false;
   String? _nomeGuerra = AppCache.nomeGuerra;
-  bool _isCspam = false;
+  bool _restrictedToCoreModules = false;
   bool _showNotificationSetupBanner = false;
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
@@ -89,7 +92,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkUserDomain();
+    _refreshModuleAccess();
     _checkForUpdates();
     _fetchNomeGuerra();
     debugPrint('HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, crossings=${_statsData.totalCrossings}');
@@ -140,7 +143,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _notificationTapSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
       (RemoteMessage message) {
         final type = message.data['type'] as String?;
-        if (type == 'nav_safety') {
+        if (type == 'nav_safety' && !_restrictedToCoreModules) {
           _navigateToNavSafety();
         } else if (type == 'crossing') {
           _navigateToCrossing();
@@ -152,9 +155,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  void _checkUserDomain() {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    _isCspam = email.toLowerCase().endsWith('@cspam.com.br');
+  void _refreshModuleAccess() {
+    _restrictedToCoreModules = ModuleAccess.isCurrentUserRestricted;
   }
 
   Future<void> _initNotifications() async {
@@ -380,6 +382,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     await UrlLauncherService.openExternalUrl(_appStoreUrl);
   }
 
+  Future<void> _applyWebUpdate() async {
+    if (_isApplyingWebUpdate) return;
+
+    setState(() => _isApplyingWebUpdate = true);
+    await WebUpdateService.applyUpdate();
+
+    if (!mounted) return;
+    setState(() => _isApplyingWebUpdate = false);
+  }
+
   Future<void> _checkNotificationSetupBanner() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -537,6 +549,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _navigateToNavSafety() {
+    if (_restrictedToCoreModules) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const NavSafetyPage()),
@@ -557,6 +571,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _navigateToNavInfo() {
+    if (_restrictedToCoreModules) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const NavInfoPage()),
@@ -573,7 +589,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       appBar: _buildAppBar(),
       drawer: AppDrawer(
         currentScreen: AppScreen.home,
-        showNavSafety: !_isCspam,
+        showNavSafety: !_restrictedToCoreModules,
+        showNavInfo: !_restrictedToCoreModules,
         onBeforeLogout: () {
           _notificationsInitialized = false;
           _cachedNomeGuerraByUid.clear();
@@ -642,7 +659,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                               AppLocalizations.of(context)!.shipRatingDesc,
                           onTap: _navigateToShipRating,
                         ),
-                        if (!_isCspam) ...[
+                        if (!_restrictedToCoreModules) ...[
                           const SizedBox(height: 16),
                           _buildModuleCard(
                             icon: Icons.anchor,
@@ -668,17 +685,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
                           onTap: _navigateToCrossing,
                         ),
-                        const SizedBox(height: 16),
-                        _buildModuleCard(
-                          icon: Icons.explore,
-                          iconBgColor: const Color(0x1FB388FF),
-                          iconBorderColor: const Color(0x26B388FF),
-                          iconColor: const Color(0xFFB388FF),
-                          borderColor: const Color(0x26B388FF),
-                          title: AppLocalizations.of(context)!.navInfoModule,
-                          subtitle: AppLocalizations.of(context)!.navInfoDesc,
-                          onTap: _navigateToNavInfo,
-                        ),
+                        if (!_restrictedToCoreModules) ...[
+                          const SizedBox(height: 16),
+                          _buildModuleCard(
+                            icon: Icons.explore,
+                            iconBgColor: const Color(0x1FB388FF),
+                            iconBorderColor: const Color(0x26B388FF),
+                            iconColor: const Color(0xFFB388FF),
+                            borderColor: const Color(0x26B388FF),
+                            title: AppLocalizations.of(context)!.navInfoModule,
+                            subtitle: AppLocalizations.of(context)!.navInfoDesc,
+                            onTap: _navigateToNavInfo,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -1080,17 +1099,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           ),
-          if (!kIsWeb)
-            TextButton(
-              onPressed: _openAppStore,
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF64B5F6),
-              ),
-              child: Text(
-                l10n.updateButton,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+          TextButton(
+            onPressed: kIsWeb
+                ? (_isApplyingWebUpdate ? null : _applyWebUpdate)
+                : _openAppStore,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF64B5F6),
             ),
+            child: Text(
+              l10n.updateButton,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
           IconButton(
             onPressed: _dismissUpdateBanner,
             icon: const Icon(Icons.close, color: Colors.white70, size: 19),

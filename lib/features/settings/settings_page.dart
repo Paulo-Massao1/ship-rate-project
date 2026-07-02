@@ -7,6 +7,7 @@ import '../../app/auth_gate.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../controllers/rating_controller.dart';
+import '../../core/module_access.dart';
 import '../../data/services/notification_service.dart';
 
 /// Settings page with notification preference toggles.
@@ -28,6 +29,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _loading = true;
   bool _permissionGranted = true;
   bool _deletingAccount = false;
+
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   // ===========================================================================
   // LIFECYCLE
@@ -58,11 +61,16 @@ class _SettingsPageState extends State<SettingsPage> {
     final granted = results[1] as bool;
     final data = doc.data();
 
-    final pushNotifications = data?['pushNotifications'] ?? true;
-    final pushNavSafety = data?['pushNavSafety'] ?? pushNotifications;
-    final emailEnabled = data?['emailNotifications'] ?? true;
+    final pushNotifications = data?['pushNotifications'] as bool? ?? true;
+    final pushNavSafety = _showRestrictedModules
+        ? (data?['pushNavSafety'] as bool? ?? pushNotifications)
+        : false;
+    final emailEnabled = data?['emailNotifications'] as bool? ?? true;
 
-    if (data != null && !data.containsKey('pushNavSafety') && doc.exists) {
+    if (_showRestrictedModules &&
+        data != null &&
+        !data.containsKey('pushNavSafety') &&
+        doc.exists) {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
         FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
@@ -73,9 +81,9 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     setState(() {
-      _pushNavSafetyEnabled = pushNavSafety as bool;
-      _pushRatingsEnabled = pushNotifications as bool;
-      _emailEnabled = emailEnabled as bool;
+      _pushNavSafetyEnabled = pushNavSafety;
+      _pushRatingsEnabled = pushNotifications;
+      _emailEnabled = emailEnabled;
       _permissionGranted = granted;
       _loading = false;
     });
@@ -107,6 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _togglePushNavSafety(bool value) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
+    if (!_showRestrictedModules) return;
 
     if (value && !await _ensurePermission()) return;
 
@@ -155,13 +164,19 @@ class _SettingsPageState extends State<SettingsPage> {
       if (uid == null) return;
 
       setState(() {
-        _pushNavSafetyEnabled = true;
         _pushRatingsEnabled = true;
       });
-      await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
-        {'pushNotifications': true, 'pushNavSafety': true},
-        SetOptions(merge: true),
-      );
+
+      final preferences = <String, bool>{'pushNotifications': true};
+      if (_showRestrictedModules) {
+        setState(() => _pushNavSafetyEnabled = true);
+        preferences['pushNavSafety'] = true;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .set(preferences, SetOptions(merge: true));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -499,19 +514,22 @@ class _SettingsPageState extends State<SettingsPage> {
             : ListView(
                 padding: const EdgeInsets.all(20),
                 children: [
-                  if (!_permissionGranted) _buildNotificationBanner(),
+                  if (!_permissionGranted && _showRestrictedModules)
+                    _buildNotificationBanner(),
                   _buildSectionHeader(
                     icon: Icons.notifications_active,
                     label: l10n.pushNotifications,
                   ),
                   const SizedBox(height: 8),
-                  _buildToggleTile(
-                    icon: Icons.sailing_outlined,
-                    label: l10n.pushNavSafetyLabel,
-                    value: _pushNavSafetyEnabled,
-                    onChanged: _togglePushNavSafety,
-                  ),
-                  const SizedBox(height: 8),
+                  if (_showRestrictedModules) ...[
+                    _buildToggleTile(
+                      icon: Icons.sailing_outlined,
+                      label: l10n.pushNavSafetyLabel,
+                      value: _pushNavSafetyEnabled,
+                      onChanged: _togglePushNavSafety,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   _buildToggleTile(
                     icon: Icons.star_outline,
                     label: l10n.pushRatingsLabel,

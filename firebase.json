@@ -31,11 +31,29 @@
     ],
     "headers": [
       {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
         "source": "**/*.@(mjs|js|wasm|json)",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=0,s-maxage=604800"
+            "value": "max-age=0, must-revalidate"
           }
         ]
       }

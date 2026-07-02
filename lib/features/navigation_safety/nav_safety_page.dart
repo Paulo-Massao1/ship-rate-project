@@ -7,9 +7,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
+import '../../core/module_access.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../home/main_screen_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
@@ -38,11 +40,9 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   final DashboardController _dashboardController = DashboardController();
   DashboardData? _depthStats;
   bool _showLocationsDropdown = false;
+  bool _controllerListenerAttached = false;
 
-  bool get _showNavSafetyModule {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return !email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   // ===========================================================================
   // LIFECYCLE
@@ -51,14 +51,19 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   @override
   void initState() {
     super.initState();
+    if (!_showRestrictedModules) return;
+
     _controller.addListener(_onControllerChanged);
+    _controllerListenerAttached = true;
     _controller.fetchLocationsWithLatestRecord();
     _loadDepthStats();
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onControllerChanged);
+    if (_controllerListenerAttached) {
+      _controller.removeListener(_onControllerChanged);
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -204,13 +209,18 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_showRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: _buildAppBar(l10n),
       drawer: AppDrawer(
         currentScreen: AppScreen.navSafety,
-        showNavSafety: _showNavSafetyModule,
+        showNavSafety: _showRestrictedModules,
+        showNavInfo: _showRestrictedModules,
         additionalItems: [
           DrawerItem(
             icon: Icons.assignment_turned_in_outlined,

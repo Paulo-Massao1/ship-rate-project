@@ -1,9 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
+import 'package:ship_rate/core/module_access.dart';
 import 'package:ship_rate/data/models/tide_entry.dart';
 import 'package:ship_rate/data/services/tide_data_service.dart';
+import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 class TideTablePage extends StatefulWidget {
@@ -37,10 +38,7 @@ class _TideTablePageState extends State<TideTablePage> {
   bool _loading = false;
   Object? _error;
 
-  bool get _isCspam {
-    final email = FirebaseAuth.instance.currentUser?.email ?? '';
-    return email.toLowerCase().endsWith('@cspam.com.br');
-  }
+  bool get _showRestrictedModules => ModuleAccess.canAccessRestrictedModules;
 
   @override
   void initState() {
@@ -51,6 +49,10 @@ class _TideTablePageState extends State<TideTablePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_showRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
     final text = _TideTableText.fromLocale(l10n.localeName);
 
@@ -629,7 +631,7 @@ class _TideTablePageState extends State<TideTablePage> {
   }
 
   void _onLocationTap(_TideLocationOption location) {
-    if (location.restricted && _isCspam) {
+    if (location.restricted && !_showRestrictedModules) {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

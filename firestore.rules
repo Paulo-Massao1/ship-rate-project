@@ -7,6 +7,19 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isRestrictedModuleUser() {
+      return isSignedIn()
+             && (request.auth.uid == 'vvmd4t7NHgYEiRbE3aPPcyGscdq1'
+                 || (request.auth.token.email != null
+                     && (request.auth.token.email == 'plantao@nortepilot.com.br'
+                         || request.auth.token.email == 'operacional@adjservicos.com.br'
+                         || request.auth.token.email.matches('.*@cspam\\.com\\.br$'))));
+    }
+
+    function canAccessRestrictedModules() {
+      return isSignedIn() && !isRestrictedModuleUser();
+    }
+
     match /usuarios/{uid} {
       allow read, write: if isSignedIn() && request.auth.uid == uid;
     }
@@ -37,22 +50,25 @@ service cloud.firestore {
     }
 
     match /locais/{locationId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow read: if canAccessRestrictedModules();
+      allow create: if canAccessRestrictedModules();
       allow update: if false;
-      allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+      allow delete: if canAccessRestrictedModules()
+                    && resource.data.createdBy == request.auth.uid;
 
       match /registros/{recordId} {
-        allow read: if isSignedIn();
-        allow create: if isSignedIn()
+        allow read: if canAccessRestrictedModules();
+        allow create: if canAccessRestrictedModules()
                       && request.auth.uid == request.resource.data.pilotId;
-        allow update, delete: if isSignedIn()
+        allow update, delete: if canAccessRestrictedModules()
                               && resource.data.pilotId == request.auth.uid;
 
         match /likes/{likeId} {
-          allow read: if isSignedIn();
-          allow create: if isSignedIn() && request.auth.uid == likeId;
-          allow delete: if isSignedIn() && request.auth.uid == likeId;
+          allow read: if canAccessRestrictedModules();
+          allow create: if canAccessRestrictedModules()
+                        && request.auth.uid == likeId;
+          allow delete: if canAccessRestrictedModules()
+                        && request.auth.uid == likeId;
         }
       }
     }
@@ -78,7 +94,8 @@ service cloud.firestore {
     }
 
     match /stats/{docId} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn()
+                  && (docId != 'depthRecords' || canAccessRestrictedModules());
       allow write: if false;
     }
 
@@ -91,7 +108,7 @@ service cloud.firestore {
     }
 
     match /{path=**}/registros/{recordId} {
-      allow read: if isSignedIn();
+      allow read: if canAccessRestrictedModules();
     }
   }
 }

@@ -117,7 +117,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get updateAvailable => 'Nova atualização disponível';
 
   @override
-  String get updateAvailableWeb => 'Nova atualização disponível. Feche e abra o app novamente para atualizar.';
+  String get updateAvailableWeb => 'Nova atualização disponível. Toque em Atualizar para carregar a versão mais recente.';
 
   @override
   String get updateButton => 'Atualizar';
@@ -1415,7 +1415,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get tideTablePreviousDayLabel => '(dia anterior)';
 
   @override
-  String get operationalRestrictionsTitle => 'Restrições Operacionais';
+  String get operationalRestrictionsTitle => 'Parâmetros Operacionais';
 
   @override
   String get operationalRestrictionsShareTooltip => 'Compartilhar PDF';
