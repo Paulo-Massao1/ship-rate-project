@@ -20,7 +20,9 @@ import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../core/module_access.dart';
+import '../../data/services/milestone_service.dart';
 import '../../shared/widgets/app_drawer.dart';
+import '../../shared/widgets/milestone_overlay.dart';
 import '../../main.dart';
 import '../../core/app_cache.dart';
 import '../../data/services/version_service.dart';
@@ -48,6 +50,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   // ===========================================================================
 
   static bool _notificationsInitialized = false;
+  static bool _milestoneCheckedThisSession = false;
+  final _milestoneService = MilestoneService();
+  OverlayEntry? _milestoneOverlayEntry;
   static final Map<String, String> _cachedNomeGuerraByUid = {};
   static const Duration _nomeGuerraServerTimeout = Duration(seconds: 4);
   bool _showUpdateBanner = false;
@@ -106,6 +111,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void dispose() {
     _notificationTapSubscription?.cancel();
+    _milestoneOverlayEntry?.remove();
+    _milestoneOverlayEntry = null;
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -345,6 +352,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _loadStats() async {
     if (DashboardController.isCacheFresh) {
       _statsData = DashboardController.cachedData!;
+      _maybeShowMilestone();
       return;
     }
     try {
@@ -352,10 +360,63 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       debugPrint('HOME: Firestore returned fresh stats: ships=${data.totalShips}, ratings=${data.totalRatings}, crossings=${data.totalCrossings}');
       if (mounted) {
         setState(() => _statsData = data);
+        _maybeShowMilestone();
       }
     } catch (e) {
       debugPrint('[Home] Error loading stats: $e');
     }
+  }
+
+  /// Checks for an unseen milestone once per app session, after the dashboard
+  /// stats have loaded, and shows the celebration overlay when one qualifies.
+  Future<void> _maybeShowMilestone() async {
+    if (_milestoneCheckedThisSession) return;
+    _milestoneCheckedThisSession = true;
+
+    final milestoneId = await _milestoneService.checkMilestones(
+      _statsData.totalRatings,
+      _statsData.totalUsers,
+    );
+    if (milestoneId == null || !mounted || _milestoneOverlayEntry != null) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showMilestoneOverlay(milestoneId);
+    });
+  }
+
+  void _showMilestoneOverlay(String milestoneId) {
+    final l10n = AppLocalizations.of(context)!;
+    final String title;
+    final String message;
+
+    if (milestoneId == MilestoneService.milestone500Ratings) {
+      title = l10n.milestone500RatingsTitle;
+      message = l10n.milestone500RatingsMessage;
+    } else if (milestoneId == MilestoneService.milestone100Users) {
+      title = l10n.milestone100UsersTitle;
+      message = l10n.milestone100UsersMessage;
+    } else {
+      return;
+    }
+
+    final entry = OverlayEntry(
+      builder: (_) => MilestoneOverlay(
+        title: title,
+        message: message,
+        onClose: () => _dismissMilestoneOverlay(milestoneId),
+      ),
+    );
+
+    _milestoneOverlayEntry = entry;
+    Overlay.of(context).insert(entry);
+  }
+
+  void _dismissMilestoneOverlay(String milestoneId) {
+    _milestoneService.dismissMilestone(milestoneId);
+    _milestoneOverlayEntry?.remove();
+    _milestoneOverlayEntry = null;
   }
 
   Future<void> _checkForUpdates() async {

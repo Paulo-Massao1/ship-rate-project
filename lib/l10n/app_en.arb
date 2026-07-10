@@ -1951,5 +1951,21 @@
   "ratingsRecordedLabel": "ratings recorded",
   "@ratingsRecordedLabel": {
     "description": "Muted label shown below the main rating stat."
+  },
+  "milestone500RatingsTitle": "500 Ratings!",
+  "@milestone500RatingsTitle": {
+    "description": "Title of the celebration overlay for reaching 500 ratings."
+  },
+  "milestone500RatingsMessage": "In just 7 months, the pilot community has recorded 500 ship ratings on ShipRate Pro. Each rating strengthens safety and information for everyone. Thank you for contributing!",
+  "@milestone500RatingsMessage": {
+    "description": "Message of the celebration overlay for reaching 500 ratings."
+  },
+  "milestone100UsersTitle": "100 Pilots on ShipRate!",
+  "@milestone100UsersTitle": {
+    "description": "Title of the celebration overlay for reaching 100 users."
+  },
+  "milestone100UsersMessage": "Over 100 pilots have joined ShipRate Pro — that's more than 65% of ZP-01 pilots! Together we're building the largest collaborative pilotage database in the Amazon Basin.",
+  "@milestone100UsersMessage": {
+    "description": "Message of the celebration overlay for reaching 100 users."
   }
 }

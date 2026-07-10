@@ -2746,6 +2746,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'avaliações registradas'**
   String get ratingsRecordedLabel;
+
+  /// Title of the celebration overlay for reaching 500 ratings.
+  ///
+  /// In pt, this message translates to:
+  /// **'500 Avaliações!'**
+  String get milestone500RatingsTitle;
+
+  /// Message of the celebration overlay for reaching 500 ratings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em apenas 7 meses, a comunidade de práticos já registrou 500 avaliações de navios no ShipRate Pro. Cada avaliação fortalece a segurança e a informação para todos. Obrigado pela contribuição!'**
+  String get milestone500RatingsMessage;
+
+  /// Title of the celebration overlay for reaching 100 users.
+  ///
+  /// In pt, this message translates to:
+  /// **'100 Práticos no ShipRate!'**
+  String get milestone100UsersTitle;
+
+  /// Message of the celebration overlay for reaching 100 users.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.'**
+  String get milestone100UsersMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1428,4 +1428,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ratingsRecordedLabel => 'ratings recorded';
+
+  @override
+  String get milestone500RatingsTitle => '500 Ratings!';
+
+  @override
+  String get milestone500RatingsMessage => 'In just 7 months, the pilot community has recorded 500 ship ratings on ShipRate Pro. Each rating strengthens safety and information for everyone. Thank you for contributing!';
+
+  @override
+  String get milestone100UsersTitle => '100 Pilots on ShipRate!';
+
+  @override
+  String get milestone100UsersMessage => 'Over 100 pilots have joined ShipRate Pro — that\'s more than 65% of ZP-01 pilots! Together we\'re building the largest collaborative pilotage database in the Amazon Basin.';
 }

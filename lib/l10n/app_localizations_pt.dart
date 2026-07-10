@@ -1428,4 +1428,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get ratingsRecordedLabel => 'avaliações registradas';
+
+  @override
+  String get milestone500RatingsTitle => '500 Avaliações!';
+
+  @override
+  String get milestone500RatingsMessage => 'Em apenas 7 meses, a comunidade de práticos já registrou 500 avaliações de navios no ShipRate Pro. Cada avaliação fortalece a segurança e a informação para todos. Obrigado pela contribuição!';
+
+  @override
+  String get milestone100UsersTitle => '100 Práticos no ShipRate!';
+
+  @override
+  String get milestone100UsersMessage => 'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.';
 }

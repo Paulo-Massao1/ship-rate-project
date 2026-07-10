@@ -1978,5 +1978,21 @@
   "ratingsRecordedLabel": "avaliações registradas",
   "@ratingsRecordedLabel": {
     "description": "Muted label shown below the main rating stat."
+  },
+  "milestone500RatingsTitle": "500 Avaliações!",
+  "@milestone500RatingsTitle": {
+    "description": "Title of the celebration overlay for reaching 500 ratings."
+  },
+  "milestone500RatingsMessage": "Em apenas 7 meses, a comunidade de práticos já registrou 500 avaliações de navios no ShipRate Pro. Cada avaliação fortalece a segurança e a informação para todos. Obrigado pela contribuição!",
+  "@milestone500RatingsMessage": {
+    "description": "Message of the celebration overlay for reaching 500 ratings."
+  },
+  "milestone100UsersTitle": "100 Práticos no ShipRate!",
+  "@milestone100UsersTitle": {
+    "description": "Title of the celebration overlay for reaching 100 users."
+  },
+  "milestone100UsersMessage": "Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.",
+  "@milestone100UsersMessage": {
+    "description": "Message of the celebration overlay for reaching 100 users."
   }
 }
