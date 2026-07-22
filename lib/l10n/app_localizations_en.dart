@@ -1286,6 +1286,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maxImagesExceededError => 'You can attach a maximum of 3 images per record.';
 
   @override
+  String get attachFile => 'Attach file';
+
+  @override
+  String get photo => 'Photo';
+
+  @override
+  String get file => 'File';
+
+  @override
+  String get files => 'Files';
+
+  @override
+  String get fileEmptyError => 'The selected file is empty.';
+
+  @override
+  String get fileTooLargeError => 'Each file must be at most 10 MB.';
+
+  @override
+  String get filePickError => 'Could not select the file on this device.';
+
+  @override
   String get shareDepthTitle => 'New depth recorded';
 
   @override

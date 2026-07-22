@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../data/services/image_upload_service.dart';
+import '../../data/services/url_launcher_service.dart';
+
 class NavSafetyRecordDetailPage extends StatelessWidget {
   const NavSafetyRecordDetailPage({
     super.key,
@@ -220,6 +223,11 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
                 (record['imageUrls'] as List).isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildPhotosCard(context, l10n),
+            ],
+            if (record['fileAttachments'] is List &&
+                (record['fileAttachments'] as List).isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildFilesCard(context, l10n),
             ],
             ],
           ),
@@ -461,6 +469,87 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildFilesCard(BuildContext context, AppLocalizations l10n) {
+    final attachments = (record['fileAttachments'] as List)
+        .whereType<Map>()
+        .map((m) => Map<String, dynamic>.from(m))
+        .where((m) => (m['url'] ?? '').toString().trim().isNotEmpty)
+        .toList();
+
+    if (attachments.isEmpty) return const SizedBox.shrink();
+
+    return _buildCard(
+      title: l10n.files,
+      child: Column(
+        children: attachments.asMap().entries.map((entry) {
+          final attachment = entry.value;
+          final url = attachment['url'].toString();
+          final name = (attachment['name'] ?? '').toString().trim();
+          final displayName = name.isNotEmpty ? name : l10n.file;
+          final contentType = (attachment['contentType'] ?? '')
+                  .toString()
+                  .trim()
+                  .isNotEmpty
+              ? attachment['contentType'].toString()
+              : ImageUploadService.contentTypeFromFileName(displayName);
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: entry.key < attachments.length - 1 ? 10 : 0,
+            ),
+            child: GestureDetector(
+              onTap: () => UrlLauncherService.openExternalUrl(url),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: _tealBg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: _tealBorder),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _fileIconForContentType(contentType),
+                      color: _teal,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        displayName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Icon(
+                      Icons.open_in_new,
+                      color: _blueAccent,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  IconData _fileIconForContentType(String contentType) {
+    final normalized = contentType.trim().toLowerCase();
+    if (normalized == 'application/pdf') return Icons.picture_as_pdf;
+    if (ImageUploadService.isImageContentType(normalized)) return Icons.image;
+    return Icons.insert_drive_file;
   }
 
   void _showFullScreenImage(BuildContext context, String url) {

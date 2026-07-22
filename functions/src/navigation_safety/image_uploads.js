@@ -5,11 +5,35 @@ const { admin } = require("../shared/firestore");
 const MAX_IMAGES_PER_RECORD = 3;
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
 const UPLOAD_URL_TTL_MS = 15 * 60 * 1000;
-const SUPPORTED_CONTENT_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
+// Syntactic check only — any file type is accepted for upload.
+const CONTENT_TYPE_PATTERN = /^[\w!#$&^.+-]+\/[\w!#$&^.+-]+$/;
+
+const EXTENSION_BY_CONTENT_TYPE = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/heic": "heic",
+  "application/pdf": "pdf",
+  "text/plain": "txt",
+  "text/csv": "csv",
+  "application/json": "json",
+  "application/xml": "xml",
+  "application/gpx+xml": "gpx",
+  "application/vnd.google-earth.kml+xml": "kml",
+  "application/vnd.google-earth.kmz": "kmz",
+  "application/zip": "zip",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  "application/vnd.ms-powerpoint": "ppt",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "pptx",
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+};
 
 function normalizeContentType(contentType) {
   const value = String(contentType || "").trim().toLowerCase();
@@ -30,15 +54,7 @@ function normalizeContentType(contentType) {
 }
 
 function extensionForContentType(contentType) {
-  switch (contentType) {
-    case "image/png":
-      return "png";
-    case "image/webp":
-      return "webp";
-    case "image/jpeg":
-    default:
-      return "jpg";
-  }
+  return EXTENSION_BY_CONTENT_TYPE[contentType] || "bin";
 }
 
 function assertSignedIn(context) {
@@ -64,11 +80,11 @@ function assertValidLocationAndRecordIds(locationId, recordId) {
   }
 }
 
-function assertSupportedImage(contentType, sizeInBytes) {
-  if (!SUPPORTED_CONTENT_TYPES.has(contentType)) {
+function assertSupportedFile(contentType, sizeInBytes) {
+  if (!CONTENT_TYPE_PATTERN.test(contentType)) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "Unsupported image format. Use JPEG, PNG, or WEBP."
+      "A valid content type is required."
     );
   }
 
@@ -80,7 +96,7 @@ function assertSupportedImage(contentType, sizeInBytes) {
   ) {
     throw new functions.https.HttpsError(
       "invalid-argument",
-      "Each image must be greater than 0 bytes and at most 20 MB."
+      "Each file must be greater than 0 bytes and at most 20 MB."
     );
   }
 }
@@ -172,7 +188,7 @@ exports.createNavSafetyImageUploadUrls = functions.https.onCall(
       files.map(async (rawFile, index) => {
         const contentType = normalizeContentType(rawFile?.contentType);
         const sizeInBytes = Number(rawFile?.sizeInBytes);
-        assertSupportedImage(contentType, sizeInBytes);
+        assertSupportedFile(contentType, sizeInBytes);
 
         const extension = extensionForContentType(contentType);
         const path = `registros/${locationId}/${recordId}/${timestamp}_${index}.${extension}`;

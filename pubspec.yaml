@@ -23,6 +23,8 @@ dependencies:
 
   # Image picker
   image_picker: ^1.1.2
+  # Generic file picker (any file type)
+  file_picker: ^11.0.2
   url_launcher: ^6.3.2
 
   # Local storage (web + mobile)

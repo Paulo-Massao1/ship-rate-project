@@ -29,6 +29,8 @@ class NavSafetyNewRecordPage extends StatefulWidget {
       _NavSafetyNewRecordPageState();
 }
 
+enum _AttachmentType { photo, file }
+
 class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     with SingleTickerProviderStateMixin {
   // ===========================================================================
@@ -108,6 +110,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   final List<PendingImageUpload> _selectedImages = [];
   List<String> _existingImageUrls = [];
   final List<String> _imagesToDelete = [];
+
+  // Generic file attachments (any type besides photos)
+  final List<PendingImageUpload> _selectedFiles = [];
+  List<Map<String, dynamic>> _existingFileAttachments = [];
+  final List<String> _filesToDelete = [];
 
   // ===========================================================================
   // LIFECYCLE
@@ -204,6 +211,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       // Images
       if (d['imageUrls'] is List) {
         _existingImageUrls = List<String>.from(d['imageUrls']);
+      }
+      // File attachments
+      if (d['fileAttachments'] is List) {
+        _existingFileAttachments = (d['fileAttachments'] as List)
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList();
       }
     });
   }
@@ -397,9 +411,27 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 widget.editRecordId!,
               );
 
+        List<String> newFileUrls = const <String>[];
+        try {
+          newFileUrls = _selectedFiles.isEmpty
+              ? const <String>[]
+              : await ImageUploadService.uploadFiles(
+                  _selectedFiles,
+                  _selectedLocationId!,
+                  widget.editRecordId!,
+                );
+        } catch (e) {
+          await ImageUploadService.deleteImages(newUrls);
+          rethrow;
+        }
+
         data['imageUrls'] = <String>[
           ...preservedImageUrls,
           ...newUrls,
+        ];
+        data['fileAttachments'] = <Map<String, dynamic>>[
+          ..._existingFileAttachments,
+          ..._buildFileAttachmentMaps(newFileUrls),
         ];
 
         try {
@@ -414,12 +446,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             'NavSafetyNewRecordPage._save failed after uploading edit images: $e',
           );
           debugPrint('$stackTrace');
-          await ImageUploadService.deleteImages(newUrls);
+          await ImageUploadService.deleteImages([...newUrls, ...newFileUrls]);
           rethrow;
         }
 
-        if (_imagesToDelete.isNotEmpty) {
-          await ImageUploadService.deleteImages(_imagesToDelete);
+        if (_imagesToDelete.isNotEmpty || _filesToDelete.isNotEmpty) {
+          await ImageUploadService.deleteImages(
+            [..._imagesToDelete, ..._filesToDelete],
+          );
         }
       } else {
         final recordRef = FirebaseFirestore.instance
@@ -436,8 +470,26 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 recordRef.id,
               );
 
+        List<String> newFileUrls = const <String>[];
+        try {
+          newFileUrls = _selectedFiles.isEmpty
+              ? const <String>[]
+              : await ImageUploadService.uploadFiles(
+                  _selectedFiles,
+                  locationId,
+                  recordRef.id,
+                );
+        } catch (e) {
+          await ImageUploadService.deleteImages(newUrls);
+          rethrow;
+        }
+
         if (newUrls.isNotEmpty) {
           data['imageUrls'] = newUrls;
+        }
+
+        if (newFileUrls.isNotEmpty) {
+          data['fileAttachments'] = _buildFileAttachmentMaps(newFileUrls);
         }
 
         try {
@@ -448,7 +500,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             'NavSafetyNewRecordPage._save failed after uploading new record images: $e',
           );
           debugPrint('$stackTrace');
-          await ImageUploadService.deleteImages(newUrls);
+          await ImageUploadService.deleteImages([...newUrls, ...newFileUrls]);
           rethrow;
         }
       }
@@ -506,6 +558,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  List<Map<String, dynamic>> _buildFileAttachmentMaps(List<String> urls) {
+    return List<Map<String, dynamic>>.generate(urls.length, (i) {
+      final file = _selectedFiles[i];
+      return <String, dynamic>{
+        'url': urls[i],
+        'name': file.originalName,
+        'contentType':
+            ImageUploadService.contentTypeFromFileName(file.originalName),
+      };
+    });
   }
 
   void _showSnackBar(String message, {bool isError = false}) {
@@ -1360,8 +1424,89 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   }
 
   // ===========================================================================
-  // SECTION 6 — PHOTOS
+  // SECTION 6 — PHOTOS & FILES
   // ===========================================================================
+
+  Future<void> _pickAttachment() async {
+    final type = await _chooseAttachmentType();
+    if (type == null) return;
+
+    if (type == _AttachmentType.photo) {
+      await _pickImage();
+    } else {
+      await _pickFile();
+    }
+  }
+
+  Future<_AttachmentType?> _chooseAttachmentType() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return showModalBottomSheet<_AttachmentType>(
+      context: context,
+      backgroundColor: _dropdownBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo, color: _teal),
+              title: Text(
+                l10n.photo,
+                style: const TextStyle(color: _textPrimary),
+              ),
+              onTap: () {
+                Navigator.pop(sheetContext, _AttachmentType.photo);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.insert_drive_file, color: _teal),
+              title: Text(
+                l10n.file,
+                style: const TextStyle(color: _textPrimary),
+              ),
+              onTap: () {
+                Navigator.pop(sheetContext, _AttachmentType.file);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFile() async {
+    try {
+      final file = await ImageUploadService.pickFile();
+      if (file == null) return;
+      _queueSelectedFile(file);
+    } catch (e, stackTrace) {
+      debugPrint('NavSafetyNewRecordPage._pickFile failed: $e');
+      debugPrint('$stackTrace');
+      if (!mounted) return;
+      _showSnackBar(AppLocalizations.of(context)!.filePickError, isError: true);
+    }
+  }
+
+  void _queueSelectedFile(PendingImageUpload file) {
+    if (!mounted) return;
+
+    final validationError = ImageUploadService.validateSelectedFile(file);
+    if (validationError != null) {
+      final l10n = AppLocalizations.of(context)!;
+      _showSnackBar(
+        validationError == 'fileTooLarge'
+            ? l10n.fileTooLargeError
+            : l10n.fileEmptyError,
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => _selectedFiles.add(file));
+  }
 
   Future<void> _pickImage() async {
     final totalImages = _existingImageUrls.length + _selectedImages.length;
@@ -1443,12 +1588,15 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Widget _buildSection6Photos(AppLocalizations l10n) {
     final totalImages = _existingImageUrls.length + _selectedImages.length;
+    final totalAttachments = totalImages +
+        _existingFileAttachments.length +
+        _selectedFiles.length;
 
     return _buildSectionCard(
-      icon: Icons.camera_alt,
-      title: '${l10n.photos} (${l10n.optional})',
+      icon: Icons.attach_file,
+      title: '${l10n.photos} / ${l10n.files} (${l10n.optional})',
       children: [
-        if (totalImages > 0)
+        if (totalAttachments > 0)
           Wrap(
             spacing: 10,
             runSpacing: 10,
@@ -1484,43 +1632,124 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   },
                 );
               }),
+              ..._existingFileAttachments.asMap().entries.map((entry) {
+                final name = (entry.value['name'] ?? '').toString();
+                return _buildFileThumbnail(
+                  name: name.isNotEmpty ? name : l10n.file,
+                  onRemove: () {
+                    setState(() {
+                      final url = (entry.value['url'] ?? '').toString();
+                      if (url.isNotEmpty) _filesToDelete.add(url);
+                      _existingFileAttachments.removeAt(entry.key);
+                    });
+                  },
+                );
+              }),
+              ..._selectedFiles.asMap().entries.map((entry) {
+                return _buildFileThumbnail(
+                  name: entry.value.originalName,
+                  onRemove: () {
+                    setState(() {
+                      _selectedFiles.removeAt(entry.key);
+                    });
+                  },
+                );
+              }),
             ],
           ),
-        if (totalImages > 0) const SizedBox(height: 12),
-        if (totalImages < 3)
-          GestureDetector(
-            onTap: _pickImage,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: _tealLight,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _tealBorder),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.camera_alt, color: _teal, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.addPhoto,
-                    style: const TextStyle(
-                      color: _teal,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+        if (totalAttachments > 0) const SizedBox(height: 12),
+        GestureDetector(
+          onTap: _pickAttachment,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: _tealLight,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _tealBorder),
             ),
-          )
-        else
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.attach_file, color: _teal, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.attachFile,
+                  style: const TextStyle(
+                    color: _teal,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (totalImages >= ImageUploadService.maxImagesPerRecord) ...[
+          const SizedBox(height: 8),
           Text(
             l10n.maxPhotosReached,
             style: const TextStyle(color: _textMuted, fontSize: 12),
           ),
+        ],
       ],
     );
+  }
+
+  Widget _buildFileThumbnail({
+    required String name,
+    required VoidCallback onRemove,
+  }) {
+    return Stack(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          padding: const EdgeInsets.fromLTRB(6, 10, 6, 6),
+          decoration: BoxDecoration(
+            color: _inputBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: _fieldBorder),
+          ),
+          child: Column(
+            children: [
+              Icon(_fileIconForName(name), color: _teal, size: 26),
+              const SizedBox(height: 4),
+              Expanded(
+                child: Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: _textSecondary, fontSize: 9),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Positioned(
+          top: 2,
+          right: 2,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _fileIconForName(String name) {
+    final contentType = ImageUploadService.contentTypeFromFileName(name);
+    if (contentType == 'application/pdf') return Icons.picture_as_pdf;
+    if (ImageUploadService.isImageContentType(contentType)) return Icons.image;
+    return Icons.insert_drive_file;
   }
 
   Widget _buildImageThumbnail({

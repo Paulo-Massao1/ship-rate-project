@@ -1771,6 +1771,34 @@
   "@maxImagesExceededError": {
     "description": "Error message for exceeding max images per record."
   },
+  "attachFile": "Anexar arquivo",
+  "@attachFile": {
+    "description": "Button label to attach a file of any type."
+  },
+  "photo": "Foto",
+  "@photo": {
+    "description": "Menu option to attach a photo."
+  },
+  "file": "Arquivo",
+  "@file": {
+    "description": "Menu option to attach a generic file."
+  },
+  "files": "Arquivos",
+  "@files": {
+    "description": "Section title for attached files."
+  },
+  "fileEmptyError": "O arquivo selecionado está vazio.",
+  "@fileEmptyError": {
+    "description": "Error message for empty file selection."
+  },
+  "fileTooLargeError": "Cada arquivo deve ter no máximo 10 MB.",
+  "@fileTooLargeError": {
+    "description": "Error message for oversized file."
+  },
+  "filePickError": "Não foi possível selecionar o arquivo neste dispositivo.",
+  "@filePickError": {
+    "description": "Error message when the file picker fails."
+  },
   "shareDepthTitle": "Nova profundidade registrada",
   "@shareDepthTitle": {
     "description": "Title line in WhatsApp share message for depth records."

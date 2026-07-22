@@ -2471,6 +2471,48 @@ abstract class AppLocalizations {
   /// **'Você pode anexar no máximo 3 imagens por registro.'**
   String get maxImagesExceededError;
 
+  /// Button label to attach a file of any type.
+  ///
+  /// In pt, this message translates to:
+  /// **'Anexar arquivo'**
+  String get attachFile;
+
+  /// Menu option to attach a photo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Foto'**
+  String get photo;
+
+  /// Menu option to attach a generic file.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivo'**
+  String get file;
+
+  /// Section title for attached files.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivos'**
+  String get files;
+
+  /// Error message for empty file selection.
+  ///
+  /// In pt, this message translates to:
+  /// **'O arquivo selecionado está vazio.'**
+  String get fileEmptyError;
+
+  /// Error message for oversized file.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cada arquivo deve ter no máximo 10 MB.'**
+  String get fileTooLargeError;
+
+  /// Error message when the file picker fails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível selecionar o arquivo neste dispositivo.'**
+  String get filePickError;
+
   /// Title line in WhatsApp share message for depth records.
   ///
   /// In pt, this message translates to:
