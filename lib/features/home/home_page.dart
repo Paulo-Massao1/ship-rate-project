@@ -19,6 +19,7 @@ import '../nav_info/nav_info_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
 import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
+import '../../core/constants.dart';
 import '../../core/module_access.dart';
 import '../../data/services/milestone_service.dart';
 import '../../shared/widgets/app_drawer.dart';
@@ -843,6 +844,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 Icons.star_outline,
                 data.totalRatings.toString(),
                 l10n.totalRatingsLabel,
+                onTap: _showRatingsRankingSheet,
               ),
               _buildStatDivider(),
               _buildStatItem(
@@ -850,6 +852,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 data.totalCrossings.toString(),
                 l10n.totalCrossingsLabel,
                 iconColor: const Color(0xFFFFB74D),
+                onTap: _showCrossingsRankingSheet,
               ),
               _buildStatDivider(),
               _buildStatItem(
@@ -940,6 +943,336 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       width: 1,
       height: 40,
       color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+    );
+  }
+
+  // ===========================================================================
+  // STAT RANKINGS
+  // ===========================================================================
+
+  void _showRatingsRankingSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    _showStatRankingSheet(
+      title: l10n.ratingsRankingTitle,
+      future: _fetchRatingsRanking(),
+      countLabel: l10n.ratingsRankingCount,
+    );
+  }
+
+  void _showCrossingsRankingSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    _showStatRankingSheet(
+      title: l10n.crossingsRankingTitle,
+      future: _fetchCrossingsRanking(),
+      countLabel: l10n.crossingsRankingCount,
+    );
+  }
+
+  /// Fetches per-pilot rating counts, mirroring the dashboard's attribution
+  /// rules (realPilotId/realPilotIds override, uid or callSign fallback).
+  Future<List<_StatRankingEntry>> _fetchRatingsRanking() async {
+    final firestore = FirebaseFirestore.instance;
+    final countsByPilot = <String, int>{};
+
+    final shipsSnapshot =
+        await firestore.collection(AppConstants.shipsCollection).get();
+
+    final ratingsSnapshots = await Future.wait(
+      shipsSnapshot.docs.map(
+        (ship) => ship.reference
+            .collection(AppConstants.ratingsSubcollection)
+            .get()
+            .then<QuerySnapshot<Map<String, dynamic>>?>((snapshot) => snapshot)
+            .catchError((Object _) => null),
+      ),
+    );
+
+    for (final snapshot in ratingsSnapshots) {
+      if (snapshot == null) continue;
+      for (final rating in snapshot.docs) {
+        final data = rating.data();
+        final ratingUid = data['usuarioId'] as String?;
+        final realPilotId = data['realPilotId'] as String?;
+        final realPilotIds = data['realPilotIds'] as List<dynamic>?;
+
+        if (realPilotId != null) {
+          countsByPilot[realPilotId] = (countsByPilot[realPilotId] ?? 0) + 1;
+        } else if (realPilotIds != null && realPilotIds.isNotEmpty) {
+          for (final id in realPilotIds) {
+            final key = id as String;
+            countsByPilot[key] = (countsByPilot[key] ?? 0) + 1;
+          }
+        } else if (ratingUid != AppConstants.cspamUid) {
+          final pilotKey = ratingUid ?? (data['nomeGuerra'] as String?) ?? '';
+          if (pilotKey.isNotEmpty) {
+            countsByPilot[pilotKey] = (countsByPilot[pilotKey] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
+    countsByPilot.remove(AppConstants.cspamUid);
+    return _buildRankingEntries(countsByPilot);
+  }
+
+  /// Fetches per-pilot crossing counts from pre-aggregated pilot stats, with
+  /// a fallback that groups raw crossing records when counters are missing.
+  Future<List<_StatRankingEntry>> _fetchCrossingsRanking() async {
+    final firestore = FirebaseFirestore.instance;
+    final countsByPilot = <String, int>{};
+
+    try {
+      final statsSnapshot = await firestore
+          .collection(AppConstants.pilotStatsCollection)
+          .where('crossingCount', isGreaterThan: 0)
+          .get();
+      for (final doc in statsSnapshot.docs) {
+        if (doc.id == AppConstants.cspamUid) continue;
+        final count = (doc.data()['crossingCount'] as int?) ?? 0;
+        if (count > 0) countsByPilot[doc.id] = count;
+      }
+    } catch (e) {
+      debugPrint('[Home] Error fetching pilot crossing counts: $e');
+    }
+
+    if (countsByPilot.isEmpty) {
+      final crossingsSnapshot =
+          await firestore.collection(AppConstants.cruzamentosCollection).get();
+      for (final doc in crossingsSnapshot.docs) {
+        final pilotKey = _resolveCrossingPilotKey(doc.data());
+        if (pilotKey == null || pilotKey == AppConstants.cspamUid) continue;
+        countsByPilot[pilotKey] = (countsByPilot[pilotKey] ?? 0) + 1;
+      }
+    }
+
+    return _buildRankingEntries(countsByPilot);
+  }
+
+  String? _resolveCrossingPilotKey(Map<String, dynamic> data) {
+    for (final field in [
+      'pilotoId',
+      'pilotId',
+      'usuarioId',
+      'userId',
+      'nomeGuerra',
+    ]) {
+      final value = data[field]?.toString().trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+    return null;
+  }
+
+  /// Applies the ranking-only dev-account exclusions and maps counts to
+  /// sorted, tie-aware ranking entries.
+  Future<List<_StatRankingEntry>> _buildRankingEntries(
+    Map<String, int> countsByPilot,
+  ) async {
+    final excludedKeys = await _fetchRankingExcludedKeys();
+    excludedKeys.forEach(countsByPilot.remove);
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    final callSign = _nomeGuerra?.trim();
+    bool isCurrentUser(String key) =>
+        key == currentUid ||
+        (callSign != null && callSign.isNotEmpty && key == callSign);
+
+    final sorted = countsByPilot.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final counts = sorted.map((e) => e.value).toList();
+
+    return [
+      for (final entry in sorted)
+        _StatRankingEntry(
+          position: counts.where((c) => c > entry.value).length + 1,
+          count: entry.value,
+          isCurrentUser: isCurrentUser(entry.key),
+          name: isCurrentUser(entry.key) ? (callSign ?? '') : '',
+        ),
+    ];
+  }
+
+  /// Resolves uid and callSign keys for the dev accounts excluded from
+  /// every ranking, mirroring the dashboard's exclusion lookup.
+  Future<Set<String>> _fetchRankingExcludedKeys() async {
+    final excluded = <String>{};
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection(AppConstants.usersCollection)
+          .where('email', whereIn: AppConstants.excludedFromRankings)
+          .get();
+      for (final doc in snapshot.docs) {
+        excluded.add(doc.id);
+        final callSign = (doc.data()['nomeGuerra'] as String?)?.trim();
+        if (callSign != null && callSign.isNotEmpty) excluded.add(callSign);
+      }
+    } catch (e) {
+      debugPrint('[Home] Error resolving ranking exclusions: $e');
+    }
+    return excluded;
+  }
+
+  Future<void> _showStatRankingSheet({
+    required String title,
+    required Future<List<_StatRankingEntry>> future,
+    required String Function(int) countLabel,
+  }) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF132D4A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        final l10n = AppLocalizations.of(sheetContext)!;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: FutureBuilder<List<_StatRankingEntry>>(
+              future: future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(color: Color(0xFF64B5F6)),
+                    ),
+                  );
+                }
+
+                final entries = snapshot.data ?? const <_StatRankingEntry>[];
+                if (entries.isEmpty) {
+                  return SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        l10n.noRecords,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 440),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0x3364B5F6),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
+                            color: Color(0xFF64B5F6),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: entries.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 6),
+                          itemBuilder: (_, index) => _buildStatRankingRow(
+                            entries[index],
+                            l10n,
+                            countLabel,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatRankingRow(
+    _StatRankingEntry entry,
+    AppLocalizations l10n,
+    String Function(int) countLabel,
+  ) {
+    final isUser = entry.isCurrentUser;
+    final label = isUser
+        ? (entry.name.isNotEmpty
+            ? '${l10n.rankingYou} (${entry.name})'
+            : l10n.rankingYou)
+        : l10n.pilot;
+    const accent = Color(0xFF64B5F6);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isUser
+            ? accent.withValues(alpha: 0.12)
+            : const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isUser ? accent : const Color(0x1A64B5F6),
+          width: isUser ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 36,
+            child: Text(
+              '#${entry.position}',
+              style: TextStyle(
+                color: isUser ? accent : const Color(0x99FFFFFF),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isUser ? accent : const Color(0xD9FFFFFF),
+                fontSize: 13,
+                fontWeight: isUser ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            countLabel(entry.count),
+            style: TextStyle(
+              color: isUser ? accent : const Color(0x99FFFFFF),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1181,6 +1514,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
     );
   }
+}
+
+/// Single row of an anonymous stat ranking (ratings or crossings).
+class _StatRankingEntry {
+  final int position;
+  final int count;
+  final bool isCurrentUser;
+  final String name;
+
+  const _StatRankingEntry({
+    required this.position,
+    required this.count,
+    required this.isCurrentUser,
+    required this.name,
+  });
 }
 
 class _ShareBottomSheet extends StatelessWidget {

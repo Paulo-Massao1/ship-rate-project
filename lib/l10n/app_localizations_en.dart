@@ -603,7 +603,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastRatedShip => 'Latest Rating';
 
   @override
-  String get lastRatedShipsTitle => 'Latest Ratings';
+  String get lastRatedShipsTitle => 'Latest Ships';
 
   @override
   String get noRecentRatings => 'No recent ratings';
@@ -1463,4 +1463,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get milestone100UsersMessage => 'Over 100 pilots have joined ShipRate Pro — that\'s more than 65% of ZP-01 pilots! Together we\'re building the largest collaborative pilotage database in the Amazon Basin.';
+
+  @override
+  String get ratingsRankingTitle => 'Ratings Ranking';
+
+  @override
+  String get crossingsRankingTitle => 'Crossings Ranking';
+
+  @override
+  String get rankingYou => 'You';
+
+  @override
+  String ratingsRankingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ratings',
+      one: '1 rating',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String crossingsRankingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count crossings',
+      one: '1 crossing',
+    );
+    return '$_temp0';
+  }
 }

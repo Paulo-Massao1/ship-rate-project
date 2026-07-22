@@ -1202,7 +1202,7 @@ abstract class AppLocalizations {
   /// Title text for last rated ships.
   ///
   /// In pt, this message translates to:
-  /// **'Últimas Avaliações'**
+  /// **'Últimos Navios'**
   String get lastRatedShipsTitle;
 
   /// Empty-state or negative message for recent ratings.
@@ -2800,6 +2800,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.'**
   String get milestone100UsersMessage;
+
+  /// Title of the ratings ranking bottom sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ranking de Avaliações'**
+  String get ratingsRankingTitle;
+
+  /// Title of the crossings ranking bottom sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ranking de Cruzamentos'**
+  String get crossingsRankingTitle;
+
+  /// Label for the logged-in pilot's row in a ranking list.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você'**
+  String get rankingYou;
+
+  /// Rating count shown per row in the ratings ranking.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 avaliação} other{{count} avaliações}}'**
+  String ratingsRankingCount(int count);
+
+  /// Crossing count shown per row in the crossings ranking.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 cruzamento} other{{count} cruzamentos}}'**
+  String crossingsRankingCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

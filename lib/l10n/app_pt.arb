@@ -832,7 +832,7 @@
   "@lastRatedShip": {
     "description": "Localized text for last rated ship."
   },
-  "lastRatedShipsTitle": "Últimas Avaliações",
+  "lastRatedShipsTitle": "Últimos Navios",
   "@lastRatedShipsTitle": {
     "description": "Title text for last rated ships."
   },
@@ -2019,5 +2019,35 @@
   "milestone100UsersMessage": "Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.",
   "@milestone100UsersMessage": {
     "description": "Message of the celebration overlay for reaching 100 users."
+  },
+  "ratingsRankingTitle": "Ranking de Avaliações",
+  "@ratingsRankingTitle": {
+    "description": "Title of the ratings ranking bottom sheet."
+  },
+  "crossingsRankingTitle": "Ranking de Cruzamentos",
+  "@crossingsRankingTitle": {
+    "description": "Title of the crossings ranking bottom sheet."
+  },
+  "rankingYou": "Você",
+  "@rankingYou": {
+    "description": "Label for the logged-in pilot's row in a ranking list."
+  },
+  "ratingsRankingCount": "{count, plural, =1{1 avaliação} other{{count} avaliações}}",
+  "@ratingsRankingCount": {
+    "description": "Rating count shown per row in the ratings ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crossingsRankingCount": "{count, plural, =1{1 cruzamento} other{{count} cruzamentos}}",
+  "@crossingsRankingCount": {
+    "description": "Crossing count shown per row in the crossings ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

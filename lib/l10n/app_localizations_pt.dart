@@ -603,7 +603,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get lastRatedShip => 'Última Avaliação';
 
   @override
-  String get lastRatedShipsTitle => 'Últimas Avaliações';
+  String get lastRatedShipsTitle => 'Últimos Navios';
 
   @override
   String get noRecentRatings => 'Nenhuma avaliação recente';
@@ -1463,4 +1463,35 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get milestone100UsersMessage => 'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.';
+
+  @override
+  String get ratingsRankingTitle => 'Ranking de Avaliações';
+
+  @override
+  String get crossingsRankingTitle => 'Ranking de Cruzamentos';
+
+  @override
+  String get rankingYou => 'Você';
+
+  @override
+  String ratingsRankingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count avaliações',
+      one: '1 avaliação',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String crossingsRankingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cruzamentos',
+      one: '1 cruzamento',
+    );
+    return '$_temp0';
+  }
 }

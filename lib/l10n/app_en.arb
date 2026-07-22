@@ -814,7 +814,7 @@
   "@lastRatedShip": {
     "description": "Localized text for last rated ship."
   },
-  "lastRatedShipsTitle": "Latest Ratings",
+  "lastRatedShipsTitle": "Latest Ships",
   "@lastRatedShipsTitle": {
     "description": "Title text for last rated ships."
   },
@@ -1992,5 +1992,35 @@
   "milestone100UsersMessage": "Over 100 pilots have joined ShipRate Pro — that's more than 65% of ZP-01 pilots! Together we're building the largest collaborative pilotage database in the Amazon Basin.",
   "@milestone100UsersMessage": {
     "description": "Message of the celebration overlay for reaching 100 users."
+  },
+  "ratingsRankingTitle": "Ratings Ranking",
+  "@ratingsRankingTitle": {
+    "description": "Title of the ratings ranking bottom sheet."
+  },
+  "crossingsRankingTitle": "Crossings Ranking",
+  "@crossingsRankingTitle": {
+    "description": "Title of the crossings ranking bottom sheet."
+  },
+  "rankingYou": "You",
+  "@rankingYou": {
+    "description": "Label for the logged-in pilot's row in a ranking list."
+  },
+  "ratingsRankingCount": "{count, plural, =1{1 rating} other{{count} ratings}}",
+  "@ratingsRankingCount": {
+    "description": "Rating count shown per row in the ratings ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "crossingsRankingCount": "{count, plural, =1{1 crossing} other{{count} crossings}}",
+  "@crossingsRankingCount": {
+    "description": "Crossing count shown per row in the crossings ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
