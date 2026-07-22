@@ -1756,7 +1756,7 @@
   "@firebaseUnavailable": {
     "description": "Message shown when Firebase initialization fails."
   },
-  "crossingStatsCount": "You reported {count} crossings out of {total} total",
+  "crossingStatsCount": "You reported {count} crossings / Total of {total}",
   "@crossingStatsCount": {
     "description": "Stats text showing user crossing count vs total.",
     "placeholders": {

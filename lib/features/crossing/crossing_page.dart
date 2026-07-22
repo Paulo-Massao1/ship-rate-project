@@ -577,10 +577,10 @@ class _CrossingPageState extends State<CrossingPage> {
                   ),
                   child: Column(
                     children: [
+                      if (_showCrossingStats) _buildMotivationalMessage(l10n),
                       if (_showCrossingStats) _buildCrossingStatsCard(l10n),
                       _buildAlertToggle(l10n),
-                      if (_showCrossingStats) _buildMotivationalMessage(l10n),
-                      _buildTabPills(l10n),
+                      _buildTabGrid(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
                   ),
@@ -747,56 +747,94 @@ class _CrossingPageState extends State<CrossingPage> {
     );
   }
 
-  Widget _buildTabPills(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+  Widget _buildTabGrid(AppLocalizations l10n) {
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
+      child: Column(
         children: [
-          _buildPill(
-            label: l10n.activeCrossings,
-            isActive: _selectedTab == _CrossingTab.active,
-            onTap: _showActiveCrossings,
+          Row(
+            children: [
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.compare_arrows,
+                  label: l10n.activeCrossings,
+                  isActive: _selectedTab == _CrossingTab.active,
+                  onTap: _showActiveCrossings,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.add_circle_outline,
+                  label: l10n.newCrossing,
+                  isActive: false,
+                  onTap: _navigateToNewCrossing,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          _buildPill(
-            label: l10n.newCrossing,
-            isActive: false,
-            onTap: _navigateToNewCrossing,
-          ),
-          const SizedBox(width: 8),
-          _buildPill(
-            label: l10n.myCrossings,
-            isActive: _selectedTab == _CrossingTab.mine,
-            onTap: _showMyCrossings,
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.assignment_turned_in_outlined,
+                  label: l10n.myCrossings,
+                  isActive: _selectedTab == _CrossingTab.mine,
+                  onTap: _showMyCrossings,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: SizedBox()),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPill({
+  Widget _buildTabCard({
+    required IconData icon,
     required String label,
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? _amberLight : const Color(0x0FFFFFFF),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive ? _amberBorder : const Color(0x1F64B5F6),
+    return Material(
+      color: isActive ? _amberLight : const Color(0x14FFFFFF),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isActive ? _amber : const Color(0x33FFFFFF),
+              width: isActive ? 1.5 : 1,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? _amber : const Color(0x99FFFFFF),
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isActive ? _amber : const Color(0xCCFFFFFF),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isActive ? _amber : Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -896,7 +934,7 @@ class _CrossingPageState extends State<CrossingPage> {
     final data = _crossingStats!;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
@@ -956,20 +994,20 @@ class _CrossingPageState extends State<CrossingPage> {
     final data = _crossingStats!;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _amber.withValues(alpha: 0.08),
+        color: _amber.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _amberBorder),
       ),
       child: Text(
         l10n.crossingsMotivational(data.totalCrossings),
         textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.6),
+        style: const TextStyle(
+          color: _amber,
           fontSize: 14,
-          fontStyle: FontStyle.italic,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

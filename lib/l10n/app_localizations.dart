@@ -2492,7 +2492,7 @@ abstract class AppLocalizations {
   /// Stats text showing user crossing count vs total.
   ///
   /// In pt, this message translates to:
-  /// **'Você informou {count} cruzamentos de um total de {total}'**
+  /// **'Você informou {count} cruzamentos / Total de {total}'**
   String crossingStatsCount(int count, int total);
 
   /// Stats text showing user depth record count vs total.

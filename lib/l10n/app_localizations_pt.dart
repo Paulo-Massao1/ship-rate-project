@@ -1296,7 +1296,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String crossingStatsCount(int count, int total) {
-    return 'Você informou $count cruzamentos de um total de $total';
+    return 'Você informou $count cruzamentos / Total de $total';
   }
 
   @override
