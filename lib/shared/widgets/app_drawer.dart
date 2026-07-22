@@ -155,7 +155,6 @@ class AppDrawer extends StatelessWidget {
             DrawerItem(
               icon: Icons.explore,
               label: l10n.navInfoModule,
-              color: const Color(0xFFB388FF),
               isActive: false,
               onTap: () => _navigateTo(context, AppScreen.navInfo),
             ),
