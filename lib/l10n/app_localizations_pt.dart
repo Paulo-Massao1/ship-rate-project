@@ -1427,6 +1427,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get operationalRestrictionsSubtitle => 'Limitações e Parâmetros';
 
   @override
+  String get maxDraftsTitle => 'Calados Máximos por Porto';
+
+  @override
+  String get maxDraftsSubtitle => 'Calados por localidade';
+
+  @override
   String get ratingsRecordedLabel => 'avaliações registradas';
 
   @override

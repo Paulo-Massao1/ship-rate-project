@@ -1427,6 +1427,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationalRestrictionsSubtitle => 'Limitations and parameters';
 
   @override
+  String get maxDraftsTitle => 'Maximum Drafts by Port';
+
+  @override
+  String get maxDraftsSubtitle => 'Drafts by location';
+
+  @override
   String get ratingsRecordedLabel => 'ratings recorded';
 
   @override

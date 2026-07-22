@@ -1948,6 +1948,14 @@
   "@operationalRestrictionsSubtitle": {
     "description": "Subtitle for the operational restrictions sub-item."
   },
+  "maxDraftsTitle": "Maximum Drafts by Port",
+  "@maxDraftsTitle": {
+    "description": "Title for the maximum drafts by port sub-item."
+  },
+  "maxDraftsSubtitle": "Drafts by location",
+  "@maxDraftsSubtitle": {
+    "description": "Subtitle for the maximum drafts by port sub-item."
+  },
   "ratingsRecordedLabel": "ratings recorded",
   "@ratingsRecordedLabel": {
     "description": "Muted label shown below the main rating stat."

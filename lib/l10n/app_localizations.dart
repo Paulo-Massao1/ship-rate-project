@@ -2741,6 +2741,18 @@ abstract class AppLocalizations {
   /// **'Limitações e Parâmetros'**
   String get operationalRestrictionsSubtitle;
 
+  /// Title for the maximum drafts by port sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calados Máximos por Porto'**
+  String get maxDraftsTitle;
+
+  /// Subtitle for the maximum drafts by port sub-item.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calados por localidade'**
+  String get maxDraftsSubtitle;
+
   /// Muted label shown below the main rating stat.
   ///
   /// In pt, this message translates to:

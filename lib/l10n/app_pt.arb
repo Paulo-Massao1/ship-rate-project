@@ -1975,6 +1975,14 @@
   "@operationalRestrictionsSubtitle": {
     "description": "Subtitle for the operational restrictions sub-item."
   },
+  "maxDraftsTitle": "Calados Máximos por Porto",
+  "@maxDraftsTitle": {
+    "description": "Title for the maximum drafts by port sub-item."
+  },
+  "maxDraftsSubtitle": "Calados por localidade",
+  "@maxDraftsSubtitle": {
+    "description": "Subtitle for the maximum drafts by port sub-item."
+  },
   "ratingsRecordedLabel": "avaliações registradas",
   "@ratingsRecordedLabel": {
     "description": "Muted label shown below the main rating stat."

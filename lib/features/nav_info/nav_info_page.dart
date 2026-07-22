@@ -10,6 +10,7 @@ import '../../shared/widgets/app_drawer.dart';
 import '../home/main_screen_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'barra_norte_page.dart';
+import 'max_drafts_page.dart';
 import 'operational_restrictions_page.dart';
 import 'tide_table_page.dart';
 
@@ -96,6 +97,13 @@ class _NavInfoPageState extends State<NavInfoPage> {
     );
   }
 
+  void _onMaxDraftsTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MaxDraftsPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!_showRestrictedModules) {
@@ -174,6 +182,17 @@ class _NavInfoPageState extends State<NavInfoPage> {
                       title: l10n.operationalRestrictionsTitle,
                       subtitle: l10n.operationalRestrictionsSubtitle,
                       onTap: _onOperationalRestrictionsTap,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSubItemCard(
+                      icon: Icons.straighten,
+                      iconColor: const Color(0xFFFFB74D),
+                      iconBgColor: const Color(0x1FFFB74D),
+                      iconBorderColor: const Color(0x40FFB74D),
+                      borderColor: const Color(0x33FFB74D),
+                      title: l10n.maxDraftsTitle,
+                      subtitle: l10n.maxDraftsSubtitle,
+                      onTap: _onMaxDraftsTap,
                     ),
                   ],
                 ),
