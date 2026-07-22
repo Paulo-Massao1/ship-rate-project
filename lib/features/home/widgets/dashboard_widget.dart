@@ -6,6 +6,7 @@ import '../../../controllers/dashboard_controller.dart';
 import '../../../controllers/rating_controller.dart';
 import '../../../core/constants.dart';
 import '../../../core/events/data_change_notifier.dart';
+import '../../ratings/my_ratings_page.dart';
 import '../../ratings/rating_detail_page.dart';
 
 /// Dashboard widget with two visual blocks:
@@ -631,55 +632,75 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   }
 
   Widget _buildRatingsMetric(DashboardData data, AppLocalizations l10n) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _onRatingsMetricTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF64B5F6).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
+              ),
+              child: Icon(
+                Icons.person_outline,
+                color: Colors.white.withValues(alpha: 0.82),
+                size: 21,
+              ),
             ),
-          ),
-          child: Icon(
-            Icons.person_outline,
-            color: Colors.white.withValues(alpha: 0.82),
-            size: 21,
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${data.userRatings} de ${data.totalRatings}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0,
-                  height: 1,
-                ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${data.userRatings} de ${data.totalRatings}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.ratingsRecordedLabel,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.62),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                l10n.ratingsRecordedLabel,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.62),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
-                  letterSpacing: 0,
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: Colors.white.withValues(alpha: 0.35),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  void _onRatingsMetricTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MyRatingsPage()),
     );
   }
 
