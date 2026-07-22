@@ -400,7 +400,16 @@ class _CrossingPageState extends State<CrossingPage> {
 
   bool get _showCrossingStats => _crossingStats != null;
 
+  /// Dev accounts excluded from rankings still see totals and can open the
+  /// ranking sheet, but never get a personal position line.
+  bool get _isExcludedFromRankings {
+    final email =
+        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
+    return email != null && AppConstants.excludedFromRankings.contains(email);
+  }
+
   bool get _showCrossingRanking =>
+      !_isExcludedFromRankings &&
       _crossingStats != null &&
       _crossingRankingTotal > 0;
 
@@ -935,56 +944,320 @@ class _CrossingPageState extends State<CrossingPage> {
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _amberBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.compare_arrows, color: _amber, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  l10n.crossingStatsCount(
-                    data.userCrossingCount,
-                    data.totalCrossings,
-                  ),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (_showCrossingRanking) ...[
-            const SizedBox(height: 8),
-            Row(
+        child: InkWell(
+          onTap: () => _showCrossingRankingSheet(l10n),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _amberBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.emoji_events, size: 16, color: _amber),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.crossingRankingPosition(
-                      _crossingRankingPosition,
-                      _crossingRankingTotal,
+                Row(
+                  children: [
+                    const Icon(Icons.compare_arrows, color: _amber, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n.crossingStatsCount(
+                          data.userCrossingCount,
+                          data.totalCrossings,
+                        ),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                    style: const TextStyle(
-                      color: _amber,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Color(0x66FFFFFF),
+                      size: 20,
                     ),
-                  ),
+                  ],
                 ),
+                if (_showCrossingRanking) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.emoji_events, size: 16, color: _amber),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.crossingRankingPosition(
+                            _crossingRankingPosition,
+                            _crossingRankingTotal,
+                          ),
+                          style: const TextStyle(
+                            color: _amber,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Fetches per-pilot crossing counts from pre-aggregated pilot stats, with
+  /// a fallback that groups raw crossing records when counters are missing.
+  Future<List<_CrossingRankingEntry>> _fetchCrossingRanking() async {
+    final firestore = FirebaseFirestore.instance;
+    final countsByPilot = <String, int>{};
+
+    try {
+      final statsSnapshot = await firestore
+          .collection(AppConstants.pilotStatsCollection)
+          .where('crossingCount', isGreaterThan: 0)
+          .get();
+      for (final doc in statsSnapshot.docs) {
+        if (doc.id == AppConstants.cspamUid) continue;
+        final count = (doc.data()['crossingCount'] as int?) ?? 0;
+        if (count > 0) countsByPilot[doc.id] = count;
+      }
+    } catch (e) {
+      debugPrint('[Crossing] Error fetching pilot crossing counts: $e');
+    }
+
+    if (countsByPilot.isEmpty) {
+      final crossingsSnapshot =
+          await firestore.collection(AppConstants.cruzamentosCollection).get();
+      for (final doc in crossingsSnapshot.docs) {
+        final pilotKey = _resolveCrossingPilotKey(doc.data());
+        if (pilotKey == null || pilotKey == AppConstants.cspamUid) continue;
+        countsByPilot[pilotKey] = (countsByPilot[pilotKey] ?? 0) + 1;
+      }
+    }
+
+    final excludedKeys = await _fetchRankingExcludedKeys();
+    excludedKeys.forEach(countsByPilot.remove);
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    String callSign = '';
+    if (currentUid != null) {
+      try {
+        final userDoc = await firestore
+            .collection(AppConstants.usersCollection)
+            .doc(currentUid)
+            .get();
+        callSign = (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
+      } catch (e) {
+        debugPrint('[Crossing] Error fetching user call sign: $e');
+      }
+    }
+
+    bool isCurrentUser(String key) =>
+        key == currentUid || (callSign.isNotEmpty && key == callSign);
+
+    final sorted = countsByPilot.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final counts = sorted.map((e) => e.value).toList();
+
+    return [
+      for (final entry in sorted)
+        _CrossingRankingEntry(
+          position: counts.where((c) => c > entry.value).length + 1,
+          crossingCount: entry.value,
+          isCurrentUser: isCurrentUser(entry.key),
+          name: isCurrentUser(entry.key) ? callSign : '',
+        ),
+    ];
+  }
+
+  String? _resolveCrossingPilotKey(Map<String, dynamic> data) {
+    for (final field in [
+      'pilotoId',
+      'pilotId',
+      'usuarioId',
+      'userId',
+      'nomeGuerra',
+    ]) {
+      final value = data[field]?.toString().trim();
+      if (value != null && value.isNotEmpty) return value;
+    }
+    return null;
+  }
+
+  /// Resolves uid and callSign keys for the dev accounts excluded from
+  /// every ranking, mirroring the dashboard's exclusion lookup.
+  Future<Set<String>> _fetchRankingExcludedKeys() async {
+    final excluded = <String>{};
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection(AppConstants.usersCollection)
+          .where('email', whereIn: AppConstants.excludedFromRankings)
+          .get();
+      for (final doc in snapshot.docs) {
+        excluded.add(doc.id);
+        final callSign = (doc.data()['nomeGuerra'] as String?)?.trim();
+        if (callSign != null && callSign.isNotEmpty) excluded.add(callSign);
+      }
+    } catch (e) {
+      debugPrint('[Crossing] Error resolving ranking exclusions: $e');
+    }
+    return excluded;
+  }
+
+  Future<void> _showCrossingRankingSheet(AppLocalizations l10n) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF132D4A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: FutureBuilder<List<_CrossingRankingEntry>>(
+              future: _fetchCrossingRanking(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(color: _amber),
+                    ),
+                  );
+                }
+
+                final entries =
+                    snapshot.data ?? const <_CrossingRankingEntry>[];
+                if (entries.isEmpty) {
+                  return SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        l10n.noRecords,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 440),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: _amberBorder,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
+                            color: _amber,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.crossingsRankingTitle,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: entries.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 6),
+                          itemBuilder: (_, index) =>
+                              _buildRankingRow(entries[index], l10n),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRankingRow(_CrossingRankingEntry entry, AppLocalizations l10n) {
+    final isUser = entry.isCurrentUser;
+    final label = isUser
+        ? (entry.name.isNotEmpty
+            ? '${l10n.depthRankingYou} (${entry.name})'
+            : l10n.depthRankingYou)
+        : l10n.pilot;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isUser ? _amberLight : const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isUser ? _amber : const Color(0x1AFFB74D),
+          width: isUser ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 36,
+            child: Text(
+              '#${entry.position}',
+              style: TextStyle(
+                color: isUser ? _amber : const Color(0x99FFFFFF),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isUser ? _amber : const Color(0xD9FFFFFF),
+                fontSize: 13,
+                fontWeight: isUser ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            l10n.crossingsRankingCount(entry.crossingCount),
+            style: TextStyle(
+              color: isUser ? _amber : const Color(0x99FFFFFF),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -1192,6 +1465,20 @@ class _CrossingPageState extends State<CrossingPage> {
       ],
     );
   }
+}
+
+class _CrossingRankingEntry {
+  final int position;
+  final int crossingCount;
+  final bool isCurrentUser;
+  final String name;
+
+  const _CrossingRankingEntry({
+    required this.position,
+    required this.crossingCount,
+    required this.isCurrentUser,
+    required this.name,
+  });
 }
 
 class _CrossingShareBottomSheet extends StatelessWidget {

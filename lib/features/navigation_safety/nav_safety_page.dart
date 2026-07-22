@@ -79,7 +79,16 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   bool get _showDepthStats => _depthStats != null;
 
+  /// Dev accounts excluded from rankings still see totals and can open the
+  /// ranking sheet, but never get a personal position line.
+  bool get _isExcludedFromRankings {
+    final email =
+        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
+    return email != null && AppConstants.excludedFromRankings.contains(email);
+  }
+
   bool get _showDepthRanking =>
+      !_isExcludedFromRankings &&
       _depthStats != null &&
       _depthRankingTotal > 0;
 

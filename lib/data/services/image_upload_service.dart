@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'image_upload_models.dart';
 import 'image_upload_web_backend_stub.dart'
@@ -146,7 +150,27 @@ class ImageUploadService {
   }
 
   /// Picks a single file of any type and returns it as a pending upload.
+  ///
+  /// On web an html input[type=file] is used because file_picker is not
+  /// reliable across every browser (notably iOS PWAs). On other platforms
+  /// file_picker is used as before.
   static Future<PendingImageUpload?> pickFile() async {
+    if (kIsWeb) {
+      try {
+        return await _pickFileWeb();
+      } on ImageUploadException {
+        rethrow;
+      } catch (e, stackTrace) {
+        debugPrint('ImageUploadService.pickFile web fallback failed: $e');
+        debugPrint('$stackTrace');
+        throw ImageUploadException(
+          'Anexo de arquivos disponivel apenas no app.',
+          code: 'web-file-pick-failed',
+          cause: e,
+        );
+      }
+    }
+
     final result = await FilePicker.pickFiles(withData: true);
     if (result == null || result.files.isEmpty) return null;
 
@@ -163,6 +187,70 @@ class ImageUploadService {
       mimeType: contentTypeFromFileName(fileName),
       originalName: fileName,
     );
+  }
+
+  /// Web implementation of [pickFile] backed by a plain html file input,
+  /// mirroring the approach already used by the web image picker backend.
+  static Future<PendingImageUpload?> _pickFileWeb() {
+    final body = html.document.body;
+    if (body == null) {
+      throw const ImageUploadException(
+        'Anexo de arquivos disponivel apenas no app.',
+        code: 'web-file-pick-unavailable',
+      );
+    }
+
+    final completer = Completer<PendingImageUpload?>();
+    final input = html.FileUploadInputElement()..style.display = 'none';
+
+    body.append(input);
+
+    input.onChange.first.then((_) async {
+      final file = input.files?.first;
+      if (file == null) {
+        completer.complete(null);
+        return;
+      }
+
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+      await reader.onLoadEnd.first;
+
+      final result = reader.result;
+      final Uint8List bytes;
+      if (result is Uint8List) {
+        bytes = result;
+      } else if (result is ByteBuffer) {
+        bytes = result.asUint8List();
+      } else {
+        completer.completeError(
+          const ImageUploadException(
+            'Nao foi possivel ler o arquivo selecionado.',
+            code: 'web-file-read-failed',
+          ),
+        );
+        return;
+      }
+
+      final fileName = file.name.trim().isNotEmpty
+          ? file.name.trim()
+          : 'arquivo_${DateTime.now().millisecondsSinceEpoch}';
+
+      completer.complete(
+        PendingImageUpload(
+          bytes: bytes,
+          mimeType: contentTypeFromFileName(fileName),
+          originalName: fileName,
+        ),
+      );
+    }).catchError((Object error, StackTrace stackTrace) {
+      if (!completer.isCompleted) {
+        completer.completeError(error, stackTrace);
+      }
+    });
+
+    input.click();
+    return completer.future.whenComplete(input.remove);
   }
 
   static Future<List<String>> uploadImages(

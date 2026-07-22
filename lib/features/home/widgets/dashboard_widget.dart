@@ -595,13 +595,22 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
+  /// Dev accounts excluded from rankings still see totals, but never get a
+  /// personal position line.
+  bool get _isExcludedFromRankings {
+    final email =
+        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
+    return email != null && AppConstants.excludedFromRankings.contains(email);
+  }
+
   Widget _buildUserActivitySummary(
     DashboardData data,
     AppLocalizations l10n,
   ) {
     final hasTopRater = data.topRaterCount > 0;
-    final hasRanking =
-        data.userRankingPosition > 0 && data.totalPilotsWhoRated > 0;
+    final hasRanking = !_isExcludedFromRankings &&
+        data.userRankingPosition > 0 &&
+        data.totalPilotsWhoRated > 0;
 
     return Container(
       width: double.infinity,
@@ -717,7 +726,9 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       );
     }
 
-    if (data.userRankingPosition > 0 && data.totalPilotsWhoRated > 0) {
+    if (!_isExcludedFromRankings &&
+        data.userRankingPosition > 0 &&
+        data.totalPilotsWhoRated > 0) {
       if (rows.isNotEmpty) {
         rows.add(const SizedBox(height: 8));
       }
