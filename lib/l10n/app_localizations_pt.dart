@@ -1310,6 +1310,23 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get depthRankingTitle => 'Ranking de Contribuição';
+
+  @override
+  String get depthRankingYou => 'Você';
+
+  @override
+  String depthRankingRecordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count registros',
+      one: '1 registro',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navInfoModule => 'Informações de Navegação';
 
   @override

@@ -1792,6 +1792,23 @@
       }
     }
   },
+  "depthRankingTitle": "Contribution Ranking",
+  "@depthRankingTitle": {
+    "description": "Title of the depth contribution ranking bottom sheet."
+  },
+  "depthRankingYou": "You",
+  "@depthRankingYou": {
+    "description": "Label for the logged-in pilot's row in the depth ranking."
+  },
+  "depthRankingRecordCount": "{count, plural, =1{1 record} other{{count} records}}",
+  "@depthRankingRecordCount": {
+    "description": "Record count shown per row in the depth ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "navInfoModule": "Navigation Info",
   "@navInfoModule": {
     "description": "Module name for navigation info."

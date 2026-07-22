@@ -1819,6 +1819,23 @@
       }
     }
   },
+  "depthRankingTitle": "Ranking de Contribuição",
+  "@depthRankingTitle": {
+    "description": "Title of the depth contribution ranking bottom sheet."
+  },
+  "depthRankingYou": "Você",
+  "@depthRankingYou": {
+    "description": "Label for the logged-in pilot's row in the depth ranking."
+  },
+  "depthRankingRecordCount": "{count, plural, =1{1 registro} other{{count} registros}}",
+  "@depthRankingRecordCount": {
+    "description": "Record count shown per row in the depth ranking.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "navInfoModule": "Informações de Navegação",
   "@navInfoModule": {
     "description": "Module name for navigation info."

@@ -2507,6 +2507,24 @@ abstract class AppLocalizations {
   /// **'Sua posição: #{position} de {total} práticos'**
   String depthStatsRanking(int position, int total);
 
+  /// Title of the depth contribution ranking bottom sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ranking de Contribuição'**
+  String get depthRankingTitle;
+
+  /// Label for the logged-in pilot's row in the depth ranking.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você'**
+  String get depthRankingYou;
+
+  /// Record count shown per row in the depth ranking.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =1{1 registro} other{{count} registros}}'**
+  String depthRankingRecordCount(int count);
+
   /// Module name for navigation info.
   ///
   /// In pt, this message translates to:

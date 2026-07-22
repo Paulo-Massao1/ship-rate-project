@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
+import '../../core/constants.dart';
 import '../../core/module_access.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
@@ -31,6 +32,10 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   // ===========================================================================
 
   static const _shareUrl = 'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+
+  static const _teal = Color(0xFF26A69A);
+  static const _tealLight = Color(0x1A26A69A);
+  static const _tealBorder = Color(0x4026A69A);
 
   // ===========================================================================
   // STATE
@@ -275,7 +280,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   child: Column(
                     children: [
                       if (_showDepthStats) _buildDepthStatsCard(l10n),
-                      _buildTabPills(l10n),
+                      _buildTabGrid(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
                   ),
@@ -362,139 +367,404 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x4026A69A)),
+        child: InkWell(
+          onTap: () => _showDepthRankingSheet(l10n),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _tealBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.waves, color: _teal, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n.depthStatsCount(
+                          data.userDepthRecordCount,
+                          data.totalDepthRecords,
+                        ),
+                        style: const TextStyle(
+                          color: Color(0xFFFFB74D),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Color(0x66FFFFFF),
+                      size: 20,
+                    ),
+                  ],
+                ),
+                if (_showDepthRanking) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.emoji_events,
+                        size: 16,
+                        color: _teal,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.depthStatsRanking(
+                            _depthRankingPosition,
+                            _depthRankingTotal,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
       ),
+    );
+  }
+
+  /// Fetches the depth contribution ranking, mirroring the same
+  /// ranking-only exclusions and adjustments used by the dashboard.
+  Future<List<_DepthRankingEntry>> _fetchDepthRanking() async {
+    final firestore = FirebaseFirestore.instance;
+    final countsByUid = <String, int>{};
+
+    final snapshot = await firestore
+        .collection(AppConstants.pilotStatsCollection)
+        .where('depthRecordCount', isGreaterThan: 0)
+        .get();
+    for (final doc in snapshot.docs) {
+      if (doc.id == AppConstants.cspamUid) continue;
+      final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
+      if (count > 0) countsByUid[doc.id] = count;
+    }
+
+    try {
+      final emails = <String>{
+        ...AppConstants.excludedFromRankings,
+        ...AppConstants.depthCountAdjustmentsByEmail.keys,
+      }.toList();
+      final usersSnapshot = await firestore
+          .collection(AppConstants.usersCollection)
+          .where('email', whereIn: emails)
+          .get();
+      for (final doc in usersSnapshot.docs) {
+        final email = (doc.data()['email'] as String?)?.trim().toLowerCase();
+        if (email == null) continue;
+        if (AppConstants.excludedFromRankings.contains(email)) {
+          countsByUid.remove(doc.id);
+          continue;
+        }
+        final delta = AppConstants.depthCountAdjustmentsByEmail[email];
+        final current = countsByUid[doc.id];
+        if (delta == null || current == null) continue;
+        final adjusted = current + delta;
+        if (adjusted > 0) {
+          countsByUid[doc.id] = adjusted;
+        } else {
+          countsByUid.remove(doc.id);
+        }
+      }
+    } catch (e) {
+      debugPrint('[NavSafety] Error applying ranking adjustments: $e');
+    }
+
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    String currentUserName = '';
+    if (currentUid != null && countsByUid.containsKey(currentUid)) {
+      try {
+        final userDoc = await firestore
+            .collection(AppConstants.usersCollection)
+            .doc(currentUid)
+            .get();
+        currentUserName =
+            (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
+      } catch (e) {
+        debugPrint('[NavSafety] Error fetching user call sign: $e');
+      }
+    }
+
+    final sorted = countsByUid.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final counts = sorted.map((e) => e.value).toList();
+
+    return [
+      for (final entry in sorted)
+        _DepthRankingEntry(
+          position: counts.where((c) => c > entry.value).length + 1,
+          recordCount: entry.value,
+          isCurrentUser: entry.key == currentUid,
+          name: entry.key == currentUid ? currentUserName : '',
+        ),
+    ];
+  }
+
+  Future<void> _showDepthRankingSheet(AppLocalizations l10n) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF132D4A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: FutureBuilder<List<_DepthRankingEntry>>(
+              future: _fetchDepthRanking(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(color: _teal),
+                    ),
+                  );
+                }
+
+                final entries = snapshot.data ?? const <_DepthRankingEntry>[];
+                if (entries.isEmpty) {
+                  return SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        l10n.noRecords,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 440),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0x3364B5F6),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
+                            color: _teal,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.depthRankingTitle,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: entries.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 6),
+                          itemBuilder: (_, index) =>
+                              _buildRankingRow(entries[index], l10n),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRankingRow(_DepthRankingEntry entry, AppLocalizations l10n) {
+    final isUser = entry.isCurrentUser;
+    final label = isUser
+        ? (entry.name.isNotEmpty
+            ? '${l10n.depthRankingYou} (${entry.name})'
+            : l10n.depthRankingYou)
+        : l10n.pilot;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isUser ? _tealLight : const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isUser ? _teal : const Color(0x1A64B5F6),
+          width: isUser ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 36,
+            child: Text(
+              '#${entry.position}',
+              style: TextStyle(
+                color: isUser ? _teal : const Color(0x99FFFFFF),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isUser ? _teal : const Color(0xD9FFFFFF),
+                fontSize: 13,
+                fontWeight: isUser ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            l10n.depthRankingRecordCount(entry.recordCount),
+            style: TextStyle(
+              color: isUser ? _teal : const Color(0x99FFFFFF),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabGrid(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.waves, color: Color(0xFF26A69A), size: 20),
-              const SizedBox(width: 10),
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.waves,
+                  label: l10n.latestDepths,
+                  isActive: _controller.selectedLocationId == null &&
+                      !_showLocationsDropdown,
+                  onTap: () {
+                    setState(() => _showLocationsDropdown = false);
+                    _controller.clearSelection();
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.place_outlined,
+                  label: l10n.locations,
+                  isActive: _showLocationsDropdown,
+                  onTap: _toggleLocationsDropdown,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.add_circle_outline,
+                  label: l10n.newRecord,
+                  isActive: false,
+                  onTap: _navigateToNewRecord,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.assignment_turned_in_outlined,
+                  label: l10n.myRecords,
+                  isActive: false,
+                  onTap: _navigateToMyRecords,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabCard({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: isActive ? _tealLight : const Color(0x14FFFFFF),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isActive ? _teal : const Color(0x33FFFFFF),
+              width: isActive ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isActive ? _teal : const Color(0xCCFFFFFF),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  l10n.depthStatsCount(
-                    data.userDepthRecordCount,
-                    data.totalDepthRecords,
-                  ),
-                  style: const TextStyle(
-                    color: Color(0xFFFFB74D),
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isActive ? _teal : Colors.white,
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ],
           ),
-          if (_showDepthRanking) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.emoji_events,
-                  size: 16,
-                  color: Color(0xFF26A69A),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.depthStatsRanking(
-                      _depthRankingPosition,
-                      _depthRankingTotal,
-                    ),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabPills(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          _buildPill(
-            label: l10n.latestDepths,
-            isActive:
-                _controller.selectedLocationId == null && !_showLocationsDropdown,
-            onTap: () {
-              setState(() => _showLocationsDropdown = false);
-              _controller.clearSelection();
-            },
-          ),
-          const SizedBox(width: 8),
-          _buildPill(
-            label: l10n.locations,
-            isActive: _showLocationsDropdown,
-            trailing: const Icon(
-              Icons.arrow_drop_down,
-              color: Color(0x99FFFFFF),
-              size: 18,
-            ),
-            onTap: _toggleLocationsDropdown,
-          ),
-          const SizedBox(width: 8),
-          _buildPill(
-            label: l10n.newRecord,
-            isActive: false,
-            onTap: _navigateToNewRecord,
-          ),
-          const SizedBox(width: 8),
-          _buildPill(
-            label: l10n.myRecords,
-            isActive: false,
-            onTap: _navigateToMyRecords,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPill({
-    required String label,
-    required bool isActive,
-    Widget? trailing,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0x2626A69A) : const Color(0x0FFFFFFF),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isActive ? const Color(0x6626A69A) : const Color(0x1F64B5F6),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color:
-                    isActive ? const Color(0xFF26A69A) : const Color(0x99FFFFFF),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (trailing != null) ...[const SizedBox(width: 2), trailing],
-          ],
         ),
       ),
     );
@@ -809,14 +1079,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     }
 
     final records = _controller.locationRecords;
-    final latestDepth = records.isNotEmpty
-        ? _formatMeters(records.first['profundidadeTotal'])
-        : '—';
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
-        _buildSummaryCard(l10n, latestDepth),
+        _buildLocationHeader(),
         const SizedBox(height: 16),
         Text(
           l10n.history,
@@ -843,46 +1110,26 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
-  Widget _buildSummaryCard(AppLocalizations l10n, String latestDepth) {
+  Widget _buildLocationHeader() {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: const Color(0x1426A69A),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0x3326A69A)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            _controller.selectedLocationName ?? '',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  l10n.lastDepth,
-                  style: const TextStyle(
-                    color: Color(0x66FFFFFF),
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  latestDepth,
-                  style: const TextStyle(
-                    color: Color(0xFF26A69A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 26,
-                  ),
-                ),
-              ],
+          const Icon(Icons.place_outlined, color: _teal, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _controller.selectedLocationName ?? '',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
             ),
           ),
         ],
@@ -1282,6 +1529,21 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
         return '—';
     }
   }
+}
+
+/// Single row of the depth contribution ranking.
+class _DepthRankingEntry {
+  final int position;
+  final int recordCount;
+  final bool isCurrentUser;
+  final String name;
+
+  const _DepthRankingEntry({
+    required this.position,
+    required this.recordCount,
+    required this.isCurrentUser,
+    required this.name,
+  });
 }
 
 class _NavShareBottomSheet extends StatelessWidget {
