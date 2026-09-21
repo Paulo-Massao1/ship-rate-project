@@ -2077,5 +2077,85 @@
         "type": "int"
       }
     }
+  },
+  "supportShipRate": "Apoie o ShipRate",
+  "@supportShipRate": {
+    "description": "Title of the subscription page app bar."
+  },
+  "subscriptionDescription": "Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.",
+  "@subscriptionDescription": {
+    "description": "Descriptive text shown at the top of the subscription page."
+  },
+  "recommended": "RECOMENDADO",
+  "@recommended": {
+    "description": "Badge highlighting the recommended subscription plan."
+  },
+  "premiumPlan": "Premium",
+  "@premiumPlan": {
+    "description": "Name of the Premium subscription plan."
+  },
+  "premiumSubtitle": "Acesso completo",
+  "@premiumSubtitle": {
+    "description": "Subtitle of the Premium subscription plan card."
+  },
+  "plusPlan": "Plus",
+  "@plusPlan": {
+    "description": "Name of the Plus subscription plan."
+  },
+  "premiumFeature1": "Tudo do plano Plus",
+  "@premiumFeature1": {
+    "description": "First feature listed in the Premium plan card."
+  },
+  "premiumFeature2": "Gráficos de tendência de profundidade por local",
+  "@premiumFeature2": {
+    "description": "Second feature listed in the Premium plan card."
+  },
+  "plusFeature1": "Relatório mensal em PDF com suas contribuições",
+  "@plusFeature1": {
+    "description": "First feature listed in the Plus plan card."
+  },
+  "plusFeature2": "Acesso ao módulo Manobras",
+  "@plusFeature2": {
+    "description": "Second feature listed in the Plus plan card."
+  },
+  "subscribePremium": "Assinar Premium",
+  "@subscribePremium": {
+    "description": "Label of the button that purchases the Premium plan."
+  },
+  "subscribePlus": "Assinar Plus",
+  "@subscribePlus": {
+    "description": "Label of the button that purchases the Plus plan."
+  },
+  "cancelAnytime": "Cancele a qualquer momento pela App Store.",
+  "@cancelAnytime": {
+    "description": "Footer note about cancelling the subscription."
+  },
+  "restorePurchases": "Restaurar compras",
+  "@restorePurchases": {
+    "description": "Label of the button that restores previous purchases."
+  },
+  "currentPlan": "Plano atual",
+  "@currentPlan": {
+    "description": "Label of the disabled button on the plan the user already owns."
+  },
+  "upgradePlan": "Fazer upgrade",
+  "@upgradePlan": {
+    "description": "Label of the button that upgrades from Plus to Premium."
+  },
+  "subscriptionSuccess": "Assinatura ativada!",
+  "@subscriptionSuccess": {
+    "description": "Snackbar shown after a successful purchase or restore."
+  },
+  "subscriptionError": "Não foi possível processar. Tente novamente.",
+  "@subscriptionError": {
+    "description": "Snackbar shown when a purchase or restore fails."
+  },
+  "perMonth": "/mês",
+  "@perMonth": {
+    "description": "Suffix shown after the monthly price of a plan."
+  },
+  "activeBadge": "ATIVO",
+  "@activeBadge": {
+    "description": "Badge marking the subscription plan the user currently owns."
   }
 }

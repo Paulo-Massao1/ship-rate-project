@@ -1515,4 +1515,64 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get supportShipRate => 'Apoie o ShipRate';
+
+  @override
+  String get subscriptionDescription => 'Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.';
+
+  @override
+  String get recommended => 'RECOMENDADO';
+
+  @override
+  String get premiumPlan => 'Premium';
+
+  @override
+  String get premiumSubtitle => 'Acesso completo';
+
+  @override
+  String get plusPlan => 'Plus';
+
+  @override
+  String get premiumFeature1 => 'Tudo do plano Plus';
+
+  @override
+  String get premiumFeature2 => 'Gráficos de tendência de profundidade por local';
+
+  @override
+  String get plusFeature1 => 'Relatório mensal em PDF com suas contribuições';
+
+  @override
+  String get plusFeature2 => 'Acesso ao módulo Manobras';
+
+  @override
+  String get subscribePremium => 'Assinar Premium';
+
+  @override
+  String get subscribePlus => 'Assinar Plus';
+
+  @override
+  String get cancelAnytime => 'Cancele a qualquer momento pela App Store.';
+
+  @override
+  String get restorePurchases => 'Restaurar compras';
+
+  @override
+  String get currentPlan => 'Plano atual';
+
+  @override
+  String get upgradePlan => 'Fazer upgrade';
+
+  @override
+  String get subscriptionSuccess => 'Assinatura ativada!';
+
+  @override
+  String get subscriptionError => 'Não foi possível processar. Tente novamente.';
+
+  @override
+  String get perMonth => '/mês';
+
+  @override
+  String get activeBadge => 'ATIVO';
 }

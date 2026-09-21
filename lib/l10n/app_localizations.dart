@@ -2872,6 +2872,126 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{count, plural, =1{1 cruzamento} other{{count} cruzamentos}}'**
   String crossingsRankingCount(int count);
+
+  /// Title of the subscription page app bar.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apoie o ShipRate'**
+  String get supportShipRate;
+
+  /// Descriptive text shown at the top of the subscription page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.'**
+  String get subscriptionDescription;
+
+  /// Badge highlighting the recommended subscription plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'RECOMENDADO'**
+  String get recommended;
+
+  /// Name of the Premium subscription plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Premium'**
+  String get premiumPlan;
+
+  /// Subtitle of the Premium subscription plan card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Acesso completo'**
+  String get premiumSubtitle;
+
+  /// Name of the Plus subscription plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Plus'**
+  String get plusPlan;
+
+  /// First feature listed in the Premium plan card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tudo do plano Plus'**
+  String get premiumFeature1;
+
+  /// Second feature listed in the Premium plan card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gráficos de tendência de profundidade por local'**
+  String get premiumFeature2;
+
+  /// First feature listed in the Plus plan card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatório mensal em PDF com suas contribuições'**
+  String get plusFeature1;
+
+  /// Second feature listed in the Plus plan card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Acesso ao módulo Manobras'**
+  String get plusFeature2;
+
+  /// Label of the button that purchases the Premium plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assinar Premium'**
+  String get subscribePremium;
+
+  /// Label of the button that purchases the Plus plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assinar Plus'**
+  String get subscribePlus;
+
+  /// Footer note about cancelling the subscription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancele a qualquer momento pela App Store.'**
+  String get cancelAnytime;
+
+  /// Label of the button that restores previous purchases.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar compras'**
+  String get restorePurchases;
+
+  /// Label of the disabled button on the plan the user already owns.
+  ///
+  /// In pt, this message translates to:
+  /// **'Plano atual'**
+  String get currentPlan;
+
+  /// Label of the button that upgrades from Plus to Premium.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fazer upgrade'**
+  String get upgradePlan;
+
+  /// Snackbar shown after a successful purchase or restore.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assinatura ativada!'**
+  String get subscriptionSuccess;
+
+  /// Snackbar shown when a purchase or restore fails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível processar. Tente novamente.'**
+  String get subscriptionError;
+
+  /// Suffix shown after the monthly price of a plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'/mês'**
+  String get perMonth;
+
+  /// Badge marking the subscription plan the user currently owns.
+  ///
+  /// In pt, this message translates to:
+  /// **'ATIVO'**
+  String get activeBadge;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

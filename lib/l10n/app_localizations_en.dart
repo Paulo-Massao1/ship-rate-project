@@ -1515,4 +1515,64 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get supportShipRate => 'Support ShipRate';
+
+  @override
+  String get subscriptionDescription => 'Your subscription keeps the app running and unlocks exclusive tools for your daily work.';
+
+  @override
+  String get recommended => 'RECOMMENDED';
+
+  @override
+  String get premiumPlan => 'Premium';
+
+  @override
+  String get premiumSubtitle => 'Full access';
+
+  @override
+  String get plusPlan => 'Plus';
+
+  @override
+  String get premiumFeature1 => 'Everything in Plus';
+
+  @override
+  String get premiumFeature2 => 'Depth trend graphs by location';
+
+  @override
+  String get plusFeature1 => 'Monthly PDF report with your contributions';
+
+  @override
+  String get plusFeature2 => 'Access to Maneuvers module';
+
+  @override
+  String get subscribePremium => 'Subscribe Premium';
+
+  @override
+  String get subscribePlus => 'Subscribe Plus';
+
+  @override
+  String get cancelAnytime => 'Cancel anytime through the App Store.';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get currentPlan => 'Current plan';
+
+  @override
+  String get upgradePlan => 'Upgrade';
+
+  @override
+  String get subscriptionSuccess => 'Subscription activated!';
+
+  @override
+  String get subscriptionError => 'Could not process. Please try again.';
+
+  @override
+  String get perMonth => '/month';
+
+  @override
+  String get activeBadge => 'ACTIVE';
 }

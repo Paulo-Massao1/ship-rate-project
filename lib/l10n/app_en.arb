@@ -2050,5 +2050,85 @@
         "type": "int"
       }
     }
+  },
+  "supportShipRate": "Support ShipRate",
+  "@supportShipRate": {
+    "description": "Title of the subscription page app bar."
+  },
+  "subscriptionDescription": "Your subscription keeps the app running and unlocks exclusive tools for your daily work.",
+  "@subscriptionDescription": {
+    "description": "Descriptive text shown at the top of the subscription page."
+  },
+  "recommended": "RECOMMENDED",
+  "@recommended": {
+    "description": "Badge highlighting the recommended subscription plan."
+  },
+  "premiumPlan": "Premium",
+  "@premiumPlan": {
+    "description": "Name of the Premium subscription plan."
+  },
+  "premiumSubtitle": "Full access",
+  "@premiumSubtitle": {
+    "description": "Subtitle of the Premium subscription plan card."
+  },
+  "plusPlan": "Plus",
+  "@plusPlan": {
+    "description": "Name of the Plus subscription plan."
+  },
+  "premiumFeature1": "Everything in Plus",
+  "@premiumFeature1": {
+    "description": "First feature listed in the Premium plan card."
+  },
+  "premiumFeature2": "Depth trend graphs by location",
+  "@premiumFeature2": {
+    "description": "Second feature listed in the Premium plan card."
+  },
+  "plusFeature1": "Monthly PDF report with your contributions",
+  "@plusFeature1": {
+    "description": "First feature listed in the Plus plan card."
+  },
+  "plusFeature2": "Access to Maneuvers module",
+  "@plusFeature2": {
+    "description": "Second feature listed in the Plus plan card."
+  },
+  "subscribePremium": "Subscribe Premium",
+  "@subscribePremium": {
+    "description": "Label of the button that purchases the Premium plan."
+  },
+  "subscribePlus": "Subscribe Plus",
+  "@subscribePlus": {
+    "description": "Label of the button that purchases the Plus plan."
+  },
+  "cancelAnytime": "Cancel anytime through the App Store.",
+  "@cancelAnytime": {
+    "description": "Footer note about cancelling the subscription."
+  },
+  "restorePurchases": "Restore purchases",
+  "@restorePurchases": {
+    "description": "Label of the button that restores previous purchases."
+  },
+  "currentPlan": "Current plan",
+  "@currentPlan": {
+    "description": "Label of the disabled button on the plan the user already owns."
+  },
+  "upgradePlan": "Upgrade",
+  "@upgradePlan": {
+    "description": "Label of the button that upgrades from Plus to Premium."
+  },
+  "subscriptionSuccess": "Subscription activated!",
+  "@subscriptionSuccess": {
+    "description": "Snackbar shown after a successful purchase or restore."
+  },
+  "subscriptionError": "Could not process. Please try again.",
+  "@subscriptionError": {
+    "description": "Snackbar shown when a purchase or restore fails."
+  },
+  "perMonth": "/month",
+  "@perMonth": {
+    "description": "Suffix shown after the monthly price of a plan."
+  },
+  "activeBadge": "ACTIVE",
+  "@activeBadge": {
+    "description": "Badge marking the subscription plan the user currently owns."
   }
 }
