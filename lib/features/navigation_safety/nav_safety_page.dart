@@ -82,9 +82,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   /// Dev accounts excluded from rankings still see totals and can open the
   /// ranking sheet, but never get a personal position line.
   bool get _isExcludedFromRankings {
-    final email =
-        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
-    return email != null && AppConstants.excludedFromRankings.contains(email);
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return AppConstants.excludedUids.contains(uid);
   }
 
   bool get _showDepthRanking =>
@@ -465,35 +464,17 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       if (count > 0) countsByUid[doc.id] = count;
     }
 
-    try {
-      final emails = <String>{
-        ...AppConstants.excludedFromRankings,
-        ...AppConstants.depthCountAdjustmentsByEmail.keys,
-      }.toList();
-      final usersSnapshot = await firestore
-          .collection(AppConstants.usersCollection)
-          .where('email', whereIn: emails)
-          .get();
-      for (final doc in usersSnapshot.docs) {
-        final email = (doc.data()['email'] as String?)?.trim().toLowerCase();
-        if (email == null) continue;
-        if (AppConstants.excludedFromRankings.contains(email)) {
-          countsByUid.remove(doc.id);
-          continue;
-        }
-        final delta = AppConstants.depthCountAdjustmentsByEmail[email];
-        final current = countsByUid[doc.id];
-        if (delta == null || current == null) continue;
-        final adjusted = current + delta;
-        if (adjusted > 0) {
-          countsByUid[doc.id] = adjusted;
-        } else {
-          countsByUid.remove(doc.id);
-        }
+    AppConstants.excludedUids.forEach(countsByUid.remove);
+    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
+      final current = countsByUid[uid];
+      if (current == null) return;
+      final adjusted = current + delta;
+      if (adjusted > 0) {
+        countsByUid[uid] = adjusted;
+      } else {
+        countsByUid.remove(uid);
       }
-    } catch (e) {
-      debugPrint('[NavSafety] Error applying ranking adjustments: $e');
-    }
+    });
 
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     String currentUserName = '';

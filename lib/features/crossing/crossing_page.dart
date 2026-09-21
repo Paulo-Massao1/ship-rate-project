@@ -403,9 +403,8 @@ class _CrossingPageState extends State<CrossingPage> {
   /// Dev accounts excluded from rankings still see totals and can open the
   /// ranking sheet, but never get a personal position line.
   bool get _isExcludedFromRankings {
-    final email =
-        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
-    return email != null && AppConstants.excludedFromRankings.contains(email);
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return AppConstants.excludedUids.contains(uid);
   }
 
   bool get _showCrossingRanking =>
@@ -1043,8 +1042,7 @@ class _CrossingPageState extends State<CrossingPage> {
       }
     }
 
-    final excludedKeys = await _fetchRankingExcludedKeys();
-    excludedKeys.forEach(countsByPilot.remove);
+    AppConstants.excludedUids.forEach(countsByPilot.remove);
 
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     String callSign = '';
@@ -1090,26 +1088,6 @@ class _CrossingPageState extends State<CrossingPage> {
       if (value != null && value.isNotEmpty) return value;
     }
     return null;
-  }
-
-  /// Resolves uid and callSign keys for the dev accounts excluded from
-  /// every ranking, mirroring the dashboard's exclusion lookup.
-  Future<Set<String>> _fetchRankingExcludedKeys() async {
-    final excluded = <String>{};
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .where('email', whereIn: AppConstants.excludedFromRankings)
-          .get();
-      for (final doc in snapshot.docs) {
-        excluded.add(doc.id);
-        final callSign = (doc.data()['nomeGuerra'] as String?)?.trim();
-        if (callSign != null && callSign.isNotEmpty) excluded.add(callSign);
-      }
-    } catch (e) {
-      debugPrint('[Crossing] Error resolving ranking exclusions: $e');
-    }
-    return excluded;
   }
 
   Future<void> _showCrossingRankingSheet(AppLocalizations l10n) async {

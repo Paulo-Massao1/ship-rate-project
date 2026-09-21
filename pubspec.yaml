@@ -44,6 +44,9 @@ dependencies:
   intl: any
   package_info_plus: ^9.0.1
 
+  # Subscriptions (RevenueCat)
+  purchases_flutter: ^10.13.1
+
 
 dev_dependencies:
   flutter_test:

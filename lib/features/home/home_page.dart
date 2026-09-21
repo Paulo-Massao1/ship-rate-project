@@ -1067,8 +1067,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<List<_StatRankingEntry>> _buildRankingEntries(
     Map<String, int> countsByPilot,
   ) async {
-    final excludedKeys = await _fetchRankingExcludedKeys();
-    excludedKeys.forEach(countsByPilot.remove);
+    AppConstants.excludedUids.forEach(countsByPilot.remove);
 
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     final callSign = _nomeGuerra?.trim();
@@ -1089,26 +1088,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           name: isCurrentUser(entry.key) ? (callSign ?? '') : '',
         ),
     ];
-  }
-
-  /// Resolves uid and callSign keys for the dev accounts excluded from
-  /// every ranking, mirroring the dashboard's exclusion lookup.
-  Future<Set<String>> _fetchRankingExcludedKeys() async {
-    final excluded = <String>{};
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .where('email', whereIn: AppConstants.excludedFromRankings)
-          .get();
-      for (final doc in snapshot.docs) {
-        excluded.add(doc.id);
-        final callSign = (doc.data()['nomeGuerra'] as String?)?.trim();
-        if (callSign != null && callSign.isNotEmpty) excluded.add(callSign);
-      }
-    } catch (e) {
-      debugPrint('[Home] Error resolving ranking exclusions: $e');
-    }
-    return excluded;
   }
 
   Future<void> _showStatRankingSheet({

@@ -6,15 +6,19 @@ class AppConstants {
   static const testEmails = ['gcbrgame@gmail.com', 'spaulomassao@gmail.com'];
 
   // Dev accounts excluded from every ranking (count and position).
-  static const excludedFromRankings = [
-    'spaulomassao@gmail.com',
-    'gcbrgame@gmail.com',
+  // UIDs are used directly so no runtime email->uid lookup is needed.
+  static const List<String> excludedUids = [
+    'bb4dHPgpo8duX4hqRdpHFXXWVpF2', // spaulomassao@gmail.com
+    'gcmL4ngjAbblC2LwfDUzSbpPTTH2', // gcbrgame@gmail.com
   ];
 
+  static const String andreiUid =
+      'Z8UTPteGM1Y6H2rqsAmCiFtJrNC2'; // andreibrilhante@gmail.com
+
   // Ranking-only adjustments applied to the depth-record count of specific
-  // accounts (email -> delta). Does not affect overall totals.
-  static const depthCountAdjustmentsByEmail = <String, int>{
-    'andreibrilhante@gmail.com': -2,
+  // accounts (uid -> delta). Does not affect overall totals.
+  static const depthCountAdjustmentsByUid = <String, int>{
+    andreiUid: -2,
   };
 
   // Firestore collections

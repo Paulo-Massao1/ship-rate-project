@@ -37,7 +37,6 @@ class DashboardController {
   static DashboardData? _cachedData;
   static DashboardData? _cachedCrossingData;
   static DashboardData? _cachedDepthData;
-  static _RankingAdjustments? _cachedRankingAdjustments;
   static DateTime? _cacheTimestamp;
   static DateTime? _crossingCacheTimestamp;
   static DateTime? _depthCacheTimestamp;
@@ -432,8 +431,7 @@ class DashboardController {
 
       // Calculate top rater and user ranking from accumulated counts
       ratingsPerPilot.remove(AppConstants.cspamUid);
-      final adjustments = await _getRankingAdjustments();
-      adjustments.excludedKeys.forEach(ratingsPerPilot.remove);
+      AppConstants.excludedUids.forEach(ratingsPerPilot.remove);
 
       int topRaterCount = 0;
       int userRankingPosition = 0;
@@ -605,8 +603,7 @@ class DashboardController {
     }
 
     // Ranking-only exclusion: overall totals above stay untouched.
-    final adjustments = await _getRankingAdjustments();
-    adjustments.excludedKeys.forEach(crossingsPerPilot.remove);
+    AppConstants.excludedUids.forEach(crossingsPerPilot.remove);
 
     if (!hasPreAggregatedPilotStats) {
       final recordStats = await _getCrossingStatsFromRecords(userId, callSign);
@@ -655,8 +652,7 @@ class DashboardController {
       }
 
       // Ranking-only exclusion: totalCrossings below stays untouched.
-      final adjustments = await _getRankingAdjustments();
-      adjustments.excludedKeys.forEach(crossingsPerPilot.remove);
+      AppConstants.excludedUids.forEach(crossingsPerPilot.remove);
 
       final sortedCounts = crossingsPerPilot.values.toList()
         ..sort((a, b) => b.compareTo(a));
@@ -747,17 +743,16 @@ class DashboardController {
     }
 
     // Ranking-only adjustments: totalDepthRecords above stays untouched.
-    final adjustments = await _getRankingAdjustments();
-    adjustments.excludedKeys.forEach(depthsPerPilot.remove);
-    adjustments.depthAdjustments.forEach((key, delta) {
-      final current = depthsPerPilot[key];
+    AppConstants.excludedUids.forEach(depthsPerPilot.remove);
+    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
+      final current = depthsPerPilot[uid];
       if (current == null) return;
       final adjusted = current + delta;
       if (adjusted > 0) {
-        depthsPerPilot[key] = adjusted;
+        depthsPerPilot[uid] = adjusted;
       } else {
         // Clamped at 0: pilots with no records are not ranked.
-        depthsPerPilot.remove(key);
+        depthsPerPilot.remove(uid);
       }
     });
 
@@ -776,69 +771,6 @@ class DashboardController {
       userDepthRanking: userRanking,
       totalDepthPilots: depthsPerPilot.length,
     );
-  }
-
-  /// Resolves ranking adjustment keys (uid and callSign) from the emails
-  /// configured in [AppConstants.excludedFromRankings] and
-  /// [AppConstants.depthCountAdjustmentsByEmail].
-  ///
-  /// Cached statically so the lookup runs at most once per session.
-  Future<_RankingAdjustments> _getRankingAdjustments() async {
-    final cached = _cachedRankingAdjustments;
-    if (cached != null) return cached;
-
-    final excludedKeys = <String>{};
-    final depthAdjustments = <String, int>{};
-
-    try {
-      final emails = <String>{
-        ...AppConstants.excludedFromRankings,
-        ...AppConstants.depthCountAdjustmentsByEmail.keys,
-      }.toList();
-
-      final snapshot = await _firestore
-          .collection(AppConstants.usersCollection)
-          .where('email', whereIn: emails)
-          .get()
-          .timeout(_queryTimeout);
-
-      for (final doc in snapshot.docs) {
-        final data = doc.data();
-        final email = (data['email'] as String?)?.trim().toLowerCase();
-        if (email == null) continue;
-
-        // Rankings are keyed by uid or callSign depending on the source, so
-        // both identifiers are mapped for each configured email.
-        final keys = <String>{doc.id};
-        final callSign = (data['nomeGuerra'] as String?)?.trim();
-        if (callSign != null && callSign.isNotEmpty) keys.add(callSign);
-
-        if (AppConstants.excludedFromRankings.contains(email)) {
-          excludedKeys.addAll(keys);
-        }
-
-        final delta = AppConstants.depthCountAdjustmentsByEmail[email];
-        if (delta != null) {
-          for (final key in keys) {
-            depthAdjustments[key] = delta;
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('[Dashboard] Error resolving ranking adjustments: $e');
-      // Failures are not cached so a later load can retry the lookup.
-      return const _RankingAdjustments(
-        excludedKeys: {},
-        depthAdjustments: {},
-      );
-    }
-
-    final result = _RankingAdjustments(
-      excludedKeys: excludedKeys,
-      depthAdjustments: depthAdjustments,
-    );
-    _cachedRankingAdjustments = result;
-    return result;
   }
 
   /// Gets user callSign. Returns null on failure so dashboard can still load.
@@ -916,17 +848,6 @@ class DashboardController {
 // =============================================================================
 // PRIVATE DATA CLASSES
 // =============================================================================
-
-/// Resolved identifiers (uid and callSign) for ranking-only adjustments.
-class _RankingAdjustments {
-  final Set<String> excludedKeys;
-  final Map<String, int> depthAdjustments;
-
-  const _RankingAdjustments({
-    required this.excludedKeys,
-    required this.depthAdjustments,
-  });
-}
 
 class _CrossingDashboardStats {
   final int totalCrossings;

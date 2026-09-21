@@ -598,9 +598,8 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   /// Dev accounts excluded from rankings still see totals, but never get a
   /// personal position line.
   bool get _isExcludedFromRankings {
-    final email =
-        FirebaseAuth.instance.currentUser?.email?.trim().toLowerCase();
-    return email != null && AppConstants.excludedFromRankings.contains(email);
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return AppConstants.excludedUids.contains(uid);
   }
 
   Widget _buildUserActivitySummary(

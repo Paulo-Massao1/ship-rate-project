@@ -12,6 +12,7 @@ import 'core/app_cache.dart';
 import 'core/theme/app_theme.dart';
 import 'controllers/locale_controller.dart';
 import 'data/services/notification_service.dart';
+import 'data/services/subscription_service.dart';
 
 final localeController = LocaleController();
 
@@ -95,6 +96,14 @@ class _StartupWidgetState extends State<StartupWidget> {
             .timeout(const Duration(seconds: 5));
       } catch (e) {
         debugPrint('Notification setup error: $e');
+      }
+    }
+
+    if (StartupWidget.firebaseReady) {
+      try {
+        await SubscriptionService.init().timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugPrint('Subscription service init error: $e');
       }
     }
 
