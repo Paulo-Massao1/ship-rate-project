@@ -1,16 +1,22 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../app/auth_gate.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../controllers/rating_controller.dart';
+import '../../core/subscription_constants.dart';
+import '../../data/services/subscription_service.dart';
 import '../../features/crossing/crossing_page.dart';
 import '../../features/home/main_screen_page.dart';
 import '../../features/nav_info/nav_info_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
 import '../../features/settings/settings_page.dart';
+import '../../features/subscription/subscription_page.dart';
 
 enum AppScreen { home, shipRating, navSafety, crossing, navInfo }
 
@@ -79,6 +85,10 @@ class AppDrawer extends StatelessWidget {
                       ..._buildModuleItems(context, l10n),
                       ...additionalItems,
                       const Spacer(),
+                      const _DrawerDivider(),
+                      const _SupportShipRateItem(),
+                      // The bottom items keep their own top border, which also
+                      // closes the support item block.
                       Container(
                         decoration: const BoxDecoration(
                           border: Border(
@@ -400,6 +410,133 @@ class AppDrawer extends StatelessWidget {
     }
 
     return moduleName;
+  }
+}
+
+/// Thin separator used to isolate the support item from its neighbours.
+class _DrawerDivider extends StatelessWidget {
+  const _DrawerDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(height: 1, color: const Color(0x1A64B5F6));
+  }
+}
+
+/// Drawer entry opening the subscription page.
+///
+/// Free users see the "support ShipRate" call to action in amber; subscribers
+/// see the Pro+ label in a brighter gold instead.
+class _SupportShipRateItem extends StatefulWidget {
+  const _SupportShipRateItem();
+
+  @override
+  State<_SupportShipRateItem> createState() => _SupportShipRateItemState();
+}
+
+class _SupportShipRateItemState extends State<_SupportShipRateItem> {
+  static const _supportColor = Color(0xFFFFB74D);
+  static const _subscriberColor = Color(0xFFFFD54F);
+  static const _subscriberLabel = 'ShipRate Pro+';
+
+  StreamSubscription<CustomerInfo>? _customerInfoSubscription;
+  bool _isSubscriber = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isSubscriber = _hasActivePlan(SubscriptionService.lastCustomerInfo);
+    _customerInfoSubscription =
+        SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
+    _refreshSubscriberStatus();
+  }
+
+  @override
+  void dispose() {
+    _customerInfoSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// True when [customerInfo] grants any subscription plan.
+  bool _hasActivePlan(CustomerInfo? customerInfo) {
+    if (customerInfo == null) return false;
+    return SubscriptionService.activePlan(customerInfo) !=
+        SubscriptionConstants.planNone;
+  }
+
+  Future<void> _refreshSubscriberStatus() async {
+    final isSubscriber = await SubscriptionService.isAnySubscriber();
+    if (!mounted || isSubscriber == _isSubscriber) return;
+    setState(() => _isSubscriber = isSubscriber);
+  }
+
+  void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
+    final isSubscriber = _hasActivePlan(customerInfo);
+    if (!mounted || isSubscriber == _isSubscriber) return;
+    setState(() => _isSubscriber = isSubscriber);
+  }
+
+  void _openSubscriptionPage() {
+    final navigator = Navigator.of(context);
+    navigator.pop();
+    navigator.push(
+      MaterialPageRoute(builder: (_) => const SubscriptionPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final accentColor = _isSubscriber ? _subscriberColor : _supportColor;
+    final label = _isSubscriber ? _subscriberLabel : l10n.supportShipRate;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Material(
+        color: accentColor.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: _openSubscriptionPage,
+          borderRadius: BorderRadius.circular(8),
+          hoverColor: accentColor.withValues(alpha: 0.12),
+          splashColor: accentColor.withValues(alpha: 0.12),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: accentColor.withValues(alpha: 0.15),
+                width: 0.5,
+              ),
+            ),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.star, color: accentColor, size: 22),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: accentColor,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: accentColor.withValues(alpha: 0.4),
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

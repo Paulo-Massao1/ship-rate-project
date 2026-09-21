@@ -123,17 +123,20 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     }
 
     setState(() => _purchasingPlan = plan);
-    final purchased = await SubscriptionService.purchasePackage(package);
+    final result = await SubscriptionService.purchasePackage(package);
     if (!mounted) return;
     setState(() => _purchasingPlan = null);
 
-    if (!purchased) {
-      _showSnackBar(l10n.subscriptionError, isError: true);
-      return;
+    switch (result) {
+      case PurchaseOutcome.success:
+        _showSnackBar(l10n.subscriptionSuccess);
+        Navigator.pop(context);
+      case PurchaseOutcome.cancelled:
+        // The user dismissed the store sheet, stay on the page silently.
+        break;
+      case PurchaseOutcome.error:
+        _showSnackBar(l10n.subscriptionError, isError: true);
     }
-
-    _showSnackBar(l10n.subscriptionSuccess);
-    Navigator.pop(context);
   }
 
   Future<void> _restorePurchases() async {

@@ -9,6 +9,18 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
 
+/// Outcome of a purchase flow started by [SubscriptionService.purchasePackage].
+enum PurchaseOutcome {
+  /// The purchase completed and granted an active entitlement.
+  success,
+
+  /// The user dismissed the store sheet, nothing to report.
+  cancelled,
+
+  /// The purchase failed, or completed without granting an entitlement.
+  error,
+}
+
 /// Service wrapping the RevenueCat SDK (Plus / Premium subscriptions).
 ///
 /// The SDK is only configured when a real API key is set in
@@ -113,25 +125,29 @@ class SubscriptionService {
 
   /// Runs the purchase flow for [package].
   ///
-  /// Returns true when the purchase granted an active entitlement, false when
-  /// the user cancels or the purchase fails.
-  static Future<bool> purchasePackage(Package package) async {
-    if (!_configured) return false;
+  /// Returns [PurchaseOutcome.success] when the purchase granted an active
+  /// entitlement, [PurchaseOutcome.cancelled] when the user dismissed the store
+  /// sheet and [PurchaseOutcome.error] on any failure.
+  static Future<PurchaseOutcome> purchasePackage(Package package) async {
+    if (!_configured) return PurchaseOutcome.error;
 
     try {
       final result = await Purchases.purchase(PurchaseParams.package(package));
       _lastCustomerInfo = result.customerInfo;
       await _syncSubscriptionToFirestore(result.customerInfo);
-      return activePlan(result.customerInfo) != SubscriptionConstants.planNone;
+      return activePlan(result.customerInfo) != SubscriptionConstants.planNone
+          ? PurchaseOutcome.success
+          : PurchaseOutcome.error;
     } on PlatformException catch (e) {
-      if (PurchasesErrorHelper.getErrorCode(e) !=
+      if (PurchasesErrorHelper.getErrorCode(e) ==
           PurchasesErrorCode.purchaseCancelledError) {
-        debugPrint('SubscriptionService.purchasePackage error: $e');
+        return PurchaseOutcome.cancelled;
       }
-      return false;
+      debugPrint('SubscriptionService.purchasePackage error: $e');
+      return PurchaseOutcome.error;
     } catch (e) {
       debugPrint('SubscriptionService.purchasePackage error: $e');
-      return false;
+      return PurchaseOutcome.error;
     }
   }
 
