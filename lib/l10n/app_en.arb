@@ -2130,5 +2130,26 @@
   "activeBadge": "ACTIVE",
   "@activeBadge": {
     "description": "Badge marking the subscription plan the user currently owns."
+  },
+  "exclusiveFeature": "Exclusive feature",
+  "@exclusiveFeature": {
+    "description": "Title of the sheet shown when a locked feature is opened."
+  },
+  "subscriptionRequired": "Subscribe to {plan} to unlock.",
+  "@subscriptionRequired": {
+    "description": "Message telling which plan unlocks the blocked feature.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "viewPlans": "View plans",
+  "@viewPlans": {
+    "description": "Label of the button that opens the subscription page."
+  },
+  "maneuvers": "Maneuvers",
+  "@maneuvers": {
+    "description": "Title of the Maneuvers module page."
   }
 }

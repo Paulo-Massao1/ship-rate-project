@@ -2157,5 +2157,26 @@
   "activeBadge": "ATIVO",
   "@activeBadge": {
     "description": "Badge marking the subscription plan the user currently owns."
+  },
+  "exclusiveFeature": "Funcionalidade exclusiva",
+  "@exclusiveFeature": {
+    "description": "Title of the sheet shown when a locked feature is opened."
+  },
+  "subscriptionRequired": "Assine o plano {plan} para desbloquear.",
+  "@subscriptionRequired": {
+    "description": "Message telling which plan unlocks the blocked feature.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "viewPlans": "Ver planos",
+  "@viewPlans": {
+    "description": "Label of the button that opens the subscription page."
+  },
+  "maneuvers": "Manobras",
+  "@maneuvers": {
+    "description": "Title of the Maneuvers module page."
   }
 }

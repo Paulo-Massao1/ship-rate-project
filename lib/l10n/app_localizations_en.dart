@@ -1575,4 +1575,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeBadge => 'ACTIVE';
+
+  @override
+  String get exclusiveFeature => 'Exclusive feature';
+
+  @override
+  String subscriptionRequired(String plan) {
+    return 'Subscribe to $plan to unlock.';
+  }
+
+  @override
+  String get viewPlans => 'View plans';
+
+  @override
+  String get maneuvers => 'Maneuvers';
 }

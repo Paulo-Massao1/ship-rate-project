@@ -1575,4 +1575,18 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get activeBadge => 'ATIVO';
+
+  @override
+  String get exclusiveFeature => 'Funcionalidade exclusiva';
+
+  @override
+  String subscriptionRequired(String plan) {
+    return 'Assine o plano $plan para desbloquear.';
+  }
+
+  @override
+  String get viewPlans => 'Ver planos';
+
+  @override
+  String get maneuvers => 'Manobras';
 }

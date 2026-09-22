@@ -2992,6 +2992,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'ATIVO'**
   String get activeBadge;
+
+  /// Title of the sheet shown when a locked feature is opened.
+  ///
+  /// In pt, this message translates to:
+  /// **'Funcionalidade exclusiva'**
+  String get exclusiveFeature;
+
+  /// Message telling which plan unlocks the blocked feature.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assine o plano {plan} para desbloquear.'**
+  String subscriptionRequired(String plan);
+
+  /// Label of the button that opens the subscription page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver planos'**
+  String get viewPlans;
+
+  /// Title of the Maneuvers module page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Manobras'**
+  String get maneuvers;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
