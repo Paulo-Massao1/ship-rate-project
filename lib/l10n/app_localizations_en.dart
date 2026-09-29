@@ -1664,4 +1664,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumBadge => 'PREMIUM';
+
+  @override
+  String get maneuversModule => 'Maneuvers';
+
+  @override
+  String get maneuversDesc => 'Maneuver info and reports';
+
+  @override
+  String get comingSoonBadge => 'COMING SOON';
 }

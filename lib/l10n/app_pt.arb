@@ -2285,5 +2285,17 @@
   "premiumBadge": "PREMIUM",
   "@premiumBadge": {
     "description": "Badge marking a feature that requires the Premium plan."
+  },
+  "maneuversModule": "Manobras",
+  "@maneuversModule": {
+    "description": "Title of the maneuvers module card on the home page."
+  },
+  "maneuversDesc": "Informações e relatos de manobra",
+  "@maneuversDesc": {
+    "description": "Subtitle of the maneuvers module card on the home page."
+  },
+  "comingSoonBadge": "EM BREVE",
+  "@comingSoonBadge": {
+    "description": "Badge marking a module that has not been released yet."
   }
 }

@@ -632,6 +632,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
+  void _navigateToLastRated() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LastRatedPage()),
+    );
+  }
+
   void _navigateToNavInfo() {
     if (_restrictedToCoreModules) return;
 
@@ -747,6 +754,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
                           onTap: _navigateToCrossing,
                         ),
+                        const SizedBox(height: 16),
+                        _buildComingSoonModuleCard(
+                          icon: Icons.anchor,
+                          title: AppLocalizations.of(context)!.maneuversModule,
+                          subtitle: AppLocalizations.of(context)!.maneuversDesc,
+                        ),
                         if (!_restrictedToCoreModules) ...[
                           const SizedBox(height: 16),
                           _buildModuleCard(
@@ -787,14 +800,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.selectModule,
-          style: const TextStyle(
-            color: Color(0x66FFFFFF),
-            fontSize: 14,
-          ),
-        ),
       ],
     );
   }
@@ -805,60 +810,63 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildStatsCard(DashboardData data) {
     final l10n = AppLocalizations.of(context)!;
+    const accent = Color(0xFF64B5F6);
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
-        ),
+        color: accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: accent.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.dashboardAppStats.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.0,
-              color: const Color(0xFF64B5F6).withValues(alpha: 0.5),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.dashboardAppStats.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.8,
+                    color: accent,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildPilotsBadge(data.totalUsers, l10n),
+            ],
           ),
           const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildStatItem(
-                Icons.directions_boat,
-                data.totalShips.toString(),
-                l10n.totalShipsLabel,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LastRatedPage()),
-                ),
+                value: data.totalDepthRecords.toString(),
+                label: l10n.navSafetyModule,
+                valueColor: const Color(0xFF26A69A),
+                onTap: _showDepthsRankingSheet,
               ),
-              _buildStatDivider(),
               _buildStatItem(
-                Icons.star_outline,
-                data.totalRatings.toString(),
-                l10n.totalRatingsLabel,
-                onTap: _showRatingsRankingSheet,
-              ),
-              _buildStatDivider(),
-              _buildStatItem(
-                Icons.compare_arrows,
-                data.totalCrossings.toString(),
-                l10n.totalCrossingsLabel,
-                iconColor: const Color(0xFFFFB74D),
+                value: data.totalCrossings.toString(),
+                label: l10n.totalCrossingsLabel,
+                valueColor: const Color(0xFFFFB74D),
                 onTap: _showCrossingsRankingSheet,
               ),
-              _buildStatDivider(),
               _buildStatItem(
-                Icons.people,
-                data.totalUsers.toString(),
-                l10n.activePilotsLabel,
+                value: data.totalRatings.toString(),
+                label: l10n.totalRatingsLabel,
+                valueColor: accent,
+                onTap: _showRatingsRankingSheet,
+              ),
+              _buildStatItem(
+                value: data.totalShips.toString(),
+                label: l10n.totalShipsLabel,
+                valueColor: Colors.white,
+                onTap: _navigateToLastRated,
               ),
             ],
           ),
@@ -888,61 +896,74 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildStatItem(
-    IconData icon,
-    String value,
-    String label, {
-    Color iconColor = const Color(0xFF64B5F6),
-    VoidCallback? onTap,
-  }) {
-    final content = Column(
-      children: [
-        Icon(icon, color: iconColor, size: 22),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
-                fontSize: 11,
-              ),
-            ),
-            if (onTap != null) ...[
-              const SizedBox(width: 2),
-              Icon(
-                Icons.chevron_right,
-                size: 14,
-                color: Colors.white.withValues(alpha: 0.4),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
+  /// Pilot total shown as a badge on the right of the stats header.
+  Widget _buildPilotsBadge(int totalPilots, AppLocalizations l10n) {
+    const accent = Color(0xFF64B5F6);
 
-    return Expanded(
-      child: onTap != null
-          ? GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: content)
-          : content,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        '$totalPilots ${l10n.activePilotsLabel}',
+        style: const TextStyle(
+          color: accent,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 
-  Widget _buildStatDivider() {
-    return Container(
-      width: 1,
-      height: 40,
-      color: const Color(0xFF64B5F6).withValues(alpha: 0.1),
+  /// One column of the stats grid: a tinted number over a label that opens
+  /// the matching ranking or list. The label scales down on narrow screens.
+  Widget _buildStatItem({
+    required String value,
+    required String label,
+    required Color valueColor,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 14,
+                    color: Colors.white.withValues(alpha: 0.4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -956,6 +977,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       title: l10n.ratingsRankingTitle,
       future: _fetchRatingsRanking(),
       countLabel: l10n.ratingsRankingCount,
+    );
+  }
+
+  void _showDepthsRankingSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    _showStatRankingSheet(
+      title: l10n.depthRankingTitle,
+      future: _fetchDepthsRanking(),
+      countLabel: l10n.depthRankingRecordCount,
     );
   }
 
@@ -1012,6 +1042,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     countsByPilot.remove(AppConstants.cspamUid);
+    return _buildRankingEntries(countsByPilot);
+  }
+
+  /// Fetches per-pilot depth record counts from the pre-aggregated pilot
+  /// stats, applying the same ranking-only adjustments as the depths module.
+  Future<List<_StatRankingEntry>> _fetchDepthsRanking() async {
+    final firestore = FirebaseFirestore.instance;
+    final countsByPilot = <String, int>{};
+
+    final snapshot = await firestore
+        .collection(AppConstants.pilotStatsCollection)
+        .where('depthRecordCount', isGreaterThan: 0)
+        .get();
+    for (final doc in snapshot.docs) {
+      if (doc.id == AppConstants.cspamUid) continue;
+      final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
+      if (count > 0) countsByPilot[doc.id] = count;
+    }
+
+    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
+      final current = countsByPilot[uid];
+      if (current == null) return;
+      final adjusted = current + delta;
+      if (adjusted > 0) {
+        countsByPilot[uid] = adjusted;
+      } else {
+        countsByPilot.remove(uid);
+      }
+    });
+
     return _buildRankingEntries(countsByPilot);
   }
 
@@ -1323,6 +1383,90 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// Module card for a feature that is announced but not released yet: same
+  /// layout as [_buildModuleCard], without a tap target or a chevron.
+  Widget _buildComingSoonModuleCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    const accent = Color(0xFFFFB74D);
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accent.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: accent, size: 26),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        l10n.comingSoonBadge,
+                        style: const TextStyle(
+                          color: accent,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: Color(0x66FFFFFF),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

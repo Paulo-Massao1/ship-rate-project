@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
 import 'depth_trends_page.dart';
@@ -39,6 +41,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   String? _purchasingPlan;
   bool _restoring = false;
   bool _loading = true;
+
+  /// True for the dev accounts listed in [AppConstants.devBypassUids], which
+  /// reach every gated feature without owning a plan.
+  bool get _hasDevBypass {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null && AppConstants.devBypassUids.contains(uid);
+  }
 
   @override
   void initState() {
@@ -221,13 +230,17 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 _buildHeaderIcon(),
                 const SizedBox(height: 16),
                 _buildDescription(l10n),
-                // Subscribers reach their monthly report from here.
-                if (_activePlan != SubscriptionConstants.planNone) ...[
+                // Subscribers reach their monthly report from here, and so do
+                // the dev accounts.
+                if (_hasDevBypass ||
+                    _activePlan != SubscriptionConstants.planNone) ...[
                   const SizedBox(height: 22),
                   _buildMonthlyReportEntry(l10n),
                 ],
-                // The depth charts are part of Premium only.
-                if (_activePlan == SubscriptionConstants.planPremium) ...[
+                // The depth charts are part of Premium only, plus the dev
+                // accounts.
+                if (_hasDevBypass ||
+                    _activePlan == SubscriptionConstants.planPremium) ...[
                   const SizedBox(height: 10),
                   _buildDepthTrendsEntry(l10n),
                 ],
@@ -337,7 +350,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     );
   }
 
-  /// Shortcut to the Plus monthly report, only shown to subscribers.
+  /// Shortcut to the Plus monthly report, shown to subscribers and to the
+  /// dev accounts.
   Widget _buildMonthlyReportEntry(AppLocalizations l10n) {
     return _buildFeatureShortcut(
       icon: Icons.description,
@@ -348,7 +362,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     );
   }
 
-  /// Shortcut to the Premium depth charts, only shown to Premium subscribers.
+  /// Shortcut to the Premium depth charts, shown to Premium subscribers and
+  /// to the dev accounts.
   Widget _buildDepthTrendsEntry(AppLocalizations l10n) {
     return _buildFeatureShortcut(
       icon: Icons.show_chart,

@@ -3154,6 +3154,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'PREMIUM'**
   String get premiumBadge;
+
+  /// Title of the maneuvers module card on the home page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Manobras'**
+  String get maneuversModule;
+
+  /// Subtitle of the maneuvers module card on the home page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações e relatos de manobra'**
+  String get maneuversDesc;
+
+  /// Badge marking a module that has not been released yet.
+  ///
+  /// In pt, this message translates to:
+  /// **'EM BREVE'**
+  String get comingSoonBadge;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
