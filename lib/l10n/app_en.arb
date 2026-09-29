@@ -930,7 +930,7 @@
   "@noRecords": {
     "description": "Empty-state or negative message for records."
   },
-  "lastDepth": "LAST DEPTH",
+  "lastDepth": "Last depth",
   "@lastDepth": {
     "description": "Localized text for last depth."
   },
@@ -2230,5 +2230,25 @@
   "reportAverageColumn": "Average",
   "@reportAverageColumn": {
     "description": "Average column header of the ratings table in the monthly report PDF."
+  },
+  "depthTrends": "Depth trend",
+  "@depthTrends": {
+    "description": "Title of the Premium depth trend page."
+  },
+  "sixMonthAverage": "6-month average",
+  "@sixMonthAverage": {
+    "description": "Label of the six-month average depth shown on the depth trend card."
+  },
+  "depthHistory": "Record history",
+  "@depthHistory": {
+    "description": "Header of the record list of the depth trend page."
+  },
+  "depth": "Depth",
+  "@depth": {
+    "description": "Legend entry of the depth line on the depth trend chart."
+  },
+  "average": "Average",
+  "@average": {
+    "description": "Legend entry of the average line on the depth trend chart."
   }
 }

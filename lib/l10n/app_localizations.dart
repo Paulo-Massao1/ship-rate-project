@@ -1370,7 +1370,7 @@ abstract class AppLocalizations {
   /// Localized text for last depth.
   ///
   /// In pt, this message translates to:
-  /// **'ÚLTIMA PROFUNDIDADE'**
+  /// **'Última profundidade'**
   String get lastDepth;
 
   /// Localized text for history.
@@ -3112,6 +3112,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Média'**
   String get reportAverageColumn;
+
+  /// Title of the Premium depth trend page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tendência de profundidade'**
+  String get depthTrends;
+
+  /// Label of the six-month average depth shown on the depth trend card.
+  ///
+  /// In pt, this message translates to:
+  /// **'Média 6 meses'**
+  String get sixMonthAverage;
+
+  /// Header of the record list of the depth trend page.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico de registros'**
+  String get depthHistory;
+
+  /// Legend entry of the depth line on the depth trend chart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Profundidade'**
+  String get depth;
+
+  /// Legend entry of the average line on the depth trend chart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Média'**
+  String get average;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

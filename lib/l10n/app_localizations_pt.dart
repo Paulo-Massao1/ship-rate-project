@@ -689,7 +689,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noRecords => 'Sem registros';
 
   @override
-  String get lastDepth => 'ÚLTIMA PROFUNDIDADE';
+  String get lastDepth => 'Última profundidade';
 
   @override
   String get history => 'Histórico';
@@ -1643,4 +1643,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get reportAverageColumn => 'Média';
+
+  @override
+  String get depthTrends => 'Tendência de profundidade';
+
+  @override
+  String get sixMonthAverage => 'Média 6 meses';
+
+  @override
+  String get depthHistory => 'Histórico de registros';
+
+  @override
+  String get depth => 'Profundidade';
+
+  @override
+  String get average => 'Média';
 }

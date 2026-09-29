@@ -949,7 +949,7 @@
   "@noRecords": {
     "description": "Empty-state or negative message for records."
   },
-  "lastDepth": "ÚLTIMA PROFUNDIDADE",
+  "lastDepth": "Última profundidade",
   "@lastDepth": {
     "description": "Localized text for last depth."
   },
@@ -2257,5 +2257,25 @@
   "reportAverageColumn": "Média",
   "@reportAverageColumn": {
     "description": "Average column header of the ratings table in the monthly report PDF."
+  },
+  "depthTrends": "Tendência de profundidade",
+  "@depthTrends": {
+    "description": "Title of the Premium depth trend page."
+  },
+  "sixMonthAverage": "Média 6 meses",
+  "@sixMonthAverage": {
+    "description": "Label of the six-month average depth shown on the depth trend card."
+  },
+  "depthHistory": "Histórico de registros",
+  "@depthHistory": {
+    "description": "Header of the record list of the depth trend page."
+  },
+  "depth": "Profundidade",
+  "@depth": {
+    "description": "Legend entry of the depth line on the depth trend chart."
+  },
+  "average": "Média",
+  "@average": {
+    "description": "Legend entry of the average line on the depth trend chart."
   }
 }

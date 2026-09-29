@@ -689,7 +689,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecords => 'No records';
 
   @override
-  String get lastDepth => 'LAST DEPTH';
+  String get lastDepth => 'Last depth';
 
   @override
   String get history => 'History';
@@ -1643,4 +1643,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportAverageColumn => 'Average';
+
+  @override
+  String get depthTrends => 'Depth trend';
+
+  @override
+  String get sixMonthAverage => '6-month average';
+
+  @override
+  String get depthHistory => 'Record history';
+
+  @override
+  String get depth => 'Depth';
+
+  @override
+  String get average => 'Average';
 }

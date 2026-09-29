@@ -47,6 +47,9 @@ dependencies:
   # Subscriptions (RevenueCat)
   purchases_flutter: ^10.13.1
 
+  # Charts (depth trend graphs)
+  fl_chart: ^0.69.0
+
 
 dev_dependencies:
   flutter_test:
