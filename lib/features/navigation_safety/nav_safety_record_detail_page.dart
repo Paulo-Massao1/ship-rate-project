@@ -26,6 +26,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   static const _textSecondary = Color(0xD9FFFFFF);
   static const _textMuted = Color(0x66FFFFFF);
   static const _blueAccent = Color(0xFF64B5F6);
+  static const _thumbnailSize = 80.0;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,6 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final speed = _formatSpeed(record['velocidade']);
     final observations = (record['observacoes'] ?? '').toString().trim();
     final technicalRows = _buildTechnicalRows(l10n);
-    final positionRows = _buildPositionRows();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,7 +79,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
           children: [
             _buildCard(
               title: l10n.passageInfo,
@@ -94,35 +94,28 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (shipName.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Text(
-                      'Navio: $shipName',
-                      style: const TextStyle(
-                        color: _blueAccent,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  Text(
-                    'Data: $date',
-                    style: const TextStyle(
-                      color: _textSecondary,
-                      fontSize: 14,
-                    ),
+                  const SizedBox(height: 6),
+                  // Ship and date stay on the same line when they fit, and the
+                  // date drops to the next line when the ship name is long.
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      if (shipName.isNotEmpty)
+                        _buildPassageField(
+                          'Navio',
+                          shipName,
+                          valueColor: _blueAccent,
+                        ),
+                      _buildPassageField('Data', date),
+                    ],
                   ),
                   if (pilotName.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Text(
-                      '${l10n.pilot}: $pilotName',
-                      style: const TextStyle(
-                        color: _textSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
+                    const SizedBox(height: 6),
+                    _buildPassageField(l10n.pilot, pilotName),
                   ],
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Icon(direction.icon, color: _teal, size: 18),
@@ -140,46 +133,31 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildCard(
               title: l10n.totalDepthLabel,
+              padding: const EdgeInsets.all(8),
               child: Column(
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
-                    ),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: const Color(0x1426A69A),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: const Color(0x3326A69A)),
                     ),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.totalDepthLabel,
-                          style: const TextStyle(
-                            color: _teal,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          depth,
-                          style: const TextStyle(
-                            color: _teal,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      depth,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: _teal,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       _buildMetricColumn(l10n.maxDraft, maxDraft),
@@ -192,21 +170,15 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
               ),
             ),
             if (technicalRows.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildCard(
                 title: l10n.technicalData,
+                padding: const EdgeInsets.all(8),
                 child: Column(children: technicalRows),
               ),
             ],
-            if (positionRows.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _buildCard(
-                title: l10n.position,
-                child: Column(children: positionRows),
-              ),
-            ],
             if (observations.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildCard(
                 title: l10n.observations,
                 child: Text(
@@ -221,12 +193,12 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
             ],
             if (record['imageUrls'] is List &&
                 (record['imageUrls'] as List).isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildPhotosCard(context, l10n),
             ],
             if (record['fileAttachments'] is List &&
                 (record['fileAttachments'] as List).isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildFilesCard(context, l10n),
             ],
             ],
@@ -240,9 +212,11 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   Widget _buildCard({
     required String title,
     required Widget child,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(10),
+    double titleSpacing = 8,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: padding,
       decoration: BoxDecoration(
         color: _cardBg,
         borderRadius: BorderRadius.circular(14),
@@ -259,8 +233,32 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: titleSpacing),
           child,
+        ],
+      ),
+    );
+  }
+
+  /// Compact label/value line used by the passage info card.
+  Widget _buildPassageField(String label, String value, {Color? valueColor}) {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: '$label: ',
+            style: const TextStyle(
+              color: _textMuted,
+              fontSize: 12,
+            ),
+          ),
+          TextSpan(
+            text: value,
+            style: TextStyle(
+              color: valueColor ?? _textSecondary,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );
@@ -296,23 +294,33 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   List<Widget> _buildTechnicalRows(AppLocalizations l10n) {
     final rows = <Widget>[];
 
+    // Sonar position and squat share a single row to save vertical space.
+    final compactTiles = <Widget>[];
+
+    if (record['posicaoSonda'] != null) {
+      compactTiles.add(
+        _buildCompactTile(
+          l10n.sonarPosition,
+          record['posicaoSonda'] == 'proa' ? l10n.bow : l10n.stern,
+        ),
+      );
+    }
+
     if (record['squatConsiderado'] != null) {
-      rows.add(
-        _buildInfoRow(
+      compactTiles.add(
+        _buildCompactTile(
           l10n.squatConsidered,
           record['squatConsiderado'] == true ? l10n.yes : l10n.no,
         ),
       );
     }
 
-    if (record['posicaoSonda'] != null) {
-      rows.add(
-        _buildInfoRow(
-          l10n.sonarPosition,
-          record['posicaoSonda'] == 'proa' ? l10n.bow : l10n.stern,
-        ),
-      );
+    if (compactTiles.isNotEmpty) {
+      rows.add(_buildTileRow(compactTiles));
     }
+
+    // Coordinates live in this card too, so they cost no extra card header.
+    rows.addAll(_buildPositionRows());
 
     if (record['ponto'] != null) {
       rows.add(_buildInfoRow(l10n.anchoragePoint, record['ponto'].toString()));
@@ -324,30 +332,82 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   List<Widget> _buildPositionRows() {
     final latitude = _formatCoordinate(record['latitude'], isLatitude: true);
     final longitude = _formatCoordinate(record['longitude'], isLatitude: false);
-    final rows = <Widget>[];
+
+    // LAT and LONG share a single row to save vertical space.
+    final tiles = <Widget>[];
 
     if (latitude != null) {
-      rows.add(_buildInfoRow('LAT', latitude));
+      tiles.add(_buildCompactTile('LAT', latitude));
     }
     if (longitude != null) {
-      rows.add(_buildInfoRow('LONG', longitude));
+      tiles.add(_buildCompactTile('LONG', longitude));
     }
 
-    return _withSpacing(rows);
+    if (tiles.isEmpty) return const [];
+
+    return [_buildTileRow(tiles)];
+  }
+
+  /// Lays out compact tiles side by side with equal widths and heights.
+  Widget _buildTileRow(List<Widget> tiles) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < tiles.length; i++) ...[
+            if (i > 0) const SizedBox(width: 6),
+            Expanded(child: tiles[i]),
+          ],
+        ],
+      ),
+    );
   }
 
   List<Widget> _withSpacing(List<Widget> children) {
     final spaced = <Widget>[];
     for (var i = 0; i < children.length; i++) {
-      if (i > 0) spaced.add(const SizedBox(height: 10));
+      if (i > 0) spaced.add(const SizedBox(height: 4));
       spaced.add(children[i]);
     }
     return spaced;
   }
 
+  Widget _buildCompactTile(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: _tealBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _tealBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: _textMuted,
+              fontSize: 10,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: _textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoRow(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: _tealBg,
         borderRadius: BorderRadius.circular(10),
@@ -372,7 +432,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
               textAlign: TextAlign.right,
               style: const TextStyle(
                 color: _textSecondary,
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -445,27 +505,31 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   Widget _buildPhotosCard(BuildContext context, AppLocalizations l10n) {
     final imageUrls = List<String>.from(record['imageUrls'] as List);
 
+    // Compact square thumbnails keep the card short; tapping one opens the
+    // photo full screen.
     return _buildCard(
       title: l10n.photos,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: imageUrls.asMap().entries.map((entry) {
-            return Padding(
-              padding: EdgeInsets.only(right: entry.key < imageUrls.length - 1 ? 10 : 0),
-              child: GestureDetector(
-                onTap: () => _showFullScreenImage(context, entry.value),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    entry.value,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
+      child: SizedBox(
+        height: _thumbnailSize,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: imageUrls.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            final url = imageUrls[index];
+            return GestureDetector(
+              onTap: () => _showFullScreenImage(context, url),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  url,
+                  width: _thumbnailSize,
+                  height: _thumbnailSize,
+                  fit: BoxFit.cover,
                 ),
               ),
             );
-          }).toList(),
+          },
         ),
       ),
     );

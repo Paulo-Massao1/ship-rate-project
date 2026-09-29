@@ -43,6 +43,10 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   static const _premiumLight = Color(0x0F64B5F6);
   static const _premiumBorder = Color(0x2664B5F6);
 
+  // Fixed height shared by every card of the 2x2 tab grid, so labels that wrap
+  // to two lines do not make their card taller than the others.
+  static const _tabCardHeight = 60.0;
+
   // ===========================================================================
   // STATE
   // ===========================================================================
@@ -807,7 +811,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          height: _tabCardHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
