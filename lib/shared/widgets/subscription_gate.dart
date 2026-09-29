@@ -2,10 +2,12 @@
 
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
 import '../../features/subscription/subscription_page.dart';
@@ -62,9 +64,22 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
 
   Color get _accentColor => _isPremiumFeature ? _premiumColor : _plusColor;
 
+  /// True for the dev accounts listed in [AppConstants.devBypassUids], which
+  /// unlock every gated feature without owning a plan.
+  bool get _hasDevBypass {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null && AppConstants.devBypassUids.contains(uid);
+  }
+
   @override
   void initState() {
     super.initState();
+    // Dev accounts skip the paywall entirely: no plan check, no upsell sheet.
+    if (_hasDevBypass) {
+      _hasAccess = true;
+      return;
+    }
+
     _customerInfoSubscription =
         SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
     _checkAccess();

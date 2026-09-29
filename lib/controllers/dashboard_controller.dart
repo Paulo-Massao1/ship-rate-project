@@ -526,13 +526,20 @@ class DashboardController {
   // ===========================================================================
 
   /// Gets total registered users via Cloud Function. Returns null on failure.
+  ///
+  /// The excluded accounts must not show up in the pilot total. The function
+  /// already drops the dev accounts by email, so only the remaining entries of
+  /// [AppConstants.excludedUidsCountedByBackend] are subtracted here.
   Future<int?> _getUserCount() async {
     try {
       final result = await FirebaseFunctions.instance
           .httpsCallable('getUserCount')
           .call()
           .timeout(_queryTimeout);
-      return result.data['count'] as int;
+      final count = result.data['count'] as int;
+      final adjusted =
+          count - AppConstants.excludedUidsCountedByBackend.length;
+      return adjusted > 0 ? adjusted : 0;
     } catch (e) {
       debugPrint('[Dashboard] Error fetching user count: $e');
       return null;

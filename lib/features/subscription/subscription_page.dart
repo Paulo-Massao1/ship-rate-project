@@ -208,36 +208,35 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: Stack(
-              fit: StackFit.expand,
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                20, Navigator.canPop(context) ? 12 : 24, 20, 32,
+              ),
               children: [
-                ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    20, Navigator.canPop(context) ? 68 : 24, 20, 32,
-                  ),
-                  children: [
-                    _buildHeaderIcon(),
-                    const SizedBox(height: 16),
-                    _buildDescription(l10n),
-                    // Subscribers reach their monthly report from here.
-                    if (_activePlan != SubscriptionConstants.planNone) ...[
-                      const SizedBox(height: 22),
-                      _buildMonthlyReportEntry(l10n),
-                    ],
-                    // The depth charts are part of Premium only.
-                    if (_activePlan == SubscriptionConstants.planPremium) ...[
-                      const SizedBox(height: 10),
-                      _buildDepthTrendsEntry(l10n),
-                    ],
-                    const SizedBox(height: 28),
-                    _buildPremiumCard(l10n),
-                    const SizedBox(height: 16),
-                    _buildPlusCard(l10n),
-                    const SizedBox(height: 24),
-                    _buildFooter(l10n),
-                  ],
-                ),
-                if (Navigator.canPop(context)) _buildPageBackButton(l10n),
+                // Scrolls with the content instead of floating over it.
+                if (Navigator.canPop(context)) ...[
+                  _buildPageBackButton(l10n),
+                  const SizedBox(height: 12),
+                ],
+                _buildHeaderIcon(),
+                const SizedBox(height: 16),
+                _buildDescription(l10n),
+                // Subscribers reach their monthly report from here.
+                if (_activePlan != SubscriptionConstants.planNone) ...[
+                  const SizedBox(height: 22),
+                  _buildMonthlyReportEntry(l10n),
+                ],
+                // The depth charts are part of Premium only.
+                if (_activePlan == SubscriptionConstants.planPremium) ...[
+                  const SizedBox(height: 10),
+                  _buildDepthTrendsEntry(l10n),
+                ],
+                const SizedBox(height: 28),
+                _buildPremiumCard(l10n),
+                const SizedBox(height: 16),
+                _buildPlusCard(l10n),
+                const SizedBox(height: 24),
+                _buildFooter(l10n),
               ],
             ),
           ),
@@ -277,9 +276,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   Widget _buildPageBackButton(AppLocalizations l10n) {
-    return Positioned(
-      top: 8,
-      left: 16,
+    return Align(
+      alignment: Alignment.centerLeft,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
