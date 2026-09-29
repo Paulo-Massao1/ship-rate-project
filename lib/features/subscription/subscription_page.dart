@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
+import 'monthly_report_page.dart';
 
 /// Subscription page offering the two ShipRate Pro plans.
 ///
@@ -161,6 +162,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     );
   }
 
+  void _openMonthlyReport() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MonthlyReportPage()),
+    );
+  }
+
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -203,6 +211,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     _buildHeaderIcon(),
                     const SizedBox(height: 16),
                     _buildDescription(l10n),
+                    // Subscribers reach their monthly report from here.
+                    if (_activePlan != SubscriptionConstants.planNone) ...[
+                      const SizedBox(height: 22),
+                      _buildMonthlyReportEntry(l10n),
+                    ],
                     const SizedBox(height: 28),
                     _buildPremiumCard(l10n),
                     const SizedBox(height: 16),
@@ -310,6 +323,71 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       l10n.subscriptionDescription,
       textAlign: TextAlign.center,
       style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 13),
+    );
+  }
+
+  /// Shortcut to the Plus monthly report, only shown to subscribers.
+  Widget _buildMonthlyReportEntry(AppLocalizations l10n) {
+    return Material(
+      color: const Color(0x0FFFB74D),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: _openMonthlyReport,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0x26FFB74D), width: 0.5),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0x1FFFB74D),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.description,
+                  color: _plusColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.monthlyReport,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      l10n.plusFeature1,
+                      style: const TextStyle(
+                        color: Color(0x99FFFFFF),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: Color(0x66FFB74D),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
