@@ -1486,6 +1486,10 @@
   "@directionDown": {
     "description": "Direction option going downstream."
   },
+  "riverDirection": "Direction",
+  "@riverDirection": {
+    "description": "Label for the river direction field of a ship rating."
+  },
   "pilotsToContact": "Pilots to contact",
   "@pilotsToContact": {
     "description": "Label for pilots to contact field."

@@ -2153,6 +2153,12 @@ abstract class AppLocalizations {
   /// **'Baixando'**
   String get directionDown;
 
+  /// Label for the river direction field of a ship rating.
+  ///
+  /// In pt, this message translates to:
+  /// **'Direção'**
+  String get riverDirection;
+
   /// Label for pilots to contact field.
   ///
   /// In pt, this message translates to:

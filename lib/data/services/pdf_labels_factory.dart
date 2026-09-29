@@ -24,6 +24,11 @@ PdfLabels buildPdfLabels(AppLocalizations l10n) {
     sink: l10n.sink,
     microwave: l10n.microwave,
     cabinDeck: l10n.cabinDeck,
+    riverDirection: l10n.riverDirection,
+    directionLabels: {
+      'subindo': l10n.goingUp,
+      'baixando': l10n.goingDown,
+    },
     deckLabels: {
       'bridge': l10n.deckBridge,
       '1_below': l10n.deck1Below,

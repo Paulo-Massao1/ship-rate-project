@@ -65,6 +65,7 @@ class EditRatingController {
       disembarkationDate: (data['dataDesembarque'] as Timestamp?)?.toDate(),
       cabinType: _normalizeCabinType(data['tipoCabine']),
       cabinDeck: data['deckCabine'],
+      direction: data['direcao'] as String?,
       generalObservation: data['observacaoGeral'] ?? '',
       shipInfo: data['infoNavio'] as Map<String, dynamic>? ?? {},
       bridgeInfo: data['infoPassadico'] as Map<String, dynamic>? ?? {},
@@ -102,6 +103,7 @@ class EditRatingController {
       'dataDesembarque': Timestamp.fromDate(updateData.disembarkationDate),
       'tipoCabine': updateData.cabinType,
       'deckCabine': updateData.cabinDeck,
+      'direcao': updateData.direction,
       'itens': itens,
       'observacaoGeral': updateData.generalObservation,
       'infoNavio': updateData.shipInfo,
@@ -163,6 +165,7 @@ class RatingEditData {
   final DateTime? disembarkationDate;
   final String? cabinType;
   final String? cabinDeck;
+  final String? direction;
   final String generalObservation;
   final Map<String, dynamic> shipInfo;
   final Map<String, dynamic> bridgeInfo;
@@ -175,6 +178,7 @@ class RatingEditData {
     required this.disembarkationDate,
     required this.cabinType,
     required this.cabinDeck,
+    required this.direction,
     required this.generalObservation,
     required this.shipInfo,
     required this.bridgeInfo,
@@ -189,6 +193,7 @@ class RatingUpdateData {
   final DateTime disembarkationDate;
   final String cabinType;
   final String? cabinDeck;
+  final String? direction;
   final String generalObservation;
   final Map<String, double> ratings;
   final Map<String, String> observations;
@@ -201,6 +206,7 @@ class RatingUpdateData {
     required this.disembarkationDate,
     required this.cabinType,
     required this.cabinDeck,
+    required this.direction,
     required this.generalObservation,
     required this.ratings,
     required this.observations,

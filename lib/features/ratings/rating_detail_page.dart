@@ -99,6 +99,23 @@ class RatingDetailPage extends StatelessWidget {
     return _nationalityLabel(l10n, value.toString());
   }
 
+  /// Returns the localized direction label, or null when the rating has no
+  /// direction stored (ratings created before this field existed).
+  String? _directionLabel(AppLocalizations l10n, String? value) {
+    switch (value?.toLowerCase()) {
+      case 'subindo': return l10n.goingUp;
+      case 'baixando': return l10n.goingDown;
+      default: return null;
+    }
+  }
+
+  /// Returns the arrow icon matching the stored direction.
+  IconData _directionIcon(String? value) {
+    return value?.toLowerCase() == 'baixando'
+        ? Icons.arrow_downward
+        : Icons.arrow_upward;
+  }
+
   /// Converts boolean to translated "Yes"/"No".
   String _boolToYesNo(BuildContext context, bool? value) {
     final l10n = AppLocalizations.of(context)!;
@@ -207,6 +224,7 @@ class RatingDetailPage extends StatelessWidget {
     final disembarkationDate = data['dataDesembarque'] as Timestamp?;
     final cabinType = data['tipoCabine'] ?? '';
     final cabinDeck = data['deckCabine'] as String?;
+    final direction = data['direcao']?.toString();
     final generalObservations = (data['observacaoGeral'] ?? '').toString();
     final ratingItems = Map<String, dynamic>.from(data['itens'] ?? {});
     final shipInfo = Map<String, dynamic>.from(data['infoNavio'] ?? {});
@@ -226,6 +244,7 @@ class RatingDetailPage extends StatelessWidget {
           disembarkationDate: disembarkationDate,
           cabinType: cabinType,
           cabinDeck: cabinDeck,
+          direction: direction,
           callSign: callSign,
         ),
         if (_hasShipInfo(shipInfo, amenities)) ...[
@@ -315,9 +334,11 @@ class RatingDetailPage extends StatelessWidget {
     Timestamp? disembarkationDate,
     required String cabinType,
     String? cabinDeck,
+    String? direction,
     required String callSign,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final directionLabel = _directionLabel(l10n, direction);
     return _themedCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,6 +369,17 @@ class RatingDetailPage extends StatelessWidget {
             Text(
               l10n.cabinDeckValue(_deckLabel(l10n, cabinDeck)),
               style: const TextStyle(color: _secondaryText),
+            ),
+          if (directionLabel != null)
+            Row(
+              children: [
+                Icon(_directionIcon(direction), size: 14, color: _secondaryText),
+                const SizedBox(width: 4),
+                Text(
+                  '${l10n.riverDirection}: $directionLabel',
+                  style: const TextStyle(color: _secondaryText),
+                ),
+              ],
             ),
           const SizedBox(height: 6),
           Text(
@@ -547,6 +579,7 @@ class RatingDetailPage extends StatelessWidget {
       evaluationDate: evaluationDate,
       cabinType: cabinType,
       cabinDeck: cabinDeckKey != null ? _deckLabel(l10n, cabinDeckKey) : null,
+      direction: _directionLabel(l10n, data['direcao']?.toString()),
       disembarkationDate: disembarkationDate,
       ratings: ratings,
       generalObservation: generalObservation,

@@ -46,6 +46,7 @@ class PdfService {
   /// - [evaluatorName]: Name of the maritime pilot
   /// - [evaluationDate]: Date when evaluation was created
   /// - [cabinType]: Type of cabin occupied
+  /// - [direction]: Optional translated river direction (going up/down)
   /// - [disembarkationDate]: Date of disembarkation
   /// - [ratings]: Map of criteria with scores and observations
   /// - [generalObservation]: Optional general comments
@@ -60,6 +61,7 @@ class PdfService {
     required DateTime evaluationDate,
     required String cabinType,
     String? cabinDeck,
+    String? direction,
     required DateTime disembarkationDate,
     required Map<String, Map<String, dynamic>> ratings,
     String? generalObservation,
@@ -81,6 +83,7 @@ class PdfService {
             evaluationDate: evaluationDate,
             cabinType: cabinType,
             cabinDeck: cabinDeck,
+            direction: direction,
             disembarkationDate: disembarkationDate,
             averageRating: averageRating,
             labels: labels,
@@ -243,6 +246,7 @@ class PdfService {
     required DateTime evaluationDate,
     required String cabinType,
     String? cabinDeck,
+    String? direction,
     required DateTime disembarkationDate,
     required double averageRating,
     required PdfLabels labels,
@@ -297,6 +301,10 @@ class PdfService {
           if (cabinDeck != null) ...[
             pw.SizedBox(height: 8),
             _buildInfoItem(labels.cabinDeck, cabinDeck),
+          ],
+          if (direction != null) ...[
+            pw.SizedBox(height: 8),
+            _buildInfoItem(labels.riverDirection, direction),
           ],
           pw.SizedBox(height: 8),
           _buildInfoItem(
@@ -945,6 +953,8 @@ class PdfLabels {
   final String sink;
   final String microwave;
   final String cabinDeck;
+  final String riverDirection;
+  final Map<String, String> directionLabels;
   final Map<String, String> deckLabels;
   final String notAvailable;
   final String ratingsByCriteria;
@@ -982,6 +992,8 @@ class PdfLabels {
     required this.sink,
     required this.microwave,
     required this.cabinDeck,
+    required this.riverDirection,
+    required this.directionLabels,
     required this.deckLabels,
     required this.notAvailable,
     required this.ratingsByCriteria,

@@ -28,6 +28,14 @@ class _EditRatingPageState extends State<EditRatingPage> {
   static const _labelColor = Color(0x99FFFFFF);
   static const _iconBg = Color(0x2664B5F6);
 
+  // Direction toggle colors
+  static const _amber = Color(0xFFFFB74D);
+  static const _amberLight = Color(0x1FFFB74D);
+
+  /// River direction values persisted in Firestore.
+  static const _directionUp = 'subindo';
+  static const _directionDown = 'baixando';
+
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
   static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
 
@@ -72,6 +80,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
   DateTime? _disembarkationDate;
   String? _cabinType;
   String? _cabinDeck;
+  String? _direction;
 
   bool _bridgeHasMinibar = false;
   bool _bridgeHasSink = false;
@@ -148,6 +157,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
           _disembarkationDate = data.disembarkationDate;
           _cabinType = data.cabinType;
           _cabinDeck = _cabinDecks.contains(data.cabinDeck) ? data.cabinDeck : null;
+          _direction = _normalizeDirection(data.direction);
           _observacaoGeralController.text = data.generalObservation;
 
           // Load ship info
@@ -439,6 +449,7 @@ class _EditRatingPageState extends State<EditRatingPage> {
           disembarkationDate: _disembarkationDate!,
           cabinType: _cabinType!,
           cabinDeck: _cabinDeck,
+          direction: _direction,
           generalObservation: _observacaoGeralController.text.trim(),
           ratings: Map.from(_ratings),
           observations: {
@@ -748,6 +759,8 @@ class _EditRatingPageState extends State<EditRatingPage> {
         _buildCabinTypeDropdown(),
         const SizedBox(height: 12),
         _buildCabinDeckDropdown(),
+        const SizedBox(height: 16),
+        _buildDirectionToggle(),
         const SizedBox(height: 24),
         _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
@@ -779,6 +792,79 @@ class _EditRatingPageState extends State<EditRatingPage> {
       ),
       items: items,
       onChanged: onChanged,
+    );
+  }
+
+  /// Keeps only the known direction values, so legacy or unexpected data
+  /// leaves the toggle unselected instead of breaking it.
+  String? _normalizeDirection(String? value) {
+    final normalized = value?.toLowerCase();
+    if (normalized == _directionUp || normalized == _directionDown) {
+      return normalized;
+    }
+    return null;
+  }
+
+  /// Direction the ship was sailing, shown next to the temperature ratings
+  /// because cabin temperature varies with it.
+  Widget _buildDirectionToggle() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.riverDirection,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: _labelColor,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _buildDirectionButton(
+              label: l10n.goingUp,
+              value: _directionUp,
+            ),
+            const SizedBox(width: 10),
+            _buildDirectionButton(
+              label: l10n.goingDown,
+              value: _directionDown,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDirectionButton({
+    required String label,
+    required String value,
+  }) {
+    final isActive = _direction == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _direction = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? _amberLight : _fieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: isActive ? _amber : _fieldBorder),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isActive ? _amber : _labelColor,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

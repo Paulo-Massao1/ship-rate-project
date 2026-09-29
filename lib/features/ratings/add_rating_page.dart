@@ -41,6 +41,14 @@ class _AddRatingPageState extends State<AddRatingPage> {
   static const _labelColor = Color(0x99FFFFFF);
   static const _iconBg = Color(0x2664B5F6);
 
+  // Direction toggle colors
+  static const _amber = Color(0xFFFFB74D);
+  static const _amberLight = Color(0x1FFFB74D);
+
+  /// River direction values persisted in Firestore.
+  static const _directionUp = 'subindo';
+  static const _directionDown = 'baixando';
+
   static const List<String> _cabinTypes = ['Pilot', 'OWNER', 'Spare Officer', 'Crew'];
   static const List<String> _cabinDecks = ['bridge', '1_below', '2_below', '3_below', '4+_below'];
 
@@ -104,6 +112,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
   String? _selectedCabinType;
   String? _selectedCabinDeck;
   DateTime? _disembarkationDate;
+  String? _selectedDirection;
   bool _isSaving = false;
   bool _shipAlreadyExists = false;
   bool _hasExactMatch = false;
@@ -267,6 +276,7 @@ class _AddRatingPageState extends State<AddRatingPage> {
         dataDesembarque: _disembarkationDate!,
         tipoCabine: _selectedCabinType!,
         deckCabine: _selectedCabinDeck,
+        direcao: _selectedDirection!,
         observacaoGeral: _generalObservationController.text.trim(),
         infoNavio: {
           'nacionalidadeTripulacao': _buildNationalityList(),
@@ -301,8 +311,9 @@ class _AddRatingPageState extends State<AddRatingPage> {
 
   /// Validates required fields.
   bool _validateRequiredFields() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_disembarkationDate == null || _selectedCabinType == null) {
-      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.fillRequiredFields),
@@ -311,6 +322,17 @@ class _AddRatingPageState extends State<AddRatingPage> {
       );
       return false;
     }
+
+    if (_selectedDirection == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.directionRequired),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return false;
+    }
+
     return true;
   }
 
@@ -892,6 +914,8 @@ class _AddRatingPageState extends State<AddRatingPage> {
         _buildCabinTypeDropdown(),
         const SizedBox(height: 12),
         _buildCabinDeckDropdown(),
+        const SizedBox(height: 16),
+        _buildDirectionToggle(),
         const SizedBox(height: 24),
         _buildSubsectionHeader(l10n.ratings),
         const SizedBox(height: 16),
@@ -921,6 +945,69 @@ class _AddRatingPageState extends State<AddRatingPage> {
       ),
       items: items,
       onChanged: onChanged,
+    );
+  }
+
+  /// Direction the ship was sailing, shown next to the temperature ratings
+  /// because cabin temperature varies with it.
+  Widget _buildDirectionToggle() {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.riverDirection,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: _labelColor,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _buildDirectionButton(
+              label: l10n.goingUp,
+              value: _directionUp,
+            ),
+            const SizedBox(width: 10),
+            _buildDirectionButton(
+              label: l10n.goingDown,
+              value: _directionDown,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDirectionButton({
+    required String label,
+    required String value,
+  }) {
+    final isActive = _selectedDirection == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedDirection = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isActive ? _amberLight : _fieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: isActive ? _amber : _fieldBorder),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: isActive ? _amber : _labelColor,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

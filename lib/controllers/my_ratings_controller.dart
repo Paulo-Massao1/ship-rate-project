@@ -102,6 +102,7 @@ class MyRatingsController {
     final evaluationDate = resolveEvaluationDate(data);
     final cabinType = data['tipoCabine'] ?? labels.notAvailable;
     final cabinDeckKey = data['deckCabine'] as String?;
+    final direction = _formatDirectionLabel(data['direcao']?.toString(), labels);
     final disembarkationDate = (data['dataDesembarque'] as Timestamp).toDate();
     final ratings = _extractRatings(data);
     final generalObservation = data['observacaoGeral'];
@@ -114,6 +115,7 @@ class MyRatingsController {
       evaluationDate: evaluationDate,
       cabinType: cabinType,
       cabinDeck: cabinDeckKey != null ? _formatDeckLabel(cabinDeckKey, labels) : null,
+      direction: direction,
       disembarkationDate: disembarkationDate,
       ratings: ratings,
       generalObservation: generalObservation,
@@ -185,6 +187,13 @@ class MyRatingsController {
   /// Returns localized deck label from PdfLabels.
   String _formatDeckLabel(String key, PdfLabels labels) {
     return labels.deckLabels[key] ?? key;
+  }
+
+  /// Returns the translated direction label, or null when the rating has no
+  /// direction stored (ratings created before this field existed).
+  String? _formatDirectionLabel(String? value, PdfLabels labels) {
+    if (value == null) return null;
+    return labels.directionLabels[value.toLowerCase()];
   }
 
   Future<String?> _getUserCallSign(String userId) async {

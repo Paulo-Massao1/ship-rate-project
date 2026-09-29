@@ -1098,6 +1098,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get directionDown => 'Baixando';
 
   @override
+  String get riverDirection => 'Direção';
+
+  @override
   String get pilotsToContact => 'Práticos para contactar';
 
   @override
