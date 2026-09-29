@@ -305,7 +305,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   child: Column(
                     children: [
                       if (_showDepthStats) _buildDepthStatsCard(l10n),
-                      _buildDepthTrendsCard(l10n),
                       _buildTabGrid(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
@@ -673,55 +672,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
-  /// Entry point to the Premium depth trend charts.
-  ///
-  /// Shown to every pilot: [DepthTrendsPage] carries its own subscription
-  /// gate, so a non subscriber lands on the soft paywall instead of the chart.
-  Widget _buildDepthTrendsCard(AppLocalizations l10n) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16, _showDepthStats ? 12 : 16, 16, 0),
-      child: Material(
-        color: _premiumLight,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          onTap: _navigateToDepthTrends,
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _premiumBorder),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.show_chart, color: _premium, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    l10n.depthTrends,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                _buildPremiumBadge(l10n),
-                const SizedBox(width: 6),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Color(0x66FFFFFF),
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildPremiumBadge(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -743,9 +693,47 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   Widget _buildTabGrid(AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.fromLTRB(16, _showDepthStats ? 12 : 16, 16, 12),
       child: Column(
         children: [
+          // "New record" is an action button rather than a tab, so it keeps the
+          // highlighted style and spans the full width above the grid.
+          _buildTabCard(
+            icon: Icons.add_circle_outline,
+            label: l10n.newRecord,
+            isActive: true,
+            onTap: _navigateToNewRecord,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.place_outlined,
+                  label: l10n.locations,
+                  isActive: _showLocationsDropdown,
+                  onTap: _toggleLocationsDropdown,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Entry point to the Premium depth trend charts.
+              //
+              // Shown to every pilot: DepthTrendsPage carries its own
+              // subscription gate, so a non subscriber lands on the soft
+              // paywall instead of the chart.
+              Expanded(
+                child: _buildTabCard(
+                  icon: Icons.show_chart,
+                  label: l10n.depthTrends,
+                  isActive: false,
+                  isPremium: true,
+                  badge: _buildPremiumBadge(l10n),
+                  onTap: _navigateToDepthTrends,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
@@ -758,28 +746,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     setState(() => _showLocationsDropdown = false);
                     _controller.clearSelection();
                   },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.place_outlined,
-                  label: l10n.locations,
-                  isActive: _showLocationsDropdown,
-                  onTap: _toggleLocationsDropdown,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.add_circle_outline,
-                  label: l10n.newRecord,
-                  isActive: false,
-                  onTap: _navigateToNewRecord,
                 ),
               ),
               const SizedBox(width: 8),
@@ -798,14 +764,46 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
+  /// Card used by every tab of the grid and by the full width "new record"
+  /// action. [isPremium] swaps the neutral tints for the blue ones and [badge]
+  /// is stacked under the label when given.
   Widget _buildTabCard({
     required IconData icon,
     required String label,
     required bool isActive,
     required VoidCallback onTap,
+    bool isPremium = false,
+    Widget? badge,
   }) {
+    final Color background = isActive
+        ? _tealLight
+        : isPremium
+            ? _premiumLight
+            : const Color(0x14FFFFFF);
+    final Color borderColor = isActive
+        ? _teal
+        : isPremium
+            ? _premiumBorder
+            : const Color(0x33FFFFFF);
+    final Color iconColor = isActive
+        ? _teal
+        : isPremium
+            ? _premium
+            : const Color(0xCCFFFFFF);
+
+    final Widget labelText = Text(
+      label,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: isActive ? _teal : Colors.white,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+
     return Material(
-      color: isActive ? _tealLight : const Color(0x14FFFFFF),
+      color: background,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -816,29 +814,27 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isActive ? _teal : const Color(0x33FFFFFF),
+              color: borderColor,
               width: isActive ? 1.5 : 1,
             ),
           ),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: isActive ? _teal : const Color(0xCCFFFFFF),
-                size: 20,
-              ),
+              Icon(icon, color: iconColor, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: isActive ? _teal : Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                child: badge == null
+                    ? labelText
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelText,
+                          const SizedBox(height: 4),
+                          badge,
+                        ],
+                      ),
               ),
             ],
           ),
