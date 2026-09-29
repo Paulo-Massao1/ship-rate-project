@@ -2250,5 +2250,9 @@
   "average": "Average",
   "@average": {
     "description": "Legend entry of the average line on the depth trend chart."
+  },
+  "premiumBadge": "PREMIUM",
+  "@premiumBadge": {
+    "description": "Badge marking a feature that requires the Premium plan."
   }
 }

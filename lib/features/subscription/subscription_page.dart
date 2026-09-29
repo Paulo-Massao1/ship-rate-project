@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
+import 'depth_trends_page.dart';
 import 'monthly_report_page.dart';
 
 /// Subscription page offering the two ShipRate Pro plans.
@@ -169,6 +170,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     );
   }
 
+  void _openDepthTrends() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DepthTrendsPage()),
+    );
+  }
+
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -215,6 +223,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     if (_activePlan != SubscriptionConstants.planNone) ...[
                       const SizedBox(height: 22),
                       _buildMonthlyReportEntry(l10n),
+                    ],
+                    // The depth charts are part of Premium only.
+                    if (_activePlan == SubscriptionConstants.planPremium) ...[
+                      const SizedBox(height: 10),
+                      _buildDepthTrendsEntry(l10n),
                     ],
                     const SizedBox(height: 28),
                     _buildPremiumCard(l10n),
@@ -328,17 +341,48 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   /// Shortcut to the Plus monthly report, only shown to subscribers.
   Widget _buildMonthlyReportEntry(AppLocalizations l10n) {
+    return _buildFeatureShortcut(
+      icon: Icons.description,
+      color: _plusColor,
+      title: l10n.monthlyReport,
+      subtitle: l10n.plusFeature1,
+      onTap: _openMonthlyReport,
+    );
+  }
+
+  /// Shortcut to the Premium depth charts, only shown to Premium subscribers.
+  Widget _buildDepthTrendsEntry(AppLocalizations l10n) {
+    return _buildFeatureShortcut(
+      icon: Icons.show_chart,
+      color: _premiumColor,
+      title: l10n.depthTrends,
+      subtitle: l10n.premiumFeature2,
+      onTap: _openDepthTrends,
+    );
+  }
+
+  /// Row opening a feature the user already paid for, tinted with [color].
+  Widget _buildFeatureShortcut({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Material(
-      color: const Color(0x0FFFB74D),
+      color: color.withValues(alpha: 0.06),
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
-        onTap: _openMonthlyReport,
+        onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0x26FFB74D), width: 0.5),
+            border: Border.all(
+              color: color.withValues(alpha: 0.15),
+              width: 0.5,
+            ),
           ),
           child: Row(
             children: [
@@ -346,14 +390,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0x1FFFB74D),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
-                  Icons.description,
-                  color: _plusColor,
-                  size: 22,
-                ),
+                child: Icon(icon, color: color, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -361,7 +401,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.monthlyReport,
+                      title,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
@@ -370,7 +410,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      l10n.plusFeature1,
+                      subtitle,
                       style: const TextStyle(
                         color: Color(0x99FFFFFF),
                         fontSize: 11,
@@ -379,9 +419,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right,
-                color: Color(0x66FFB74D),
+                color: color.withValues(alpha: 0.4),
                 size: 20,
               ),
             ],

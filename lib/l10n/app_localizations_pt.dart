@@ -1658,4 +1658,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get average => 'Média';
+
+  @override
+  String get premiumBadge => 'PREMIUM';
 }

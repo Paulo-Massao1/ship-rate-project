@@ -1658,4 +1658,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get average => 'Average';
+
+  @override
+  String get premiumBadge => 'PREMIUM';
 }

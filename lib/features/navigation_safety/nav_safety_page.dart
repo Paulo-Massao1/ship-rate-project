@@ -13,6 +13,7 @@ import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../home/main_screen_page.dart';
+import '../subscription/depth_trends_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'nav_safety_my_records_page.dart';
 import 'nav_safety_new_record_page.dart';
@@ -36,6 +37,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   static const _teal = Color(0xFF26A69A);
   static const _tealLight = Color(0x1A26A69A);
   static const _tealBorder = Color(0x4026A69A);
+
+  // Premium tints used by the depth trend entry.
+  static const _premium = Color(0xFF64B5F6);
+  static const _premiumLight = Color(0x0F64B5F6);
+  static const _premiumBorder = Color(0x2664B5F6);
 
   // ===========================================================================
   // STATE
@@ -165,6 +171,13 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
+  void _navigateToDepthTrends() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DepthTrendsPage()),
+    );
+  }
+
   void _navigateToSuggestions() {
     Navigator.pop(context);
     Navigator.push(
@@ -288,6 +301,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   child: Column(
                     children: [
                       if (_showDepthStats) _buildDepthStatsCard(l10n),
+                      _buildDepthTrendsCard(l10n),
                       _buildTabGrid(l10n),
                       Expanded(child: _buildBody(l10n)),
                     ],
@@ -651,6 +665,74 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Entry point to the Premium depth trend charts.
+  ///
+  /// Shown to every pilot: [DepthTrendsPage] carries its own subscription
+  /// gate, so a non subscriber lands on the soft paywall instead of the chart.
+  Widget _buildDepthTrendsCard(AppLocalizations l10n) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, _showDepthStats ? 12 : 16, 16, 0),
+      child: Material(
+        color: _premiumLight,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: _navigateToDepthTrends,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: _premiumBorder),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.show_chart, color: _premium, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.depthTrends,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildPremiumBadge(l10n),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Color(0x66FFFFFF),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumBadge(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: _premiumBorder,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        l10n.premiumBadge,
+        style: const TextStyle(
+          color: _premium,
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

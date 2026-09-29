@@ -3142,6 +3142,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Média'**
   String get average;
+
+  /// Badge marking a feature that requires the Premium plan.
+  ///
+  /// In pt, this message translates to:
+  /// **'PREMIUM'**
+  String get premiumBadge;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
