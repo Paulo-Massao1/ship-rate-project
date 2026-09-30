@@ -11,10 +11,11 @@ import '../../shared/widgets/subscription_gate.dart';
 
 /// Premium screen plotting how the depth of one location changed over time.
 ///
-/// The dropdown lists every location that has depth records; picking one
+/// The selector lists every location that has depth records; picking one
 /// reloads its history through [DepthTrendService]. The card on top shows the
-/// latest depth, the six-month average and the line chart, and the list below
-/// repeats every record with its exact date and the pilot who saved it.
+/// latest depth, the six-month average and the line chart — one point per
+/// month, at most six — and the list below repeats every record with its exact
+/// date and the pilot who saved it.
 class DepthTrendsPage extends StatefulWidget {
   const DepthTrendsPage({super.key});
 
@@ -31,8 +32,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
   static const _white04 = Color(0x0AFFFFFF);
   static const _white10 = Color(0x1AFFFFFF);
+  static const _white20 = Color(0x33FFFFFF);
   static const _white30 = Color(0x4DFFFFFF);
   static const _white40 = Color(0x66FFFFFF);
+  static const _white50 = Color(0x80FFFFFF);
   static const _white60 = Color(0x99FFFFFF);
 
   // Chart and card tints derived from [_premiumColor].
@@ -42,11 +45,17 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   static const _averageLineColor = Color(0x4D64B5F6);
   static const _gridLineColor = Color(0x0AFFFFFF);
 
-  /// Height reserved for the line chart inside the card.
-  static const double _chartHeight = 180;
+  /// Height reserved for the line chart inside the card, value labels included.
+  static const double _chartHeight = 190;
 
-  /// Number of labels the X axis aims for, whatever the record count.
-  static const int _bottomLabelCount = 5;
+  /// Band kept free above the plot area for the value of the highest point.
+  static const double _valueLabelBand = 18;
+
+  /// Distance between a dot and the value printed above it.
+  static const double _valueLabelGap = 5;
+
+  /// Most labels the Y axis takes before its one-meter step is widened.
+  static const int _maxYLabels = 8;
 
   final DepthTrendService _service = DepthTrendService();
 
@@ -58,17 +67,34 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   bool _loadingLocations = true;
   bool _loadingTrend = false;
 
+  /// Language of the month labels, e.g. `pt`.
+  String? _locale;
+
+  /// Depth with one decimal in the current locale, e.g. `17,2`.
+  late NumberFormat _depthFormat;
+
   @override
   void initState() {
     super.initState();
     _loadLocations();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _locale = Localizations.localeOf(context).toLanguageTag();
+    _depthFormat = NumberFormat.decimalPatternDigits(
+      locale: _locale,
+      decimalDigits: 1,
+    );
+  }
+
   // ===========================================================================
   // DATA
   // ===========================================================================
 
-  /// Loads the dropdown options and opens the first location.
+  /// Loads the selector options and opens the first location.
   Future<void> _loadLocations() async {
     final locations = await _service.getLocationsWithRecords();
     if (!mounted) return;
@@ -88,7 +114,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     setState(() => _loadingTrend = true);
 
-    final data = await _service.getTrendData(location);
+    final data = await _service.getTrendData(location, locale: _locale);
     if (!mounted) return;
 
     setState(() {
@@ -110,20 +136,16 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   // FORMATTING
   // ===========================================================================
 
-  String _depthLabel(double depth) => '${depth.toStringAsFixed(1)}m';
+  /// Depth without its unit, e.g. `17,2`.
+  String _depthValue(double depth) => _depthFormat.format(depth);
+
+  /// Depth with its unit, e.g. `17,2 m`.
+  String _depthLabel(double depth) => '${_depthValue(depth)} m';
 
   String _dateLabel(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     return '$day/$month/${date.year}';
-  }
-
-  /// Abbreviated month of [date] in the current locale, e.g. `Jan`.
-  String _monthLabel(DateTime date) {
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final month = DateFormat.MMM(locale).format(date).replaceAll('.', '');
-    if (month.isEmpty) return month;
-    return month[0].toUpperCase() + month.substring(1);
   }
 
   // ===========================================================================
@@ -206,7 +228,9 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
   Widget _buildBody(AppLocalizations l10n) {
     if (_loadingLocations) {
-      return const Center(child: CircularProgressIndicator(color: _premiumColor));
+      return const Center(
+        child: CircularProgressIndicator(color: _premiumColor),
+      );
     }
 
     return Center(
@@ -224,7 +248,9 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
   Widget _buildTrend(AppLocalizations l10n) {
     if (_loadingTrend) {
-      return const Center(child: CircularProgressIndicator(color: _premiumColor));
+      return const Center(
+        child: CircularProgressIndicator(color: _premiumColor),
+      );
     }
 
     final data = _data;
@@ -237,6 +263,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
         const SizedBox(height: 24),
         _buildSectionHeader(l10n.depthHistory),
         const SizedBox(height: 10),
+        // [DepthTrendData.dataPoints] already comes most recent first.
         for (final point in data.dataPoints) _buildRecordCard(l10n, point),
       ],
     );
@@ -247,53 +274,137 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   // ===========================================================================
 
   Widget _buildLocationSelector(AppLocalizations l10n) {
+    final selected = _selectedLocation;
+    final enabled = _locations.isNotEmpty && !_loadingTrend;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: _white04,
+      child: Material(
+        color: _white04,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _white10, width: 0.5),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.place_outlined, color: _premiumColor, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedLocation,
-                  isExpanded: true,
-                  dropdownColor: _deepNavy,
-                  borderRadius: BorderRadius.circular(8),
-                  icon: const Icon(Icons.keyboard_arrow_down, color: _white60),
-                  hint: Text(
-                    l10n.selectLocation,
-                    style: const TextStyle(color: _white60, fontSize: 14),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                  items: [
-                    for (final location in _locations)
-                      DropdownMenuItem<String>(
-                        value: location,
-                        child: Text(
-                          location,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: _loadingTrend ? null : _onLocationSelected,
-                ),
-              ),
+          onTap: enabled ? () => _openLocationSheet(l10n) : null,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _white10, width: 0.5),
             ),
-          ],
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.place_outlined,
+                  color: _premiumColor,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    selected ?? l10n.selectLocation,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: selected == null ? _white60 : Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: _white60,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  /// Opens the location list as a bottom sheet.
+  ///
+  /// A sheet always slides up from the bottom of the screen, while a dropdown
+  /// menu opens over the selector and hides what was picked.
+  Future<void> _openLocationSheet(AppLocalizations l10n) async {
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: _deepNavy,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.6,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: _white20,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildSectionHeader(l10n.selectLocation),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  children: [
+                    for (final location in _locations)
+                      _buildLocationTile(sheetContext, location),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (picked != null) _onLocationSelected(picked);
+  }
+
+  Widget _buildLocationTile(BuildContext sheetContext, String location) {
+    final isSelected = location == _selectedLocation;
+
+    return ListTile(
+      dense: true,
+      tileColor: isSelected ? _cardBackground : null,
+      leading: Icon(
+        Icons.place_outlined,
+        size: 18,
+        color: isSelected ? _premiumColor : _white60,
+      ),
+      title: Text(
+        location,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: isSelected ? _premiumColor : Colors.white,
+          fontSize: 14,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+        ),
+      ),
+      trailing: isSelected
+          ? const Icon(Icons.check, color: _premiumColor, size: 18)
+          : null,
+      onTap: () => Navigator.pop(sheetContext, location),
     );
   }
 
@@ -372,9 +483,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   // CHART
   // ===========================================================================
 
+  /// Line chart of [DepthTrendData.monthlyPoints]: one dot per month, oldest
+  /// first, with its depth printed above it.
   Widget _buildChart(DepthTrendData data) {
-    // Oldest record first, so the line reads left to right.
-    final points = data.dataPoints.reversed.toList();
+    final points = data.monthlyPoints;
     final spots = [
       for (var i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), points[i].depth),
@@ -383,76 +495,114 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     final bounds = _yAxisBounds(points);
     final lastIndex = spots.length - 1;
 
-    // A single record has no range on the X axis, so it is centered by hand.
+    // A single month has no range on the X axis, so it is centered by hand.
     final minX = points.length == 1 ? -0.5 : 0.0;
     final maxX = points.length == 1 ? 0.5 : lastIndex.toDouble();
 
-    return LineChart(
-      LineChartData(
-        minX: minX,
-        maxX: maxX,
-        minY: bounds.min,
-        maxY: bounds.max,
-        backgroundColor: Colors.transparent,
-        borderData: FlBorderData(show: false),
-        lineTouchData: const LineTouchData(enabled: false),
-        gridData: FlGridData(
-          drawVerticalLine: false,
-          horizontalInterval: bounds.interval,
-          getDrawingHorizontalLine: (_) => const FlLine(
-            color: _gridLineColor,
-            strokeWidth: 1,
-          ),
+    // Held in a variable because [showingTooltipIndicators] points back at it.
+    final bar = LineChartBarData(
+      spots: spots,
+      color: _premiumColor,
+      barWidth: 2,
+      isStrokeCapRound: true,
+      belowBarData: BarAreaData(show: true, color: _chartAreaColor),
+      dotData: FlDotData(
+        // The most recent month is highlighted with a bigger dot.
+        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+          radius: index == lastIndex ? 5 : 4,
+          color: _premiumColor,
+          strokeColor: _deepNavy,
+          strokeWidth: 2,
         ),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(),
-          rightTitles: const AxisTitles(),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 34,
-              interval: bounds.interval,
-              getTitlesWidget: _buildLeftTitle,
+      ),
+    );
+
+    return Padding(
+      // Leaves room for the value printed above the highest dot.
+      padding: const EdgeInsets.only(top: _valueLabelBand),
+      child: LineChart(
+        LineChartData(
+          minX: minX,
+          maxX: maxX,
+          minY: bounds.min,
+          maxY: bounds.max,
+          backgroundColor: Colors.transparent,
+          borderData: FlBorderData(show: false),
+          lineTouchData: LineTouchData(
+            enabled: false,
+            touchTooltipData: LineTouchTooltipData(
+              // A tooltip stripped of its box is just the value of the dot.
+              tooltipPadding: EdgeInsets.zero,
+              tooltipMargin: _valueLabelGap,
+              tooltipRoundedRadius: 0,
+              fitInsideHorizontally: true,
+              getTooltipColor: (_) => Colors.transparent,
+              getTooltipItems: (touchedSpots) => [
+                for (final spot in touchedSpots) _buildValueLabel(spot, lastIndex),
+              ],
             ),
           ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 24,
-              interval: _bottomLabelInterval(points.length),
-              getTitlesWidget: (value, meta) =>
-                  _buildBottomTitle(value, meta, points),
-            ),
-          ),
-        ),
-        extraLinesData: ExtraLinesData(
-          horizontalLines: [
-            HorizontalLine(
-              y: data.sixMonthAverage,
-              color: _averageLineColor,
-              strokeWidth: 1,
-              dashArray: const [4, 3],
-            ),
+          // One always-on label per month, drawn above its own dot.
+          showingTooltipIndicators: [
+            for (final spot in spots)
+              ShowingTooltipIndicators([LineBarSpot(bar, 0, spot)]),
           ],
-        ),
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            color: _premiumColor,
-            barWidth: 2,
-            isStrokeCapRound: true,
-            belowBarData: BarAreaData(show: true, color: _chartAreaColor),
-            dotData: FlDotData(
-              // The most recent record is highlighted with a bigger dot.
-              getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
-                radius: index == lastIndex ? 5 : 4,
-                color: _premiumColor,
-                strokeColor: _deepNavy,
-                strokeWidth: 2,
+          gridData: FlGridData(
+            drawVerticalLine: false,
+            horizontalInterval: bounds.interval,
+            getDrawingHorizontalLine: (_) => const FlLine(
+              color: _gridLineColor,
+              strokeWidth: 1,
+            ),
+          ),
+          titlesData: FlTitlesData(
+            topTitles: const AxisTitles(),
+            rightTitles: const AxisTitles(),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 34,
+                interval: bounds.interval,
+                getTitlesWidget: _buildLeftTitle,
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 24,
+                // One label per month, right under its dot.
+                interval: 1,
+                getTitlesWidget: (value, meta) =>
+                    _buildBottomTitle(value, meta, points),
               ),
             ),
           ),
-        ],
+          extraLinesData: ExtraLinesData(
+            horizontalLines: [
+              HorizontalLine(
+                y: data.sixMonthAverage,
+                color: _averageLineColor,
+                strokeWidth: 1,
+                dashArray: const [4, 3],
+              ),
+            ],
+          ),
+          lineBarsData: [bar],
+        ),
+      ),
+    );
+  }
+
+  /// Depth printed above a dot. The most recent month stands out.
+  LineTooltipItem _buildValueLabel(LineBarSpot spot, int lastIndex) {
+    final isLast = spot.spotIndex == lastIndex;
+
+    return LineTooltipItem(
+      _depthValue(spot.y),
+      TextStyle(
+        color: isLast ? _premiumColor : _white50,
+        fontSize: 9,
+        fontWeight: isLast ? FontWeight.bold : FontWeight.w400,
       ),
     );
   }
@@ -471,24 +621,30 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   Widget _buildBottomTitle(
     double value,
     TitleMeta meta,
-    List<DepthDataPoint> points,
+    List<DepthMonthPoint> points,
   ) {
     final index = value.round();
     if (index < 0 || index >= points.length) return const SizedBox.shrink();
+    // Only whole positions carry a month, never the padded edges of a chart
+    // holding a single month.
+    if ((value - index).abs() > 0.01) return const SizedBox.shrink();
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
       child: Text(
-        _monthLabel(points[index].date),
+        points[index].monthLabel,
         style: const TextStyle(color: _white30, fontSize: 10),
       ),
     );
   }
 
-  /// Y range rounded to whole meters, with one meter of headroom on each side
-  /// so the first and last dots are never clipped.
-  _AxisBounds _yAxisBounds(List<DepthDataPoint> points) {
+  /// Y range in whole meters: from the floor of the shallowest month to the
+  /// ceiling of the deepest one, one gridline every meter.
+  ///
+  /// The step only grows past one meter when a single meter would crowd the
+  /// axis with more than [_maxYLabels] labels.
+  _AxisBounds _yAxisBounds(List<DepthMonthPoint> points) {
     var lowest = points.first.depth;
     var highest = points.first.depth;
     for (final point in points) {
@@ -496,24 +652,17 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
       if (point.depth > highest) highest = point.depth;
     }
 
-    final min = (lowest.floorToDouble() - 1).clamp(0.0, double.infinity);
-    final max = highest.ceilToDouble() + 1;
-    // Keeps the range positive even when every record sits on the minimum.
-    final top = max > min ? max : min + 1;
-    // Aims for four labels, never closer than one meter apart.
-    final steps = ((top - min) / 3).ceilToDouble();
+    final min = lowest.floorToDouble().clamp(0.0, double.infinity);
+    var max = highest.ceilToDouble();
+    // Keeps the range positive when every month sits on the same whole meter.
+    if (max <= min) max = min + 1;
 
-    return _AxisBounds(
-      min: min,
-      max: top,
-      interval: steps < 1 ? 1 : steps,
-    );
-  }
+    final interval = ((max - min) / _maxYLabels).ceilToDouble();
+    final step = interval < 1 ? 1.0 : interval;
+    // Lands the top of the axis on a label, so gridlines stay evenly spaced.
+    final steps = ((max - min) / step).ceilToDouble();
 
-  /// Number of records between two X labels.
-  double _bottomLabelInterval(int pointCount) {
-    if (pointCount <= _bottomLabelCount) return 1;
-    return (pointCount / _bottomLabelCount).ceilToDouble();
+    return _AxisBounds(min: min, max: min + (steps * step), interval: step);
   }
 
   Widget _buildLegend(AppLocalizations l10n) {
@@ -577,7 +726,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  point.locationName,
+                  _dateLabel(point.date),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -588,7 +737,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${_dateLabel(point.date)} — ${l10n.pilotCallSign(pilotName)}',
+                  l10n.pilotCallSign(pilotName),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: _white60, fontSize: 11),

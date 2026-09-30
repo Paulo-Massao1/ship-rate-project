@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../../controllers/nav_safety_controller.dart';
 import '../../core/constants.dart';
@@ -7,10 +8,11 @@ import '../../core/constants.dart';
 /// Loads the data behind the Premium depth trend graphs.
 ///
 /// A trend is the full depth history of a single location: every `registro`
-/// saved for it, the most recent depth and the average of the last six months.
+/// saved for it, the most recent depth, one plottable point per month and the
+/// average of those points.
 ///
 /// Location names come from [NavSafetyController.getCachedLocations], so the
-/// dropdown reuses the list the navigation-safety module already cached.
+/// selector reuses the list the navigation-safety module already cached.
 class DepthTrendService {
   // ===========================================================================
   // DEPENDENCIES
@@ -25,8 +27,9 @@ class DepthTrendService {
 
   static const Duration _queryTimeout = Duration(seconds: 15);
 
-  /// Months covered by [DepthTrendData.sixMonthAverage].
-  static const int _averageWindowMonths = 6;
+  /// Months plotted by the chart, and the window of
+  /// [DepthTrendData.sixMonthAverage].
+  static const int _monthWindow = 6;
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -58,11 +61,16 @@ class DepthTrendService {
     }
   }
 
-  /// Every depth record of [locationName], most recent first.
+  /// Every depth record of [locationName], most recent first, plus the monthly
+  /// points the chart plots.
   ///
+  /// [locale] names the language of [DepthMonthPoint.monthLabel], e.g. `pt`.
   /// Returns [DepthTrendData.empty] when the location has no record, so the
   /// caller always gets a usable object.
-  Future<DepthTrendData> getTrendData(String locationName) async {
+  Future<DepthTrendData> getTrendData(
+    String locationName, {
+    String? locale,
+  }) async {
     final points = <DepthDataPoint>[];
 
     try {
@@ -82,12 +90,14 @@ class DepthTrendService {
     if (points.isEmpty) return DepthTrendData.empty(locationName);
 
     points.sort((a, b) => b.date.compareTo(a.date));
+    final monthlyPoints = _aggregateByMonth(points, locale);
 
     return DepthTrendData(
       locationName: locationName,
       lastDepth: points.first.depth,
-      sixMonthAverage: _averageOfLastSixMonths(points),
+      sixMonthAverage: _averageOf(monthlyPoints),
       dataPoints: points,
+      monthlyPoints: monthlyPoints,
     );
   }
 
@@ -152,24 +162,52 @@ class DepthTrendService {
     }
   }
 
-  /// Average depth of the records saved in the last [_averageWindowMonths].
+  /// One point per month — the most recent record of that month — for the last
+  /// [_monthWindow] months that hold a record, oldest first.
   ///
-  /// Falls back to every record when the window holds none, so the average
-  /// line always has a value to draw.
-  double _averageOfLastSixMonths(List<DepthDataPoint> points) {
+  /// Months without a record are skipped instead of drawn as a gap, so the
+  /// chart always plots a continuous line.
+  List<DepthMonthPoint> _aggregateByMonth(
+    List<DepthDataPoint> points,
+    String? locale,
+  ) {
+    // [points] comes most recent first, so the first record met in a month is
+    // that month's most recent one.
+    final latestOfMonth = <DateTime, DepthDataPoint>{};
+    for (final point in points) {
+      final month = DateTime(point.date.year, point.date.month);
+      latestOfMonth.putIfAbsent(month, () => point);
+    }
+
+    final months = latestOfMonth.keys.toList()..sort();
+    final visible = months.length <= _monthWindow
+        ? months
+        : months.sublist(months.length - _monthWindow);
+
+    return [
+      for (final month in visible)
+        DepthMonthPoint(
+          month: month,
+          monthLabel: _monthAbbreviation(month, locale),
+          record: latestOfMonth[month]!,
+        ),
+    ];
+  }
+
+  /// Abbreviated month name of [month] in [locale], e.g. `Jan`.
+  String _monthAbbreviation(DateTime month, String? locale) {
+    final text = DateFormat.MMM(locale).format(month).replaceAll('.', '');
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  /// Average depth of the monthly points the chart plots.
+  double _averageOf(List<DepthMonthPoint> points) {
     if (points.isEmpty) return 0.0;
 
-    final now = DateTime.now();
-    final windowStart =
-        DateTime(now.year, now.month - _averageWindowMonths, now.day);
-
-    final recent =
-        points.where((point) => !point.date.isBefore(windowStart)).toList();
-    final sample = recent.isEmpty ? points : recent;
-
     final total =
-        sample.fold<double>(0.0, (value, point) => value + point.depth);
-    return total / sample.length;
+        points.fold<double>(0.0, (value, point) => value + point.depth);
+    return total / points.length;
   }
 }
 
@@ -184,17 +222,21 @@ class DepthTrendData {
   /// Depth of the most recent record, in meters.
   final double lastDepth;
 
-  /// Average depth of the last six months, in meters.
+  /// Average depth of [monthlyPoints], in meters.
   final double sixMonthAverage;
 
   /// Every record of the location, most recent first.
   final List<DepthDataPoint> dataPoints;
+
+  /// The plotted points: one per month, at most six, oldest first.
+  final List<DepthMonthPoint> monthlyPoints;
 
   const DepthTrendData({
     required this.locationName,
     required this.lastDepth,
     required this.sixMonthAverage,
     required this.dataPoints,
+    required this.monthlyPoints,
   });
 
   factory DepthTrendData.empty(String locationName) => DepthTrendData(
@@ -202,6 +244,7 @@ class DepthTrendData {
         lastDepth: 0.0,
         sixMonthAverage: 0.0,
         dataPoints: const [],
+        monthlyPoints: const [],
       );
 
   /// True when the location has no record to plot.
@@ -226,4 +269,25 @@ class DepthDataPoint {
     required this.pilotName,
     required this.locationName,
   });
+}
+
+/// One month of the trend, standing for its most recent record.
+class DepthMonthPoint {
+  /// First day of the month this point stands for.
+  final DateTime month;
+
+  /// Abbreviated month name shown on the X axis, e.g. `Jan`.
+  final String monthLabel;
+
+  /// Most recent record saved in [month].
+  final DepthDataPoint record;
+
+  const DepthMonthPoint({
+    required this.month,
+    required this.monthLabel,
+    required this.record,
+  });
+
+  /// Depth plotted for the month, in meters.
+  double get depth => record.depth;
 }
