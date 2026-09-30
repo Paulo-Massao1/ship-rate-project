@@ -1600,11 +1600,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get monthlyReport => 'Relatório mensal';
 
   @override
-  String monthlyReportSubtitle(String month) {
-    return 'Suas contribuições em $month';
-  }
-
-  @override
   String get selectMonth => 'Selecionar mês';
 
   @override

@@ -3,6 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
@@ -13,9 +14,10 @@ import 'monthly_report_pdf.dart';
 
 /// Plus screen showing what the pilot contributed during one month.
 ///
-/// The month selector offers every month since the report launched; picking one
-/// reloads the data through [MonthlyReportService]. The two buttons at the
-/// bottom render the same data as a PDF, either to save or to share.
+/// The month selector offers every month since the pilot created the account;
+/// picking one reloads the data through [MonthlyReportService]. The two buttons
+/// at the bottom render the same data as a PDF, either to save or to share, and
+/// are disabled on a month with no contributions.
 class MonthlyReportPage extends StatefulWidget {
   const MonthlyReportPage({super.key});
 
@@ -37,7 +39,8 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
 
   final MonthlyReportService _service = MonthlyReportService();
 
-  late final List<DateTime> _availableMonths;
+  /// Empty until [_loadMonths] resolves the first month of the pilot.
+  List<DateTime> _availableMonths = const [];
   late DateTime _selectedMonth;
 
   MonthlyReportData? _data;
@@ -49,14 +52,26 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   @override
   void initState() {
     super.initState();
-    _availableMonths = _service.getAvailableMonths();
-    _selectedMonth = _availableMonths.first;
-    _loadReport();
+    final now = DateTime.now();
+    _selectedMonth = DateTime(now.year, now.month);
+    _loadMonths();
   }
 
   // ===========================================================================
   // DATA
   // ===========================================================================
+
+  /// Resolves the months the pilot can pick and opens the most recent one.
+  Future<void> _loadMonths() async {
+    final months = await _service.getAvailableMonths();
+    if (!mounted) return;
+
+    setState(() {
+      _availableMonths = months;
+      if (months.isNotEmpty) _selectedMonth = months.first;
+    });
+    await _loadReport();
+  }
 
   Future<void> _loadReport() async {
     setState(() => _loading = true);
@@ -160,9 +175,13 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   // FORMATTING
   // ===========================================================================
 
-  /// Month and year in the current locale, e.g. `setembro de 2026`.
-  String _monthLabel(DateTime month) =>
-      MaterialLocalizations.of(context).formatMonthYear(month);
+  /// Month and year in the current locale, capitalised, e.g. `Setembro 2026`.
+  String _monthLabel(DateTime month) {
+    final locale = Localizations.localeOf(context).toString();
+    final label = DateFormat('MMMM yyyy', locale).format(month);
+    if (label.isEmpty) return label;
+    return label[0].toUpperCase() + label.substring(1);
+  }
 
   String _dateLabel(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');
@@ -233,7 +252,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            l10n.monthlyReportSubtitle(_monthLabel(_selectedMonth)),
+            _monthLabel(_selectedMonth),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: _white60, fontSize: 11),
@@ -360,31 +379,31 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
         _buildPilotCard(l10n, data),
         const SizedBox(height: 16),
         _buildSummaryGrid(l10n, data),
-        if (data.isEmpty)
-          _buildEmptyState(l10n)
-        else ...[
-          if (data.ratings.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(l10n.ratingsOfMonth),
-            const SizedBox(height: 10),
-            for (final rating in data.ratings) _buildRatingCard(rating),
-          ],
-          if (data.depthRecords.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(l10n.depthsRecorded),
-            const SizedBox(height: 10),
-            for (final record in data.depthRecords) _buildDepthCard(record),
-          ],
-          if (data.crossings.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildSectionHeader(l10n.crossingsReported),
-            const SizedBox(height: 10),
-            for (final crossing in data.crossings)
-              _buildCrossingCard(l10n, crossing),
-          ],
-          const SizedBox(height: 28),
-          _buildActionButtons(l10n),
+        if (data.isEmpty) _buildEmptyState(l10n),
+        // A section with nothing in it is dropped instead of showing a header
+        // above an empty list.
+        if (data.ratings.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _buildSectionHeader(l10n.ratingsOfMonth),
+          const SizedBox(height: 10),
+          for (final rating in data.ratings) _buildRatingCard(rating),
         ],
+        if (data.depthRecords.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _buildSectionHeader(l10n.depthsRecorded),
+          const SizedBox(height: 10),
+          for (final record in data.depthRecords) _buildDepthCard(record),
+        ],
+        if (data.crossings.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          _buildSectionHeader(l10n.crossingsReported),
+          const SizedBox(height: 10),
+          for (final crossing in data.crossings)
+            _buildCrossingCard(l10n, crossing),
+        ],
+        const SizedBox(height: 28),
+        // Nothing to export on a month without contributions.
+        _buildActionButtons(l10n, enabled: !data.isEmpty),
       ],
     );
   }
@@ -440,36 +459,42 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   }
 
   Widget _buildSummaryGrid(AppLocalizations l10n, MonthlyReportData data) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: _buildSummaryCard(
-            value: data.ratings.length,
-            label: l10n.ratings,
-            color: _ratingsColor,
-            background: const Color(0x1464B5F6),
+    // The three cards share the height of the tallest one. Stretching them
+    // needs IntrinsicHeight here: the report list leaves the height unbounded,
+    // and a stretch against an unbounded height fails to lay out, which used to
+    // leave the whole report blank.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildSummaryCard(
+              value: data.ratings.length,
+              label: l10n.ratings,
+              color: _ratingsColor,
+              background: const Color(0x1464B5F6),
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildSummaryCard(
-            value: data.depthRecords.length,
-            label: l10n.navSafetyModule,
-            color: _depthsColor,
-            background: const Color(0x1426A69A),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _buildSummaryCard(
+              value: data.depthRecords.length,
+              label: l10n.navSafetyModule,
+              color: _depthsColor,
+              background: const Color(0x1426A69A),
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildSummaryCard(
-            value: data.crossings.length,
-            label: l10n.totalCrossingsLabel,
-            color: _plusColor,
-            background: const Color(0x14FFB74D),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _buildSummaryCard(
+              value: data.crossings.length,
+              label: l10n.totalCrossingsLabel,
+              color: _plusColor,
+              background: const Color(0x14FFB74D),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -627,7 +652,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     );
   }
 
-  Widget _buildActionButtons(AppLocalizations l10n) {
+  Widget _buildActionButtons(AppLocalizations l10n, {required bool enabled}) {
     return Row(
       children: [
         Expanded(
@@ -635,6 +660,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
             label: l10n.downloadPdf,
             icon: Icons.download,
             filled: true,
+            enabled: enabled,
             onPressed: _downloadPdf,
           ),
         ),
@@ -644,6 +670,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
             label: l10n.share,
             icon: Icons.share,
             filled: false,
+            enabled: enabled,
             onPressed: _sharePdf,
           ),
         ),
@@ -651,27 +678,31 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     );
   }
 
+  /// A disabled button keeps its place in the layout but loses the accent
+  /// colour and the tap handler.
   Widget _buildActionButton({
     required String label,
     required IconData icon,
     required bool filled,
+    required bool enabled,
     required VoidCallback onPressed,
   }) {
-    final foreground = filled ? _darkNavy : Colors.white;
+    final foreground = enabled ? (filled ? _darkNavy : Colors.white) : _white40;
+    final background = filled && enabled ? _plusColor : Colors.transparent;
 
     return Opacity(
       opacity: _exporting ? 0.6 : 1.0,
       child: Material(
-        color: filled ? _plusColor : Colors.transparent,
+        color: background,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
-          onTap: _exporting ? null : onPressed,
+          onTap: enabled && !_exporting ? onPressed : null,
           borderRadius: BorderRadius.circular(8),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: filled ? null : Border.all(color: _white20),
+              border: filled && enabled ? null : Border.all(color: _white20),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

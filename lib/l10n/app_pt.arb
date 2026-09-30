@@ -2191,15 +2191,6 @@
   "@monthlyReport": {
     "description": "Title of the Plus monthly report page."
   },
-  "monthlyReportSubtitle": "Suas contribuições em {month}",
-  "@monthlyReportSubtitle": {
-    "description": "Subtitle of the monthly report app bar, naming the selected month.",
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
-  },
   "selectMonth": "Selecionar mês",
   "@selectMonth": {
     "description": "Hint of the month selector on the monthly report page."

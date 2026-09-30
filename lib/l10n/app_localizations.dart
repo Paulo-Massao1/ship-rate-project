@@ -3035,12 +3035,6 @@ abstract class AppLocalizations {
   /// **'Relatório mensal'**
   String get monthlyReport;
 
-  /// Subtitle of the monthly report app bar, naming the selected month.
-  ///
-  /// In pt, this message translates to:
-  /// **'Suas contribuições em {month}'**
-  String monthlyReportSubtitle(String month);
-
   /// Hint of the month selector on the monthly report page.
   ///
   /// In pt, this message translates to:

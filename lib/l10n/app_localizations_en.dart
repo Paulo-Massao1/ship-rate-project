@@ -1600,11 +1600,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthlyReport => 'Monthly report';
 
   @override
-  String monthlyReportSubtitle(String month) {
-    return 'Your contributions in $month';
-  }
-
-  @override
   String get selectMonth => 'Select month';
 
   @override

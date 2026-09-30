@@ -37,8 +37,8 @@ class MonthlyReportService {
   /// same way the crossing module does.
   static const Duration _brasiliaOffset = Duration(hours: 3);
 
-  /// First month the report can cover. Everything before it has no data.
-  static final DateTime launchMonth = DateTime(2025, 12);
+  /// Month the range falls back to when the account creation date is unknown.
+  static final DateTime fallbackFirstMonth = DateTime(2025, 12);
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -77,15 +77,24 @@ class MonthlyReportService {
     ]);
 
     final rankings = results[3] as _ReportRankings;
+    final ratings = results[0] as List<MonthlyRating>;
+    final depthRecords = results[1] as List<MonthlyDepthRecord>;
+    final crossings = results[2] as List<MonthlyCrossing>;
+
+    debugPrint(
+      '[MonthlyReport] ${monthStart.year}-${monthStart.month}: '
+      '${ratings.length} ratings, ${depthRecords.length} depths, '
+      '${crossings.length} crossings',
+    );
 
     return MonthlyReportData(
       month: monthStart,
       pilotName: profile.callSign ?? '',
       pilotEmail: profile.email,
       subscriptionPlan: profile.subscriptionPlan,
-      ratings: results[0] as List<MonthlyRating>,
-      depthRecords: results[1] as List<MonthlyDepthRecord>,
-      crossings: results[2] as List<MonthlyCrossing>,
+      ratings: ratings,
+      depthRecords: depthRecords,
+      crossings: crossings,
       ratingRanking: rankings.ratingRanking,
       depthRanking: rankings.depthRanking,
       crossingRanking: rankings.crossingRanking,
@@ -95,26 +104,57 @@ class MonthlyReportService {
 
   /// Months the report can be generated for, most recent first.
   ///
-  /// Goes from [launchMonth] up to the current month. Never returns an empty
-  /// list: before the launch month only the current month is offered.
-  List<DateTime> getAvailableMonths() {
+  /// Every pilot starts on a different month: the range goes from the month the
+  /// account was created up to the current month. Never returns an empty list,
+  /// the current month is always offered.
+  Future<List<DateTime>> getAvailableMonths() async {
     final now = DateTime.now();
     final currentMonth = DateTime(now.year, now.month);
 
+    final firstMonth = await _fetchAccountCreationMonth();
+    // A creation date in the future would hide every month, so it is clamped.
+    var cursor = firstMonth.isAfter(currentMonth) ? currentMonth : firstMonth;
+
     final months = <DateTime>[];
-    var cursor = DateTime(launchMonth.year, launchMonth.month);
     while (!cursor.isAfter(currentMonth)) {
       months.add(cursor);
       cursor = DateTime(cursor.year, cursor.month + 1);
     }
 
-    if (months.isEmpty) return [currentMonth];
     return months.reversed.toList();
   }
 
   // ===========================================================================
   // PRIVATE METHODS - PILOT PROFILE
   // ===========================================================================
+
+  /// Month the pilot created the account, [fallbackFirstMonth] when unknown.
+  ///
+  /// `usuarios/{uid}.createdAt` is written on sign up; accounts created before
+  /// that field existed fall back to the Firebase Auth metadata, which keeps
+  /// the same date.
+  Future<DateTime> _fetchAccountCreationMonth() async {
+    final user = _auth.currentUser;
+    if (user == null) return fallbackFirstMonth;
+
+    try {
+      final snapshot = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(user.uid)
+          .get()
+          .timeout(_queryTimeout);
+
+      final createdAt = snapshot.data()?['createdAt'];
+      if (createdAt is Timestamp) return _monthOf(createdAt.toDate());
+    } catch (e) {
+      debugPrint('[MonthlyReport] Error fetching account creation date: $e');
+    }
+
+    final creationTime = user.metadata.creationTime;
+    if (creationTime != null) return _monthOf(creationTime);
+
+    return fallbackFirstMonth;
+  }
 
   /// Reads call sign, email and subscription plan from `usuarios/{uid}`.
   ///
@@ -444,7 +484,8 @@ class MonthlyReportService {
   /// the pilot is not ranked (no contributions, or a dev account).
   Future<_ReportRankings> _fetchRankings() async {
     try {
-      final data = await _dashboardController.loadDashboardData();
+      final data =
+          await _dashboardController.loadDashboardData().timeout(_queryTimeout);
       return _ReportRankings(
         ratingRanking: data.userRankingPosition,
         depthRanking: data.userDepthRanking,
@@ -463,6 +504,8 @@ class MonthlyReportService {
 
   bool _isInRange(DateTime date, DateTime start, DateTime end) =>
       !date.isBefore(start) && date.isBefore(end);
+
+  DateTime _monthOf(DateTime date) => DateTime(date.year, date.month);
 }
 
 // =============================================================================
