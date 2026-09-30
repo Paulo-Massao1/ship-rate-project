@@ -124,6 +124,10 @@
   "@drawerMyRatings": {
     "description": "Localized text for drawer my ratings."
   },
+  "drawerMonthlyReport": "Relatório Mensal",
+  "@drawerMonthlyReport": {
+    "description": "Localized text for the drawer entry opening the monthly report."
+  },
   "drawerSendSuggestion": "Enviar Sugestão",
   "@drawerSendSuggestion": {
     "description": "Localized text for drawer send suggestion."

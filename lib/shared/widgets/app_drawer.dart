@@ -9,6 +9,7 @@ import '../../app/auth_gate.dart';
 import '../../controllers/crossing_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../controllers/rating_controller.dart';
+import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
 import '../../features/crossing/crossing_page.dart';
@@ -16,6 +17,7 @@ import '../../features/home/main_screen_page.dart';
 import '../../features/nav_info/nav_info_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
 import '../../features/settings/settings_page.dart';
+import '../../features/subscription/monthly_report_page.dart';
 import '../../features/subscription/subscription_page.dart';
 
 enum AppScreen { home, shipRating, navSafety, crossing, navInfo }
@@ -87,8 +89,9 @@ class AppDrawer extends StatelessWidget {
                       const Spacer(),
                       const _DrawerDivider(),
                       const _SupportShipRateItem(),
+                      const _MonthlyReportItem(),
                       // The bottom items keep their own top border, which also
-                      // closes the support item block.
+                      // closes the support block above.
                       Container(
                         decoration: const BoxDecoration(
                           border: Border(
@@ -536,6 +539,96 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Drawer entry opening the monthly report, hidden from free users.
+///
+/// The report is a Plus feature, so the item only shows up for Plus / Premium
+/// subscribers and for the dev accounts listed in
+/// [AppConstants.devBypassUids]. It keeps the [DrawerItem] shape of the bottom
+/// items and tints it amber to mark it as a paid feature.
+class _MonthlyReportItem extends StatefulWidget {
+  const _MonthlyReportItem();
+
+  @override
+  State<_MonthlyReportItem> createState() => _MonthlyReportItemState();
+}
+
+class _MonthlyReportItemState extends State<_MonthlyReportItem> {
+  static const _plusColor = Color(0xFFFFB74D);
+
+  StreamSubscription<CustomerInfo>? _customerInfoSubscription;
+  bool _hasAccess = false;
+
+  /// True for the dev accounts listed in [AppConstants.devBypassUids], which
+  /// reach every gated feature without owning a plan.
+  bool get _hasDevBypass {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null && AppConstants.devBypassUids.contains(uid);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Dev accounts see the item without any plan check.
+    if (_hasDevBypass) {
+      _hasAccess = true;
+      return;
+    }
+
+    _hasAccess = _hasActivePlan(SubscriptionService.lastCustomerInfo);
+    _customerInfoSubscription =
+        SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
+    _refreshAccess();
+  }
+
+  @override
+  void dispose() {
+    _customerInfoSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// True when [customerInfo] grants any subscription plan. Plus and Premium
+  /// both unlock the report, Premium simply includes more on top.
+  bool _hasActivePlan(CustomerInfo? customerInfo) {
+    if (customerInfo == null) return false;
+    return SubscriptionService.activePlan(customerInfo) !=
+        SubscriptionConstants.planNone;
+  }
+
+  Future<void> _refreshAccess() async {
+    final hasAccess = await SubscriptionService.isAnySubscriber();
+    if (!mounted || hasAccess == _hasAccess) return;
+    setState(() => _hasAccess = hasAccess);
+  }
+
+  void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
+    final hasAccess = _hasActivePlan(customerInfo);
+    if (!mounted || hasAccess == _hasAccess) return;
+    setState(() => _hasAccess = hasAccess);
+  }
+
+  void _openMonthlyReport() {
+    final navigator = Navigator.of(context);
+    navigator.pop();
+    navigator.push(
+      MaterialPageRoute(builder: (_) => const MonthlyReportPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_hasAccess) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context)!;
+
+    return DrawerItem(
+      icon: Icons.description,
+      label: l10n.drawerMonthlyReport,
+      color: _plusColor,
+      onTap: _openMonthlyReport,
     );
   }
 }

@@ -1,15 +1,11 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
 import '../../data/services/subscription_service.dart';
-import 'depth_trends_page.dart';
-import 'monthly_report_page.dart';
 
 /// Subscription page offering the two ShipRate Pro plans.
 ///
@@ -41,13 +37,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   String? _purchasingPlan;
   bool _restoring = false;
   bool _loading = true;
-
-  /// True for the dev accounts listed in [AppConstants.devBypassUids], which
-  /// reach every gated feature without owning a plan.
-  bool get _hasDevBypass {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    return uid != null && AppConstants.devBypassUids.contains(uid);
-  }
 
   @override
   void initState() {
@@ -172,20 +161,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     );
   }
 
-  void _openMonthlyReport() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const MonthlyReportPage()),
-    );
-  }
-
-  void _openDepthTrends() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const DepthTrendsPage()),
-    );
-  }
-
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -230,20 +205,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 _buildHeaderIcon(),
                 const SizedBox(height: 16),
                 _buildDescription(l10n),
-                // Subscribers reach their monthly report from here, and so do
-                // the dev accounts.
-                if (_hasDevBypass ||
-                    _activePlan != SubscriptionConstants.planNone) ...[
-                  const SizedBox(height: 22),
-                  _buildMonthlyReportEntry(l10n),
-                ],
-                // The depth charts are part of Premium only, plus the dev
-                // accounts.
-                if (_hasDevBypass ||
-                    _activePlan == SubscriptionConstants.planPremium) ...[
-                  const SizedBox(height: 10),
-                  _buildDepthTrendsEntry(l10n),
-                ],
                 const SizedBox(height: 28),
                 _buildPremiumCard(l10n),
                 const SizedBox(height: 16),
@@ -347,100 +308,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       l10n.subscriptionDescription,
       textAlign: TextAlign.center,
       style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 13),
-    );
-  }
-
-  /// Shortcut to the Plus monthly report, shown to subscribers and to the
-  /// dev accounts.
-  Widget _buildMonthlyReportEntry(AppLocalizations l10n) {
-    return _buildFeatureShortcut(
-      icon: Icons.description,
-      color: _plusColor,
-      title: l10n.monthlyReport,
-      subtitle: l10n.plusFeature1,
-      onTap: _openMonthlyReport,
-    );
-  }
-
-  /// Shortcut to the Premium depth charts, shown to Premium subscribers and
-  /// to the dev accounts.
-  Widget _buildDepthTrendsEntry(AppLocalizations l10n) {
-    return _buildFeatureShortcut(
-      icon: Icons.show_chart,
-      color: _premiumColor,
-      title: l10n.depthTrends,
-      subtitle: l10n.premiumFeature2,
-      onTap: _openDepthTrends,
-    );
-  }
-
-  /// Row opening a feature the user already paid for, tinted with [color].
-  Widget _buildFeatureShortcut({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: color.withValues(alpha: 0.06),
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: color.withValues(alpha: 0.15),
-              width: 0.5,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Color(0x99FFFFFF),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: color.withValues(alpha: 0.4),
-                size: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

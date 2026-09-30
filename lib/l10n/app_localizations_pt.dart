@@ -102,6 +102,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get drawerMyRatings => 'Minhas Avaliações';
 
   @override
+  String get drawerMonthlyReport => 'Relatório Mensal';
+
+  @override
   String get drawerSendSuggestion => 'Enviar Sugestão';
 
   @override

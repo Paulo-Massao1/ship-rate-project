@@ -102,6 +102,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get drawerMyRatings => 'My Ratings';
 
   @override
+  String get drawerMonthlyReport => 'Monthly Report';
+
+  @override
   String get drawerSendSuggestion => 'Send Suggestion';
 
   @override

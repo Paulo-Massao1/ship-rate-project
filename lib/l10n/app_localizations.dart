@@ -281,6 +281,12 @@ abstract class AppLocalizations {
   /// **'Minhas Avaliações'**
   String get drawerMyRatings;
 
+  /// Localized text for the drawer entry opening the monthly report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatório Mensal'**
+  String get drawerMonthlyReport;
+
   /// Localized text for drawer send suggestion.
   ///
   /// In pt, this message translates to:
