@@ -2166,7 +2166,20 @@
   },
   "selectMonth": "Select month",
   "@selectMonth": {
-    "description": "Hint of the month selector on the monthly report page."
+    "description": "Title of the month selector sheet on the monthly report page."
+  },
+  "inProgress": "In progress",
+  "@inProgress": {
+    "description": "Note next to the current month in the month selector sheet, the month is not over yet."
+  },
+  "monthRecords": "{count} records",
+  "@monthRecords": {
+    "description": "Contributions of a month, shown under its name in the month selector sheet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "ratingsOfMonth": "Ratings of the month",
   "@ratingsOfMonth": {

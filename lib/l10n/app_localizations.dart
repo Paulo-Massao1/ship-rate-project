@@ -3035,11 +3035,23 @@ abstract class AppLocalizations {
   /// **'Relatório mensal'**
   String get monthlyReport;
 
-  /// Hint of the month selector on the monthly report page.
+  /// Title of the month selector sheet on the monthly report page.
   ///
   /// In pt, this message translates to:
   /// **'Selecionar mês'**
   String get selectMonth;
+
+  /// Note next to the current month in the month selector sheet, the month is not over yet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em andamento'**
+  String get inProgress;
+
+  /// Contributions of a month, shown under its name in the month selector sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} registros'**
+  String monthRecords(int count);
 
   /// Header of the ratings section of the monthly report.
   ///

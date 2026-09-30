@@ -28,6 +28,7 @@ class MonthlyReportPage extends StatefulWidget {
 class _MonthlyReportPageState extends State<MonthlyReportPage> {
   // Palette of the dark navy screens.
   static const _darkNavy = Color(0xFF0A1628);
+  static const _deepNavy = Color(0xFF0D2137);
   static const _plusColor = Color(0xFFFFB74D);
   static const _ratingsColor = Color(0xFF64B5F6);
   static const _depthsColor = Color(0xFF26A69A);
@@ -43,6 +44,18 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   List<DateTime> _availableMonths = const [];
   late DateTime _selectedMonth;
 
+  /// Month the app is in: the only one still collecting contributions.
+  late final DateTime _currentMonth;
+
+  /// Contributions of each month, filled in as the reports are generated.
+  ///
+  /// A total is `ratings + depths + crossings` of the month, and is only known
+  /// once the report of that month has been built: there is no cheap query for
+  /// it, and building every month up front would rescan the ratings of every
+  /// ship once per month. So the sheet shows the total of the months already
+  /// opened and only the name of the others.
+  final Map<DateTime, int> _monthTotals = {};
+
   MonthlyReportData? _data;
   bool _loading = true;
 
@@ -53,7 +66,8 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _selectedMonth = DateTime(now.year, now.month);
+    _currentMonth = DateTime(now.year, now.month);
+    _selectedMonth = _currentMonth;
     _loadMonths();
   }
 
@@ -76,17 +90,22 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   Future<void> _loadReport() async {
     setState(() => _loading = true);
 
-    final data = await _service.generateReport(_selectedMonth);
+    final month = _selectedMonth;
+    final data = await _service.generateReport(month);
     if (!mounted) return;
 
     setState(() {
       _data = data;
+      // Remembered for the month sheet, which has no other way of knowing it.
+      _monthTotals[month] = data.ratings.length +
+          data.depthRecords.length +
+          data.crossings.length;
       _loading = false;
     });
   }
 
-  void _onMonthSelected(DateTime? month) {
-    if (month == null || month == _selectedMonth || _loading) return;
+  void _onMonthSelected(DateTime month) {
+    if (month == _selectedMonth || _loading) return;
 
     setState(() => _selectedMonth = month);
     _loadReport();
@@ -223,7 +242,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_darkNavy, Color(0xFF0D2137)],
+            colors: [_darkNavy, _deepNavy],
           ),
         ),
         // Plus unlocks the report, Premium includes Plus.
@@ -269,7 +288,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [_darkNavy, Color(0xFF1A3A5C), Color(0xFF0D2137)],
+            colors: [_darkNavy, Color(0xFF1A3A5C), _deepNavy],
             stops: [0.0, 0.5, 1.0],
           ),
         ),
@@ -305,9 +324,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
             _buildMonthSelector(l10n),
             Expanded(
               child: _loading || _data == null
-                  ? const Center(
-                      child: CircularProgressIndicator(color: _plusColor),
-                    )
+                  ? _buildLoading()
                   : _buildReport(l10n, _data!),
             ),
           ],
@@ -316,55 +333,196 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     );
   }
 
+  /// Shown while the report of a month is being built, so switching months
+  /// never leaves the screen blank.
+  Widget _buildLoading() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(color: _plusColor),
+          const SizedBox(height: 14),
+          Text(
+            _monthLabel(_selectedMonth),
+            style: const TextStyle(color: _white60, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ===========================================================================
   // MONTH SELECTOR
   // ===========================================================================
 
+  /// Field that opens the month sheet, reading out the month in use.
   Widget _buildMonthSelector(AppLocalizations l10n) {
+    final enabled = !_loading && _availableMonths.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: _white04,
+      child: Material(
+        color: _white04,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: _white20, width: 0.5),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_month, color: _plusColor, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<DateTime>(
-                  value: _selectedMonth,
-                  isExpanded: true,
-                  dropdownColor: const Color(0xFF0D2137),
-                  borderRadius: BorderRadius.circular(8),
-                  icon: const Icon(Icons.expand_more, color: _white60),
-                  hint: Text(
-                    l10n.selectMonth,
-                    style: const TextStyle(color: _white60, fontSize: 13),
-                  ),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  items: [
-                    for (final month in _availableMonths)
-                      DropdownMenuItem<DateTime>(
-                        value: month,
-                        child: Text(_monthLabel(month)),
-                      ),
-                  ],
-                  onChanged: _loading ? null : _onMonthSelected,
-                ),
-              ),
+          onTap: enabled ? () => _openMonthSheet(l10n) : null,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _white20, width: 0.5),
             ),
-          ],
+            child: Row(
+              children: [
+                const Icon(Icons.calendar_month, color: _plusColor, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _monthLabel(_selectedMonth),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: _white60,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  /// Opens the month list as a bottom sheet, most recent month first.
+  ///
+  /// A sheet always slides up from the bottom of the screen, while a dropdown
+  /// menu opens over the selector and hides the month it is offering to
+  /// replace. Tapping outside it or dragging it down closes it unchanged.
+  Future<void> _openMonthSheet(AppLocalizations l10n) async {
+    final picked = await showModalBottomSheet<DateTime>(
+      context: context,
+      backgroundColor: _deepNavy,
+      // A long list of months needs more than the default half of the screen.
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              // Drag handle.
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: _white20,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                l10n.selectMonth,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Divider(height: 1, thickness: 0.5, color: _white20),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  children: [
+                    for (final month in _availableMonths)
+                      _buildMonthTile(sheetContext, l10n, month),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (picked != null) _onMonthSelected(picked);
+  }
+
+  /// One row of the month sheet: the month, how much it holds, and the note
+  /// that the current month is not over yet.
+  Widget _buildMonthTile(
+    BuildContext sheetContext,
+    AppLocalizations l10n,
+    DateTime month,
+  ) {
+    final isSelected = month == _selectedMonth;
+    final total = _monthTotals[month];
+
+    return ListTile(
+      dense: true,
+      tileColor: isSelected ? _white04 : null,
+      leading: Icon(
+        Icons.calendar_today_outlined,
+        size: 18,
+        color: isSelected ? _depthsColor : _white60,
+      ),
+      title: Row(
+        children: [
+          Flexible(
+            child: Text(
+              _monthLabel(month),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isSelected ? _depthsColor : Colors.white,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+              ),
+            ),
+          ),
+          if (month == _currentMonth) ...[
+            const SizedBox(width: 6),
+            Text(
+              '(${l10n.inProgress})',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: _white40, fontSize: 11),
+            ),
+          ],
+        ],
+      ),
+      // The total is only known for the months already opened. A month with no
+      // contributions stays selectable, it just reads greyer.
+      subtitle: total == null
+          ? null
+          : Text(
+              l10n.monthRecords(total),
+              style: TextStyle(
+                color: total == 0 ? _white40 : _white60,
+                fontSize: 11,
+              ),
+            ),
+      trailing: isSelected
+          ? const Icon(Icons.check, color: _depthsColor, size: 18)
+          : null,
+      onTap: () => Navigator.pop(sheetContext, month),
     );
   }
 

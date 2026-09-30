@@ -1603,6 +1603,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectMonth => 'Select month';
 
   @override
+  String get inProgress => 'In progress';
+
+  @override
+  String monthRecords(int count) {
+    return '$count records';
+  }
+
+  @override
   String get ratingsOfMonth => 'Ratings of the month';
 
   @override
