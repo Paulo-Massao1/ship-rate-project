@@ -705,59 +705,74 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             onTap: _navigateToNewRecord,
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.place_outlined,
-                  label: l10n.locations,
-                  isActive: _showLocationsDropdown,
-                  onTap: _toggleLocationsDropdown,
-                ),
+          // The row carries the height floor and IntrinsicHeight plus a
+          // stretched cross axis keeps both of its cards on that same height,
+          // growing together when a label needs a second line.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: _tabCardHeight),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildTabCard(
+                      icon: Icons.place_outlined,
+                      label: l10n.locations,
+                      isActive: _showLocationsDropdown,
+                      onTap: _toggleLocationsDropdown,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Entry point to the Premium depth trend charts.
+                  //
+                  // Shown to every pilot: DepthTrendsPage carries its own
+                  // subscription gate, so a non subscriber lands on the soft
+                  // paywall instead of the chart.
+                  Expanded(
+                    child: _buildTabCard(
+                      icon: Icons.show_chart,
+                      label: l10n.depthTrends,
+                      isActive: false,
+                      isPremium: true,
+                      badge: _buildPremiumBadge(l10n),
+                      onTap: _navigateToDepthTrends,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              // Entry point to the Premium depth trend charts.
-              //
-              // Shown to every pilot: DepthTrendsPage carries its own
-              // subscription gate, so a non subscriber lands on the soft
-              // paywall instead of the chart.
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.show_chart,
-                  label: l10n.depthTrends,
-                  isActive: false,
-                  isPremium: true,
-                  badge: _buildPremiumBadge(l10n),
-                  onTap: _navigateToDepthTrends,
-                ),
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.waves,
-                  label: l10n.latestDepths,
-                  isActive: _controller.selectedLocationId == null &&
-                      !_showLocationsDropdown,
-                  onTap: () {
-                    setState(() => _showLocationsDropdown = false);
-                    _controller.clearSelection();
-                  },
-                ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: _tabCardHeight),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildTabCard(
+                      icon: Icons.waves,
+                      label: l10n.latestDepths,
+                      isActive: _controller.selectedLocationId == null &&
+                          !_showLocationsDropdown,
+                      onTap: () {
+                        setState(() => _showLocationsDropdown = false);
+                        _controller.clearSelection();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildTabCard(
+                      icon: Icons.assignment_turned_in_outlined,
+                      label: l10n.myRecords,
+                      isActive: false,
+                      onTap: _navigateToMyRecords,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTabCard(
-                  icon: Icons.assignment_turned_in_outlined,
-                  label: l10n.myRecords,
-                  isActive: false,
-                  onTap: _navigateToMyRecords,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -809,8 +824,10 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          height: _tabCardHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          // Minimum rather than fixed height: the two line label stacked over
+          // the premium badge overflowed the fixed 60px box by a few pixels.
+          constraints: const BoxConstraints(minHeight: _tabCardHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(

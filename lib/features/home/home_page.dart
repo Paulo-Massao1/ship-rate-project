@@ -840,9 +840,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _buildPilotsBadge(data.totalUsers, l10n),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            // Breathing room between the four stats so the numbers do not
+            // read as a single block.
+            spacing: 10,
             children: [
               _buildStatItem(
                 value: data.totalDepthRecords.toString(),
@@ -918,7 +921,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   /// One column of the stats grid: a tinted number over a label that opens
-  /// the matching ranking or list. The label scales down on narrow screens.
+  /// the matching ranking or list.
+  ///
+  /// Number and label share the same center axis, so the four items line up.
+  /// The trailing chevron used to sit inside the label row, which pushed the
+  /// label left of its number; the whole item is tappable instead. Both lines
+  /// scale down on narrow screens.
   Widget _buildStatItem({
     required String value,
     required String label,
@@ -929,39 +937,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: valueColor,
-              ),
-            ),
-            const SizedBox(height: 2),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 11,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: valueColor,
                   ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    Icons.chevron_right,
-                    size: 14,
+                ),
+              ),
+              const SizedBox(height: 3),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.4),
+                    fontSize: 11,
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
