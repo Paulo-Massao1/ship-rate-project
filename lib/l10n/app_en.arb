@@ -2095,7 +2095,7 @@
   "@plusFeature1": {
     "description": "First feature listed in the Plus plan card."
   },
-  "plusFeature2": "Access to Maneuvers module",
+  "plusFeature2": "Access to maneuver information",
   "@plusFeature2": {
     "description": "Second feature listed in the Plus plan card."
   },
@@ -2274,6 +2274,18 @@
   "maneuversDesc": "Maneuver info and reports",
   "@maneuversDesc": {
     "description": "Subtitle of the maneuvers module card on the home page."
+  },
+  "newBadge": "NEW",
+  "@newBadge": {
+    "description": "Badge marking a newly released module."
+  },
+  "onBoardPilotsModule": "Pilots on Board",
+  "@onBoardPilotsModule": {
+    "description": "Title of the upcoming on-board pilots module."
+  },
+  "onBoardPilotsDesc": "See who is on board",
+  "@onBoardPilotsDesc": {
+    "description": "Subtitle of the upcoming on-board pilots module."
   },
   "comingSoonBadge": "COMING SOON",
   "@comingSoonBadge": {

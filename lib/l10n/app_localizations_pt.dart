@@ -1550,7 +1550,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get plusFeature1 => 'Relatório mensal em PDF com suas contribuições';
 
   @override
-  String get plusFeature2 => 'Acesso ao módulo Manobras';
+  String get plusFeature2 => 'Acesso a informações de manobras';
 
   @override
   String get subscribePremium => 'Assinar Premium';
@@ -1676,6 +1676,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get maneuversDesc => 'Informações e relatos de manobra';
+
+  @override
+  String get newBadge => 'NOVO';
+
+  @override
+  String get onBoardPilotsModule => 'Práticos Embarcados';
+
+  @override
+  String get onBoardPilotsDesc => 'Veja quem está embarcado';
 
   @override
   String get comingSoonBadge => 'EM BREVE';

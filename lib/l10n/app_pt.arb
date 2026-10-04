@@ -2122,7 +2122,7 @@
   "@plusFeature1": {
     "description": "First feature listed in the Plus plan card."
   },
-  "plusFeature2": "Acesso ao módulo Manobras",
+  "plusFeature2": "Acesso a informações de manobras",
   "@plusFeature2": {
     "description": "Second feature listed in the Plus plan card."
   },
@@ -2301,6 +2301,18 @@
   "maneuversDesc": "Informações e relatos de manobra",
   "@maneuversDesc": {
     "description": "Subtitle of the maneuvers module card on the home page."
+  },
+  "newBadge": "NOVO",
+  "@newBadge": {
+    "description": "Badge marking a newly released module."
+  },
+  "onBoardPilotsModule": "Práticos Embarcados",
+  "@onBoardPilotsModule": {
+    "description": "Title of the upcoming on-board pilots module."
+  },
+  "onBoardPilotsDesc": "Veja quem está embarcado",
+  "@onBoardPilotsDesc": {
+    "description": "Subtitle of the upcoming on-board pilots module."
   },
   "comingSoonBadge": "EM BREVE",
   "@comingSoonBadge": {

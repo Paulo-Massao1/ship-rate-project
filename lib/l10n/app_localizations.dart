@@ -3179,6 +3179,24 @@ abstract class AppLocalizations {
   /// **'Informações e relatos de manobra'**
   String get maneuversDesc;
 
+  /// Badge marking a newly released module.
+  ///
+  /// In pt, this message translates to:
+  /// **'NOVO'**
+  String get newBadge;
+
+  /// Title of the upcoming on-board pilots module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Práticos Embarcados'**
+  String get onBoardPilotsModule;
+
+  /// Subtitle of the upcoming on-board pilots module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Veja quem está embarcado'**
+  String get onBoardPilotsDesc;
+
   /// Badge marking a module that has not been released yet.
   ///
   /// In pt, this message translates to:

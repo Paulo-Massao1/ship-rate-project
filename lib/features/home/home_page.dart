@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../crossing/crossing_page.dart';
+import '../maneuvers/maneuvers_page.dart';
 import '../ratings/last_rated_page.dart';
 import '../suggestions/suggestion_page.dart';
 import 'main_screen_page.dart';
@@ -632,6 +633,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
+  void _navigateToManeuvers() {
+    if (_restrictedToCoreModules) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ManeuversPage()),
+    );
+  }
+
   void _navigateToLastRated() {
     Navigator.push(
       context,
@@ -712,67 +722,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 24),
                         _buildWelcomeText(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 18),
                         _buildStatsSection(),
-                        const SizedBox(height: 24),
-                        _buildModuleCard(
-                          icon: Icons.directions_boat,
-                          iconBgColor: const Color(0x1F64B5F6),
-                          iconBorderColor: const Color(0x3364B5F6),
-                          iconColor: const Color(0xFF64B5F6),
-                          borderColor: const Color(0x1A64B5F6),
-                          title: AppLocalizations.of(context)!.shipRatingModule,
-                          subtitle:
-                              AppLocalizations.of(context)!.shipRatingDesc,
-                          onTap: _navigateToShipRating,
-                        ),
-                        if (!_restrictedToCoreModules) ...[
-                          const SizedBox(height: 16),
-                          _buildModuleCard(
-                            icon: Icons.anchor,
-                            iconBgColor: const Color(0x1F26A69A),
-                            iconBorderColor: const Color(0x4026A69A),
-                            iconColor: const Color(0xFF26A69A),
-                            borderColor: const Color(0x3326A69A),
-                            title:
-                                AppLocalizations.of(context)!.navSafetyModule,
-                            subtitle:
-                                AppLocalizations.of(context)!.navSafetyDesc,
-                            onTap: _navigateToNavSafety,
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        _buildModuleCard(
-                          icon: Icons.compare_arrows,
-                          iconBgColor: const Color(0x1FFFB74D),
-                          iconBorderColor: const Color(0x40FFB74D),
-                          iconColor: const Color(0xFFFFB74D),
-                          borderColor: const Color(0x33FFB74D),
-                          title: AppLocalizations.of(context)!.cruzamentoModule,
-                          subtitle: AppLocalizations.of(context)!.cruzamentoDesc,
-                          onTap: _navigateToCrossing,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildComingSoonModuleCard(
-                          icon: Icons.anchor,
-                          title: AppLocalizations.of(context)!.maneuversModule,
-                          subtitle: AppLocalizations.of(context)!.maneuversDesc,
-                        ),
-                        if (!_restrictedToCoreModules) ...[
-                          const SizedBox(height: 16),
-                          _buildModuleCard(
-                            icon: Icons.explore,
-                            iconBgColor: const Color(0x1FB388FF),
-                            iconBorderColor: const Color(0x26B388FF),
-                            iconColor: const Color(0xFFB388FF),
-                            borderColor: const Color(0x26B388FF),
-                            title: AppLocalizations.of(context)!.navInfoModule,
-                            subtitle: AppLocalizations.of(context)!.navInfoDesc,
-                            onTap: _navigateToNavInfo,
-                          ),
-                        ],
+                        const SizedBox(height: 18),
+                        _buildModulesGrid(AppLocalizations.of(context)!),
                       ],
                     ),
                   ),
@@ -901,7 +856,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   /// Pilot total shown as a badge on the right of the stats header.
   Widget _buildPilotsBadge(int totalPilots, AppLocalizations l10n) {
-    const accent = Color(0xFF64B5F6);
+    const accent = Color(0xFFFFB74D);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -909,12 +864,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         color: accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        '$totalPilots ${l10n.activePilotsLabel}',
-        style: const TextStyle(
-          color: accent,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$totalPilots',
+              style: const TextStyle(
+                color: accent,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            TextSpan(
+              text: ' ${l10n.activePilotsLabel}',
+              style: TextStyle(
+                color: accent.withValues(alpha: 0.75),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -957,13 +926,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               const SizedBox(height: 3),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: 11,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.45),
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(width: 1),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.white.withValues(alpha: 0.35),
+                      size: 13,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1321,6 +1301,88 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildModulesGrid(AppLocalizations l10n) {
+    const spacing = 10.0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = (constraints.maxWidth - spacing) / 2;
+        final cards = <Widget>[
+          _buildModuleCard(
+            icon: Icons.directions_boat,
+            iconBgColor: const Color(0x1F64B5F6),
+            iconBorderColor: const Color(0x3364B5F6),
+            iconColor: const Color(0xFF64B5F6),
+            borderColor: const Color(0x1A64B5F6),
+            title: l10n.shipRatingModule,
+            subtitle: l10n.shipRatingDesc,
+            onTap: _navigateToShipRating,
+          ),
+          if (!_restrictedToCoreModules)
+            _buildModuleCard(
+              icon: Icons.anchor,
+              iconBgColor: const Color(0x1F26A69A),
+              iconBorderColor: const Color(0x4026A69A),
+              iconColor: const Color(0xFF26A69A),
+              borderColor: const Color(0x3326A69A),
+              title: l10n.navSafetyModule,
+              subtitle: l10n.navSafetyDesc,
+              onTap: _navigateToNavSafety,
+            ),
+          _buildModuleCard(
+            icon: Icons.compare_arrows,
+            iconBgColor: const Color(0x1FFFB74D),
+            iconBorderColor: const Color(0x40FFB74D),
+            iconColor: const Color(0xFFFFB74D),
+            borderColor: const Color(0x33FFB74D),
+            title: l10n.cruzamentoModule,
+            subtitle: l10n.cruzamentoDesc,
+            onTap: _navigateToCrossing,
+          ),
+          if (!_restrictedToCoreModules)
+            _buildModuleCard(
+              icon: Icons.anchor,
+              iconBgColor: const Color(0x1FFFB74D),
+              iconBorderColor: const Color(0x40FFB74D),
+              iconColor: const Color(0xFFFFB74D),
+              borderColor: const Color(0x33FFB74D),
+              title: l10n.maneuversModule,
+              subtitle: l10n.maneuversDesc,
+              badge: l10n.newBadge,
+              badgeColor: const Color(0xFFFFB74D),
+              onTap: _navigateToManeuvers,
+            ),
+          if (!_restrictedToCoreModules)
+            _buildModuleCard(
+              icon: Icons.explore,
+              iconBgColor: const Color(0x1FB388FF),
+              iconBorderColor: const Color(0x26B388FF),
+              iconColor: const Color(0xFFB388FF),
+              borderColor: const Color(0x26B388FF),
+              title: l10n.navInfoModule,
+              subtitle: l10n.navInfoDesc,
+              onTap: _navigateToNavInfo,
+            ),
+          if (!_restrictedToCoreModules)
+            _buildComingSoonModuleCard(
+              icon: Icons.groups_outlined,
+              title: l10n.onBoardPilotsModule,
+              subtitle: l10n.onBoardPilotsDesc,
+            ),
+        ];
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final card in cards)
+              SizedBox(width: cardWidth, child: card),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildModuleCard({
     required IconData icon,
     required Color iconBgColor,
@@ -1330,61 +1392,90 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    String? badge,
+    Color? badgeColor,
   }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         splashColor: borderColor,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
+          height: 108,
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0x0DFFFFFF),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: borderColor),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: iconBorderColor),
-                ),
-                child: Icon(icon, color: iconColor, size: 26),
-              ),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                      ),
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: iconBgColor,
+                      borderRadius: BorderRadius.circular(9),
+                      border: Border.all(color: iconBorderColor),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Color(0x66FFFFFF),
-                        fontSize: 12,
+                    child: Icon(icon, color: iconColor, size: 18),
+                  ),
+                  const Spacer(),
+                  if (badge != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: (badgeColor ?? iconColor).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        badge,
+                        style: TextStyle(
+                          color: badgeColor ?? iconColor,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
                       ),
                     ),
                   ],
+                  const SizedBox(width: 3),
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.white.withValues(alpha: 0.3),
+                    size: 19,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 7),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  height: 1.1,
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.white.withValues(alpha: 0.3),
-                size: 24,
+              const Spacer(),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0x73FFFFFF),
+                  fontSize: 10,
+                ),
               ),
             ],
           ),
@@ -1393,83 +1484,80 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  /// Module card for a feature that is announced but not released yet: same
-  /// layout as [_buildModuleCard], without a tap target or a chevron.
+  /// Compact module card for a feature that has not been released yet.
   Widget _buildComingSoonModuleCard({
     required IconData icon,
     required String title,
     required String subtitle,
   }) {
-    const accent = Color(0xFFFFB74D);
+    const accent = Color(0x99FFFFFF);
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
+      height: 108,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accent.withValues(alpha: 0.15)),
+        color: Colors.white.withValues(alpha: 0.02),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: accent, size: 26),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        l10n.comingSoonBadge,
-                        style: const TextStyle(
-                          color: accent,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                  ],
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
+                child: Icon(icon, color: accent, size: 18),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 5,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  l10n.comingSoonBadge,
                   style: const TextStyle(
-                    color: Color(0x66FFFFFF),
-                    fontSize: 12,
+                    color: accent,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.4,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 7),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0xCCFFFFFF),
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              height: 1.1,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Color(0x66FFFFFF),
+              fontSize: 10,
             ),
           ),
         ],
@@ -1489,11 +1577,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           const SizedBox(width: 8),
           const Text(
-            'SHIPRATE',
+            'ShipRate Pro',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.white,
-              letterSpacing: 1.5,
+              letterSpacing: 0.6,
             ),
           ),
         ],

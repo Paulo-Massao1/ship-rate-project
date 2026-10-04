@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 import 'package:ship_rate/core/module_access.dart';
 import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:ship_rate/shared/widgets/pinch_zoom_pdf_preview.dart';
 
 class OperationalRestrictionsPage extends StatefulWidget {
   const OperationalRestrictionsPage({super.key});
@@ -125,22 +126,9 @@ class _OperationalRestrictionsPageState
 
             final bytes = snapshot.data!;
 
-            return PdfPreview(
-              build: (_) async => bytes,
-              allowPrinting: false,
-              allowSharing: false,
-              canChangeOrientation: false,
-              canChangePageFormat: false,
-              canDebug: false,
-              useActions: false,
-              pdfFileName: _fileName,
-              loadingWidget: const Center(
-                child: CircularProgressIndicator(color: Color(0xFFFFB74D)),
-              ),
-              actionBarTheme: const PdfActionBarTheme(
-                backgroundColor: Color(0xFF0A1628),
-                iconColor: Colors.white,
-              ),
+            return PinchZoomPdfPreview(
+              bytes: bytes,
+              fileName: _fileName,
             );
           },
         ),

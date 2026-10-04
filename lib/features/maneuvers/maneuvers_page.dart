@@ -3,13 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-import '../../core/subscription_constants.dart';
-import '../../shared/widgets/subscription_gate.dart';
-
-/// Placeholder for the Maneuvers module, gated behind the Plus plan.
+/// Placeholder for the Maneuvers module.
 ///
-/// The module itself is not implemented yet: the gate is already wired, so the
-/// real content only has to replace [_buildPlaceholder].
+/// The module shell is available to every eligible pilot. Individual terminal
+/// sections that require Plus will own their subscription gate when the real
+/// content replaces [_buildPlaceholder].
 class ManeuversPage extends StatelessWidget {
   const ManeuversPage({super.key});
 
@@ -27,12 +25,7 @@ class ManeuversPage extends StatelessWidget {
             colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
           ),
         ),
-        // Plus already unlocks the module, Premium includes Plus.
-        child: SubscriptionGate(
-          requiredPlan: SubscriptionConstants.planPlus,
-          featureDescription: l10n.plusFeature2,
-          child: _buildPlaceholder(l10n),
-        ),
+        child: _buildPlaceholder(l10n),
       ),
     );
   }
