@@ -75,12 +75,18 @@ class ManeuverReportService {
 
   Stream<List<ManeuverReportRecord>> watchReports({
     required String portCode,
+    required String terminalId,
     required String terminalName,
   }) {
     return _firestore
         .collection('manobras_relatos')
         .where('portCode', isEqualTo: portCode.trim().toUpperCase())
-        .where('terminalName', isEqualTo: terminalName)
+        .where(
+          Filter.or(
+            Filter('terminalId', isEqualTo: terminalId),
+            Filter('terminalName', isEqualTo: terminalName),
+          ),
+        )
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(

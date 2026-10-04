@@ -87,6 +87,29 @@
         }
       ],
       "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "manobras_relatos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "portCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "terminalId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
     }
   ],
   "fieldOverrides": []

@@ -141,6 +141,7 @@ service cloud.firestore {
                'pilotId',
                'portName',
                'portCode',
+               'terminalId',
                'terminalName',
                'ship',
                'approach',
@@ -154,6 +155,7 @@ service cloud.firestore {
                'pilotName',
                'portName',
                'portCode',
+               'terminalId',
                'terminalName',
                'ship',
                'approach',
@@ -161,7 +163,7 @@ service cloud.firestore {
                'createdAt',
                'updatedAt'
              ])
-             && data.schemaVersion == 1
+             && data.schemaVersion == 2
              && data.pilotId is string
              && (!('pilotName' in data)
                  || (data.pilotName is string && data.pilotName.size() <= 80))
@@ -169,12 +171,22 @@ service cloud.firestore {
              && data.portName.size() >= 1
              && data.portName.size() <= 80
              && data.portCode in ['SAN', 'STM', 'JAR', 'JUR', 'PTR', 'ITA']
+             && data.terminalId is string
+             && data.terminalId.size() >= 1
+             && data.terminalId.size() <= 80
              && data.terminalName is string
              && data.terminalName.size() >= 1
              && data.terminalName.size() <= 80
              && isValidManeuverShip(data.ship)
              && isValidManeuverApproach(data.approach)
              && isValidManeuverMooring(data.mooring);
+    }
+
+    function isReleasedManeuverTerminal(data) {
+      return data.portCode == 'STM'
+             && data.portName == 'Santarém'
+             && data.terminalId == 'stm_cargill'
+             && data.terminalName == 'Cargill';
     }
 
     match /usuarios/{uid} {
@@ -290,14 +302,18 @@ service cloud.firestore {
                     && request.resource.data.pilotId == request.auth.uid
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.updatedAt == request.time
+                    && isReleasedManeuverTerminal(request.resource.data)
                     && isValidManeuverReport(request.resource.data);
       allow update: if isSignedIn()
                     && resource.data.pilotId == request.auth.uid
                     && request.resource.data.pilotId == resource.data.pilotId
                     && request.resource.data.portCode == resource.data.portCode
                     && request.resource.data.portName == resource.data.portName
+                    && request.resource.data.terminalId
+                       == resource.data.terminalId
                     && request.resource.data.terminalName
                        == resource.data.terminalName
+                    && isReleasedManeuverTerminal(request.resource.data)
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.updatedAt == request.time
                     && isValidManeuverReport(request.resource.data);

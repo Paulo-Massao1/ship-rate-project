@@ -48,6 +48,7 @@ class ManeuverReportRecord {
     required this.pilotId,
     required this.portName,
     required this.portCode,
+    required this.terminalId,
     required this.terminalName,
     required this.createdAt,
     this.pilotName,
@@ -76,6 +77,7 @@ class ManeuverReportRecord {
   final String? pilotName;
   final String portName;
   final String portCode;
+  final String terminalId;
   final String terminalName;
   final DateTime? createdAt;
   final String? shipName;
@@ -136,6 +138,7 @@ class ManeuverReportRecord {
       pilotName: _asOptionalString(data['pilotName']),
       portName: (data['portName'] ?? '').toString(),
       portCode: (data['portCode'] ?? '').toString(),
+      terminalId: (data['terminalId'] ?? '').toString(),
       terminalName: (data['terminalName'] ?? '').toString(),
       createdAt: createdAt is Timestamp ? createdAt.toDate() : null,
       shipName: _asOptionalString(ship['name']),
@@ -205,6 +208,7 @@ class ManeuverReportDraft {
   const ManeuverReportDraft({
     required this.portName,
     required this.portCode,
+    required this.terminalId,
     required this.terminalName,
     this.shipId,
     this.shipName,
@@ -229,6 +233,7 @@ class ManeuverReportDraft {
 
   final String portName;
   final String portCode;
+  final String terminalId;
   final String terminalName;
   final String? shipId;
   final String? shipName;
@@ -255,11 +260,12 @@ class ManeuverReportDraft {
     String? pilotName,
   }) {
     return {
-      'schemaVersion': 1,
+      'schemaVersion': 2,
       'pilotId': pilotId,
       if (pilotName != null && pilotName.isNotEmpty) 'pilotName': pilotName,
       'portName': portName,
       'portCode': portCode,
+      'terminalId': terminalId,
       'terminalName': terminalName,
       'ship': _withoutNulls({
         'id': shipId,

@@ -58,6 +58,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                       builder: (_) => ManeuverReportPage(
                         portName: port.name,
                         portCode: port.code,
+                        terminalId: terminal.id,
                         terminalName: terminal.name,
                       ),
                     ),
@@ -75,6 +76,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                       builder: (_) => ManeuverHistoryPage(
                         portName: port.name,
                         portCode: port.code,
+                        terminalId: terminal.id,
                         terminalName: terminal.name,
                       ),
                     ),

@@ -11,11 +11,13 @@ class ManeuverHistoryPage extends StatefulWidget {
     super.key,
     required this.portName,
     required this.portCode,
+    required this.terminalId,
     required this.terminalName,
   });
 
   final String portName;
   final String portCode;
+  final String terminalId;
   final String terminalName;
 
   @override
@@ -37,6 +39,7 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
     _service = ManeuverReportService();
     _reportsStream = _service.watchReports(
       portCode: widget.portCode,
+      terminalId: widget.terminalId,
       terminalName: widget.terminalName,
     );
   }

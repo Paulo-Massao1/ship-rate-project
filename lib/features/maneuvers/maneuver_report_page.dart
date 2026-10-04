@@ -12,11 +12,13 @@ class ManeuverReportPage extends StatefulWidget {
     super.key,
     required this.portName,
     required this.portCode,
+    required this.terminalId,
     required this.terminalName,
   });
 
   final String portName;
   final String portCode;
+  final String terminalId;
   final String terminalName;
 
   @override
@@ -917,6 +919,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     final draft = ManeuverReportDraft(
       portName: widget.portName,
       portCode: widget.portCode,
+      terminalId: widget.terminalId,
       terminalName: widget.terminalName,
       shipId: _selectedShipId,
       shipName: _trimmedOrNull(_shipNameController.text)?.toUpperCase(),
