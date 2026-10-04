@@ -40,18 +40,26 @@ class PinchZoomPdfPreview extends StatelessWidget {
       loadingWidget: Center(
         child: CircularProgressIndicator(color: loadingColor),
       ),
-      pagesBuilder: (_, pages) => _PdfPagesViewer(
-        pages: pages,
-        zoomOutTooltip: zoomOutTooltip,
-        resetZoomTooltip: resetZoomTooltip,
-        zoomInTooltip: zoomInTooltip,
-      ),
+      pagesBuilder: (_, pages) {
+        // `printing` may append rendered pages to the same mutable list. Keep
+        // an immutable snapshot and recreate the viewer when its length
+        // changes so page images and zoom controllers always share indexes.
+        final pageSnapshot = List<PdfPreviewPageData>.unmodifiable(pages);
+        return _PdfPagesViewer(
+          key: ValueKey(pageSnapshot.length),
+          pages: pageSnapshot,
+          zoomOutTooltip: zoomOutTooltip,
+          resetZoomTooltip: resetZoomTooltip,
+          zoomInTooltip: zoomInTooltip,
+        );
+      },
     );
   }
 }
 
 class _PdfPagesViewer extends StatefulWidget {
   const _PdfPagesViewer({
+    super.key,
     required this.pages,
     required this.zoomOutTooltip,
     required this.resetZoomTooltip,

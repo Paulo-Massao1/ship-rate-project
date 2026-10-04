@@ -1782,10 +1782,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverHistoryDesc => 'Review reports submitted for this terminal.';
 
   @override
-  String get initialManeuverInfo => 'Initial information';
+  String get initialManeuverInfo => 'Maneuver information';
 
   @override
-  String get initialManeuverInfoDesc => 'Terminal preparation guidance and information.';
+  String get initialManeuverInfoDesc => 'Operational information for maneuver preparation.';
 
   @override
   String get maneuverReportComingSoon => 'The complete maneuver report form will be available soon.';
@@ -2042,7 +2042,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverAftShort => 'AFT';
 
   @override
-  String get maneuverPortLimits => 'Port/maneuver limits';
+  String get maneuverPortLimits => 'Port/Maneuver Limits';
+
+  @override
+  String get maneuverNoScheduleLimitation => 'No limitation';
+
+  @override
+  String get maneuverMaximumLengthShort => 'Max. length';
+
+  @override
+  String get maneuverMaximumWindShort => 'Max. wind';
+
+  @override
+  String get maneuverMinimumVisibilityShort => 'Min. visibility';
+
+  @override
+  String get maneuverMaximumDwtShort => 'Max. DWT';
+
+  @override
+  String get maneuverBerthingSide => 'Berthing side';
+
+  @override
+  String get maneuverInitialDetails => 'Initial Information';
+
+  @override
+  String get maneuverChannel => 'Maneuver channel';
+
+  @override
+  String get maneuverLaunch => 'Pilot boat';
+
+  @override
+  String get maneuverSimultaneousLines => 'Simultaneous lines';
+
+  @override
+  String get maneuverQuayAlignment => 'Quay alignment';
+
+  @override
+  String get maneuverQuayLength => 'Quay length';
+
+  @override
+  String get maneuverLines => 'Mooring lines';
+
+  @override
+  String get maneuverFinalPosition => 'Final Position';
+
+  @override
+  String get maneuverToDefine => 'To be defined';
+
+  @override
+  String get maneuverMedia => 'Media';
+
+  @override
+  String get maneuverNightVideos => 'Night Videos';
+
+  @override
+  String get maneuverDayVideos => 'Day Videos';
+
+  @override
+  String get maneuverMediaUnavailable => 'Media is not yet available for this terminal.';
 
   @override
   String get maneuverSchedule => 'Schedule';

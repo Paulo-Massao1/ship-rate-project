@@ -2419,11 +2419,11 @@
   "@maneuverHistoryDesc": {
     "description": "Description of the maneuver history area."
   },
-  "initialManeuverInfo": "Initial information",
+  "initialManeuverInfo": "Maneuver information",
   "@initialManeuverInfo": {
     "description": "Title of the Plus maneuver preparation information area."
   },
-  "initialManeuverInfoDesc": "Terminal preparation guidance and information.",
+  "initialManeuverInfoDesc": "Operational information for maneuver preparation.",
   "@initialManeuverInfoDesc": {
     "description": "Description of the initial maneuver information area."
   },
@@ -2768,9 +2768,85 @@
   "@maneuverAftShort": {
     "description": "Short aft position label."
   },
-  "maneuverPortLimits": "Port/maneuver limits",
+  "maneuverPortLimits": "Port/Maneuver Limits",
   "@maneuverPortLimits": {
     "description": "Title of the terminal operational limits section."
+  },
+  "maneuverNoScheduleLimitation": "No limitation",
+  "@maneuverNoScheduleLimitation": {
+    "description": "Value indicating that the maneuver has no schedule limitation."
+  },
+  "maneuverMaximumLengthShort": "Max. length",
+  "@maneuverMaximumLengthShort": {
+    "description": "Compact maximum length label."
+  },
+  "maneuverMaximumWindShort": "Max. wind",
+  "@maneuverMaximumWindShort": {
+    "description": "Compact maximum wind label."
+  },
+  "maneuverMinimumVisibilityShort": "Min. visibility",
+  "@maneuverMinimumVisibilityShort": {
+    "description": "Compact minimum visibility label."
+  },
+  "maneuverMaximumDwtShort": "Max. DWT",
+  "@maneuverMaximumDwtShort": {
+    "description": "Compact maximum deadweight label."
+  },
+  "maneuverBerthingSide": "Berthing side",
+  "@maneuverBerthingSide": {
+    "description": "Berthing side information label."
+  },
+  "maneuverInitialDetails": "Initial Information",
+  "@maneuverInitialDetails": {
+    "description": "Title of the initial operational details accordion."
+  },
+  "maneuverChannel": "Maneuver channel",
+  "@maneuverChannel": {
+    "description": "Maneuver radio channel label."
+  },
+  "maneuverLaunch": "Pilot boat",
+  "@maneuverLaunch": {
+    "description": "Pilot boat arrangement label."
+  },
+  "maneuverSimultaneousLines": "Simultaneous lines",
+  "@maneuverSimultaneousLines": {
+    "description": "Simultaneous mooring lines label."
+  },
+  "maneuverQuayAlignment": "Quay alignment",
+  "@maneuverQuayAlignment": {
+    "description": "Quay alignment label."
+  },
+  "maneuverQuayLength": "Quay length",
+  "@maneuverQuayLength": {
+    "description": "Quay length label."
+  },
+  "maneuverLines": "Mooring lines",
+  "@maneuverLines": {
+    "description": "Mooring lines subsection label."
+  },
+  "maneuverFinalPosition": "Final Position",
+  "@maneuverFinalPosition": {
+    "description": "Final mooring position subsection label."
+  },
+  "maneuverToDefine": "To be defined",
+  "@maneuverToDefine": {
+    "description": "Value used when operational information is still to be defined."
+  },
+  "maneuverMedia": "Media",
+  "@maneuverMedia": {
+    "description": "Terminal maneuver media subsection label."
+  },
+  "maneuverNightVideos": "Night Videos",
+  "@maneuverNightVideos": {
+    "description": "Night maneuver videos button label."
+  },
+  "maneuverDayVideos": "Day Videos",
+  "@maneuverDayVideos": {
+    "description": "Day maneuver videos button label."
+  },
+  "maneuverMediaUnavailable": "Media is not yet available for this terminal.",
+  "@maneuverMediaUnavailable": {
+    "description": "Message shown when terminal maneuver media has not been provided."
   },
   "maneuverSchedule": "Schedule",
   "@maneuverSchedule": {

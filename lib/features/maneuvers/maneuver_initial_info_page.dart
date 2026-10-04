@@ -18,7 +18,6 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   final ManeuverTerminalDefinition terminal;
 
   static const _amber = Color(0xFFFFB74D);
-  static const _teal = Color(0xFF26A69A);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _muted = Color(0x99FFFFFF);
@@ -36,6 +35,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
         centerTitle: true,
         foregroundColor: Colors.white,
         backgroundColor: _bgDark,
+        elevation: 0,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -62,66 +62,46 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(18, 14, 18, 28),
+          padding: const EdgeInsets.fromLTRB(13, 8, 13, 24),
           children: [
-            _buildHeader(l10n),
-            const SizedBox(height: 16),
             _InfoAccordion(
               title: l10n.maneuverPortLimits,
-              initiallyExpanded: true,
               children: [
                 _InfoRow(
                   label: l10n.maneuverSchedule,
                   value: info.scheduleRestriction?.resolve(locale) ??
-                      l10n.maneuverNoRestrictions,
+                      l10n.maneuverNoScheduleLimitation,
                 ),
                 _InfoRow(
-                  label: l10n.maneuverMaximumLength,
+                  label: l10n.maneuverMaximumLengthShort,
                   value: '${_formatNumber(info.maximumLengthMeters, locale)} m',
                 ),
                 _InfoRow(
-                  label: l10n.maneuverBeamRestriction,
-                  value: info.beamRestriction?.resolve(locale) ??
-                      l10n.maneuverNoRestriction,
-                ),
-                _InfoRow(
-                  label: l10n.maneuverPierLength,
-                  value: '${_formatNumber(info.pierLengthMeters, locale)} m',
-                ),
-                _InfoRow(
-                  label: l10n.maneuverMaximumDwt,
-                  value: '${_formatInteger(info.maximumDwtTons, locale)} t',
-                ),
-                _InfoRow(
-                  label: l10n.maneuverAirDraft,
-                  value: '${_formatNumber(info.airDraftMeters, locale)} m',
-                  detail: info.airDraftDetail.resolve(locale),
-                ),
-                _InfoRow(
-                  label: l10n.maneuverMaximumWind,
+                  label: l10n.maneuverMaximumWindShort,
                   value:
                       '${_formatNumber(info.maximumWindKnots, locale)} ${l10n.maneuverKnotsShort}',
                 ),
                 _InfoRow(
-                  label: l10n.maneuverMinimumVisibility,
+                  label: l10n.maneuverMinimumVisibilityShort,
                   value: '${info.minimumVisibilityMeters} m',
                 ),
                 _InfoRow(
-                  label: l10n.maneuverCrossing,
-                  value: info.crossingRestriction?.resolve(locale) ??
-                      l10n.maneuverNoRestriction,
+                  label: l10n.maneuverMaximumDwtShort,
+                  value: '${_formatInteger(info.maximumDwtTons, locale)} t',
                 ),
-                const SizedBox(height: 12),
-                _buildDraftTables(context, l10n, info),
+                _InfoRow(
+                  label: l10n.maneuverBerthingSide,
+                  value: info.berthingSide.resolve(locale),
+                  showDivider: false,
+                ),
               ],
             ),
             const SizedBox(height: 8),
             _InfoAccordion(
-              title: l10n.initialManeuverInfo,
-              initiallyExpanded: true,
+              title: l10n.maneuverInitialDetails,
               children: [
                 _InfoRow(
-                  label: l10n.maneuverVhfChannel,
+                  label: l10n.maneuverChannel,
                   value: '${info.vhfChannel}',
                 ),
                 _InfoRow(
@@ -134,171 +114,100 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   onTap: () => _showTugInformation(context, l10n, info),
                 ),
                 _InfoRow(
-                  label: l10n.maneuverNavigation,
-                  value: info.navigation.resolve(locale),
+                  label: l10n.maneuverLaunch,
+                  value: info.launchArrangement.resolve(locale),
+                ),
+                _InfoRow(
+                  label: l10n.maneuverSimultaneousLines,
+                  value: '${info.simultaneousLines}',
+                ),
+                _InfoRow(
+                  label: l10n.maneuverQuayAlignment,
+                  value: '${info.quayAlignmentDegrees}°',
+                ),
+                _InfoRow(
+                  label: l10n.maneuverQuayLength,
+                  value: '${_formatNumber(info.pierLengthMeters, locale)} m',
+                  showDivider: false,
                 ),
               ],
             ),
             const SizedBox(height: 8),
             _InfoAccordion(
               title: l10n.maneuverMooring,
-              initiallyExpanded: true,
               children: [
-                Text(
-                  l10n.maneuverMooringReferenceNote,
-                  style: const TextStyle(
-                    color: _muted,
-                    fontSize: 11,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                _InfoSubheading(l10n.maneuverLines),
                 for (final mooring in info.mooring)
                   _InfoRow(
                     label: mooring.vesselClass,
-                    value: _formatMooring(mooring, locale),
+                    value: mooring.lineGroups.join(' × '),
                   ),
+                const SizedBox(height: 7),
+                _InfoSubheading(l10n.maneuverFinalPosition),
+                for (var index = 0; index < info.mooring.length; index++)
+                  _InfoRow(
+                    label: info.mooring[index].vesselClass,
+                    value: info.mooring[index].finalPosition?.resolve(locale) ??
+                        l10n.maneuverToDefine,
+                    valueColor: const Color(0x6664B5F6),
+                    showDivider: index < info.mooring.length - 1,
+                  ),
+                const SizedBox(height: 8),
+                _InfoSubheading(l10n.maneuverMedia),
+                const SizedBox(height: 7),
+                Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: [
+                    _mediaButton(
+                      context,
+                      l10n,
+                      Icons.videocam_outlined,
+                      l10n.maneuverNightVideos,
+                    ),
+                    _mediaButton(
+                      context,
+                      l10n,
+                      Icons.videocam_outlined,
+                      l10n.maneuverDayVideos,
+                    ),
+                    _mediaButton(
+                      context,
+                      l10n,
+                      Icons.photo_camera_outlined,
+                      l10n.photos,
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 10),
-            _buildDisclaimer(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _teal.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _teal.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _teal.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.anchor, color: _teal, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  terminal.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '${port.name} (${port.code})',
-                  style: const TextStyle(
-                    color: _amber,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l10n.maneuverOperationalParametersSource,
-                  style: const TextStyle(
-                    color: _teal,
-                    fontSize: 9,
-                    height: 1.25,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDraftTables(
+  Widget _mediaButton(
     BuildContext context,
     AppLocalizations l10n,
-    ManeuverOperationalInfo info,
+    IconData icon,
+    String label,
   ) {
-    final locale = Localizations.localeOf(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.maneuverMaximumDrafts,
-          style: const TextStyle(
-            color: _amber,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        for (var index = 0; index < info.draftTables.length; index++) ...[
-          if (index > 0) const SizedBox(height: 10),
-          _DraftTable(
-            title: info.draftTables[index].cargoType ==
-                    ManeuverCargoType.general
-                ? l10n.maneuverGeneralCargo
-                : l10n.maneuverDangerousCargo,
-            dryFacultative:
-                _formatDraftLimit(info.draftTables[index].dryOptional, locale),
-            floodFacultative: _formatDraftLimit(
-              info.draftTables[index].floodOptional,
-              locale,
-            ),
-            dryMandatory:
-                _formatDraftLimit(info.draftTables[index].dryMandatory, locale),
-            floodMandatory: _formatDraftLimit(
-              info.draftTables[index].floodMandatory,
-              locale,
-            ),
-          ),
-        ],
-        const SizedBox(height: 8),
-        Text(
-          info.draftFootnote.resolve(locale),
-          style: const TextStyle(
-            color: Color(0x80FFFFFF),
-            fontSize: 10,
-            height: 1.4,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDisclaimer(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _amber.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _amber.withValues(alpha: 0.18)),
+    return OutlinedButton.icon(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.maneuverMediaUnavailable)),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0x2EFFFFFF)),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        visualDensity: VisualDensity.compact,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: _amber, size: 18),
-          const SizedBox(width: 9),
-          Expanded(
-            child: Text(
-              l10n.maneuverOperationalDisclaimer,
-              style: const TextStyle(color: _muted, fontSize: 11, height: 1.4),
-            ),
-          ),
-        ],
-      ),
+      icon: Icon(icon, color: _muted, size: 13),
+      label: Text(label, style: const TextStyle(fontSize: 9)),
     );
   }
 
@@ -315,49 +224,34 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: _bgMid,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (_) => SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0x33FFFFFF),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
                 l10n.maneuverOfficialTugInfo,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 info.tugRequirementDetail.resolve(locale),
-                style: const TextStyle(color: _muted, fontSize: 12, height: 1.45),
+                style: const TextStyle(color: _muted, fontSize: 11),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               ...tugs.map((tug) => _buildTugTile(context, tug, l10n)),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               Text(
                 info.tugMinimumNote.resolve(locale),
-                style: const TextStyle(
-                  color: Color(0xB3FFB74D),
-                  fontSize: 11,
-                  height: 1.4,
-                ),
+                style: const TextStyle(color: _amber, fontSize: 10),
               ),
             ],
           ),
@@ -377,71 +271,41 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       ManeuverTugType.unspecified => l10n.maneuverTugTypeUnspecified,
     };
     final rawBp = tug.bollardPull?.toStringAsFixed(2);
-    var bp = '—';
-    if (rawBp != null) {
-      bp = Localizations.localeOf(context).languageCode == 'pt'
-          ? rawBp.replaceAll('.', ',')
-          : rawBp;
-    }
+    final bp = rawBp == null
+        ? '—'
+        : Localizations.localeOf(context).languageCode == 'pt'
+            ? rawBp.replaceAll('.', ',')
+            : rawBp;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(11),
+      margin: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
         color: const Color(0x0AFFFFFF),
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(7),
         border: Border.all(color: const Color(0x1FFFFFFF)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.directions_boat, color: _amber, size: 19),
-          const SizedBox(width: 10),
           Expanded(
             child: Text(
               tug.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 11),
             ),
           ),
           Text(
             'BP $bp · $type',
-            style: const TextStyle(color: _muted, fontSize: 10),
+            style: const TextStyle(color: _muted, fontSize: 9),
           ),
         ],
       ),
     );
   }
 
-  String _formatDraftLimit(ManeuverDraftLimit limit, Locale locale) {
-    final minimum = limit.minimum;
-    if (minimum == null) return '—';
-
-    final first = _formatNumber(minimum, locale, fractionDigits: 2);
-    final maximum = limit.maximum;
-    if (maximum == null) return '$first m';
-
-    final last = _formatNumber(maximum, locale, fractionDigits: 2);
-    return '$first–$last m';
-  }
-
-  String _formatMooring(
-    ManeuverMooringDefinition mooring,
-    Locale locale,
-  ) {
-    final prefix = locale.languageCode == 'pt' ? 'normalmente' : 'normally';
-    return '$prefix ${mooring.lineGroups.join(' × ')}';
-  }
-
-  String _formatNumber(
-    double value,
-    Locale locale, {
-    int? fractionDigits,
-  }) {
-    final digits = fractionDigits ?? (value == value.roundToDouble() ? 0 : 2);
-    final formatted = value.toStringAsFixed(digits);
+  String _formatNumber(double value, Locale locale) {
+    final formatted = value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toStringAsFixed(2);
     return locale.languageCode == 'pt'
         ? formatted.replaceAll('.', ',')
         : formatted;
@@ -462,34 +326,22 @@ class ManeuverInitialInfoPage extends StatelessWidget {
 }
 
 class _InfoAccordion extends StatefulWidget {
-  const _InfoAccordion({
-    required this.title,
-    required this.children,
-    this.initiallyExpanded = false,
-  });
+  const _InfoAccordion({required this.title, required this.children});
 
   final String title;
   final List<Widget> children;
-  final bool initiallyExpanded;
 
   @override
   State<_InfoAccordion> createState() => _InfoAccordionState();
 }
 
 class _InfoAccordionState extends State<_InfoAccordion> {
-  late bool _expanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _expanded = widget.initiallyExpanded;
-  }
+  bool _expanded = true;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x08000000),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0x1FFFFFFF)),
       ),
@@ -501,10 +353,8 @@ class _InfoAccordionState extends State<_InfoAccordion> {
             child: InkWell(
               onTap: () => setState(() => _expanded = !_expanded),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 10,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
                 child: Row(
                   children: [
                     AnimatedRotation(
@@ -513,7 +363,7 @@ class _InfoAccordionState extends State<_InfoAccordion> {
                       child: const Icon(
                         Icons.arrow_drop_down,
                         color: Color(0xFFFFB74D),
-                        size: 18,
+                        size: 17,
                       ),
                     ),
                     const SizedBox(width: 3),
@@ -534,10 +384,9 @@ class _InfoAccordionState extends State<_InfoAccordion> {
           ),
           AnimatedSize(
             duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOut,
             child: _expanded
                 ? Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 2, 12, 10),
+                    padding: const EdgeInsets.fromLTRB(12, 1, 12, 9),
                     child: Column(children: widget.children),
                   )
                 : const SizedBox(width: double.infinity),
@@ -548,80 +397,78 @@ class _InfoAccordionState extends State<_InfoAccordion> {
   }
 }
 
+class _InfoSubheading extends StatelessWidget {
+  const _InfoSubheading(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 7, bottom: 1),
+        child: Text(
+          text,
+          style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 9),
+        ),
+      ),
+    );
+  }
+}
+
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
     required this.label,
     required this.value,
-    this.detail,
     this.valueColor,
     this.trailingIcon,
     this.onTap,
+    this.showDivider = true,
   });
 
   final String label;
   final String value;
-  final String? detail;
   final Color? valueColor;
   final IconData? trailingIcon;
   final VoidCallback? onTap;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
     final content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: Color(0x99FFFFFF),
-                fontSize: 10,
-                height: 1.3,
-              ),
+              style: const TextStyle(color: Color(0x9964B5F6), fontSize: 9),
             ),
           ),
           const SizedBox(width: 12),
           Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        value,
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                          color: valueColor ?? const Color(0xE6FFFFFF),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                    if (trailingIcon != null) ...[
-                      const SizedBox(width: 5),
-                      Icon(
-                        trailingIcon,
-                        color: valueColor ?? const Color(0x99FFFFFF),
-                        size: 14,
-                      ),
-                    ],
-                  ],
-                ),
-                if (detail != null) ...[
-                  const SizedBox(height: 3),
-                  Text(
-                    detail!,
+                Flexible(
+                  child: Text(
+                    value,
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: Color(0x66FFFFFF),
-                      fontSize: 8,
-                      height: 1.3,
+                    style: TextStyle(
+                      color: valueColor ?? Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
                     ),
+                  ),
+                ),
+                if (trailingIcon != null) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    trailingIcon,
+                    color: valueColor ?? const Color(0xFFFFB74D),
+                    size: 13,
                   ),
                 ],
               ],
@@ -632,99 +479,12 @@ class _InfoRow extends StatelessWidget {
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0x12FFFFFF))),
-      ),
-      child: onTap == null
-          ? content
-          : InkWell(onTap: onTap, child: content),
-    );
-  }
-}
-
-class _DraftTable extends StatelessWidget {
-  const _DraftTable({
-    required this.title,
-    required this.dryFacultative,
-    required this.floodFacultative,
-    required this.dryMandatory,
-    required this.floodMandatory,
-  });
-
-  final String title;
-  final String dryFacultative;
-  final String floodFacultative;
-  final String dryMandatory;
-  final String floodMandatory;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0x1FFFFFFF)),
-        borderRadius: BorderRadius.circular(7),
+        border: showDivider
+            ? const Border(bottom: BorderSide(color: Color(0x12FFFFFF)))
+            : null,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            color: const Color(0x12FFB74D),
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Color(0xFFFFB74D),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          _tableRow(
-            ['', l10n.maneuverDrySeason, l10n.maneuverFloodSeason],
-            header: true,
-          ),
-          _tableRow([
-            l10n.maneuverPilotageOptional,
-            dryFacultative,
-            floodFacultative,
-          ]),
-          _tableRow([
-            l10n.maneuverPilotageMandatory,
-            dryMandatory,
-            floodMandatory,
-          ]),
-        ],
-      ),
-    );
-  }
-
-  Widget _tableRow(List<String> values, {bool header = false}) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0x14FFFFFF))),
-      ),
-      child: Row(
-        children: values.map((value) {
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: Text(
-                value,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: header
-                      ? const Color(0x99FFFFFF)
-                      : const Color(0xD9FFFFFF),
-                  fontSize: header ? 8 : 9,
-                  fontWeight: header ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ),
-          );
-        }).toList(growable: false),
-      ),
+      child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }
 }

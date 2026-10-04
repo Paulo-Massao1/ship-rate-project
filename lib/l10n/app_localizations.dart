@@ -3386,13 +3386,13 @@ abstract class AppLocalizations {
   /// Title of the Plus maneuver preparation information area.
   ///
   /// In pt, this message translates to:
-  /// **'Informações iniciais'**
+  /// **'Informações de manobra'**
   String get initialManeuverInfo;
 
   /// Description of the initial maneuver information area.
   ///
   /// In pt, this message translates to:
-  /// **'Orientações e informações de preparação do terminal.'**
+  /// **'Informações operacionais para preparação da manobra.'**
   String get initialManeuverInfoDesc;
 
   /// Temporary message shown before the maneuver form is implemented.
@@ -3902,8 +3902,122 @@ abstract class AppLocalizations {
   /// Title of the terminal operational limits section.
   ///
   /// In pt, this message translates to:
-  /// **'Limites do porto/manobra'**
+  /// **'Limites do Porto/Manobra'**
   String get maneuverPortLimits;
+
+  /// Value indicating that the maneuver has no schedule limitation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem limitação'**
+  String get maneuverNoScheduleLimitation;
+
+  /// Compact maximum length label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comprimento máx.'**
+  String get maneuverMaximumLengthShort;
+
+  /// Compact maximum wind label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vento máx.'**
+  String get maneuverMaximumWindShort;
+
+  /// Compact minimum visibility label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Visibilidade mín.'**
+  String get maneuverMinimumVisibilityShort;
+
+  /// Compact maximum deadweight label.
+  ///
+  /// In pt, this message translates to:
+  /// **'DWT máx.'**
+  String get maneuverMaximumDwtShort;
+
+  /// Berthing side information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bordo de atracação'**
+  String get maneuverBerthingSide;
+
+  /// Title of the initial operational details accordion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações Iniciais'**
+  String get maneuverInitialDetails;
+
+  /// Maneuver radio channel label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Canal de manobra'**
+  String get maneuverChannel;
+
+  /// Pilot boat arrangement label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lancha'**
+  String get maneuverLaunch;
+
+  /// Simultaneous mooring lines label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cabos simultâneos'**
+  String get maneuverSimultaneousLines;
+
+  /// Quay alignment label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alinhamento do cais'**
+  String get maneuverQuayAlignment;
+
+  /// Quay length label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comprimento do cais'**
+  String get maneuverQuayLength;
+
+  /// Mooring lines subsection label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Espias'**
+  String get maneuverLines;
+
+  /// Final mooring position subsection label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Posição Final'**
+  String get maneuverFinalPosition;
+
+  /// Value used when operational information is still to be defined.
+  ///
+  /// In pt, this message translates to:
+  /// **'A definir'**
+  String get maneuverToDefine;
+
+  /// Terminal maneuver media subsection label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mídia'**
+  String get maneuverMedia;
+
+  /// Night maneuver videos button label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vídeos Noturnos'**
+  String get maneuverNightVideos;
+
+  /// Day maneuver videos button label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vídeos Diurnos'**
+  String get maneuverDayVideos;
+
+  /// Message shown when terminal maneuver media has not been provided.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mídia ainda não disponível para este terminal.'**
+  String get maneuverMediaUnavailable;
 
   /// Maneuver schedule information label.
   ///

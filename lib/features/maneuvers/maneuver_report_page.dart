@@ -857,22 +857,26 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }
 
   Future<void> _pickPhoto(ManeuverMediaSection section) async {
+    final invalidMessage =
+        AppLocalizations.of(context)!.maneuverMediaInvalid;
     final source = kIsWeb ? ImagePickSource.gallery : await _choosePhotoSource();
     if (source == null) return;
     try {
       final media = await _mediaService.pickPhoto(source);
       if (media != null) _addMedia(section, media);
     } catch (_) {
-      _showMediaError(AppLocalizations.of(context)!.maneuverMediaInvalid);
+      _showMediaError(invalidMessage);
     }
   }
 
   Future<void> _pickVideo(ManeuverMediaSection section) async {
+    final invalidMessage =
+        AppLocalizations.of(context)!.maneuverMediaInvalid;
     try {
       final media = await _mediaService.pickVideo();
       if (media != null) _addMedia(section, media);
     } catch (_) {
-      _showMediaError(AppLocalizations.of(context)!.maneuverMediaInvalid);
+      _showMediaError(invalidMessage);
     }
   }
 

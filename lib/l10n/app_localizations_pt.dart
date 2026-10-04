@@ -1782,10 +1782,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverHistoryDesc => 'Consulte os relatos enviados para este terminal.';
 
   @override
-  String get initialManeuverInfo => 'Informações iniciais';
+  String get initialManeuverInfo => 'Informações de manobra';
 
   @override
-  String get initialManeuverInfoDesc => 'Orientações e informações de preparação do terminal.';
+  String get initialManeuverInfoDesc => 'Informações operacionais para preparação da manobra.';
 
   @override
   String get maneuverReportComingSoon => 'O formulário completo de relato será disponibilizado em breve.';
@@ -2042,7 +2042,64 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverAftShort => 'AR';
 
   @override
-  String get maneuverPortLimits => 'Limites do porto/manobra';
+  String get maneuverPortLimits => 'Limites do Porto/Manobra';
+
+  @override
+  String get maneuverNoScheduleLimitation => 'Sem limitação';
+
+  @override
+  String get maneuverMaximumLengthShort => 'Comprimento máx.';
+
+  @override
+  String get maneuverMaximumWindShort => 'Vento máx.';
+
+  @override
+  String get maneuverMinimumVisibilityShort => 'Visibilidade mín.';
+
+  @override
+  String get maneuverMaximumDwtShort => 'DWT máx.';
+
+  @override
+  String get maneuverBerthingSide => 'Bordo de atracação';
+
+  @override
+  String get maneuverInitialDetails => 'Informações Iniciais';
+
+  @override
+  String get maneuverChannel => 'Canal de manobra';
+
+  @override
+  String get maneuverLaunch => 'Lancha';
+
+  @override
+  String get maneuverSimultaneousLines => 'Cabos simultâneos';
+
+  @override
+  String get maneuverQuayAlignment => 'Alinhamento do cais';
+
+  @override
+  String get maneuverQuayLength => 'Comprimento do cais';
+
+  @override
+  String get maneuverLines => 'Espias';
+
+  @override
+  String get maneuverFinalPosition => 'Posição Final';
+
+  @override
+  String get maneuverToDefine => 'A definir';
+
+  @override
+  String get maneuverMedia => 'Mídia';
+
+  @override
+  String get maneuverNightVideos => 'Vídeos Noturnos';
+
+  @override
+  String get maneuverDayVideos => 'Vídeos Diurnos';
+
+  @override
+  String get maneuverMediaUnavailable => 'Mídia ainda não disponível para este terminal.';
 
   @override
   String get maneuverSchedule => 'Horário';

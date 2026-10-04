@@ -39,7 +39,7 @@ class ManeuverMediaService {
   }
 
   Future<PendingManeuverMedia?> pickVideo() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['mp4', 'mov'],
       withData: true,

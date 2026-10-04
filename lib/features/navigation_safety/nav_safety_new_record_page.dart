@@ -1372,7 +1372,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         ],
         const SizedBox(height: 10),
         _buildDirectionToggle(l10n),
-      ),
+      ],
     );
   }
 

@@ -2446,11 +2446,11 @@
   "@maneuverHistoryDesc": {
     "description": "Description of the maneuver history area."
   },
-  "initialManeuverInfo": "Informações iniciais",
+  "initialManeuverInfo": "Informações de manobra",
   "@initialManeuverInfo": {
     "description": "Title of the Plus maneuver preparation information area."
   },
-  "initialManeuverInfoDesc": "Orientações e informações de preparação do terminal.",
+  "initialManeuverInfoDesc": "Informações operacionais para preparação da manobra.",
   "@initialManeuverInfoDesc": {
     "description": "Description of the initial maneuver information area."
   },
@@ -2795,9 +2795,85 @@
   "@maneuverAftShort": {
     "description": "Short aft position label."
   },
-  "maneuverPortLimits": "Limites do porto/manobra",
+  "maneuverPortLimits": "Limites do Porto/Manobra",
   "@maneuverPortLimits": {
     "description": "Title of the terminal operational limits section."
+  },
+  "maneuverNoScheduleLimitation": "Sem limitação",
+  "@maneuverNoScheduleLimitation": {
+    "description": "Value indicating that the maneuver has no schedule limitation."
+  },
+  "maneuverMaximumLengthShort": "Comprimento máx.",
+  "@maneuverMaximumLengthShort": {
+    "description": "Compact maximum length label."
+  },
+  "maneuverMaximumWindShort": "Vento máx.",
+  "@maneuverMaximumWindShort": {
+    "description": "Compact maximum wind label."
+  },
+  "maneuverMinimumVisibilityShort": "Visibilidade mín.",
+  "@maneuverMinimumVisibilityShort": {
+    "description": "Compact minimum visibility label."
+  },
+  "maneuverMaximumDwtShort": "DWT máx.",
+  "@maneuverMaximumDwtShort": {
+    "description": "Compact maximum deadweight label."
+  },
+  "maneuverBerthingSide": "Bordo de atracação",
+  "@maneuverBerthingSide": {
+    "description": "Berthing side information label."
+  },
+  "maneuverInitialDetails": "Informações Iniciais",
+  "@maneuverInitialDetails": {
+    "description": "Title of the initial operational details accordion."
+  },
+  "maneuverChannel": "Canal de manobra",
+  "@maneuverChannel": {
+    "description": "Maneuver radio channel label."
+  },
+  "maneuverLaunch": "Lancha",
+  "@maneuverLaunch": {
+    "description": "Pilot boat arrangement label."
+  },
+  "maneuverSimultaneousLines": "Cabos simultâneos",
+  "@maneuverSimultaneousLines": {
+    "description": "Simultaneous mooring lines label."
+  },
+  "maneuverQuayAlignment": "Alinhamento do cais",
+  "@maneuverQuayAlignment": {
+    "description": "Quay alignment label."
+  },
+  "maneuverQuayLength": "Comprimento do cais",
+  "@maneuverQuayLength": {
+    "description": "Quay length label."
+  },
+  "maneuverLines": "Espias",
+  "@maneuverLines": {
+    "description": "Mooring lines subsection label."
+  },
+  "maneuverFinalPosition": "Posição Final",
+  "@maneuverFinalPosition": {
+    "description": "Final mooring position subsection label."
+  },
+  "maneuverToDefine": "A definir",
+  "@maneuverToDefine": {
+    "description": "Value used when operational information is still to be defined."
+  },
+  "maneuverMedia": "Mídia",
+  "@maneuverMedia": {
+    "description": "Terminal maneuver media subsection label."
+  },
+  "maneuverNightVideos": "Vídeos Noturnos",
+  "@maneuverNightVideos": {
+    "description": "Night maneuver videos button label."
+  },
+  "maneuverDayVideos": "Vídeos Diurnos",
+  "@maneuverDayVideos": {
+    "description": "Day maneuver videos button label."
+  },
+  "maneuverMediaUnavailable": "Mídia ainda não disponível para este terminal.",
+  "@maneuverMediaUnavailable": {
+    "description": "Message shown when terminal maneuver media has not been provided."
   },
   "maneuverSchedule": "Horário",
   "@maneuverSchedule": {

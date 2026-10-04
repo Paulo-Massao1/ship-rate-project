@@ -47,10 +47,12 @@ class ManeuverMooringDefinition {
   const ManeuverMooringDefinition({
     required this.vesselClass,
     required this.lineGroups,
+    this.finalPosition,
   });
 
   final String vesselClass;
   final List<int> lineGroups;
+  final ManeuverLocalizedText? finalPosition;
 }
 
 class ManeuverOperationalInfo {
@@ -65,9 +67,13 @@ class ManeuverOperationalInfo {
     required this.minimumVisibilityMeters,
     required this.scheduleRestriction,
     required this.crossingRestriction,
+    required this.berthingSide,
     required this.draftTables,
     required this.draftFootnote,
     required this.vhfChannel,
+    required this.launchArrangement,
+    required this.simultaneousLines,
+    required this.quayAlignmentDegrees,
     required this.tugboatsMandatory,
     required this.tugRequirementDetail,
     required this.tugMinimumNote,
@@ -85,9 +91,13 @@ class ManeuverOperationalInfo {
   final int minimumVisibilityMeters;
   final ManeuverLocalizedText? scheduleRestriction;
   final ManeuverLocalizedText? crossingRestriction;
+  final ManeuverLocalizedText berthingSide;
   final List<ManeuverDraftTableDefinition> draftTables;
   final ManeuverLocalizedText draftFootnote;
   final int vhfChannel;
+  final ManeuverLocalizedText launchArrangement;
+  final int simultaneousLines;
+  final int quayAlignmentDegrees;
   final bool tugboatsMandatory;
   final ManeuverLocalizedText tugRequirementDetail;
   final ManeuverLocalizedText tugMinimumNote;
@@ -216,6 +226,10 @@ abstract final class ManeuverCatalog {
     minimumVisibilityMeters: 500,
     scheduleRestriction: null,
     crossingRestriction: null,
+    berthingSide: ManeuverLocalizedText(
+      pt: 'BB e BE',
+      en: 'Port and starboard',
+    ),
     draftTables: [
       ManeuverDraftTableDefinition(
         cargoType: ManeuverCargoType.general,
@@ -237,6 +251,12 @@ abstract final class ManeuverCatalog {
       en: 'Subtract 5 cm from drafts according to Ordinance No. 223/Com4ºDN, dated 24 Apr 2026.',
     ),
     vhfChannel: 12,
+    launchArrangement: ManeuverLocalizedText(
+      pt: 'Proa e popa',
+      en: 'Bow and stern',
+    ),
+    simultaneousLines: 2,
+    quayAlignmentDegrees: 288,
     tugboatsMandatory: true,
     tugRequirementDetail: ManeuverLocalizedText(
       pt: 'O uso de rebocadores é obrigatório. Consulte abaixo os rebocadores informados para Santarém.',
