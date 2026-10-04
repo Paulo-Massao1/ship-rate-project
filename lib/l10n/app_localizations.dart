@@ -2597,6 +2597,48 @@ abstract class AppLocalizations {
   /// **'Foto'**
   String get photo;
 
+  /// Menu option to attach a video.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vídeo'**
+  String get video;
+
+  /// Option to take a photo with the camera.
+  ///
+  /// In pt, this message translates to:
+  /// **'Câmera'**
+  String get camera;
+
+  /// Option to select a photo from the gallery.
+  ///
+  /// In pt, this message translates to:
+  /// **'Galeria'**
+  String get gallery;
+
+  /// Maximum number of attachments in each maneuver section.
+  ///
+  /// In pt, this message translates to:
+  /// **'Máximo de 3 mídias por seção.'**
+  String get maneuverMediaLimit;
+
+  /// Validation error for maneuver media selection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione uma foto JPG, PNG ou WEBP, ou um vídeo MP4 ou MOV de até 20 MB.'**
+  String get maneuverMediaInvalid;
+
+  /// Error shown when maneuver media upload fails.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível enviar as mídias da manobra. Verifique a conexão e tente novamente.'**
+  String get maneuverMediaUploadError;
+
+  /// Error shown when an attached maneuver media cannot be opened.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível abrir esta mídia.'**
+  String get maneuverMediaOpenError;
+
   /// Menu option to attach a generic file.
   ///
   /// In pt, this message translates to:

@@ -1349,6 +1349,27 @@ class AppLocalizationsPt extends AppLocalizations {
   String get photo => 'Foto';
 
   @override
+  String get video => 'Vídeo';
+
+  @override
+  String get camera => 'Câmera';
+
+  @override
+  String get gallery => 'Galeria';
+
+  @override
+  String get maneuverMediaLimit => 'Máximo de 3 mídias por seção.';
+
+  @override
+  String get maneuverMediaInvalid => 'Selecione uma foto JPG, PNG ou WEBP, ou um vídeo MP4 ou MOV de até 20 MB.';
+
+  @override
+  String get maneuverMediaUploadError => 'Não foi possível enviar as mídias da manobra. Verifique a conexão e tente novamente.';
+
+  @override
+  String get maneuverMediaOpenError => 'Não foi possível abrir esta mídia.';
+
+  @override
   String get file => 'Arquivo';
 
   @override

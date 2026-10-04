@@ -21,6 +21,10 @@ class ManeuverReportService {
 
   String? get currentUserId => _auth.currentUser?.uid;
 
+  String createReportId() {
+    return _firestore.collection('manobras_relatos').doc().id;
+  }
+
   Future<List<ManeuverShipOption>> loadShips() async {
     final snapshot = await _firestore.collection('navios').get();
     final ships = <ManeuverShipOption>[];
@@ -38,7 +42,10 @@ class ManeuverReportService {
     return ships;
   }
 
-  Future<String> saveReport(ManeuverReportDraft draft) async {
+  Future<String> saveReport(
+    ManeuverReportDraft draft, {
+    String? reportId,
+  }) async {
     final user = _auth.currentUser;
     if (user == null) {
       throw const ManeuverReportException(ManeuverReportError.signedOut);
@@ -60,7 +67,10 @@ class ManeuverReportService {
       final authName = (user.displayName ?? '').trim();
       final pilotName = profileName.isNotEmpty ? profileName : authName;
 
-      final reference = await _firestore.collection('manobras_relatos').add({
+      final reference = reportId == null
+          ? _firestore.collection('manobras_relatos').doc()
+          : _firestore.collection('manobras_relatos').doc(reportId);
+      await reference.set({
         ...draft.toFirestore(pilotId: user.uid, pilotName: pilotName),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),

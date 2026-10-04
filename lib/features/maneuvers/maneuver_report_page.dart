@@ -1,10 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../data/models/maneuver_report.dart';
 import '../../data/models/maneuver_tug.dart';
+import '../../data/services/image_upload_service.dart';
 import '../../data/services/maneuver_report_service.dart';
+import '../../data/services/maneuver_media_service.dart';
 import '../../data/services/maneuver_tug_service.dart';
 
 class ManeuverReportPage extends StatefulWidget {
@@ -52,6 +55,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
 
   late final ManeuverTugService _tugService;
   late final ManeuverReportService _reportService;
+  late final ManeuverMediaService _mediaService;
   late final Stream<List<ManeuverTug>> _tugsStream;
   List<ManeuverShipOption> _ships = const [];
   String? _selectedShipId;
@@ -61,6 +65,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   ManeuverPropellerPitch? _propellerPitch;
   ManeuverFirstLine? _forwardFirstLine;
   ManeuverFirstLine? _aftFirstLine;
+  final List<PendingManeuverMedia> _approachMedia = [];
+  final List<PendingManeuverMedia> _mooringMedia = [];
   bool _loadingShips = true;
   bool _saving = false;
 
@@ -69,6 +75,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     super.initState();
     _tugService = ManeuverTugService();
     _reportService = ManeuverReportService();
+    _mediaService = const ManeuverMediaService();
     _tugsStream = _tugService.watchTugsForPort(widget.portCode);
     _loadShips();
   }
@@ -416,6 +423,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             maxLength: 2000,
             maxLines: 3,
           ),
+          const SizedBox(height: 10),
+          _buildMediaControls(l10n, ManeuverMediaSection.mooring),
         ],
       ),
     );
@@ -748,8 +757,178 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             maxLength: 2000,
             maxLines: 3,
           ),
+          const SizedBox(height: 10),
+          _buildMediaControls(l10n, ManeuverMediaSection.approach),
         ],
       ),
+    );
+  }
+
+  Widget _buildMediaControls(
+    AppLocalizations l10n,
+    ManeuverMediaSection section,
+  ) {
+    final media = section == ManeuverMediaSection.approach
+        ? _approachMedia
+        : _mooringMedia;
+    final atLimit = media.length >= ManeuverMediaService.maxMediaPerSection;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (media.isNotEmpty) ...[
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: media.indexed.map((entry) {
+              final index = entry.$1;
+              final item = entry.$2;
+              return InputChip(
+                avatar: Icon(
+                  item.type == ManeuverMediaType.photo
+                      ? Icons.photo_outlined
+                      : Icons.videocam_outlined,
+                  color: _amber,
+                  size: 15,
+                ),
+                label: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 130),
+                  child: Text(
+                    item.file.originalName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
+                backgroundColor: const Color(0x0DFFFFFF),
+                side: const BorderSide(color: Color(0x2EFFFFFF)),
+                deleteIconColor: const Color(0xB3FFFFFF),
+                onDeleted: _saving
+                    ? null
+                    : () => setState(() => media.removeAt(index)),
+              );
+            }).toList(growable: false),
+          ),
+          const SizedBox(height: 8),
+        ],
+        Row(
+          children: [
+            _buildMediaButton(
+              icon: Icons.photo_camera_outlined,
+              label: l10n.photo,
+              onPressed: atLimit ? null : () => _pickPhoto(section),
+            ),
+            const SizedBox(width: 8),
+            _buildMediaButton(
+              icon: Icons.videocam_outlined,
+              label: l10n.video,
+              onPressed: atLimit ? null : () => _pickVideo(section),
+            ),
+          ],
+        ),
+        if (atLimit) ...[
+          const SizedBox(height: 5),
+          Text(
+            l10n.maneuverMediaLimit,
+            style: const TextStyle(color: _muted, fontSize: 9),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildMediaButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: _saving ? null : onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0x2EFFFFFF)),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        visualDensity: VisualDensity.compact,
+      ),
+      icon: Icon(icon, color: _amber, size: 15),
+      label: Text(label, style: const TextStyle(fontSize: 11)),
+    );
+  }
+
+  Future<void> _pickPhoto(ManeuverMediaSection section) async {
+    final source = kIsWeb ? ImagePickSource.gallery : await _choosePhotoSource();
+    if (source == null) return;
+    try {
+      final media = await _mediaService.pickPhoto(source);
+      if (media != null) _addMedia(section, media);
+    } catch (_) {
+      _showMediaError(AppLocalizations.of(context)!.maneuverMediaInvalid);
+    }
+  }
+
+  Future<void> _pickVideo(ManeuverMediaSection section) async {
+    try {
+      final media = await _mediaService.pickVideo();
+      if (media != null) _addMedia(section, media);
+    } catch (_) {
+      _showMediaError(AppLocalizations.of(context)!.maneuverMediaInvalid);
+    }
+  }
+
+  void _addMedia(
+    ManeuverMediaSection section,
+    PendingManeuverMedia item,
+  ) {
+    if (!mounted) return;
+    final media = section == ManeuverMediaSection.approach
+        ? _approachMedia
+        : _mooringMedia;
+    final l10n = AppLocalizations.of(context)!;
+    if (media.length >= ManeuverMediaService.maxMediaPerSection) {
+      _showMediaError(l10n.maneuverMediaLimit);
+      return;
+    }
+    setState(() => media.add(item));
+  }
+
+  Future<ImagePickSource?> _choosePhotoSource() {
+    final l10n = AppLocalizations.of(context)!;
+    return showModalBottomSheet<ImagePickSource>(
+      context: context,
+      backgroundColor: _bgMid,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined, color: _amber),
+              title: Text(
+                l10n.camera,
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () =>
+                  Navigator.pop(sheetContext, ImagePickSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined, color: _amber),
+              title: Text(
+                l10n.gallery,
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () =>
+                  Navigator.pop(sheetContext, ImagePickSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMediaError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red.shade800),
     );
   }
 
@@ -936,35 +1115,61 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       return;
     }
 
-    final draft = ManeuverReportDraft(
-      portName: widget.portName,
-      portCode: widget.portCode,
-      terminalId: widget.terminalId,
-      terminalName: widget.terminalName,
-      shipId: _selectedShipId,
-      shipName: _trimmedOrNull(_shipNameController.text)?.toUpperCase(),
-      lengthMeters: length,
-      beamMeters: beam,
-      maximumDraftMeters: maximumDraft,
-      propellerDirection: _propellerDirection,
-      propellerPitch: _propellerPitch,
-      officerNationality: _trimmedOrNull(_officerNationalityController.text),
-      crewNationality: _trimmedOrNull(_crewNationalityController.text),
-      forwardTug: _forwardTug,
-      aftTug: _aftTug,
-      currentDirectionDegrees: currentDirection,
-      currentIntensityKnots: currentIntensity,
-      windDirectionDegrees: windDirection,
-      windIntensityKnots: windIntensity,
-      approachComments: _trimmedOrNull(_approachCommentsController.text),
-      forwardFirstLine: _forwardFirstLine,
-      aftFirstLine: _aftFirstLine,
-      mooringComments: _trimmedOrNull(_mooringCommentsController.text),
-    );
+    final userId = _reportService.currentUserId;
+    if (userId == null) {
+      _showMediaError(l10n.maneuverReportSignedOut);
+      return;
+    }
 
     setState(() => _saving = true);
+    final reportId = _reportService.createReportId();
+    final uploadedPaths = <String>[];
+    var reportSaved = false;
     try {
-      await _reportService.saveReport(draft);
+      final approachMedia = await _mediaService.uploadSection(
+        media: _approachMedia,
+        userId: userId,
+        reportId: reportId,
+        section: ManeuverMediaSection.approach,
+      );
+      uploadedPaths.addAll(approachMedia.map((item) => item.path));
+      final mooringMedia = await _mediaService.uploadSection(
+        media: _mooringMedia,
+        userId: userId,
+        reportId: reportId,
+        section: ManeuverMediaSection.mooring,
+      );
+      uploadedPaths.addAll(mooringMedia.map((item) => item.path));
+
+      final draft = ManeuverReportDraft(
+        portName: widget.portName,
+        portCode: widget.portCode,
+        terminalId: widget.terminalId,
+        terminalName: widget.terminalName,
+        shipId: _selectedShipId,
+        shipName: _trimmedOrNull(_shipNameController.text)?.toUpperCase(),
+        lengthMeters: length,
+        beamMeters: beam,
+        maximumDraftMeters: maximumDraft,
+        propellerDirection: _propellerDirection,
+        propellerPitch: _propellerPitch,
+        officerNationality: _trimmedOrNull(_officerNationalityController.text),
+        crewNationality: _trimmedOrNull(_crewNationalityController.text),
+        forwardTug: _forwardTug,
+        aftTug: _aftTug,
+        currentDirectionDegrees: currentDirection,
+        currentIntensityKnots: currentIntensity,
+        windDirectionDegrees: windDirection,
+        windIntensityKnots: windIntensity,
+        approachComments: _trimmedOrNull(_approachCommentsController.text),
+        forwardFirstLine: _forwardFirstLine,
+        aftFirstLine: _aftFirstLine,
+        mooringComments: _trimmedOrNull(_mooringCommentsController.text),
+        approachMedia: approachMedia,
+        mooringMedia: mooringMedia,
+      );
+      await _reportService.saveReport(draft, reportId: reportId);
+      reportSaved = true;
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -973,6 +1178,9 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         ),
       );
       Navigator.pop(context, true);
+    } on ManeuverMediaException {
+      if (!mounted) return;
+      _showMediaError(l10n.maneuverMediaUploadError);
     } on ManeuverReportException catch (error) {
       if (!mounted) return;
       final message = error.code == ManeuverReportError.signedOut
@@ -981,7 +1189,13 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red.shade800),
       );
+    } catch (_) {
+      if (!mounted) return;
+      _showMediaError(l10n.maneuverReportSaveError);
     } finally {
+      if (!reportSaved && uploadedPaths.isNotEmpty) {
+        await _mediaService.deleteMedia(uploadedPaths);
+      }
       if (mounted) setState(() => _saving = false);
     }
   }

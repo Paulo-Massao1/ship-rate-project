@@ -1349,6 +1349,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photo => 'Photo';
 
   @override
+  String get video => 'Video';
+
+  @override
+  String get camera => 'Camera';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get maneuverMediaLimit => 'Maximum of 3 media files per section.';
+
+  @override
+  String get maneuverMediaInvalid => 'Select a JPG, PNG or WEBP photo, or an MP4 or MOV video up to 20 MB.';
+
+  @override
+  String get maneuverMediaUploadError => 'The maneuver media could not be uploaded. Check your connection and try again.';
+
+  @override
+  String get maneuverMediaOpenError => 'This media could not be opened.';
+
+  @override
   String get file => 'File';
 
   @override

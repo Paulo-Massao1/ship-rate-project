@@ -4,7 +4,9 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../data/models/maneuver_report.dart';
 import '../../data/models/maneuver_tug.dart';
+import '../../data/services/maneuver_media_service.dart';
 import '../../data/services/maneuver_report_service.dart';
+import '../../data/services/url_launcher_service.dart';
 
 class ManeuverHistoryPage extends StatefulWidget {
   const ManeuverHistoryPage({
@@ -337,8 +339,11 @@ class _ManeuverReportDetailsPageState
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _muted = Color(0x99FFFFFF);
+  static const _amber = Color(0xFFFFB74D);
 
   bool _deleting = false;
+  String? _openingMediaPath;
+  final ManeuverMediaService _mediaService = const ManeuverMediaService();
 
   bool get _isOwner =>
       widget.service.currentUserId != null &&
@@ -537,6 +542,8 @@ class _ManeuverReportDetailsPageState
             label: l10n.maneuverComments,
             value: report.approachComments!,
           ),
+        if (report.approachMedia.isNotEmpty)
+          _buildMediaAttachments(report.approachMedia, l10n),
       ],
     );
   }
@@ -562,8 +569,115 @@ class _ManeuverReportDetailsPageState
             label: l10n.maneuverComments,
             value: report.mooringComments!,
           ),
+        if (report.mooringMedia.isNotEmpty)
+          _buildMediaAttachments(report.mooringMedia, l10n),
       ],
     );
+  }
+
+  Widget _buildMediaAttachments(
+    List<ManeuverMediaAttachment> attachments,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      children: attachments.map((attachment) {
+        final opening = _openingMediaPath == attachment.path;
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Material(
+            color: const Color(0x0DFFFFFF),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: const BorderSide(color: Color(0x2EFFFFFF)),
+            ),
+            child: InkWell(
+              onTap: opening ? null : () => _openMedia(attachment, l10n),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+                child: Row(
+                  children: [
+                    Icon(
+                      attachment.type == ManeuverMediaType.photo
+                          ? Icons.photo_outlined
+                          : Icons.videocam_outlined,
+                      color: _amber,
+                      size: 19,
+                    ),
+                    const SizedBox(width: 9),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            attachment.type == ManeuverMediaType.photo
+                                ? l10n.photo
+                                : l10n.video,
+                            style: const TextStyle(
+                              color: _muted,
+                              fontSize: 9,
+                            ),
+                          ),
+                          Text(
+                            attachment.originalName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (opening)
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: _amber,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    else
+                      const Icon(
+                        Icons.open_in_new,
+                        color: Color(0x9964B5F6),
+                        size: 16,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(growable: false),
+    );
+  }
+
+  Future<void> _openMedia(
+    ManeuverMediaAttachment attachment,
+    AppLocalizations l10n,
+  ) async {
+    setState(() => _openingMediaPath = attachment.path);
+    try {
+      final url = await _mediaService.getDownloadUrl(attachment.path);
+      final opened = await UrlLauncherService.openExternalUrl(url);
+      if (!opened) throw StateError('Could not open maneuver media.');
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.maneuverMediaOpenError),
+          backgroundColor: Colors.red.shade800,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _openingMediaPath = null);
+    }
   }
 
   String _tugDescription(

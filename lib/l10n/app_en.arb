@@ -1828,6 +1828,34 @@
   "@photo": {
     "description": "Menu option to attach a photo."
   },
+  "video": "Video",
+  "@video": {
+    "description": "Menu option to attach a video."
+  },
+  "camera": "Camera",
+  "@camera": {
+    "description": "Option to take a photo with the camera."
+  },
+  "gallery": "Gallery",
+  "@gallery": {
+    "description": "Option to select a photo from the gallery."
+  },
+  "maneuverMediaLimit": "Maximum of 3 media files per section.",
+  "@maneuverMediaLimit": {
+    "description": "Maximum number of attachments in each maneuver section."
+  },
+  "maneuverMediaInvalid": "Select a JPG, PNG or WEBP photo, or an MP4 or MOV video up to 20 MB.",
+  "@maneuverMediaInvalid": {
+    "description": "Validation error for maneuver media selection."
+  },
+  "maneuverMediaUploadError": "The maneuver media could not be uploaded. Check your connection and try again.",
+  "@maneuverMediaUploadError": {
+    "description": "Error shown when maneuver media upload fails."
+  },
+  "maneuverMediaOpenError": "This media could not be opened.",
+  "@maneuverMediaOpenError": {
+    "description": "Error shown when an attached maneuver media cannot be opened."
+  },
   "file": "File",
   "@file": {
     "description": "Menu option to attach a generic file."
