@@ -1418,7 +1418,7 @@ abstract class AppLocalizations {
   /// Localized text for direction.
   ///
   /// In pt, this message translates to:
-  /// **'DIREÇÃO'**
+  /// **'Direção'**
   String get direction;
 
   /// Localized text for passage data.
@@ -1432,6 +1432,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Selecionar local'**
   String get selectLocation;
+
+  /// Label above the location selector in the depth form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Local'**
+  String get depthLocationLabel;
 
   /// Localized text for add new location.
   ///
@@ -1460,7 +1466,7 @@ abstract class AppLocalizations {
   /// Localized text for passage date.
   ///
   /// In pt, this message translates to:
-  /// **'Data da passagem'**
+  /// **'Data'**
   String get passageDate;
 
   /// Localized text for going up.
@@ -1484,7 +1490,7 @@ abstract class AppLocalizations {
   /// Label for the automatically calculated total depth.
   ///
   /// In pt, this message translates to:
-  /// **'PROFUNDIDADE TOTAL (CALCULADA)'**
+  /// **'Profundidade total (calculada)'**
   String get calculatedTotalDepth;
 
   /// Formula used to calculate total depth.
@@ -1496,13 +1502,13 @@ abstract class AppLocalizations {
   /// Localized text for complementary data.
   ///
   /// In pt, this message translates to:
-  /// **'Dados Complementares'**
+  /// **'Dados complementares'**
   String get complementaryData;
 
   /// Localized text for max draft input.
   ///
   /// In pt, this message translates to:
-  /// **'Calado Máximo (m)'**
+  /// **'Calado máximo (m)'**
   String get maxDraftInput;
 
   /// Localized text for ukc input.
@@ -1540,6 +1546,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Informe manualmente a leitura atual da régua.'**
   String get rulerManualHint;
+
+  /// Short caption beside the daily manual ruler reading.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor do dia'**
+  String get depthDailyValue;
 
   /// Validation message for an invalid manual ruler reading.
   ///
@@ -1586,7 +1598,7 @@ abstract class AppLocalizations {
   /// Localized text for sonar position.
   ///
   /// In pt, this message translates to:
-  /// **'Posição da Sonda'**
+  /// **'Posição da sonda'**
   String get sonarPosition;
 
   /// Localized text for bow.
@@ -1610,13 +1622,13 @@ abstract class AppLocalizations {
   /// Localized text for observations.
   ///
   /// In pt, this message translates to:
-  /// **'Observações / Referências'**
+  /// **'Observações'**
   String get observations;
 
   /// Localized text for additional info.
   ///
   /// In pt, this message translates to:
-  /// **'Informações adicionais...'**
+  /// **'Observações...'**
   String get additionalInfo;
 
   /// Localized text for register passage.
@@ -1624,6 +1636,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Registrar Passagem'**
   String get registerPassage;
+
+  /// Button label for saving a new depth record.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar registro'**
+  String get saveDepthRecord;
 
   /// Localized text for record saved success.
   ///

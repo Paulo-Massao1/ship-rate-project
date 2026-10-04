@@ -32,8 +32,6 @@ class NavSafetyNewRecordPage extends StatefulWidget {
       _NavSafetyNewRecordPageState();
 }
 
-enum _AttachmentType { photo, file }
-
 class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     with SingleTickerProviderStateMixin {
   // ===========================================================================
@@ -927,47 +925,65 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         ),
       ),
       child: Scaffold(
-      appBar: _buildAppBar(l10n),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [_bgDark, _bgMid],
+        appBar: _buildAppBar(l10n),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [_bgDark, _bgMid],
+            ),
           ),
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                children: [
-                  _buildSection1PassageData(l10n),
-                  const SizedBox(height: 16),
-                  _buildSection3ComplementaryData(l10n),
-                  const SizedBox(height: 16),
-                  _buildSection2TotalDepth(l10n),
-                  const SizedBox(height: 16),
-                  _buildSection4LatLong(l10n),
-                  const SizedBox(height: 16),
-                  _buildSection5Observations(l10n),
-                  const SizedBox(height: 16),
-                  _buildSection6Photos(l10n),
-                  _buildSaveButton(l10n),
-                ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(13, 8, 13, 20),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _isSaving
+                            ? null
+                            : () => Navigator.maybePop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xBFFFFFFF),
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.chevron_left, size: 18),
+                        label: Text(l10n.back),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _buildSection1PassageData(l10n),
+                    const SizedBox(height: 16),
+                    _buildSection3ComplementaryData(l10n),
+                    const SizedBox(height: 14),
+                    _buildSection2TotalDepth(l10n),
+                    const SizedBox(height: 10),
+                    _buildSection4LatLong(l10n),
+                    const SizedBox(height: 14),
+                    _buildSection5Observations(l10n),
+                    const SizedBox(height: 10),
+                    _buildSection6Photos(l10n),
+                    _buildSaveButton(l10n),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(AppLocalizations l10n) {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: Text(
         widget.isEditing ? l10n.editRecord : l10n.newRecord,
         style: const TextStyle(
@@ -976,19 +992,12 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         ),
       ),
       centerTitle: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: _bgDark,
       foregroundColor: _textPrimary,
-      elevation: 4,
-      shadowColor: Colors.black54,
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [_bgDark, Color(0xFF1A3A5C), _bgMid],
-            stops: [0.0, 0.5, 1.0],
-          ),
-        ),
+      elevation: 0,
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1),
+        child: Divider(height: 1, color: Color(0x1FFFFFFF)),
       ),
     );
   }
@@ -998,11 +1007,17 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // ===========================================================================
 
   Widget _buildSection1PassageData(AppLocalizations l10n) {
-    return _buildSectionCard(
-      icon: Icons.place,
-      title: l10n.passageData,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildLocationDropdown(l10n),
+        if (_depthReference?.type == DepthReferenceType.santanaTide) ...[
+          const SizedBox(height: 6),
+          Text(
+            l10n.santanaTideReferenceHint,
+            style: const TextStyle(color: Color(0x9964B5F6), fontSize: 10),
+          ),
+        ],
         if (_isItacoatiara) ...[
           const SizedBox(height: 14),
           _buildPointDropdown(l10n),
@@ -1010,10 +1025,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         const SizedBox(height: 14),
         _buildTextField(
           controller: _shipNameController,
-          label: l10n.shipNameOptional,
+          label: l10n.shipName,
           icon: Icons.directions_boat,
-          iconColor: const Color(0xFF64B5F6),
           keyboardType: TextInputType.text,
+          compact: true,
+          hint: l10n.maneuverSearchShip,
         ),
         const SizedBox(height: 14),
         Row(
@@ -1035,13 +1051,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           ],
         ),
         if (_depthReference?.type == DepthReferenceType.santanaTide) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           _buildMeasurementTimeField(l10n),
-          const SizedBox(height: 8),
-          Text(
-            l10n.santanaTideReferenceHint,
-            style: const TextStyle(color: Color(0x9964B5F6), fontSize: 11),
-          ),
         ],
       ],
     );
@@ -1061,7 +1072,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n.selectLocation,
+          l10n.depthLocationLabel,
           style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
@@ -1078,7 +1089,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 _selectedLocationId == null &&
                         _selectedLocationName != null &&
                         _selectedLocationName!.isNotEmpty
-                    ? '\u{1F4CD} ${_selectedLocationName!}'
+                    ? _selectedLocationName!
                     : l10n.selectLocation,
                 style: const TextStyle(color: _textMuted, fontSize: 14),
               ),
@@ -1092,7 +1103,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 ..._locations.map((loc) => DropdownMenuItem<String>(
                       value: loc.id,
                       child: Text(
-                        '\u{1F4CD} ${loc.name}',
+                        loc.name,
                         style: const TextStyle(
                             color: _textSecondary, fontSize: 14),
                       ),
@@ -1305,47 +1316,62 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // ===========================================================================
 
   Widget _buildSection2TotalDepth(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0x1426A69A),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x3326A69A)),
-      ),
-      child: Column(
-        children: [
-          Text(
-            l10n.calculatedTotalDepth,
-            style: const TextStyle(
-              color: _teal,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
-            ),
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+          decoration: BoxDecoration(
+            color: const Color(0x1426A69A),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0x3326A69A)),
           ),
-          const SizedBox(height: 12),
-          Text(
-            _calculatedDepth == null
-                ? '—'
-                : '${_calculatedDepth!.toStringAsFixed(2).replaceAll('.', ',')} m',
-            style: const TextStyle(
-              color: _teal,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.calculatedTotalDepth,
+                      style: const TextStyle(
+                        color: Color(0xB326A69A),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      _calculatedDepth == null
+                          ? '—'
+                          : '${_calculatedDepth!.toStringAsFixed(2).replaceAll('.', ',')} m',
+                      style: const TextStyle(
+                        color: _teal,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '= ${l10n.depthCalculationFormula}',
+                textAlign: TextAlign.end,
+                style: const TextStyle(
+                  color: Color(0x9926A69A),
+                  fontSize: 9,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.depthCalculationFormula,
-            style: const TextStyle(color: Color(0x9926A69A), fontSize: 11),
-          ),
-          if (_depthReference != null) ...[
-            const SizedBox(height: 14),
-            _buildDepthReferenceCard(l10n),
-          ],
-          const SizedBox(height: 14),
-          _buildDirectionToggle(l10n),
+        ),
+        if (_depthReference != null) ...[
+          const SizedBox(height: 8),
+          _buildDepthReferenceCard(l10n),
         ],
+        const SizedBox(height: 10),
+        _buildDirectionToggle(l10n),
       ),
     );
   }
@@ -1356,80 +1382,92 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     if (reference.type == DepthReferenceType.ruler) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
           color: const Color(0x14FFC107),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: const Color(0x33FFC107)),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.straighten, color: Color(0xFFFFC107), size: 20),
-            const SizedBox(height: 5),
             Text(
               reference.displayName,
-              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Color(0xFFFFD54F),
-                fontSize: 13,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: _inputBg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0x4DFFC107)),
-              ),
-              child: TextField(
-                controller: _rulerValueController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: _textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+            const SizedBox(height: 2),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    controller: _rulerValueController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(
+                      color: Color(0xFFFFC107),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '0,00',
+                      hintStyle: const TextStyle(
+                        color: Color(0x66FFC107),
+                        fontSize: 18,
+                      ),
+                      suffixText: 'm',
+                      suffixStyle: const TextStyle(
+                        color: Color(0xFFFFC107),
+                        fontSize: 12,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
                 ),
-                decoration: InputDecoration(
-                  hintText: l10n.rulerReading,
-                  hintStyle: const TextStyle(color: _textMuted, fontSize: 12),
-                  suffixText: 'm',
-                  suffixStyle: const TextStyle(color: Color(0xFFFFD54F)),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    l10n.depthDailyValue,
+                    style: const TextStyle(
+                      color: Color(0xB3FFC107),
+                      fontSize: 9,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              l10n.rulerManualHint,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: _textMuted, fontSize: 10),
+              ],
             ),
           ],
         ),
       );
     }
 
+    final day = _selectedDate.day.toString().padLeft(2, '0');
+    final month = _selectedDate.month.toString().padLeft(2, '0');
+    final referenceDate = '$day/$month/${_selectedDate.year}';
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
         color: const Color(0x1464B5F6),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0x3364B5F6)),
       ),
       child: Column(
         children: [
           Text(
-            reference.displayName,
+            '${reference.displayName} — $referenceDate',
             style: const TextStyle(
               color: Color(0xFF90CAF9),
-              fontSize: 13,
+              fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1460,10 +1498,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     alignment: CrossAxisAlignment.start,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 42,
-                  color: const Color(0x3364B5F6),
+                const SizedBox(
+                  width: 28,
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: Color(0x6664B5F6),
+                    size: 16,
+                  ),
                 ),
                 Expanded(
                   child: _buildTideEvent(
@@ -1529,10 +1570,38 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // ===========================================================================
 
   Widget _buildSection3ComplementaryData(AppLocalizations l10n) {
-    return _buildSectionCard(
-      icon: Icons.straighten,
-      title: l10n.complementaryData,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          l10n.complementaryData,
+          style: const TextStyle(
+            color: _textMuted,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 9),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildSonarToggle(l10n),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildTextField(
+                controller: _squatController,
+                label: l10n.squatInput,
+                icon: Icons.vertical_align_bottom,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                compact: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1559,16 +1628,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ),
           ],
         ),
-        const SizedBox(height: 14),
-        _buildTextField(
-          controller: _squatController,
-          label: l10n.squatInput,
-          icon: Icons.vertical_align_bottom,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          suffixText: '(${l10n.optional})',
-        ),
-        const SizedBox(height: 14),
-        _buildSonarToggle(l10n),
       ],
     );
   }
@@ -1660,8 +1719,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   Widget _buildSection4LatLong(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
-        color: _fieldBg,
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0x08000000),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: _fieldBorder),
       ),
       child: Column(
@@ -1676,18 +1735,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               }
             },
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: _tealLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.explore, color: _teal, size: 18),
-                  ),
-                  const SizedBox(width: 12),
+                  const Icon(Icons.explore, color: _teal, size: 16),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1697,13 +1749,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                           style: const TextStyle(
                             color: _textPrimary,
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 11,
                           ),
                         ),
                         Text(
                           l10n.optional,
                           style: const TextStyle(
-                              color: _textMuted, fontSize: 11),
+                              color: _textMuted, fontSize: 9),
                         ),
                       ],
                     ),
@@ -1711,7 +1763,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   RotationTransition(
                     turns: _arrowAnim,
                     child: const Icon(Icons.keyboard_arrow_down,
-                        color: _textMuted, size: 24),
+                        color: _textMuted, size: 20),
                   ),
                 ],
               ),
@@ -1719,7 +1771,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           ),
           if (_latLongExpanded)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1835,14 +1887,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // ===========================================================================
 
   Widget _buildSection5Observations(AppLocalizations l10n) {
-    return _buildSectionCard(
-      icon: Icons.notes,
-      title: '${l10n.observations} (${l10n.optional})',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          l10n.observations,
+          style: const TextStyle(color: _textLabel, fontSize: 11),
+        ),
+        const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
             color: _inputBg,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: _inputBorder),
           ),
           constraints: const BoxConstraints(minHeight: 60),
@@ -1855,7 +1911,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               hintText: l10n.additionalInfo,
               hintStyle: const TextStyle(color: _textMuted, fontSize: 13),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(14),
+              contentPadding: const EdgeInsets.all(11),
             ),
           ),
         ),
@@ -1866,56 +1922,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // ===========================================================================
   // SECTION 6 — PHOTOS & FILES
   // ===========================================================================
-
-  Future<void> _pickAttachment() async {
-    final type = await _chooseAttachmentType();
-    if (type == null) return;
-
-    if (type == _AttachmentType.photo) {
-      await _pickImage();
-    } else {
-      await _pickFile();
-    }
-  }
-
-  Future<_AttachmentType?> _chooseAttachmentType() {
-    final l10n = AppLocalizations.of(context)!;
-
-    return showModalBottomSheet<_AttachmentType>(
-      context: context,
-      backgroundColor: _dropdownBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo, color: _teal),
-              title: Text(
-                l10n.photo,
-                style: const TextStyle(color: _textPrimary),
-              ),
-              onTap: () {
-                Navigator.pop(sheetContext, _AttachmentType.photo);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.insert_drive_file, color: _teal),
-              title: Text(
-                l10n.file,
-                style: const TextStyle(color: _textPrimary),
-              ),
-              onTap: () {
-                Navigator.pop(sheetContext, _AttachmentType.file);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Future<void> _pickFile() async {
     try {
@@ -2032,9 +2038,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         _existingFileAttachments.length +
         _selectedFiles.length;
 
-    return _buildSectionCard(
-      icon: Icons.attach_file,
-      title: '${l10n.photos} / ${l10n.files} (${l10n.optional})',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (totalAttachments > 0)
           Wrap(
@@ -2098,31 +2103,20 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ],
           ),
         if (totalAttachments > 0) const SizedBox(height: 12),
-        GestureDetector(
-          onTap: _pickAttachment,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: _tealLight,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _tealBorder),
+        Row(
+          children: [
+            _buildAttachmentButton(
+              icon: Icons.photo_camera_outlined,
+              label: l10n.photo,
+              onTap: _pickImage,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.attach_file, color: _teal, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.attachFile,
-                  style: const TextStyle(
-                    color: _teal,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 8),
+            _buildAttachmentButton(
+              icon: Icons.attach_file,
+              label: l10n.file,
+              onTap: _pickFile,
             ),
-          ),
+          ],
         ),
         if (totalImages >= ImageUploadService.maxImagesPerRecord) ...[
           const SizedBox(height: 8),
@@ -2132,6 +2126,25 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildAttachmentButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: _isSaving ? null : onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0x2EFFFFFF)),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+        visualDensity: VisualDensity.compact,
+      ),
+      icon: Icon(icon, color: _teal, size: 15),
+      label: Text(label, style: const TextStyle(fontSize: 11)),
     );
   }
 
@@ -2235,26 +2248,15 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Widget _buildSaveButton(AppLocalizations l10n) {
     return Container(
-      margin: const EdgeInsets.only(top: 20, bottom: 24),
+      margin: const EdgeInsets.only(top: 8, bottom: 8),
       child: GestureDetector(
         onTap: _isSaving || _isLoadingTide ? null : _save,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 13),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF00897B), Color(0xFF26A69A)],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x4D26A69A),
-                blurRadius: 16,
-                offset: Offset(0, 4),
-              ),
-            ],
+            color: _teal,
+            borderRadius: BorderRadius.circular(7),
           ),
           child: Center(
             child: _isSaving || _isLoadingTide
@@ -2267,11 +2269,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     ),
                   )
                 : Text(
-                    widget.isEditing ? l10n.updatePassage : l10n.registerPassage,
+                    widget.isEditing
+                        ? l10n.updatePassage
+                        : l10n.saveDepthRecord,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 13,
                     ),
                   ),
           ),
@@ -2284,49 +2288,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // SHARED WIDGETS
   // ===========================================================================
 
-  Widget _buildSectionCard({
-    required IconData icon,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _fieldBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _fieldBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _tealLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: _teal, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: _textPrimary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
-    );
-  }
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -2335,6 +2296,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     TextInputType keyboardType = TextInputType.text,
     String? suffixText,
     bool compact = false,
+    String? hint,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2374,6 +2336,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             keyboardType: keyboardType,
             style: const TextStyle(color: _textPrimary, fontSize: 14),
             decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: _textMuted, fontSize: 13),
               prefixIcon: compact ? null : Icon(icon, color: iconColor, size: 20),
               border: InputBorder.none,
               isDense: compact,

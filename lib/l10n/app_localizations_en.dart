@@ -713,13 +713,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ukc => 'UKC';
 
   @override
-  String get direction => 'DIRECTION';
+  String get direction => 'Direction';
 
   @override
   String get passageData => 'Passage Data';
 
   @override
   String get selectLocation => 'Select location';
+
+  @override
+  String get depthLocationLabel => 'Location';
 
   @override
   String get addNewLocation => 'Add new location';
@@ -734,7 +737,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shipNameOptional => 'Ship name (optional)';
 
   @override
-  String get passageDate => 'Passage date';
+  String get passageDate => 'Date';
 
   @override
   String get goingUp => 'Going up';
@@ -746,16 +749,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalDepthLabel => 'TOTAL DEPTH';
 
   @override
-  String get calculatedTotalDepth => 'CALCULATED TOTAL DEPTH';
+  String get calculatedTotalDepth => 'Calculated total depth';
 
   @override
   String get depthCalculationFormula => 'Max draft + UKC + Squat';
 
   @override
-  String get complementaryData => 'Complementary Data';
+  String get complementaryData => 'Complementary data';
 
   @override
-  String get maxDraftInput => 'Max Draft (m)';
+  String get maxDraftInput => 'Maximum draft (m)';
 
   @override
   String get ukcInput => 'UKC (m)';
@@ -774,6 +777,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulerManualHint => 'Enter the current ruler reading manually.';
+
+  @override
+  String get depthDailyValue => 'Daily value';
 
   @override
   String get invalidRulerReading => 'Enter a valid ruler reading';
@@ -797,7 +803,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get squatConsidered => 'Squat considered?';
 
   @override
-  String get sonarPosition => 'Sonar Position';
+  String get sonarPosition => 'Sonar position';
 
   @override
   String get bow => 'Bow';
@@ -809,13 +815,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get positionLatLong => 'Position (LAT/LONG)';
 
   @override
-  String get observations => 'Observations / References';
+  String get observations => 'Observations';
 
   @override
-  String get additionalInfo => 'Additional information...';
+  String get additionalInfo => 'Observations...';
 
   @override
   String get registerPassage => 'Register Passage';
+
+  @override
+  String get saveDepthRecord => 'Save record';
 
   @override
   String get recordSavedSuccess => 'Record saved successfully!';

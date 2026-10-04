@@ -713,13 +713,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ukc => 'UKC';
 
   @override
-  String get direction => 'DIREÇÃO';
+  String get direction => 'Direção';
 
   @override
   String get passageData => 'Dados da Passagem';
 
   @override
   String get selectLocation => 'Selecionar local';
+
+  @override
+  String get depthLocationLabel => 'Local';
 
   @override
   String get addNewLocation => 'Adicionar novo local';
@@ -734,7 +737,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shipNameOptional => 'Nome do navio (opcional)';
 
   @override
-  String get passageDate => 'Data da passagem';
+  String get passageDate => 'Data';
 
   @override
   String get goingUp => 'Subindo';
@@ -746,16 +749,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get totalDepthLabel => 'PROFUNDIDADE TOTAL';
 
   @override
-  String get calculatedTotalDepth => 'PROFUNDIDADE TOTAL (CALCULADA)';
+  String get calculatedTotalDepth => 'Profundidade total (calculada)';
 
   @override
   String get depthCalculationFormula => 'Calado máximo + UKC + Squat';
 
   @override
-  String get complementaryData => 'Dados Complementares';
+  String get complementaryData => 'Dados complementares';
 
   @override
-  String get maxDraftInput => 'Calado Máximo (m)';
+  String get maxDraftInput => 'Calado máximo (m)';
 
   @override
   String get ukcInput => 'UKC (m)';
@@ -774,6 +777,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get rulerManualHint => 'Informe manualmente a leitura atual da régua.';
+
+  @override
+  String get depthDailyValue => 'Valor do dia';
 
   @override
   String get invalidRulerReading => 'Informe uma leitura de régua válida';
@@ -797,7 +803,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get squatConsidered => 'Squat considerado?';
 
   @override
-  String get sonarPosition => 'Posição da Sonda';
+  String get sonarPosition => 'Posição da sonda';
 
   @override
   String get bow => 'Proa';
@@ -809,13 +815,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get positionLatLong => 'Posição (LAT/LONG)';
 
   @override
-  String get observations => 'Observações / Referências';
+  String get observations => 'Observações';
 
   @override
-  String get additionalInfo => 'Informações adicionais...';
+  String get additionalInfo => 'Observações...';
 
   @override
   String get registerPassage => 'Registrar Passagem';
+
+  @override
+  String get saveDepthRecord => 'Salvar registro';
 
   @override
   String get recordSavedSuccess => 'Registro salvo com sucesso!';

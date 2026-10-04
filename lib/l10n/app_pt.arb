@@ -981,7 +981,7 @@
   "@ukc": {
     "description": "Localized text for ukc."
   },
-  "direction": "DIREÇÃO",
+  "direction": "Direção",
   "@direction": {
     "description": "Localized text for direction."
   },
@@ -992,6 +992,10 @@
   "selectLocation": "Selecionar local",
   "@selectLocation": {
     "description": "Localized text for select location."
+  },
+  "depthLocationLabel": "Local",
+  "@depthLocationLabel": {
+    "description": "Label above the location selector in the depth form."
   },
   "addNewLocation": "Adicionar novo local",
   "@addNewLocation": {
@@ -1009,7 +1013,7 @@
   "@shipNameOptional": {
     "description": "Localized text for ship name optional."
   },
-  "passageDate": "Data da passagem",
+  "passageDate": "Data",
   "@passageDate": {
     "description": "Localized text for passage date."
   },
@@ -1025,7 +1029,7 @@
   "@totalDepthLabel": {
     "description": "Label text for total depth."
   },
-  "calculatedTotalDepth": "PROFUNDIDADE TOTAL (CALCULADA)",
+  "calculatedTotalDepth": "Profundidade total (calculada)",
   "@calculatedTotalDepth": {
     "description": "Label for the automatically calculated total depth."
   },
@@ -1033,11 +1037,11 @@
   "@depthCalculationFormula": {
     "description": "Formula used to calculate total depth."
   },
-  "complementaryData": "Dados Complementares",
+  "complementaryData": "Dados complementares",
   "@complementaryData": {
     "description": "Localized text for complementary data."
   },
-  "maxDraftInput": "Calado Máximo (m)",
+  "maxDraftInput": "Calado máximo (m)",
   "@maxDraftInput": {
     "description": "Localized text for max draft input."
   },
@@ -1064,6 +1068,10 @@
   "rulerManualHint": "Informe manualmente a leitura atual da régua.",
   "@rulerManualHint": {
     "description": "Explains that the ruler reading is currently entered manually."
+  },
+  "depthDailyValue": "Valor do dia",
+  "@depthDailyValue": {
+    "description": "Short caption beside the daily manual ruler reading."
   },
   "invalidRulerReading": "Informe uma leitura de régua válida",
   "@invalidRulerReading": {
@@ -1093,7 +1101,7 @@
   "@squatConsidered": {
     "description": "Localized text for squat considered."
   },
-  "sonarPosition": "Posição da Sonda",
+  "sonarPosition": "Posição da sonda",
   "@sonarPosition": {
     "description": "Localized text for sonar position."
   },
@@ -1109,17 +1117,21 @@
   "@positionLatLong": {
     "description": "Localized text for position lat long."
   },
-  "observations": "Observações / Referências",
+  "observations": "Observações",
   "@observations": {
     "description": "Localized text for observations."
   },
-  "additionalInfo": "Informações adicionais...",
+  "additionalInfo": "Observações...",
   "@additionalInfo": {
     "description": "Localized text for additional info."
   },
   "registerPassage": "Registrar Passagem",
   "@registerPassage": {
     "description": "Localized text for register passage."
+  },
+  "saveDepthRecord": "Salvar registro",
+  "@saveDepthRecord": {
+    "description": "Button label for saving a new depth record."
   },
   "recordSavedSuccess": "Registro salvo com sucesso!",
   "@recordSavedSuccess": {

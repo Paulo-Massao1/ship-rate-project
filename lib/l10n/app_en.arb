@@ -962,7 +962,7 @@
   "@ukc": {
     "description": "Localized text for ukc."
   },
-  "direction": "DIRECTION",
+  "direction": "Direction",
   "@direction": {
     "description": "Localized text for direction."
   },
@@ -973,6 +973,10 @@
   "selectLocation": "Select location",
   "@selectLocation": {
     "description": "Localized text for select location."
+  },
+  "depthLocationLabel": "Location",
+  "@depthLocationLabel": {
+    "description": "Label above the location selector in the depth form."
   },
   "addNewLocation": "Add new location",
   "@addNewLocation": {
@@ -990,7 +994,7 @@
   "@shipNameOptional": {
     "description": "Localized text for ship name optional."
   },
-  "passageDate": "Passage date",
+  "passageDate": "Date",
   "@passageDate": {
     "description": "Localized text for passage date."
   },
@@ -1006,7 +1010,7 @@
   "@totalDepthLabel": {
     "description": "Label text for total depth."
   },
-  "calculatedTotalDepth": "CALCULATED TOTAL DEPTH",
+  "calculatedTotalDepth": "Calculated total depth",
   "@calculatedTotalDepth": {
     "description": "Label for the automatically calculated total depth."
   },
@@ -1014,11 +1018,11 @@
   "@depthCalculationFormula": {
     "description": "Formula used to calculate total depth."
   },
-  "complementaryData": "Complementary Data",
+  "complementaryData": "Complementary data",
   "@complementaryData": {
     "description": "Localized text for complementary data."
   },
-  "maxDraftInput": "Max Draft (m)",
+  "maxDraftInput": "Maximum draft (m)",
   "@maxDraftInput": {
     "description": "Localized text for max draft input."
   },
@@ -1045,6 +1049,10 @@
   "rulerManualHint": "Enter the current ruler reading manually.",
   "@rulerManualHint": {
     "description": "Explains that the ruler reading is currently entered manually."
+  },
+  "depthDailyValue": "Daily value",
+  "@depthDailyValue": {
+    "description": "Short caption beside the daily manual ruler reading."
   },
   "invalidRulerReading": "Enter a valid ruler reading",
   "@invalidRulerReading": {
@@ -1074,7 +1082,7 @@
   "@squatConsidered": {
     "description": "Localized text for squat considered."
   },
-  "sonarPosition": "Sonar Position",
+  "sonarPosition": "Sonar position",
   "@sonarPosition": {
     "description": "Localized text for sonar position."
   },
@@ -1090,17 +1098,21 @@
   "@positionLatLong": {
     "description": "Localized text for position lat long."
   },
-  "observations": "Observations / References",
+  "observations": "Observations",
   "@observations": {
     "description": "Localized text for observations."
   },
-  "additionalInfo": "Additional information...",
+  "additionalInfo": "Observations...",
   "@additionalInfo": {
     "description": "Localized text for additional info."
   },
   "registerPassage": "Register Passage",
   "@registerPassage": {
     "description": "Localized text for register passage."
+  },
+  "saveDepthRecord": "Save record",
+  "@saveDepthRecord": {
+    "description": "Button label for saving a new depth record."
   },
   "recordSavedSuccess": "Record saved successfully!",
   "@recordSavedSuccess": {
