@@ -877,10 +877,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
             TextSpan(
               text: ' ${l10n.activePilotsLabel}',
-              style: TextStyle(
-                color: accent.withValues(alpha: 0.75),
+              style: const TextStyle(
+                color: accent,
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -1403,7 +1403,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         splashColor: borderColor,
         child: Container(
           width: double.infinity,
-          height: 108,
+          height: 122,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0x0DFFFFFF),
@@ -1470,11 +1470,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               const Spacer(),
               Text(
                 subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                softWrap: true,
                 style: const TextStyle(
                   color: Color(0x73FFFFFF),
                   fontSize: 10,
+                  height: 1.2,
                 ),
               ),
             ],
@@ -1495,7 +1496,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      height: 108,
+      height: 122,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.02),
@@ -1553,11 +1554,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           const Spacer(),
           Text(
             subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            softWrap: true,
             style: const TextStyle(
               color: Color(0x66FFFFFF),
               fontSize: 10,
+              height: 1.2,
             ),
           ),
         ],

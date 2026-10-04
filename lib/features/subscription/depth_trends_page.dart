@@ -52,7 +52,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   static const double _valueLabelBand = 18;
 
   /// Distance between a dot and the value printed above it.
-  static const double _valueLabelGap = 5;
+  static const double _valueLabelGap = 7;
 
   /// Most labels the Y axis takes before its one-meter step is widened.
   static const int _maxYLabels = 8;
@@ -610,12 +610,17 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
           lineTouchData: LineTouchData(
             enabled: false,
             touchTooltipData: LineTouchTooltipData(
-              // A tooltip stripped of its box is just the value of the dot.
-              tooltipPadding: EdgeInsets.zero,
+              // A compact opaque label keeps the chart line from crossing the
+              // value text, especially on descending segments.
+              tooltipPadding: const EdgeInsets.symmetric(
+                horizontal: 3,
+                vertical: 1,
+              ),
               tooltipMargin: _valueLabelGap,
-              tooltipRoundedRadius: 0,
+              tooltipRoundedRadius: 3,
               fitInsideHorizontally: true,
-              getTooltipColor: (_) => Colors.transparent,
+              fitInsideVertically: true,
+              getTooltipColor: (_) => _deepNavy,
               getTooltipItems: (touchedSpots) => [
                 for (final spot in touchedSpots) _buildValueLabel(spot, lastIndex),
               ],
@@ -737,7 +742,9 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     }
 
     final min = lowest.floorToDouble().clamp(0.0, double.infinity);
-    var max = highest.ceilToDouble();
+    // Extra headroom prevents a value sitting on an exact whole-meter maximum
+    // from being clipped by the plot boundary.
+    var max = (highest + 0.5).ceilToDouble();
     // Keeps the range positive when every month sits on the same whole meter.
     if (max <= min) max = min + 1;
 

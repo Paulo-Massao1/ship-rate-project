@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'dart:html' as html;
+import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
 
 class WebUpdateService {
   const WebUpdateService._();
@@ -11,26 +13,28 @@ class WebUpdateService {
   }
 
   static Future<void> _refreshServiceWorkers() async {
-    final serviceWorker = html.window.navigator.serviceWorker;
-    if (serviceWorker == null) return;
-
     try {
-      final registrations = await serviceWorker
+      final registrations = await web.window.navigator.serviceWorker
           .getRegistrations()
+          .toDart
           .timeout(const Duration(seconds: 3));
 
-      for (final registration in registrations) {
-        if (registration is! html.ServiceWorkerRegistration) continue;
-
+      for (final registration in registrations.toDart) {
         try {
-          registration.waiting?.postMessage({'type': 'SKIP_WAITING'});
-          await registration.update().timeout(const Duration(seconds: 2));
+          registration.waiting?.postMessage(
+            <String, String>{'type': 'SKIP_WAITING'}.jsify(),
+          );
+          await registration.update().toDart.timeout(
+            const Duration(seconds: 2),
+          );
         } catch (_) {
           // The cache clear and reload below still move the web app forward.
         }
 
         try {
-          await registration.unregister().timeout(const Duration(seconds: 2));
+          await registration.unregister().toDart.timeout(
+            const Duration(seconds: 2),
+          );
         } catch (_) {
           // A failed unregister should not block the refresh attempt.
         }
@@ -41,15 +45,15 @@ class WebUpdateService {
   }
 
   static Future<void> _clearAppCaches() async {
-    final caches = html.window.caches;
-    if (caches == null) return;
-
     try {
-      final cacheNames = await caches.keys().timeout(const Duration(seconds: 3));
+      final caches = web.window.caches;
+      final cacheNames = await caches.keys().toDart.timeout(
+        const Duration(seconds: 3),
+      );
       await Future.wait(
-        cacheNames
-            .whereType<String>()
-            .map((cacheName) => caches.delete(cacheName)),
+        cacheNames.toDart.map(
+          (cacheName) => caches.delete(cacheName.toDart).toDart,
+        ),
       ).timeout(const Duration(seconds: 5));
     } catch (_) {
       // Cache APIs can be unavailable in private mode or older WebViews.
@@ -57,12 +61,12 @@ class WebUpdateService {
   }
 
   static void _reloadWithCacheBust() {
-    final currentUri = Uri.parse(html.window.location.href);
+    final currentUri = Uri.parse(web.window.location.href);
     final queryParameters = Map<String, String>.from(
       currentUri.queryParameters,
     )..['_sr_update'] = DateTime.now().millisecondsSinceEpoch.toString();
 
     final targetUri = currentUri.replace(queryParameters: queryParameters);
-    html.window.location.replace(targetUri.toString());
+    web.window.location.replace(targetUri.toString());
   }
 }

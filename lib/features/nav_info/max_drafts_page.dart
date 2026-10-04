@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 import 'package:ship_rate/core/module_access.dart';
 import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:ship_rate/shared/widgets/pdf_viewer_app_bar.dart';
 import 'package:ship_rate/shared/widgets/pinch_zoom_pdf_preview.dart';
 
 class MaxDraftsPage extends StatefulWidget {
@@ -59,38 +60,12 @@ class _MaxDraftsPageState extends State<MaxDraftsPage> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        leadingWidth: 96,
-        leading: _buildBackButton(l10n),
-        title: Text(
-          l10n.maxDraftsTitle,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: l10n.shareRecord,
-            onPressed: _sharePdf,
-          ),
-        ],
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
-              stops: [0.0, 0.5, 1.0],
-            ),
-          ),
-        ),
+      appBar: PdfViewerAppBar(
+        title: l10n.maxDraftsTitle,
+        backLabel: l10n.back,
+        onBack: () => Navigator.maybePop(context),
+        shareTooltip: l10n.shareRecord,
+        onShare: _sharePdf,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -127,6 +102,9 @@ class _MaxDraftsPageState extends State<MaxDraftsPage> {
             return PinchZoomPdfPreview(
               bytes: bytes,
               fileName: _fileName,
+              zoomOutTooltip: l10n.pdfZoomOutTooltip,
+              resetZoomTooltip: l10n.pdfResetZoomTooltip,
+              zoomInTooltip: l10n.pdfZoomInTooltip,
             );
           },
         ),
@@ -134,25 +112,4 @@ class _MaxDraftsPageState extends State<MaxDraftsPage> {
     );
   }
 
-  Widget _buildBackButton(AppLocalizations l10n) {
-    return TextButton.icon(
-      onPressed: () => Navigator.maybePop(context),
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.only(left: 8, right: 6),
-        minimumSize: const Size(0, kToolbarHeight),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
-      icon: const Icon(Icons.arrow_back_ios_new, size: 15),
-      label: Text(
-        l10n.back,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
 }

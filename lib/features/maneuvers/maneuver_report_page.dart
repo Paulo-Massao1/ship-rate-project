@@ -512,25 +512,46 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           runSpacing: 6,
           children: options.entries.map((entry) {
             final selected = value == entry.key;
-            return ChoiceChip(
-              label: Text(entry.value),
+            return Semantics(
+              button: true,
               selected: selected,
-              onSelected: _saving
-                  ? null
-                  : (isSelected) => onChanged(isSelected ? entry.key : null),
-              labelStyle: TextStyle(
-                color: selected ? _amber : const Color(0xBFFFFFFF),
-                fontSize: 11,
-              ),
-              selectedColor: _amber.withValues(alpha: 0.13),
-              backgroundColor: const Color(0x08FFFFFF),
-              side: BorderSide(
+              child: Material(
                 color: selected
-                    ? _amber.withValues(alpha: 0.45)
-                    : const Color(0x1FFFFFFF),
+                    ? _amber.withValues(alpha: 0.13)
+                    : const Color(0x08FFFFFF),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: selected
+                        ? _amber.withValues(alpha: 0.55)
+                        : const Color(0x33FFFFFF),
+                  ),
+                ),
+                child: InkWell(
+                  onTap: _saving
+                      ? null
+                      : () => onChanged(selected ? null : entry.key),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 9,
+                    ),
+                    child: Text(
+                      entry.value,
+                      style: TextStyle(
+                        color: selected
+                            ? _amber
+                            : const Color(0xD9FFFFFF),
+                        fontSize: 11,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              visualDensity: VisualDensity.compact,
-              showCheckmark: false,
             );
           }).toList(growable: false),
         ),

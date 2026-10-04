@@ -2087,6 +2087,24 @@ abstract class AppLocalizations {
   /// **'Compartilhar'**
   String get shareRecord;
 
+  /// Tooltip for the PDF viewer zoom-out button.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reduzir zoom'**
+  String get pdfZoomOutTooltip;
+
+  /// Tooltip for the PDF viewer zoom reset control.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restaurar zoom'**
+  String get pdfResetZoomTooltip;
+
+  /// Tooltip for the PDF viewer zoom-in button.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aumentar zoom'**
+  String get pdfZoomInTooltip;
+
   /// Button label to dismiss share dialog.
   ///
   /// In pt, this message translates to:
@@ -3008,7 +3026,7 @@ abstract class AppLocalizations {
   /// Second feature listed in the Plus plan card.
   ///
   /// In pt, this message translates to:
-  /// **'Acesso ao módulo Manobras'**
+  /// **'Acesso a informações de manobras'**
   String get plusFeature2;
 
   /// Label of the button that purchases the Premium plan.
@@ -3347,222 +3365,658 @@ abstract class AppLocalizations {
   /// **'EM BREVE'**
   String get comingSoonBadge;
 
+  /// Notice explaining that maneuver report fields are optional.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma informação é obrigatória.'**
   String get maneuverReportOptionalFields;
 
+  /// Title of the maneuver approach form section.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aproximação'**
   String get maneuverApproach;
 
+  /// Label for tugboat fields in a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rebocadores'**
   String get maneuverTugboats;
 
+  /// Explains the sources of tugboat options.
+  ///
+  /// In pt, this message translates to:
+  /// **'Opções dos Parâmetros Operacionais e da comunidade de práticos.'**
   String get maneuverTugSharedNotice;
 
+  /// Label for the forward tugboat selector.
+  ///
+  /// In pt, this message translates to:
+  /// **'AV (avante)'**
   String get maneuverTugForward;
 
+  /// Label for the aft tugboat selector.
+  ///
+  /// In pt, this message translates to:
+  /// **'AR (a ré)'**
   String get maneuverTugAft;
 
+  /// Placeholder for a tugboat selector.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecionar...'**
   String get maneuverSelectTug;
 
+  /// Option that clears an optional tugboat selection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum'**
   String get maneuverNoTugSelected;
 
+  /// Message shown when no tugboats are available for a port.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum rebocador disponível'**
   String get maneuverNoTugs;
 
+  /// Button for registering a community tugboat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Inserir novo rebocador'**
   String get maneuverAddTug;
 
+  /// Short label for an official tugboat sourced from operational parameters.
+  ///
+  /// In pt, this message translates to:
+  /// **'Parâmetros'**
   String get maneuverTugOfficialSource;
 
+  /// Short label for a community-created tugboat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comunidade'**
   String get maneuverTugCommunitySource;
 
+  /// Non-blocking error shown when community tugboats cannot be loaded.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.'**
   String get maneuverCommunityTugsLoadError;
 
+  /// Title of the community tugboat registration sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo rebocador'**
   String get maneuverAddTugTitle;
 
+  /// Notice explaining that a new tugboat is shared with other pilots.
+  ///
+  /// In pt, this message translates to:
+  /// **'O rebocador ficará disponível para os demais práticos desta localidade.'**
   String get maneuverTugRegistrationNotice;
 
+  /// Label for the tugboat name field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do rebocador'**
   String get maneuverTugName;
 
+  /// Example shown in the tugboat name field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ex.: NOVO REBOCADOR'**
   String get maneuverTugNameHint;
 
+  /// Label for the optional tugboat bollard pull field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bollard pull — BP (opcional)'**
   String get maneuverTugBollardPull;
 
+  /// Label for the optional tugboat type selector.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tipo (opcional)'**
   String get maneuverTugType;
 
+  /// Azimuthal tugboat type.
+  ///
+  /// In pt, this message translates to:
+  /// **'Azimutal'**
   String get maneuverTugTypeAzimuthal;
 
+  /// Conventional tugboat type.
+  ///
+  /// In pt, this message translates to:
+  /// **'Convencional'**
   String get maneuverTugTypeConventional;
 
+  /// Unspecified tugboat type.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não informado'**
   String get maneuverTugTypeUnspecified;
 
+  /// Button that saves a new community tugboat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar rebocador'**
   String get maneuverSaveTug;
 
+  /// Confirmation shown after a community tugboat is created.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} foi adicionado e já está disponível para os demais práticos.'**
   String maneuverTugSaved(String name);
 
+  /// Validation error for an invalid tugboat name.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe um nome válido com 2 a 60 caracteres.'**
   String get maneuverTugInvalidName;
 
+  /// Validation error for an invalid bollard pull.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe um BP válido, maior que zero e de até 200.'**
   String get maneuverTugInvalidBollardPull;
 
+  /// Error shown when a duplicate tugboat is submitted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este rebocador já está cadastrado para a localidade.'**
   String get maneuverTugDuplicate;
 
+  /// Error shown when a signed-out user attempts to create a tugboat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre novamente na sua conta para cadastrar o rebocador.'**
   String get maneuverTugSignedOut;
 
+  /// Generic error shown when a community tugboat cannot be saved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível cadastrar o rebocador agora. Tente novamente.'**
   String get maneuverTugSaveError;
 
+  /// Optional ship length field in a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comprimento (m)'**
   String get maneuverShipLength;
 
+  /// Optional ship beam field in a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Boca (m)'**
   String get maneuverShipBeam;
 
+  /// Optional maximum draft field in a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado máximo (m)'**
   String get maneuverMaximumDraft;
 
+  /// Optional propeller direction field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sentido da hélice'**
   String get maneuverPropellerDirection;
 
+  /// Right-handed propeller option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Direito'**
   String get maneuverRightHanded;
 
+  /// Left-handed propeller option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esquerdo'**
   String get maneuverLeftHanded;
 
+  /// Optional propeller pitch field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Passo'**
   String get maneuverPropellerPitch;
 
+  /// Fixed propeller pitch option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fixo'**
   String get maneuverPitchFixed;
 
+  /// Controllable propeller pitch option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Controlado'**
   String get maneuverPitchControllable;
 
+  /// Optional nationality of the master and officers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nac. comandante/oficiais'**
   String get maneuverOfficerNationality;
 
+  /// Hint shown in the maneuver ship autocomplete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar navio...'**
   String get maneuverSearchShip;
 
+  /// Hint shown while maneuver ship options load.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carregando navios...'**
   String get maneuverLoadingShips;
 
+  /// Title of the maneuver mooring section.
+  ///
+  /// In pt, this message translates to:
+  /// **'Amarração'**
   String get maneuverMooring;
 
+  /// Optional first forward mooring lines field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Primeiros cabos AV'**
   String get maneuverForwardFirstLines;
 
+  /// Optional first aft mooring lines field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Primeiros cabos AR'**
   String get maneuverAftFirstLines;
 
+  /// Head line mooring option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lançante'**
   String get maneuverHeadLine;
 
+  /// Breast line mooring option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Través'**
   String get maneuverBreastLine;
 
+  /// Spring mooring line option.
+  ///
+  /// In pt, this message translates to:
+  /// **'Spring'**
   String get maneuverSpring;
 
+  /// Optional maneuver comments field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comentários'**
   String get maneuverComments;
 
+  /// Current conditions subsection title.
+  ///
+  /// In pt, this message translates to:
+  /// **'Corrente'**
   String get maneuverCurrent;
 
+  /// Optional current or wind direction field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Direção (000–359°)'**
   String get maneuverDirectionDegrees;
 
+  /// Optional current or wind intensity field.
+  ///
+  /// In pt, this message translates to:
+  /// **'Intensidade (nós)'**
   String get maneuverIntensityKnots;
 
+  /// Wind conditions subsection title.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vento'**
   String get maneuverWind;
 
+  /// Button that saves a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar relato'**
   String get maneuverSaveReport;
 
+  /// Validation error for invalid optional maneuver numbers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Revise os valores numéricos. As direções devem estar entre 000° e 359°.'**
   String get maneuverInvalidNumericValue;
 
+  /// Confirmation shown after saving a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relato de manobra salvo com sucesso.'**
   String get maneuverReportSaved;
 
+  /// Error shown when a signed-out user attempts to save a report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entre novamente na sua conta para salvar o relato.'**
   String get maneuverReportSignedOut;
 
+  /// Generic error shown when a maneuver report cannot be saved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível salvar o relato agora. Tente novamente.'**
   String get maneuverReportSaveError;
 
+  /// Introduction shown above the maneuver report history.
+  ///
+  /// In pt, this message translates to:
+  /// **'Consulte os relatos compartilhados pelos práticos neste terminal.'**
   String get maneuverHistoryIntro;
 
+  /// Title shown when a terminal has no maneuver reports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum relato de manobra'**
   String get maneuverHistoryEmpty;
 
+  /// Description shown when maneuver history is empty.
+  ///
+  /// In pt, this message translates to:
+  /// **'O primeiro relato enviado para este terminal aparecerá aqui.'**
   String get maneuverHistoryEmptyDescription;
 
+  /// Title shown when maneuver history cannot be loaded.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar o histórico'**
   String get maneuverHistoryLoadError;
 
+  /// Description shown when maneuver history cannot be loaded.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verifique sua conexão e tente novamente em instantes.'**
   String get maneuverHistoryLoadErrorDescription;
 
+  /// Fallback when a maneuver report has no ship name.
+  ///
+  /// In pt, this message translates to:
+  /// **'Navio não informado'**
   String get maneuverUnknownShip;
 
+  /// Fallback when a maneuver report has no pilot name.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prático não informado'**
   String get maneuverUnknownPilot;
 
+  /// Title of the maneuver report details screen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Detalhes da manobra'**
   String get maneuverReportDetails;
 
+  /// Pilot label in maneuver report details.
+  ///
+  /// In pt, this message translates to:
+  /// **'Prático'**
   String get maneuverPilot;
 
+  /// Date label in maneuver report details.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data do relato'**
   String get maneuverReportDate;
 
+  /// Location label in maneuver report details.
+  ///
+  /// In pt, this message translates to:
+  /// **'Local'**
   String get maneuverLocation;
 
+  /// Message shown for an otherwise empty maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma informação adicional foi registrada neste relato.'**
   String get maneuverNoAdditionalInfo;
 
+  /// Title of the maneuver report deletion confirmation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir relato?'**
   String get maneuverDeleteReportTitle;
 
+  /// Body of the maneuver report deletion confirmation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.'**
   String get maneuverDeleteReportConfirm;
 
+  /// Confirmation shown after deleting a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relato excluído com sucesso.'**
   String get maneuverReportDeleted;
 
+  /// Error shown when a maneuver report cannot be deleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível excluir o relato. Tente novamente.'**
   String get maneuverReportDeleteError;
 
+  /// Short knots unit used in maneuver report details.
+  ///
+  /// In pt, this message translates to:
+  /// **'nós'**
   String get maneuverKnotsShort;
 
+  /// Short forward position label.
+  ///
+  /// In pt, this message translates to:
+  /// **'AV'**
   String get maneuverForwardShort;
 
+  /// Short aft position label.
+  ///
+  /// In pt, this message translates to:
+  /// **'AR'**
   String get maneuverAftShort;
 
+  /// Title of the terminal operational limits section.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limites do porto/manobra'**
   String get maneuverPortLimits;
 
+  /// Maneuver schedule information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário'**
   String get maneuverSchedule;
 
+  /// Value indicating no schedule restrictions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem restrições de horário'**
   String get maneuverNoRestrictions;
 
+  /// Maximum ship length information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comprimento máximo'**
   String get maneuverMaximumLength;
 
+  /// Ship beam restriction information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Restrição de boca'**
   String get maneuverBeamRestriction;
 
+  /// Value indicating no operational restriction.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem restrição'**
   String get maneuverNoRestriction;
 
+  /// Terminal pier length information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comprimento do píer'**
   String get maneuverPierLength;
 
+  /// Maximum deadweight information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'DWT máximo'**
   String get maneuverMaximumDwt;
 
+  /// Air draft information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado aéreo'**
   String get maneuverAirDraft;
 
+  /// Air draft restriction detail for Santarem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limitado ao Linhão de Almeirim/Jurupari'**
   String get maneuverAirDraftDetail;
 
+  /// Maximum wind information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vento máximo'**
   String get maneuverMaximumWind;
 
+  /// Minimum visibility information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Visibilidade mínima'**
   String get maneuverMinimumVisibility;
 
+  /// Crossing restriction information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamento'**
   String get maneuverCrossing;
 
+  /// Source attribution for terminal operational data.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental'**
   String get maneuverOperationalParametersSource;
 
+  /// Title above the maximum departure draft tables.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calados máximos para saída do porto'**
   String get maneuverMaximumDrafts;
 
+  /// General cargo draft table title.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carga geral'**
   String get maneuverGeneralCargo;
 
+  /// Dangerous cargo draft table title.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carga perigosa'**
   String get maneuverDangerousCargo;
 
+  /// Official five-centimeter draft adjustment footnote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.'**
   String get maneuverDraftFootnote;
 
+  /// VHF channel information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Canal VHF'**
   String get maneuverVhfChannel;
 
+  /// Value indicating mandatory tugboat use.
+  ///
+  /// In pt, this message translates to:
+  /// **'Obrigatórios'**
   String get maneuverMandatory;
 
+  /// Navigation recommendation information label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Navegação'**
   String get maneuverNavigation;
 
+  /// Tapajos River speed recommendation from the operational parameters.
+  ///
+  /// In pt, this message translates to:
+  /// **'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.'**
   String get maneuverTapajosNavigation;
 
+  /// Context note above the terminal mooring arrangement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.'**
   String get maneuverMooringReferenceNote;
 
+  /// Typical Panamax mooring arrangement.
+  ///
+  /// In pt, this message translates to:
+  /// **'normalmente 2 × 2 × 2'**
   String get maneuverNormally222;
 
+  /// Typical Handmax mooring arrangement.
+  ///
+  /// In pt, this message translates to:
+  /// **'normalmente 4 × 2'**
   String get maneuverNormally42;
 
+  /// Safety disclaimer shown below terminal operational information.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.'**
   String get maneuverOperationalDisclaimer;
 
+  /// Title of the official tugboat information sheet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rebocadores — Parâmetros Operacionais'**
   String get maneuverOfficialTugInfo;
 
+  /// Description above the official Santarem tugboat list.
+  ///
+  /// In pt, this message translates to:
+  /// **'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:'**
   String get maneuverTugRequirementDetail;
 
+  /// Clarification preventing an unsupported Cargill tugboat minimum.
+  ///
+  /// In pt, this message translates to:
+  /// **'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.'**
   String get maneuverTugNoSpecificMinimum;
 
+  /// Dry season column in the Santarem draft table.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seca · 16/08–31/01'**
   String get maneuverDrySeason;
 
+  /// Flood season column in the Santarem draft table.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cheia · 01/02–15/08'**
   String get maneuverFloodSeason;
 
+  /// Optional Barra Norte pilotage row label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Praticagem facultativa'**
   String get maneuverPilotageOptional;
 
+  /// Mandatory Barra Norte pilotage row label.
+  ///
+  /// In pt, this message translates to:
+  /// **'Praticagem obrigatória'**
   String get maneuverPilotageMandatory;
 }
 

@@ -767,22 +767,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get measurementTime => 'Horário da sondagem';
 
   @override
-  String get santanaTideReferenceHint =>
-      'Este local usa a Maré de Santana como referência.';
+  String get santanaTideReferenceHint => 'Este local usa a Maré de Santana como referência.';
 
   @override
   String get rulerReading => 'Leitura da régua';
 
   @override
-  String get rulerManualHint =>
-      'Informe manualmente a leitura atual da régua.';
+  String get rulerManualHint => 'Informe manualmente a leitura atual da régua.';
 
   @override
   String get invalidRulerReading => 'Informe uma leitura de régua válida';
 
   @override
-  String get tideReferenceUnavailable =>
-      'Dados de maré indisponíveis para este horário.';
+  String get tideReferenceUnavailable => 'Dados de maré indisponíveis para este horário.';
 
   @override
   String get previousLowTide => 'Baixamar anterior';
@@ -1066,6 +1063,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get shareRecord => 'Compartilhar';
+
+  @override
+  String get pdfZoomOutTooltip => 'Reduzir zoom';
+
+  @override
+  String get pdfResetZoomTooltip => 'Restaurar zoom';
+
+  @override
+  String get pdfZoomInTooltip => 'Aumentar zoom';
 
   @override
   String get noThanks => 'Não, obrigado';
@@ -1723,41 +1729,34 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuversSelectTerminal => 'Selecione um porto ou terminal';
 
   @override
-  String get maneuverAccessNotice =>
-      'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.';
+  String get maneuverAccessNotice => 'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.';
 
   @override
   String get reportManeuver => 'Relatar manobra';
 
   @override
-  String get reportManeuverDesc =>
-      'Registre as condições e os dados observados na manobra.';
+  String get reportManeuverDesc => 'Registre as condições e os dados observados na manobra.';
 
   @override
   String get maneuverHistory => 'Histórico de manobras';
 
   @override
-  String get maneuverHistoryDesc =>
-      'Consulte os relatos enviados para este terminal.';
+  String get maneuverHistoryDesc => 'Consulte os relatos enviados para este terminal.';
 
   @override
   String get initialManeuverInfo => 'Informações iniciais';
 
   @override
-  String get initialManeuverInfoDesc =>
-      'Orientações e informações de preparação do terminal.';
+  String get initialManeuverInfoDesc => 'Orientações e informações de preparação do terminal.';
 
   @override
-  String get maneuverReportComingSoon =>
-      'O formulário completo de relato será disponibilizado em breve.';
+  String get maneuverReportComingSoon => 'O formulário completo de relato será disponibilizado em breve.';
 
   @override
-  String get maneuverHistoryComingSoon =>
-      'Os relatos deste terminal serão exibidos aqui.';
+  String get maneuverHistoryComingSoon => 'Os relatos deste terminal serão exibidos aqui.';
 
   @override
-  String get maneuverInitialInfoComingSoon =>
-      'As informações operacionais deste terminal estarão disponíveis em breve.';
+  String get maneuverInitialInfoComingSoon => 'As informações operacionais deste terminal estarão disponíveis em breve.';
 
   @override
   String get newBadge => 'NOVO';
@@ -1772,8 +1771,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get comingSoonBadge => 'EM BREVE';
 
   @override
-  String get maneuverReportOptionalFields =>
-      'Nenhuma informação é obrigatória.';
+  String get maneuverReportOptionalFields => 'Nenhuma informação é obrigatória.';
 
   @override
   String get maneuverApproach => 'Aproximação';
@@ -1782,8 +1780,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugboats => 'Rebocadores';
 
   @override
-  String get maneuverTugSharedNotice =>
-      'Opções dos Parâmetros Operacionais e da comunidade de práticos.';
+  String get maneuverTugSharedNotice => 'Opções dos Parâmetros Operacionais e da comunidade de práticos.';
 
   @override
   String get maneuverTugForward => 'AV (avante)';
@@ -1810,15 +1807,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugCommunitySource => 'Comunidade';
 
   @override
-  String get maneuverCommunityTugsLoadError =>
-      'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.';
+  String get maneuverCommunityTugsLoadError => 'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.';
 
   @override
   String get maneuverAddTugTitle => 'Novo rebocador';
 
   @override
-  String get maneuverTugRegistrationNotice =>
-      'O rebocador ficará disponível para os demais práticos desta localidade.';
+  String get maneuverTugRegistrationNotice => 'O rebocador ficará disponível para os demais práticos desta localidade.';
 
   @override
   String get maneuverTugName => 'Nome do rebocador';
@@ -1850,24 +1845,19 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get maneuverTugInvalidName =>
-      'Informe um nome válido com 2 a 60 caracteres.';
+  String get maneuverTugInvalidName => 'Informe um nome válido com 2 a 60 caracteres.';
 
   @override
-  String get maneuverTugInvalidBollardPull =>
-      'Informe um BP válido, maior que zero e de até 200.';
+  String get maneuverTugInvalidBollardPull => 'Informe um BP válido, maior que zero e de até 200.';
 
   @override
-  String get maneuverTugDuplicate =>
-      'Este rebocador já está cadastrado para a localidade.';
+  String get maneuverTugDuplicate => 'Este rebocador já está cadastrado para a localidade.';
 
   @override
-  String get maneuverTugSignedOut =>
-      'Entre novamente na sua conta para cadastrar o rebocador.';
+  String get maneuverTugSignedOut => 'Entre novamente na sua conta para cadastrar o rebocador.';
 
   @override
-  String get maneuverTugSaveError =>
-      'Não foi possível cadastrar o rebocador agora. Tente novamente.';
+  String get maneuverTugSaveError => 'Não foi possível cadastrar o rebocador agora. Tente novamente.';
 
   @override
   String get maneuverShipLength => 'Comprimento (m)';
@@ -1942,38 +1932,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverSaveReport => 'Salvar relato';
 
   @override
-  String get maneuverInvalidNumericValue =>
-      'Revise os valores numéricos. As direções devem estar entre 000° e 359°.';
+  String get maneuverInvalidNumericValue => 'Revise os valores numéricos. As direções devem estar entre 000° e 359°.';
 
   @override
   String get maneuverReportSaved => 'Relato de manobra salvo com sucesso.';
 
   @override
-  String get maneuverReportSignedOut =>
-      'Entre novamente na sua conta para salvar o relato.';
+  String get maneuverReportSignedOut => 'Entre novamente na sua conta para salvar o relato.';
 
   @override
-  String get maneuverReportSaveError =>
-      'Não foi possível salvar o relato agora. Tente novamente.';
+  String get maneuverReportSaveError => 'Não foi possível salvar o relato agora. Tente novamente.';
 
   @override
-  String get maneuverHistoryIntro =>
-      'Consulte os relatos compartilhados pelos práticos neste terminal.';
+  String get maneuverHistoryIntro => 'Consulte os relatos compartilhados pelos práticos neste terminal.';
 
   @override
   String get maneuverHistoryEmpty => 'Nenhum relato de manobra';
 
   @override
-  String get maneuverHistoryEmptyDescription =>
-      'O primeiro relato enviado para este terminal aparecerá aqui.';
+  String get maneuverHistoryEmptyDescription => 'O primeiro relato enviado para este terminal aparecerá aqui.';
 
   @override
-  String get maneuverHistoryLoadError =>
-      'Não foi possível carregar o histórico';
+  String get maneuverHistoryLoadError => 'Não foi possível carregar o histórico';
 
   @override
-  String get maneuverHistoryLoadErrorDescription =>
-      'Verifique sua conexão e tente novamente em instantes.';
+  String get maneuverHistoryLoadErrorDescription => 'Verifique sua conexão e tente novamente em instantes.';
 
   @override
   String get maneuverUnknownShip => 'Navio não informado';
@@ -1994,22 +1977,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverLocation => 'Local';
 
   @override
-  String get maneuverNoAdditionalInfo =>
-      'Nenhuma informação adicional foi registrada neste relato.';
+  String get maneuverNoAdditionalInfo => 'Nenhuma informação adicional foi registrada neste relato.';
 
   @override
   String get maneuverDeleteReportTitle => 'Excluir relato?';
 
   @override
-  String get maneuverDeleteReportConfirm =>
-      'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.';
+  String get maneuverDeleteReportConfirm => 'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.';
 
   @override
   String get maneuverReportDeleted => 'Relato excluído com sucesso.';
 
   @override
-  String get maneuverReportDeleteError =>
-      'Não foi possível excluir o relato. Tente novamente.';
+  String get maneuverReportDeleteError => 'Não foi possível excluir o relato. Tente novamente.';
 
   @override
   String get maneuverKnotsShort => 'nós';
@@ -2048,8 +2028,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverAirDraft => 'Calado aéreo';
 
   @override
-  String get maneuverAirDraftDetail =>
-      'Limitado ao Linhão de Almeirim/Jurupari';
+  String get maneuverAirDraftDetail => 'Limitado ao Linhão de Almeirim/Jurupari';
 
   @override
   String get maneuverMaximumWind => 'Vento máximo';
@@ -2061,8 +2040,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverCrossing => 'Cruzamento';
 
   @override
-  String get maneuverOperationalParametersSource =>
-      'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental';
+  String get maneuverOperationalParametersSource => 'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental';
 
   @override
   String get maneuverMaximumDrafts => 'Calados máximos para saída do porto';
@@ -2074,8 +2052,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverDangerousCargo => 'Carga perigosa';
 
   @override
-  String get maneuverDraftFootnote =>
-      'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.';
+  String get maneuverDraftFootnote => 'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.';
 
   @override
   String get maneuverVhfChannel => 'Canal VHF';
@@ -2087,12 +2064,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNavigation => 'Navegação';
 
   @override
-  String get maneuverTapajosNavigation =>
-      'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.';
+  String get maneuverTapajosNavigation => 'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.';
 
   @override
-  String get maneuverMooringReferenceNote =>
-      'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.';
+  String get maneuverMooringReferenceNote => 'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.';
 
   @override
   String get maneuverNormally222 => 'normalmente 2 × 2 × 2';
@@ -2101,20 +2076,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNormally42 => 'normalmente 4 × 2';
 
   @override
-  String get maneuverOperationalDisclaimer =>
-      'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.';
+  String get maneuverOperationalDisclaimer => 'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.';
 
   @override
-  String get maneuverOfficialTugInfo =>
-      'Rebocadores — Parâmetros Operacionais';
+  String get maneuverOfficialTugInfo => 'Rebocadores — Parâmetros Operacionais';
 
   @override
-  String get maneuverTugRequirementDetail =>
-      'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:';
+  String get maneuverTugRequirementDetail => 'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:';
 
   @override
-  String get maneuverTugNoSpecificMinimum =>
-      'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.';
+  String get maneuverTugNoSpecificMinimum => 'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.';
 
   @override
   String get maneuverDrySeason => 'Seca · 16/08–31/01';

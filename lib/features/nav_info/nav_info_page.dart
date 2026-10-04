@@ -152,14 +152,9 @@ class _NavInfoPageState extends State<NavInfoPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: Stack(
-              fit: StackFit.expand,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
               children: [
-                ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    20, Navigator.canPop(context) ? 68 : 24, 20, 32,
-                  ),
-                  children: [
                     _buildSubItemCard(
                       icon: Icons.waves,
                       iconColor: const Color(0xFF26A69A),
@@ -194,50 +189,6 @@ class _NavInfoPageState extends State<NavInfoPage> {
                       subtitle: l10n.maxDraftsSubtitle,
                       onTap: _onMaxDraftsTap,
                     ),
-                  ],
-                ),
-                if (Navigator.canPop(context)) _buildPageBackButton(l10n),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPageBackButton(AppLocalizations l10n) {
-    return Positioned(
-      top: 8,
-      left: 16,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => Navigator.pop(context),
-          borderRadius: BorderRadius.circular(999),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-            decoration: BoxDecoration(
-              color: const Color(0xCC0A1628),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0x33FFFFFF)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 13,
-                  color: Color(0xCCFFFFFF),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  l10n.back,
-                  style: const TextStyle(
-                    color: Color(0xCCFFFFFF),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ],
             ),
           ),
@@ -247,7 +198,30 @@ class _NavInfoPageState extends State<NavInfoPage> {
   }
 
   PreferredSizeWidget _buildAppBar(AppLocalizations l10n) {
+    final canPop = Navigator.canPop(context);
+
     return AppBar(
+      leadingWidth: canPop ? 88 : null,
+      leading: canPop
+          ? TextButton.icon(
+              onPressed: () => Navigator.maybePop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.only(left: 8, right: 4),
+                minimumSize: const Size(0, kToolbarHeight),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: const Icon(Icons.arrow_back_ios_new, size: 15),
+              label: Text(
+                l10n.back,
+                maxLines: 1,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            )
+          : null,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

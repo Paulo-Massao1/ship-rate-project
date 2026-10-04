@@ -767,8 +767,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get measurementTime => 'Sounding time';
 
   @override
-  String get santanaTideReferenceHint =>
-      'This location uses the Santana tide as its reference.';
+  String get santanaTideReferenceHint => 'This location uses the Santana tide as its reference.';
 
   @override
   String get rulerReading => 'Ruler reading';
@@ -780,8 +779,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidRulerReading => 'Enter a valid ruler reading';
 
   @override
-  String get tideReferenceUnavailable =>
-      'Tide data is unavailable for this time.';
+  String get tideReferenceUnavailable => 'Tide data is unavailable for this time.';
 
   @override
   String get previousLowTide => 'Previous low tide';
@@ -1065,6 +1063,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareRecord => 'Share';
+
+  @override
+  String get pdfZoomOutTooltip => 'Zoom out';
+
+  @override
+  String get pdfResetZoomTooltip => 'Reset zoom';
+
+  @override
+  String get pdfZoomInTooltip => 'Zoom in';
 
   @override
   String get noThanks => 'No, thanks';
@@ -1722,41 +1729,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuversSelectTerminal => 'Select a port or terminal';
 
   @override
-  String get maneuverAccessNotice =>
-      'Reports and history are available to everyone. Initial information requires the Plus plan.';
+  String get maneuverAccessNotice => 'Reports and history are available to everyone. Initial information requires the Plus plan.';
 
   @override
   String get reportManeuver => 'Report maneuver';
 
   @override
-  String get reportManeuverDesc =>
-      'Record the conditions and data observed during the maneuver.';
+  String get reportManeuverDesc => 'Record the conditions and data observed during the maneuver.';
 
   @override
   String get maneuverHistory => 'Maneuver history';
 
   @override
-  String get maneuverHistoryDesc =>
-      'Review reports submitted for this terminal.';
+  String get maneuverHistoryDesc => 'Review reports submitted for this terminal.';
 
   @override
   String get initialManeuverInfo => 'Initial information';
 
   @override
-  String get initialManeuverInfoDesc =>
-      'Terminal preparation guidance and information.';
+  String get initialManeuverInfoDesc => 'Terminal preparation guidance and information.';
 
   @override
-  String get maneuverReportComingSoon =>
-      'The complete maneuver report form will be available soon.';
+  String get maneuverReportComingSoon => 'The complete maneuver report form will be available soon.';
 
   @override
-  String get maneuverHistoryComingSoon =>
-      'Reports for this terminal will be displayed here.';
+  String get maneuverHistoryComingSoon => 'Reports for this terminal will be displayed here.';
 
   @override
-  String get maneuverInitialInfoComingSoon =>
-      'Operational information for this terminal will be available soon.';
+  String get maneuverInitialInfoComingSoon => 'Operational information for this terminal will be available soon.';
 
   @override
   String get newBadge => 'NEW';
@@ -1780,8 +1780,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugboats => 'Tugboats';
 
   @override
-  String get maneuverTugSharedNotice =>
-      'Options from the Operational Parameters and the pilot community.';
+  String get maneuverTugSharedNotice => 'Options from the Operational Parameters and the pilot community.';
 
   @override
   String get maneuverTugForward => 'FWD (forward)';
@@ -1808,15 +1807,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugCommunitySource => 'Community';
 
   @override
-  String get maneuverCommunityTugsLoadError =>
-      'Community tugboats could not be loaded right now. Official options remain available.';
+  String get maneuverCommunityTugsLoadError => 'Community tugboats could not be loaded right now. Official options remain available.';
 
   @override
   String get maneuverAddTugTitle => 'New tugboat';
 
   @override
-  String get maneuverTugRegistrationNotice =>
-      'The tugboat will be available to other pilots in this location.';
+  String get maneuverTugRegistrationNotice => 'The tugboat will be available to other pilots in this location.';
 
   @override
   String get maneuverTugName => 'Tugboat name';
@@ -1848,24 +1845,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get maneuverTugInvalidName =>
-      'Enter a valid name containing 2 to 60 characters.';
+  String get maneuverTugInvalidName => 'Enter a valid name containing 2 to 60 characters.';
 
   @override
-  String get maneuverTugInvalidBollardPull =>
-      'Enter a valid BP greater than zero and up to 200.';
+  String get maneuverTugInvalidBollardPull => 'Enter a valid BP greater than zero and up to 200.';
 
   @override
-  String get maneuverTugDuplicate =>
-      'This tugboat is already registered for the location.';
+  String get maneuverTugDuplicate => 'This tugboat is already registered for the location.';
 
   @override
-  String get maneuverTugSignedOut =>
-      'Sign in again to register the tugboat.';
+  String get maneuverTugSignedOut => 'Sign in again to register the tugboat.';
 
   @override
-  String get maneuverTugSaveError =>
-      'The tugboat could not be registered right now. Try again.';
+  String get maneuverTugSaveError => 'The tugboat could not be registered right now. Try again.';
 
   @override
   String get maneuverShipLength => 'Length (m)';
@@ -1940,38 +1932,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverSaveReport => 'Save report';
 
   @override
-  String get maneuverInvalidNumericValue =>
-      'Review the numeric values. Directions must be between 000° and 359°.';
+  String get maneuverInvalidNumericValue => 'Review the numeric values. Directions must be between 000° and 359°.';
 
   @override
-  String get maneuverReportSaved =>
-      'Maneuver report saved successfully.';
+  String get maneuverReportSaved => 'Maneuver report saved successfully.';
 
   @override
-  String get maneuverReportSignedOut =>
-      'Sign in again to save the report.';
+  String get maneuverReportSignedOut => 'Sign in again to save the report.';
 
   @override
-  String get maneuverReportSaveError =>
-      'The report could not be saved right now. Try again.';
+  String get maneuverReportSaveError => 'The report could not be saved right now. Try again.';
 
   @override
-  String get maneuverHistoryIntro =>
-      'Review reports shared by pilots for this terminal.';
+  String get maneuverHistoryIntro => 'Review reports shared by pilots for this terminal.';
 
   @override
   String get maneuverHistoryEmpty => 'No maneuver reports';
 
   @override
-  String get maneuverHistoryEmptyDescription =>
-      'The first report submitted for this terminal will appear here.';
+  String get maneuverHistoryEmptyDescription => 'The first report submitted for this terminal will appear here.';
 
   @override
   String get maneuverHistoryLoadError => 'History could not be loaded';
 
   @override
-  String get maneuverHistoryLoadErrorDescription =>
-      'Check your connection and try again shortly.';
+  String get maneuverHistoryLoadErrorDescription => 'Check your connection and try again shortly.';
 
   @override
   String get maneuverUnknownShip => 'Ship not provided';
@@ -1992,22 +1977,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverLocation => 'Location';
 
   @override
-  String get maneuverNoAdditionalInfo =>
-      'No additional information was recorded in this report.';
+  String get maneuverNoAdditionalInfo => 'No additional information was recorded in this report.';
 
   @override
   String get maneuverDeleteReportTitle => 'Delete report?';
 
   @override
-  String get maneuverDeleteReportConfirm =>
-      'This action cannot be undone. Only the author can delete this report.';
+  String get maneuverDeleteReportConfirm => 'This action cannot be undone. Only the author can delete this report.';
 
   @override
   String get maneuverReportDeleted => 'Report deleted successfully.';
 
   @override
-  String get maneuverReportDeleteError =>
-      'The report could not be deleted. Try again.';
+  String get maneuverReportDeleteError => 'The report could not be deleted. Try again.';
 
   @override
   String get maneuverKnotsShort => 'kn';
@@ -2046,8 +2028,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverAirDraft => 'Air draft';
 
   @override
-  String get maneuverAirDraftDetail =>
-      'Limited by the Almeirim/Jurupari power line';
+  String get maneuverAirDraftDetail => 'Limited by the Almeirim/Jurupari power line';
 
   @override
   String get maneuverMaximumWind => 'Maximum wind';
@@ -2059,8 +2040,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverCrossing => 'Crossing';
 
   @override
-  String get maneuverOperationalParametersSource =>
-      'Source: Eastern Amazon Basin Operational Parameters';
+  String get maneuverOperationalParametersSource => 'Source: Eastern Amazon Basin Operational Parameters';
 
   @override
   String get maneuverMaximumDrafts => 'Maximum departure drafts';
@@ -2072,8 +2052,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverDangerousCargo => 'Dangerous cargo';
 
   @override
-  String get maneuverDraftFootnote =>
-      'To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.';
+  String get maneuverDraftFootnote => 'To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.';
 
   @override
   String get maneuverVhfChannel => 'VHF channel';
@@ -2085,12 +2064,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNavigation => 'Navigation';
 
   @override
-  String get maneuverTapajosNavigation =>
-      'On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.';
+  String get maneuverTapajosNavigation => 'On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.';
 
   @override
-  String get maneuverMooringReferenceNote =>
-      'Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.';
+  String get maneuverMooringReferenceNote => 'Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.';
 
   @override
   String get maneuverNormally222 => 'normally 2 × 2 × 2';
@@ -2099,20 +2076,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNormally42 => 'normally 4 × 2';
 
   @override
-  String get maneuverOperationalDisclaimer =>
-      'Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.';
+  String get maneuverOperationalDisclaimer => 'Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.';
 
   @override
-  String get maneuverOfficialTugInfo =>
-      'Tugboats — Operational Parameters';
+  String get maneuverOfficialTugInfo => 'Tugboats — Operational Parameters';
 
   @override
-  String get maneuverTugRequirementDetail =>
-      'The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:';
+  String get maneuverTugRequirementDetail => 'The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:';
 
   @override
-  String get maneuverTugNoSpecificMinimum =>
-      'The table does not state a minimum quantity or total BP specifically for the Cargill terminal.';
+  String get maneuverTugNoSpecificMinimum => 'The table does not state a minimum quantity or total BP specifically for the Cargill terminal.';
 
   @override
   String get maneuverDrySeason => 'Dry · Aug 16–Jan 31';

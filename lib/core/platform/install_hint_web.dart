@@ -1,6 +1,4 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
-
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 import 'install_hint_service.dart';
 
@@ -21,7 +19,7 @@ class InstallHintWebService implements InstallHintService {
   /// Uses CSS media query to detect display mode.
   @override
   bool shouldShowInstallHint() {
-    final mediaQuery = html.window.matchMedia('(display-mode: standalone)');
+    final mediaQuery = web.window.matchMedia('(display-mode: standalone)');
     return !mediaQuery.matches;
   }
 }

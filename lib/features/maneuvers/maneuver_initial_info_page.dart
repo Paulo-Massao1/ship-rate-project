@@ -12,7 +12,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
     super.key,
     required this.port,
     required this.terminal,
-  }) : assert(terminal.operationalInfo != null);
+  });
 
   final ManeuverPortDefinition port;
   final ManeuverTerminalDefinition terminal;

@@ -1,12 +1,11 @@
-import 'dart:convert';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
 
 import 'package:ship_rate/firebase_options.dart';
 
@@ -127,24 +126,14 @@ List<DuplicateGroup> findDuplicates(List<ShipRecord> ships) {
     }
   }
 
-  // Track which pairs have already been grouped
-  final alreadyGrouped = <String>{};
-  for (final g in result) {
-    for (final s in g.ships) {
-      alreadyGrouped.add(s.docId);
-    }
-  }
-
-  // 2. Fuzzy matching on remaining ships
+  // 2. Fuzzy matching. Exact pairs are naturally excluded because every
+  // fuzzy condition below requires different normalized names.
   final fuzzyGroups = <DuplicateGroup>[];
 
   for (var i = 0; i < ships.length; i++) {
     for (var j = i + 1; j < ships.length; j++) {
       final a = ships[i];
       final b = ships[j];
-
-      // Skip if they already share an exact-match group
-      final pairKey = '${a.docId}|${b.docId}';
 
       String? reason;
 
@@ -368,13 +357,16 @@ class _FindDuplicateShipsPageState extends State<FindDuplicateShipsPage> {
   void _downloadReport() {
     if (_fullReport == null) return;
 
-    final bytes = utf8.encode(_fullReport!);
-    final blob = html.Blob([bytes], 'text/plain');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'duplicate_ships_report.txt')
+    final blob = web.Blob(
+      <JSAny>[_fullReport!.toJS].toJS,
+      web.BlobPropertyBag(type: 'text/plain;charset=utf-8'),
+    );
+    final url = web.URL.createObjectURL(blob);
+    web.HTMLAnchorElement()
+      ..href = url
+      ..download = 'duplicate_ships_report.txt'
       ..click();
-    html.Url.revokeObjectUrl(url);
+    web.URL.revokeObjectURL(url);
   }
 
   @override

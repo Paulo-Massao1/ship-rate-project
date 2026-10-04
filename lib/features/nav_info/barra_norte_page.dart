@@ -1,11 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 import 'package:ship_rate/core/module_access.dart';
 import 'package:ship_rate/features/home/main_screen_page.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
+import 'package:ship_rate/shared/widgets/pdf_viewer_app_bar.dart';
 import 'package:ship_rate/shared/widgets/pinch_zoom_pdf_preview.dart';
 
 class BarraNortePage extends StatefulWidget {
@@ -373,44 +372,12 @@ class _BarraNortePdfPageState extends State<_BarraNortePdfPage> {
     final text = _BarraNorteText.fromLocale(l10n.localeName);
 
     return Scaffold(
-      appBar: AppBar(
-        leadingWidth: 96,
-        leading: _buildBarraNorteBackButton(
-          label: l10n.back,
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        title: Text(
-          widget.document.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            tooltip: text.sharePdf,
-            onPressed: _sharePdf,
-          ),
-        ],
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shadowColor: Colors.black54,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
-              stops: [0.0, 0.5, 1.0],
-            ),
-          ),
-        ),
+      appBar: PdfViewerAppBar(
+        title: widget.document.title,
+        backLabel: l10n.back,
+        onBack: () => Navigator.maybePop(context),
+        shareTooltip: text.sharePdf,
+        onShare: _sharePdf,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -447,6 +414,9 @@ class _BarraNortePdfPageState extends State<_BarraNortePdfPage> {
             return PinchZoomPdfPreview(
               bytes: bytes,
               fileName: widget.document.fileName,
+              zoomOutTooltip: l10n.pdfZoomOutTooltip,
+              resetZoomTooltip: l10n.pdfResetZoomTooltip,
+              zoomInTooltip: l10n.pdfZoomInTooltip,
             );
           },
         ),

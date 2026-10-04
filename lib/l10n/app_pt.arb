@@ -1469,6 +1469,18 @@
   "@shareRecord": {
     "description": "Button label to share a record."
   },
+  "pdfZoomOutTooltip": "Reduzir zoom",
+  "@pdfZoomOutTooltip": {
+    "description": "Tooltip for the PDF viewer zoom-out button."
+  },
+  "pdfResetZoomTooltip": "Restaurar zoom",
+  "@pdfResetZoomTooltip": {
+    "description": "Tooltip for the PDF viewer zoom reset control."
+  },
+  "pdfZoomInTooltip": "Aumentar zoom",
+  "@pdfZoomInTooltip": {
+    "description": "Tooltip for the PDF viewer zoom-in button."
+  },
   "noThanks": "Não, obrigado",
   "@noThanks": {
     "description": "Button label to dismiss share dialog."
