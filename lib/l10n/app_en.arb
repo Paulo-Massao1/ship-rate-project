@@ -2619,5 +2619,81 @@
   "maneuverReportSaveError": "The report could not be saved right now. Try again.",
   "@maneuverReportSaveError": {
     "description": "Generic error shown when a maneuver report cannot be saved."
+  },
+  "maneuverHistoryIntro": "Review reports shared by pilots for this terminal.",
+  "@maneuverHistoryIntro": {
+    "description": "Introduction shown above the maneuver report history."
+  },
+  "maneuverHistoryEmpty": "No maneuver reports",
+  "@maneuverHistoryEmpty": {
+    "description": "Title shown when a terminal has no maneuver reports."
+  },
+  "maneuverHistoryEmptyDescription": "The first report submitted for this terminal will appear here.",
+  "@maneuverHistoryEmptyDescription": {
+    "description": "Description shown when maneuver history is empty."
+  },
+  "maneuverHistoryLoadError": "History could not be loaded",
+  "@maneuverHistoryLoadError": {
+    "description": "Title shown when maneuver history cannot be loaded."
+  },
+  "maneuverHistoryLoadErrorDescription": "Check your connection and try again shortly.",
+  "@maneuverHistoryLoadErrorDescription": {
+    "description": "Description shown when maneuver history cannot be loaded."
+  },
+  "maneuverUnknownShip": "Ship not provided",
+  "@maneuverUnknownShip": {
+    "description": "Fallback when a maneuver report has no ship name."
+  },
+  "maneuverUnknownPilot": "Pilot not provided",
+  "@maneuverUnknownPilot": {
+    "description": "Fallback when a maneuver report has no pilot name."
+  },
+  "maneuverReportDetails": "Maneuver details",
+  "@maneuverReportDetails": {
+    "description": "Title of the maneuver report details screen."
+  },
+  "maneuverPilot": "Pilot",
+  "@maneuverPilot": {
+    "description": "Pilot label in maneuver report details."
+  },
+  "maneuverReportDate": "Report date",
+  "@maneuverReportDate": {
+    "description": "Date label in maneuver report details."
+  },
+  "maneuverLocation": "Location",
+  "@maneuverLocation": {
+    "description": "Location label in maneuver report details."
+  },
+  "maneuverNoAdditionalInfo": "No additional information was recorded in this report.",
+  "@maneuverNoAdditionalInfo": {
+    "description": "Message shown for an otherwise empty maneuver report."
+  },
+  "maneuverDeleteReportTitle": "Delete report?",
+  "@maneuverDeleteReportTitle": {
+    "description": "Title of the maneuver report deletion confirmation."
+  },
+  "maneuverDeleteReportConfirm": "This action cannot be undone. Only the author can delete this report.",
+  "@maneuverDeleteReportConfirm": {
+    "description": "Body of the maneuver report deletion confirmation."
+  },
+  "maneuverReportDeleted": "Report deleted successfully.",
+  "@maneuverReportDeleted": {
+    "description": "Confirmation shown after deleting a maneuver report."
+  },
+  "maneuverReportDeleteError": "The report could not be deleted. Try again.",
+  "@maneuverReportDeleteError": {
+    "description": "Error shown when a maneuver report cannot be deleted."
+  },
+  "maneuverKnotsShort": "kn",
+  "@maneuverKnotsShort": {
+    "description": "Short knots unit used in maneuver report details."
+  },
+  "maneuverForwardShort": "FWD",
+  "@maneuverForwardShort": {
+    "description": "Short forward position label."
+  },
+  "maneuverAftShort": "AFT",
+  "@maneuverAftShort": {
+    "description": "Short aft position label."
   }
 }

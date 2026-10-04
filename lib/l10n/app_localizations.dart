@@ -3460,6 +3460,44 @@ abstract class AppLocalizations {
   String get maneuverReportSignedOut;
 
   String get maneuverReportSaveError;
+
+  String get maneuverHistoryIntro;
+
+  String get maneuverHistoryEmpty;
+
+  String get maneuverHistoryEmptyDescription;
+
+  String get maneuverHistoryLoadError;
+
+  String get maneuverHistoryLoadErrorDescription;
+
+  String get maneuverUnknownShip;
+
+  String get maneuverUnknownPilot;
+
+  String get maneuverReportDetails;
+
+  String get maneuverPilot;
+
+  String get maneuverReportDate;
+
+  String get maneuverLocation;
+
+  String get maneuverNoAdditionalInfo;
+
+  String get maneuverDeleteReportTitle;
+
+  String get maneuverDeleteReportConfirm;
+
+  String get maneuverReportDeleted;
+
+  String get maneuverReportDeleteError;
+
+  String get maneuverKnotsShort;
+
+  String get maneuverForwardShort;
+
+  String get maneuverAftShort;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

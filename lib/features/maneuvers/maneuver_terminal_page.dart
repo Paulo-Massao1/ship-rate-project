@@ -3,6 +3,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
 import '../../shared/widgets/subscription_gate.dart';
+import 'maneuver_history_page.dart';
 import 'maneuver_report_page.dart';
 
 /// Maneuver entry points for a single terminal.
@@ -70,12 +71,15 @@ class ManeuverTerminalPage extends StatelessWidget {
                   title: l10n.maneuverHistory,
                   description: l10n.maneuverHistoryDesc,
                   color: _blue,
-                  onTap: () => _openSection(
+                  onTap: () => Navigator.push(
                     context,
-                    title: l10n.maneuverHistory,
-                    description: l10n.maneuverHistoryComingSoon,
-                    icon: Icons.history,
-                    color: _blue,
+                    MaterialPageRoute(
+                      builder: (_) => ManeuverHistoryPage(
+                        portName: portName,
+                        portCode: portCode,
+                        terminalName: terminalName,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -246,26 +250,6 @@ class ManeuverTerminalPage extends StatelessWidget {
     );
   }
 
-  void _openSection(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required IconData icon,
-    required Color color,
-  }) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => _ManeuverSectionPlaceholderPage(
-          title: title,
-          terminalName: terminalName,
-          description: description,
-          icon: icon,
-          color: color,
-        ),
-      ),
-    );
-  }
 }
 
 class _ManeuverInitialInfoPage extends StatelessWidget {
@@ -303,44 +287,6 @@ class _ManeuverInitialInfoPage extends StatelessWidget {
             icon: Icons.info_outline,
             color: const Color(0xFF26A69A),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ManeuverSectionPlaceholderPage extends StatelessWidget {
-  const _ManeuverSectionPlaceholderPage({
-    required this.title,
-    required this.terminalName,
-    required this.description,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String terminalName;
-  final String description;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildSectionAppBar(context, title),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
-          ),
-        ),
-        child: _ManeuverSectionEmptyState(
-          title: terminalName,
-          description: description,
-          icon: icon,
-          color: color,
         ),
       ),
     );

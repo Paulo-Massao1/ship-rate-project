@@ -9,7 +9,7 @@ class ManeuverReportException implements Exception {
   final ManeuverReportError code;
 }
 
-enum ManeuverReportError { signedOut, saveFailed }
+enum ManeuverReportError { signedOut, saveFailed, deleteFailed }
 
 class ManeuverReportService {
   ManeuverReportService({FirebaseFirestore? firestore, FirebaseAuth? auth})
@@ -18,6 +18,8 @@ class ManeuverReportService {
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+
+  String? get currentUserId => _auth.currentUser?.uid;
 
   Future<List<ManeuverShipOption>> loadShips() async {
     final snapshot = await _firestore.collection('navios').get();
@@ -68,6 +70,35 @@ class ManeuverReportService {
       rethrow;
     } catch (_) {
       throw const ManeuverReportException(ManeuverReportError.saveFailed);
+    }
+  }
+
+  Stream<List<ManeuverReportRecord>> watchReports({
+    required String portCode,
+    required String terminalName,
+  }) {
+    return _firestore
+        .collection('manobras_relatos')
+        .where('portCode', isEqualTo: portCode.trim().toUpperCase())
+        .where('terminalName', isEqualTo: terminalName)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map(ManeuverReportRecord.fromFirestore)
+              .toList(growable: false),
+        );
+  }
+
+  Future<void> deleteReport(String reportId) async {
+    if (_auth.currentUser == null) {
+      throw const ManeuverReportException(ManeuverReportError.signedOut);
+    }
+
+    try {
+      await _firestore.collection('manobras_relatos').doc(reportId).delete();
+    } catch (_) {
+      throw const ManeuverReportException(ManeuverReportError.deleteFailed);
     }
   }
 }

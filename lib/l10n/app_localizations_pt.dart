@@ -1955,4 +1955,68 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get maneuverReportSaveError =>
       'Não foi possível salvar o relato agora. Tente novamente.';
+
+  @override
+  String get maneuverHistoryIntro =>
+      'Consulte os relatos compartilhados pelos práticos neste terminal.';
+
+  @override
+  String get maneuverHistoryEmpty => 'Nenhum relato de manobra';
+
+  @override
+  String get maneuverHistoryEmptyDescription =>
+      'O primeiro relato enviado para este terminal aparecerá aqui.';
+
+  @override
+  String get maneuverHistoryLoadError =>
+      'Não foi possível carregar o histórico';
+
+  @override
+  String get maneuverHistoryLoadErrorDescription =>
+      'Verifique sua conexão e tente novamente em instantes.';
+
+  @override
+  String get maneuverUnknownShip => 'Navio não informado';
+
+  @override
+  String get maneuverUnknownPilot => 'Prático não informado';
+
+  @override
+  String get maneuverReportDetails => 'Detalhes da manobra';
+
+  @override
+  String get maneuverPilot => 'Prático';
+
+  @override
+  String get maneuverReportDate => 'Data do relato';
+
+  @override
+  String get maneuverLocation => 'Local';
+
+  @override
+  String get maneuverNoAdditionalInfo =>
+      'Nenhuma informação adicional foi registrada neste relato.';
+
+  @override
+  String get maneuverDeleteReportTitle => 'Excluir relato?';
+
+  @override
+  String get maneuverDeleteReportConfirm =>
+      'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.';
+
+  @override
+  String get maneuverReportDeleted => 'Relato excluído com sucesso.';
+
+  @override
+  String get maneuverReportDeleteError =>
+      'Não foi possível excluir o relato. Tente novamente.';
+
+  @override
+  String get maneuverKnotsShort => 'nós';
+
+  @override
+  String get maneuverForwardShort => 'AV';
+
+  @override
+  String get maneuverAftShort => 'AR';
 }

@@ -2646,5 +2646,81 @@
   "maneuverReportSaveError": "Não foi possível salvar o relato agora. Tente novamente.",
   "@maneuverReportSaveError": {
     "description": "Generic error shown when a maneuver report cannot be saved."
+  },
+  "maneuverHistoryIntro": "Consulte os relatos compartilhados pelos práticos neste terminal.",
+  "@maneuverHistoryIntro": {
+    "description": "Introduction shown above the maneuver report history."
+  },
+  "maneuverHistoryEmpty": "Nenhum relato de manobra",
+  "@maneuverHistoryEmpty": {
+    "description": "Title shown when a terminal has no maneuver reports."
+  },
+  "maneuverHistoryEmptyDescription": "O primeiro relato enviado para este terminal aparecerá aqui.",
+  "@maneuverHistoryEmptyDescription": {
+    "description": "Description shown when maneuver history is empty."
+  },
+  "maneuverHistoryLoadError": "Não foi possível carregar o histórico",
+  "@maneuverHistoryLoadError": {
+    "description": "Title shown when maneuver history cannot be loaded."
+  },
+  "maneuverHistoryLoadErrorDescription": "Verifique sua conexão e tente novamente em instantes.",
+  "@maneuverHistoryLoadErrorDescription": {
+    "description": "Description shown when maneuver history cannot be loaded."
+  },
+  "maneuverUnknownShip": "Navio não informado",
+  "@maneuverUnknownShip": {
+    "description": "Fallback when a maneuver report has no ship name."
+  },
+  "maneuverUnknownPilot": "Prático não informado",
+  "@maneuverUnknownPilot": {
+    "description": "Fallback when a maneuver report has no pilot name."
+  },
+  "maneuverReportDetails": "Detalhes da manobra",
+  "@maneuverReportDetails": {
+    "description": "Title of the maneuver report details screen."
+  },
+  "maneuverPilot": "Prático",
+  "@maneuverPilot": {
+    "description": "Pilot label in maneuver report details."
+  },
+  "maneuverReportDate": "Data do relato",
+  "@maneuverReportDate": {
+    "description": "Date label in maneuver report details."
+  },
+  "maneuverLocation": "Local",
+  "@maneuverLocation": {
+    "description": "Location label in maneuver report details."
+  },
+  "maneuverNoAdditionalInfo": "Nenhuma informação adicional foi registrada neste relato.",
+  "@maneuverNoAdditionalInfo": {
+    "description": "Message shown for an otherwise empty maneuver report."
+  },
+  "maneuverDeleteReportTitle": "Excluir relato?",
+  "@maneuverDeleteReportTitle": {
+    "description": "Title of the maneuver report deletion confirmation."
+  },
+  "maneuverDeleteReportConfirm": "Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.",
+  "@maneuverDeleteReportConfirm": {
+    "description": "Body of the maneuver report deletion confirmation."
+  },
+  "maneuverReportDeleted": "Relato excluído com sucesso.",
+  "@maneuverReportDeleted": {
+    "description": "Confirmation shown after deleting a maneuver report."
+  },
+  "maneuverReportDeleteError": "Não foi possível excluir o relato. Tente novamente.",
+  "@maneuverReportDeleteError": {
+    "description": "Error shown when a maneuver report cannot be deleted."
+  },
+  "maneuverKnotsShort": "nós",
+  "@maneuverKnotsShort": {
+    "description": "Short knots unit used in maneuver report details."
+  },
+  "maneuverForwardShort": "AV",
+  "@maneuverForwardShort": {
+    "description": "Short forward position label."
+  },
+  "maneuverAftShort": "AR",
+  "@maneuverAftShort": {
+    "description": "Short aft position label."
   }
 }

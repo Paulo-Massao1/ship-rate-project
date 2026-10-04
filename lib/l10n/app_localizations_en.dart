@@ -1954,4 +1954,67 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get maneuverReportSaveError =>
       'The report could not be saved right now. Try again.';
+
+  @override
+  String get maneuverHistoryIntro =>
+      'Review reports shared by pilots for this terminal.';
+
+  @override
+  String get maneuverHistoryEmpty => 'No maneuver reports';
+
+  @override
+  String get maneuverHistoryEmptyDescription =>
+      'The first report submitted for this terminal will appear here.';
+
+  @override
+  String get maneuverHistoryLoadError => 'History could not be loaded';
+
+  @override
+  String get maneuverHistoryLoadErrorDescription =>
+      'Check your connection and try again shortly.';
+
+  @override
+  String get maneuverUnknownShip => 'Ship not provided';
+
+  @override
+  String get maneuverUnknownPilot => 'Pilot not provided';
+
+  @override
+  String get maneuverReportDetails => 'Maneuver details';
+
+  @override
+  String get maneuverPilot => 'Pilot';
+
+  @override
+  String get maneuverReportDate => 'Report date';
+
+  @override
+  String get maneuverLocation => 'Location';
+
+  @override
+  String get maneuverNoAdditionalInfo =>
+      'No additional information was recorded in this report.';
+
+  @override
+  String get maneuverDeleteReportTitle => 'Delete report?';
+
+  @override
+  String get maneuverDeleteReportConfirm =>
+      'This action cannot be undone. Only the author can delete this report.';
+
+  @override
+  String get maneuverReportDeleted => 'Report deleted successfully.';
+
+  @override
+  String get maneuverReportDeleteError =>
+      'The report could not be deleted. Try again.';
+
+  @override
+  String get maneuverKnotsShort => 'kn';
+
+  @override
+  String get maneuverForwardShort => 'FWD';
+
+  @override
+  String get maneuverAftShort => 'AFT';
 }
