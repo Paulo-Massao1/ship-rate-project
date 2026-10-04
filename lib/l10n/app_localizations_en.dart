@@ -1719,6 +1719,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuversDesc => 'Maneuver info and reports';
 
   @override
+  String get maneuversSelectTerminal => 'Select a port or terminal';
+
+  @override
+  String get maneuverAccessNotice =>
+      'Reports and history are available to everyone. Initial information requires the Plus plan.';
+
+  @override
+  String get reportManeuver => 'Report maneuver';
+
+  @override
+  String get reportManeuverDesc =>
+      'Record the conditions and data observed during the maneuver.';
+
+  @override
+  String get maneuverHistory => 'Maneuver history';
+
+  @override
+  String get maneuverHistoryDesc =>
+      'Review reports submitted for this terminal.';
+
+  @override
+  String get initialManeuverInfo => 'Initial information';
+
+  @override
+  String get initialManeuverInfoDesc =>
+      'Terminal preparation guidance and information.';
+
+  @override
+  String get maneuverReportComingSoon =>
+      'The complete maneuver report form will be available soon.';
+
+  @override
+  String get maneuverHistoryComingSoon =>
+      'Reports for this terminal will be displayed here.';
+
+  @override
+  String get maneuverInitialInfoComingSoon =>
+      'Operational information for this terminal will be available soon.';
+
+  @override
   String get newBadge => 'NEW';
 
   @override

@@ -1,15 +1,76 @@
-// lib/features/maneuvers/maneuvers_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-/// Placeholder for the Maneuvers module.
-///
-/// The module shell is available to every eligible pilot. Individual terminal
-/// sections that require Plus will own their subscription gate when the real
-/// content replaces [_buildPlaceholder].
+import 'maneuver_terminal_page.dart';
+
+/// Entry point for maneuver information, reports and history by terminal.
 class ManeuversPage extends StatelessWidget {
   const ManeuversPage({super.key});
+
+  static const _amber = Color(0xFFFFB74D);
+  static const _bgDark = Color(0xFF0A1628);
+  static const _bgMid = Color(0xFF0D2137);
+  static const _cardBg = Color(0x0DFFFFFF);
+  static const _cardBorder = Color(0x1AFFFFFF);
+  static const _textMuted = Color(0x80FFFFFF);
+
+  static const _ports = [
+    _ManeuverPort(
+      name: 'Santana',
+      code: 'SAN',
+      terminals: [
+        _ManeuverTerminal(name: 'CDSA 1'),
+        _ManeuverTerminal(name: 'CDSA 2'),
+      ],
+    ),
+    _ManeuverPort(
+      name: 'Santarém',
+      code: 'STM',
+      terminals: [
+        _ManeuverTerminal(name: 'Cargill', available: true),
+        _ManeuverTerminal(name: 'CDP 101'),
+        _ManeuverTerminal(name: 'CDP 201'),
+        _ManeuverTerminal(name: 'ATEM'),
+        _ManeuverTerminal(name: 'Transbordo 1'),
+        _ManeuverTerminal(name: 'Transbordo 2'),
+      ],
+    ),
+    _ManeuverPort(
+      name: 'Jari',
+      code: 'JAR',
+      terminals: [
+        _ManeuverTerminal(name: 'CADAM'),
+        _ManeuverTerminal(name: 'JARCEL'),
+      ],
+    ),
+    _ManeuverPort(
+      name: 'Juruti',
+      code: 'JUR',
+      terminals: [_ManeuverTerminal(name: 'ALCOA')],
+    ),
+    _ManeuverPort(
+      name: 'Trombetas',
+      code: 'PTR',
+      terminals: [
+        _ManeuverTerminal(name: 'MRN'),
+        _ManeuverTerminal(name: 'Boia 1'),
+        _ManeuverTerminal(name: 'Boia 2'),
+        _ManeuverTerminal(name: 'Boia 3'),
+      ],
+    ),
+    _ManeuverPort(
+      name: 'Itacoatiara',
+      code: 'ITA',
+      terminals: [
+        _ManeuverTerminal(name: 'Hermasa 1'),
+        _ManeuverTerminal(name: 'Hermasa 2'),
+        _ManeuverTerminal(name: 'Hermasa 3'),
+        _ManeuverTerminal(name: 'TFB'),
+        _ManeuverTerminal(name: 'Chibatão'),
+        _ManeuverTerminal(name: 'Superterminais'),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +83,25 @@ class ManeuversPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
+            colors: [_bgDark, _bgMid],
           ),
         ),
-        child: _buildPlaceholder(l10n),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              children: [
+                _buildIntroCard(l10n),
+                const SizedBox(height: 20),
+                for (final port in _ports) ...[
+                  _buildPortGroup(context, l10n, port),
+                  const SizedBox(height: 18),
+                ],
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -36,7 +112,22 @@ class ManeuversPage extends StatelessWidget {
   ) {
     return AppBar(
       leadingWidth: 96,
-      leading: _buildBackButton(context, l10n),
+      leading: TextButton.icon(
+        onPressed: () => Navigator.maybePop(context),
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.only(left: 8, right: 6),
+          minimumSize: const Size(0, kToolbarHeight),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        icon: const Icon(Icons.arrow_back_ios_new, size: 15),
+        label: Text(
+          l10n.back,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+        ),
+      ),
       title: Text(
         l10n.maneuvers,
         style: const TextStyle(
@@ -54,7 +145,7 @@ class ManeuversPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
+            colors: [_bgDark, Color(0xFF1A3A5C), _bgMid],
             stops: [0.0, 0.5, 1.0],
           ),
         ),
@@ -62,52 +153,195 @@ class ManeuversPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBackButton(BuildContext context, AppLocalizations l10n) {
-    return TextButton.icon(
-      onPressed: () => Navigator.maybePop(context),
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.only(left: 8, right: 6),
-        minimumSize: const Size(0, kToolbarHeight),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  Widget _buildIntroCard(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0x0FFFB74D),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0x33FFB74D)),
       ),
-      icon: const Icon(Icons.arrow_back_ios_new, size: 15),
-      label: Text(
-        l10n.back,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0x1FFFB74D),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.anchor, color: _amber, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.maneuversSelectTerminal,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  l10n.maneuverAccessNotice,
+                  style: const TextStyle(
+                    color: _textMuted,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPlaceholder(AppLocalizations l10n) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.anchor, color: Color(0xFFFFB74D), size: 48),
-            const SizedBox(height: 16),
-            Text(
-              l10n.comingSoon,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+  Widget _buildPortGroup(
+    BuildContext context,
+    AppLocalizations l10n,
+    _ManeuverPort port,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            '${port.name} (${port.code})',
+            style: const TextStyle(
+              color: Color(0x99FFFFFF),
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ),
+        for (final terminal in port.terminals)
+          _buildTerminalTile(context, l10n, port, terminal),
+      ],
+    );
+  }
+
+  Widget _buildTerminalTile(
+    BuildContext context,
+    AppLocalizations l10n,
+    _ManeuverPort port,
+    _ManeuverTerminal terminal,
+  ) {
+    final available = terminal.available;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 7),
+      child: Material(
+        color: available ? _cardBg : const Color(0x08FFFFFF),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: available
+              ? () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ManeuverTerminalPage(
+                        portName: port.name,
+                        portCode: port.code,
+                        terminalName: terminal.name,
+                      ),
+                    ),
+                  )
+              : null,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: available ? const Color(0x33FFB74D) : _cardBorder,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.plusFeature2,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 13),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 38,
+                  child: Text(
+                    port.code,
+                    style: TextStyle(
+                      color: available ? _amber : const Color(0x4DFFFFFF),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    terminal.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: available ? Colors.white : _textMuted,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                if (available)
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0x66FFFFFF),
+                    size: 20,
+                  )
+                else
+                  _buildComingSoonBadge(l10n),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildComingSoonBadge(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0x0DFFFFFF),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: _cardBorder),
+      ),
+      child: Text(
+        l10n.comingSoonBadge,
+        style: const TextStyle(
+          color: Color(0x66FFFFFF),
+          fontSize: 8,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _ManeuverPort {
+  final String name;
+  final String code;
+  final List<_ManeuverTerminal> terminals;
+
+  const _ManeuverPort({
+    required this.name,
+    required this.code,
+    required this.terminals,
+  });
+}
+
+class _ManeuverTerminal {
+  final String name;
+  final bool available;
+
+  const _ManeuverTerminal({
+    required this.name,
+    this.available = false,
+  });
 }

@@ -2327,6 +2327,50 @@
   "@maneuversDesc": {
     "description": "Subtitle of the maneuvers module card on the home page."
   },
+  "maneuversSelectTerminal": "Select a port or terminal",
+  "@maneuversSelectTerminal": {
+    "description": "Instruction shown above the maneuver terminal list."
+  },
+  "maneuverAccessNotice": "Reports and history are available to everyone. Initial information requires the Plus plan.",
+  "@maneuverAccessNotice": {
+    "description": "Explains the access rules of the maneuvers module."
+  },
+  "reportManeuver": "Report maneuver",
+  "@reportManeuver": {
+    "description": "Title of the maneuver reporting area."
+  },
+  "reportManeuverDesc": "Record the conditions and data observed during the maneuver.",
+  "@reportManeuverDesc": {
+    "description": "Description of the maneuver reporting area."
+  },
+  "maneuverHistory": "Maneuver history",
+  "@maneuverHistory": {
+    "description": "Title of the maneuver history area."
+  },
+  "maneuverHistoryDesc": "Review reports submitted for this terminal.",
+  "@maneuverHistoryDesc": {
+    "description": "Description of the maneuver history area."
+  },
+  "initialManeuverInfo": "Initial information",
+  "@initialManeuverInfo": {
+    "description": "Title of the Plus maneuver preparation information area."
+  },
+  "initialManeuverInfoDesc": "Terminal preparation guidance and information.",
+  "@initialManeuverInfoDesc": {
+    "description": "Description of the initial maneuver information area."
+  },
+  "maneuverReportComingSoon": "The complete maneuver report form will be available soon.",
+  "@maneuverReportComingSoon": {
+    "description": "Temporary message shown before the maneuver form is implemented."
+  },
+  "maneuverHistoryComingSoon": "Reports for this terminal will be displayed here.",
+  "@maneuverHistoryComingSoon": {
+    "description": "Temporary message shown before maneuver history is implemented."
+  },
+  "maneuverInitialInfoComingSoon": "Operational information for this terminal will be available soon.",
+  "@maneuverInitialInfoComingSoon": {
+    "description": "Temporary message shown before the initial maneuver content is implemented."
+  },
   "newBadge": "NEW",
   "@newBadge": {
     "description": "Badge marking a newly released module."

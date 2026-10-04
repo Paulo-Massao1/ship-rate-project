@@ -3257,6 +3257,72 @@ abstract class AppLocalizations {
   /// **'Informações e relatos de manobra'**
   String get maneuversDesc;
 
+  /// Instruction shown above the maneuver terminal list.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecione um porto ou terminal'**
+  String get maneuversSelectTerminal;
+
+  /// Explains the access rules of the maneuvers module.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.'**
+  String get maneuverAccessNotice;
+
+  /// Title of the maneuver reporting area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatar manobra'**
+  String get reportManeuver;
+
+  /// Description of the maneuver reporting area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registre as condições e os dados observados na manobra.'**
+  String get reportManeuverDesc;
+
+  /// Title of the maneuver history area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Histórico de manobras'**
+  String get maneuverHistory;
+
+  /// Description of the maneuver history area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Consulte os relatos enviados para este terminal.'**
+  String get maneuverHistoryDesc;
+
+  /// Title of the Plus maneuver preparation information area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informações iniciais'**
+  String get initialManeuverInfo;
+
+  /// Description of the initial maneuver information area.
+  ///
+  /// In pt, this message translates to:
+  /// **'Orientações e informações de preparação do terminal.'**
+  String get initialManeuverInfoDesc;
+
+  /// Temporary message shown before the maneuver form is implemented.
+  ///
+  /// In pt, this message translates to:
+  /// **'O formulário completo de relato será disponibilizado em breve.'**
+  String get maneuverReportComingSoon;
+
+  /// Temporary message shown before maneuver history is implemented.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os relatos deste terminal serão exibidos aqui.'**
+  String get maneuverHistoryComingSoon;
+
+  /// Temporary message shown before the initial maneuver content is implemented.
+  ///
+  /// In pt, this message translates to:
+  /// **'As informações operacionais deste terminal estarão disponíveis em breve.'**
+  String get maneuverInitialInfoComingSoon;
+
   /// Badge marking a newly released module.
   ///
   /// In pt, this message translates to:

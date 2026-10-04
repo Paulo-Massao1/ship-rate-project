@@ -1720,6 +1720,46 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuversDesc => 'Informações e relatos de manobra';
 
   @override
+  String get maneuversSelectTerminal => 'Selecione um porto ou terminal';
+
+  @override
+  String get maneuverAccessNotice =>
+      'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.';
+
+  @override
+  String get reportManeuver => 'Relatar manobra';
+
+  @override
+  String get reportManeuverDesc =>
+      'Registre as condições e os dados observados na manobra.';
+
+  @override
+  String get maneuverHistory => 'Histórico de manobras';
+
+  @override
+  String get maneuverHistoryDesc =>
+      'Consulte os relatos enviados para este terminal.';
+
+  @override
+  String get initialManeuverInfo => 'Informações iniciais';
+
+  @override
+  String get initialManeuverInfoDesc =>
+      'Orientações e informações de preparação do terminal.';
+
+  @override
+  String get maneuverReportComingSoon =>
+      'O formulário completo de relato será disponibilizado em breve.';
+
+  @override
+  String get maneuverHistoryComingSoon =>
+      'Os relatos deste terminal serão exibidos aqui.';
+
+  @override
+  String get maneuverInitialInfoComingSoon =>
+      'As informações operacionais deste terminal estarão disponíveis em breve.';
+
+  @override
   String get newBadge => 'NOVO';
 
   @override
