@@ -73,6 +73,60 @@ service cloud.firestore {
       }
     }
 
+    // Shared tugboat catalog for maneuver reports. Official entries remain
+    // bundled with the app; this collection stores immutable community entries.
+    match /maneuverTugs/{tugId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAll([
+                      'name',
+                      'normalizedName',
+                      'lookupKey',
+                      'portCode',
+                      'type',
+                      'source',
+                      'createdBy',
+                      'createdAt'
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      'name',
+                      'normalizedName',
+                      'lookupKey',
+                      'portCode',
+                      'type',
+                      'source',
+                      'createdBy',
+                      'createdAt',
+                      'bollardPull'
+                    ])
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.source == 'community'
+                    && request.resource.data.portCode in [
+                      'SAN', 'STM', 'JAR', 'JUR', 'PTR', 'ITA'
+                    ]
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 2
+                    && request.resource.data.name.size() <= 60
+                    && request.resource.data.normalizedName is string
+                    && request.resource.data.normalizedName.size() >= 2
+                    && request.resource.data.normalizedName.size() <= 60
+                    && request.resource.data.lookupKey is string
+                    && request.resource.data.lookupKey.size() >= 1
+                    && request.resource.data.lookupKey.size() <= 60
+                    && request.resource.data.lookupKey.matches('^[a-z0-9-]+$')
+                    && tugId == request.resource.data.portCode
+                                + '--' + request.resource.data.lookupKey
+                    && request.resource.data.type in [
+                      'azimuthal', 'conventional', 'unspecified'
+                    ]
+                    && (!('bollardPull' in request.resource.data)
+                        || (request.resource.data.bollardPull is number
+                            && request.resource.data.bollardPull > 0
+                            && request.resource.data.bollardPull <= 200));
+      allow update, delete: if false;
+    }
+
     match /authorized_emails/{docId} {
       allow read: if false;
       allow write: if false;

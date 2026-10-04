@@ -1769,4 +1769,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get comingSoonBadge => 'COMING SOON';
+
+  @override
+  String get maneuverReportOptionalFields => 'No information is required.';
+
+  @override
+  String get maneuverApproach => 'Approach';
+
+  @override
+  String get maneuverTugboats => 'Tugboats';
+
+  @override
+  String get maneuverTugSharedNotice =>
+      'Options from the Operational Parameters and the pilot community.';
+
+  @override
+  String get maneuverTugForward => 'FWD (forward)';
+
+  @override
+  String get maneuverTugAft => 'AFT';
+
+  @override
+  String get maneuverSelectTug => 'Select...';
+
+  @override
+  String get maneuverNoTugSelected => 'None';
+
+  @override
+  String get maneuverNoTugs => 'No tugboat available';
+
+  @override
+  String get maneuverAddTug => 'Add new tugboat';
+
+  @override
+  String get maneuverTugOfficialSource => 'Parameters';
+
+  @override
+  String get maneuverTugCommunitySource => 'Community';
+
+  @override
+  String get maneuverCommunityTugsLoadError =>
+      'Community tugboats could not be loaded right now. Official options remain available.';
+
+  @override
+  String get maneuverAddTugTitle => 'New tugboat';
+
+  @override
+  String get maneuverTugRegistrationNotice =>
+      'The tugboat will be available to other pilots in this location.';
+
+  @override
+  String get maneuverTugName => 'Tugboat name';
+
+  @override
+  String get maneuverTugNameHint => 'E.g. NEW TUGBOAT';
+
+  @override
+  String get maneuverTugBollardPull => 'Bollard pull — BP (optional)';
+
+  @override
+  String get maneuverTugType => 'Type (optional)';
+
+  @override
+  String get maneuverTugTypeAzimuthal => 'Azimuthal';
+
+  @override
+  String get maneuverTugTypeConventional => 'Conventional';
+
+  @override
+  String get maneuverTugTypeUnspecified => 'Not provided';
+
+  @override
+  String get maneuverSaveTug => 'Save tugboat';
+
+  @override
+  String maneuverTugSaved(String name) {
+    return '$name was added and is now available to other pilots.';
+  }
+
+  @override
+  String get maneuverTugInvalidName =>
+      'Enter a valid name containing 2 to 60 characters.';
+
+  @override
+  String get maneuverTugInvalidBollardPull =>
+      'Enter a valid BP greater than zero and up to 200.';
+
+  @override
+  String get maneuverTugDuplicate =>
+      'This tugboat is already registered for the location.';
+
+  @override
+  String get maneuverTugSignedOut =>
+      'Sign in again to register the tugboat.';
+
+  @override
+  String get maneuverTugSaveError =>
+      'The tugboat could not be registered right now. Try again.';
 }

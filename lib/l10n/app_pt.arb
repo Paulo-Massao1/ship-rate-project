@@ -2413,5 +2413,126 @@
   "comingSoonBadge": "EM BREVE",
   "@comingSoonBadge": {
     "description": "Badge marking a module that has not been released yet."
+  },
+  "maneuverReportOptionalFields": "Nenhuma informação é obrigatória.",
+  "@maneuverReportOptionalFields": {
+    "description": "Notice explaining that maneuver report fields are optional."
+  },
+  "maneuverApproach": "Aproximação",
+  "@maneuverApproach": {
+    "description": "Title of the maneuver approach form section."
+  },
+  "maneuverTugboats": "Rebocadores",
+  "@maneuverTugboats": {
+    "description": "Label for tugboat fields in a maneuver report."
+  },
+  "maneuverTugSharedNotice": "Opções dos Parâmetros Operacionais e da comunidade de práticos.",
+  "@maneuverTugSharedNotice": {
+    "description": "Explains the sources of tugboat options."
+  },
+  "maneuverTugForward": "AV (avante)",
+  "@maneuverTugForward": {
+    "description": "Label for the forward tugboat selector."
+  },
+  "maneuverTugAft": "AR (a ré)",
+  "@maneuverTugAft": {
+    "description": "Label for the aft tugboat selector."
+  },
+  "maneuverSelectTug": "Selecionar...",
+  "@maneuverSelectTug": {
+    "description": "Placeholder for a tugboat selector."
+  },
+  "maneuverNoTugSelected": "Nenhum",
+  "@maneuverNoTugSelected": {
+    "description": "Option that clears an optional tugboat selection."
+  },
+  "maneuverNoTugs": "Nenhum rebocador disponível",
+  "@maneuverNoTugs": {
+    "description": "Message shown when no tugboats are available for a port."
+  },
+  "maneuverAddTug": "Inserir novo rebocador",
+  "@maneuverAddTug": {
+    "description": "Button for registering a community tugboat."
+  },
+  "maneuverTugOfficialSource": "Parâmetros",
+  "@maneuverTugOfficialSource": {
+    "description": "Short label for an official tugboat sourced from operational parameters."
+  },
+  "maneuverTugCommunitySource": "Comunidade",
+  "@maneuverTugCommunitySource": {
+    "description": "Short label for a community-created tugboat."
+  },
+  "maneuverCommunityTugsLoadError": "Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.",
+  "@maneuverCommunityTugsLoadError": {
+    "description": "Non-blocking error shown when community tugboats cannot be loaded."
+  },
+  "maneuverAddTugTitle": "Novo rebocador",
+  "@maneuverAddTugTitle": {
+    "description": "Title of the community tugboat registration sheet."
+  },
+  "maneuverTugRegistrationNotice": "O rebocador ficará disponível para os demais práticos desta localidade.",
+  "@maneuverTugRegistrationNotice": {
+    "description": "Notice explaining that a new tugboat is shared with other pilots."
+  },
+  "maneuverTugName": "Nome do rebocador",
+  "@maneuverTugName": {
+    "description": "Label for the tugboat name field."
+  },
+  "maneuverTugNameHint": "Ex.: NOVO REBOCADOR",
+  "@maneuverTugNameHint": {
+    "description": "Example shown in the tugboat name field."
+  },
+  "maneuverTugBollardPull": "Bollard pull — BP (opcional)",
+  "@maneuverTugBollardPull": {
+    "description": "Label for the optional tugboat bollard pull field."
+  },
+  "maneuverTugType": "Tipo (opcional)",
+  "@maneuverTugType": {
+    "description": "Label for the optional tugboat type selector."
+  },
+  "maneuverTugTypeAzimuthal": "Azimutal",
+  "@maneuverTugTypeAzimuthal": {
+    "description": "Azimuthal tugboat type."
+  },
+  "maneuverTugTypeConventional": "Convencional",
+  "@maneuverTugTypeConventional": {
+    "description": "Conventional tugboat type."
+  },
+  "maneuverTugTypeUnspecified": "Não informado",
+  "@maneuverTugTypeUnspecified": {
+    "description": "Unspecified tugboat type."
+  },
+  "maneuverSaveTug": "Salvar rebocador",
+  "@maneuverSaveTug": {
+    "description": "Button that saves a new community tugboat."
+  },
+  "maneuverTugSaved": "{name} foi adicionado e já está disponível para os demais práticos.",
+  "@maneuverTugSaved": {
+    "description": "Confirmation shown after a community tugboat is created.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "maneuverTugInvalidName": "Informe um nome válido com 2 a 60 caracteres.",
+  "@maneuverTugInvalidName": {
+    "description": "Validation error for an invalid tugboat name."
+  },
+  "maneuverTugInvalidBollardPull": "Informe um BP válido, maior que zero e de até 200.",
+  "@maneuverTugInvalidBollardPull": {
+    "description": "Validation error for an invalid bollard pull."
+  },
+  "maneuverTugDuplicate": "Este rebocador já está cadastrado para a localidade.",
+  "@maneuverTugDuplicate": {
+    "description": "Error shown when a duplicate tugboat is submitted."
+  },
+  "maneuverTugSignedOut": "Entre novamente na sua conta para cadastrar o rebocador.",
+  "@maneuverTugSignedOut": {
+    "description": "Error shown when a signed-out user attempts to create a tugboat."
+  },
+  "maneuverTugSaveError": "Não foi possível cadastrar o rebocador agora. Tente novamente.",
+  "@maneuverTugSaveError": {
+    "description": "Generic error shown when a community tugboat cannot be saved."
   }
 }

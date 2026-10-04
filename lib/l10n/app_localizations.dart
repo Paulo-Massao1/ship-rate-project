@@ -3346,6 +3346,64 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'EM BREVE'**
   String get comingSoonBadge;
+
+  String get maneuverReportOptionalFields;
+
+  String get maneuverApproach;
+
+  String get maneuverTugboats;
+
+  String get maneuverTugSharedNotice;
+
+  String get maneuverTugForward;
+
+  String get maneuverTugAft;
+
+  String get maneuverSelectTug;
+
+  String get maneuverNoTugSelected;
+
+  String get maneuverNoTugs;
+
+  String get maneuverAddTug;
+
+  String get maneuverTugOfficialSource;
+
+  String get maneuverTugCommunitySource;
+
+  String get maneuverCommunityTugsLoadError;
+
+  String get maneuverAddTugTitle;
+
+  String get maneuverTugRegistrationNotice;
+
+  String get maneuverTugName;
+
+  String get maneuverTugNameHint;
+
+  String get maneuverTugBollardPull;
+
+  String get maneuverTugType;
+
+  String get maneuverTugTypeAzimuthal;
+
+  String get maneuverTugTypeConventional;
+
+  String get maneuverTugTypeUnspecified;
+
+  String get maneuverSaveTug;
+
+  String maneuverTugSaved(String name);
+
+  String get maneuverTugInvalidName;
+
+  String get maneuverTugInvalidBollardPull;
+
+  String get maneuverTugDuplicate;
+
+  String get maneuverTugSignedOut;
+
+  String get maneuverTugSaveError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -3,6 +3,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
 import '../../shared/widgets/subscription_gate.dart';
+import 'maneuver_report_page.dart';
 
 /// Maneuver entry points for a single terminal.
 class ManeuverTerminalPage extends StatelessWidget {
@@ -52,12 +53,15 @@ class ManeuverTerminalPage extends StatelessWidget {
                   description: l10n.reportManeuverDesc,
                   color: _amber,
                   emphasized: true,
-                  onTap: () => _openSection(
+                  onTap: () => Navigator.push(
                     context,
-                    title: l10n.reportManeuver,
-                    description: l10n.maneuverReportComingSoon,
-                    icon: Icons.edit_note,
-                    color: _amber,
+                    MaterialPageRoute(
+                      builder: (_) => ManeuverReportPage(
+                        portName: portName,
+                        portCode: portCode,
+                        terminalName: terminalName,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

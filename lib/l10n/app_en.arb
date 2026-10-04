@@ -2386,5 +2386,126 @@
   "comingSoonBadge": "COMING SOON",
   "@comingSoonBadge": {
     "description": "Badge marking a module that has not been released yet."
+  },
+  "maneuverReportOptionalFields": "No information is required.",
+  "@maneuverReportOptionalFields": {
+    "description": "Notice explaining that maneuver report fields are optional."
+  },
+  "maneuverApproach": "Approach",
+  "@maneuverApproach": {
+    "description": "Title of the maneuver approach form section."
+  },
+  "maneuverTugboats": "Tugboats",
+  "@maneuverTugboats": {
+    "description": "Label for tugboat fields in a maneuver report."
+  },
+  "maneuverTugSharedNotice": "Options from the Operational Parameters and the pilot community.",
+  "@maneuverTugSharedNotice": {
+    "description": "Explains the sources of tugboat options."
+  },
+  "maneuverTugForward": "FWD (forward)",
+  "@maneuverTugForward": {
+    "description": "Label for the forward tugboat selector."
+  },
+  "maneuverTugAft": "AFT",
+  "@maneuverTugAft": {
+    "description": "Label for the aft tugboat selector."
+  },
+  "maneuverSelectTug": "Select...",
+  "@maneuverSelectTug": {
+    "description": "Placeholder for a tugboat selector."
+  },
+  "maneuverNoTugSelected": "None",
+  "@maneuverNoTugSelected": {
+    "description": "Option that clears an optional tugboat selection."
+  },
+  "maneuverNoTugs": "No tugboat available",
+  "@maneuverNoTugs": {
+    "description": "Message shown when no tugboats are available for a port."
+  },
+  "maneuverAddTug": "Add new tugboat",
+  "@maneuverAddTug": {
+    "description": "Button for registering a community tugboat."
+  },
+  "maneuverTugOfficialSource": "Parameters",
+  "@maneuverTugOfficialSource": {
+    "description": "Short label for an official tugboat sourced from operational parameters."
+  },
+  "maneuverTugCommunitySource": "Community",
+  "@maneuverTugCommunitySource": {
+    "description": "Short label for a community-created tugboat."
+  },
+  "maneuverCommunityTugsLoadError": "Community tugboats could not be loaded right now. Official options remain available.",
+  "@maneuverCommunityTugsLoadError": {
+    "description": "Non-blocking error shown when community tugboats cannot be loaded."
+  },
+  "maneuverAddTugTitle": "New tugboat",
+  "@maneuverAddTugTitle": {
+    "description": "Title of the community tugboat registration sheet."
+  },
+  "maneuverTugRegistrationNotice": "The tugboat will be available to other pilots in this location.",
+  "@maneuverTugRegistrationNotice": {
+    "description": "Notice explaining that a new tugboat is shared with other pilots."
+  },
+  "maneuverTugName": "Tugboat name",
+  "@maneuverTugName": {
+    "description": "Label for the tugboat name field."
+  },
+  "maneuverTugNameHint": "E.g. NEW TUGBOAT",
+  "@maneuverTugNameHint": {
+    "description": "Example shown in the tugboat name field."
+  },
+  "maneuverTugBollardPull": "Bollard pull — BP (optional)",
+  "@maneuverTugBollardPull": {
+    "description": "Label for the optional tugboat bollard pull field."
+  },
+  "maneuverTugType": "Type (optional)",
+  "@maneuverTugType": {
+    "description": "Label for the optional tugboat type selector."
+  },
+  "maneuverTugTypeAzimuthal": "Azimuthal",
+  "@maneuverTugTypeAzimuthal": {
+    "description": "Azimuthal tugboat type."
+  },
+  "maneuverTugTypeConventional": "Conventional",
+  "@maneuverTugTypeConventional": {
+    "description": "Conventional tugboat type."
+  },
+  "maneuverTugTypeUnspecified": "Not provided",
+  "@maneuverTugTypeUnspecified": {
+    "description": "Unspecified tugboat type."
+  },
+  "maneuverSaveTug": "Save tugboat",
+  "@maneuverSaveTug": {
+    "description": "Button that saves a new community tugboat."
+  },
+  "maneuverTugSaved": "{name} was added and is now available to other pilots.",
+  "@maneuverTugSaved": {
+    "description": "Confirmation shown after a community tugboat is created.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "maneuverTugInvalidName": "Enter a valid name containing 2 to 60 characters.",
+  "@maneuverTugInvalidName": {
+    "description": "Validation error for an invalid tugboat name."
+  },
+  "maneuverTugInvalidBollardPull": "Enter a valid BP greater than zero and up to 200.",
+  "@maneuverTugInvalidBollardPull": {
+    "description": "Validation error for an invalid bollard pull."
+  },
+  "maneuverTugDuplicate": "This tugboat is already registered for the location.",
+  "@maneuverTugDuplicate": {
+    "description": "Error shown when a duplicate tugboat is submitted."
+  },
+  "maneuverTugSignedOut": "Sign in again to register the tugboat.",
+  "@maneuverTugSignedOut": {
+    "description": "Error shown when a signed-out user attempts to create a tugboat."
+  },
+  "maneuverTugSaveError": "The tugboat could not be registered right now. Try again.",
+  "@maneuverTugSaveError": {
+    "description": "Generic error shown when a community tugboat cannot be saved."
   }
 }

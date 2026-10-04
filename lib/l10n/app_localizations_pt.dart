@@ -1770,4 +1770,102 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get comingSoonBadge => 'EM BREVE';
+
+  @override
+  String get maneuverReportOptionalFields =>
+      'Nenhuma informação é obrigatória.';
+
+  @override
+  String get maneuverApproach => 'Aproximação';
+
+  @override
+  String get maneuverTugboats => 'Rebocadores';
+
+  @override
+  String get maneuverTugSharedNotice =>
+      'Opções dos Parâmetros Operacionais e da comunidade de práticos.';
+
+  @override
+  String get maneuverTugForward => 'AV (avante)';
+
+  @override
+  String get maneuverTugAft => 'AR (a ré)';
+
+  @override
+  String get maneuverSelectTug => 'Selecionar...';
+
+  @override
+  String get maneuverNoTugSelected => 'Nenhum';
+
+  @override
+  String get maneuverNoTugs => 'Nenhum rebocador disponível';
+
+  @override
+  String get maneuverAddTug => 'Inserir novo rebocador';
+
+  @override
+  String get maneuverTugOfficialSource => 'Parâmetros';
+
+  @override
+  String get maneuverTugCommunitySource => 'Comunidade';
+
+  @override
+  String get maneuverCommunityTugsLoadError =>
+      'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.';
+
+  @override
+  String get maneuverAddTugTitle => 'Novo rebocador';
+
+  @override
+  String get maneuverTugRegistrationNotice =>
+      'O rebocador ficará disponível para os demais práticos desta localidade.';
+
+  @override
+  String get maneuverTugName => 'Nome do rebocador';
+
+  @override
+  String get maneuverTugNameHint => 'Ex.: NOVO REBOCADOR';
+
+  @override
+  String get maneuverTugBollardPull => 'Bollard pull — BP (opcional)';
+
+  @override
+  String get maneuverTugType => 'Tipo (opcional)';
+
+  @override
+  String get maneuverTugTypeAzimuthal => 'Azimutal';
+
+  @override
+  String get maneuverTugTypeConventional => 'Convencional';
+
+  @override
+  String get maneuverTugTypeUnspecified => 'Não informado';
+
+  @override
+  String get maneuverSaveTug => 'Salvar rebocador';
+
+  @override
+  String maneuverTugSaved(String name) {
+    return '$name foi adicionado e já está disponível para os demais práticos.';
+  }
+
+  @override
+  String get maneuverTugInvalidName =>
+      'Informe um nome válido com 2 a 60 caracteres.';
+
+  @override
+  String get maneuverTugInvalidBollardPull =>
+      'Informe um BP válido, maior que zero e de até 200.';
+
+  @override
+  String get maneuverTugDuplicate =>
+      'Este rebocador já está cadastrado para a localidade.';
+
+  @override
+  String get maneuverTugSignedOut =>
+      'Entre novamente na sua conta para cadastrar o rebocador.';
+
+  @override
+  String get maneuverTugSaveError =>
+      'Não foi possível cadastrar o rebocador agora. Tente novamente.';
 }
