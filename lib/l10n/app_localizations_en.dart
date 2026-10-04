@@ -771,8 +771,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This location uses the Santana tide as its reference.';
 
   @override
-  String get rulerValuePendingWebPilot =>
-      'Automatic reading available after the WebPilot integration.';
+  String get rulerReading => 'Ruler reading';
+
+  @override
+  String get rulerManualHint => 'Enter the current ruler reading manually.';
+
+  @override
+  String get invalidRulerReading => 'Enter a valid ruler reading';
 
   @override
   String get tideReferenceUnavailable =>
@@ -1687,7 +1692,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get depthTrends => 'Depth trend';
 
   @override
-  String get sixMonthAverage => '6-month average';
+  String get sixMonths => '6 months';
+
+  @override
+  String get twelveMonths => '12 months';
+
+  @override
+  String get twoYears => '2 years';
 
   @override
   String get depthHistory => 'Record history';

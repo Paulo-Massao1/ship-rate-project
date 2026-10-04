@@ -771,8 +771,14 @@ class AppLocalizationsPt extends AppLocalizations {
       'Este local usa a Maré de Santana como referência.';
 
   @override
-  String get rulerValuePendingWebPilot =>
-      'Leitura automática disponível após integração com o WebPilot.';
+  String get rulerReading => 'Leitura da régua';
+
+  @override
+  String get rulerManualHint =>
+      'Informe manualmente a leitura atual da régua.';
+
+  @override
+  String get invalidRulerReading => 'Informe uma leitura de régua válida';
 
   @override
   String get tideReferenceUnavailable =>
@@ -1687,7 +1693,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get depthTrends => 'Tendência de profundidade';
 
   @override
-  String get sixMonthAverage => 'Média 6 meses';
+  String get sixMonths => '6 meses';
+
+  @override
+  String get twelveMonths => '12 meses';
+
+  @override
+  String get twoYears => '2 anos';
 
   @override
   String get depthHistory => 'Histórico de registros';

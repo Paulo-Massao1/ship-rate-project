@@ -38,7 +38,8 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final depth = _formatMeters(record['profundidadeTotal']);
     final maxDraft = _formatMeters(record['caladoMax']);
     final ukc = _formatMeters(record['ukc']);
-    final depthReference = _formatDepthReference(record['depthReference']);
+    final depthReference =
+        _formatDepthReference(record['depthReference'], l10n);
     final speed = _formatSpeed(record['velocidade']);
     final observations = (record['observacoes'] ?? '').toString().trim();
     final technicalRows = _buildTechnicalRows(l10n);
@@ -349,7 +350,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     return _withSpacing(rows);
   }
 
-  String _formatDepthReference(dynamic value) {
+  String _formatDepthReference(dynamic value, AppLocalizations l10n) {
     if (value is! Map) return '';
 
     final name = (value['name'] ?? '').toString().trim();
@@ -358,9 +359,38 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
 
     final displayName = code.isEmpty ? name : '$name ($code)';
     final rulerValue = value['value'];
-    return rulerValue is num
-        ? '$displayName · ${_formatMeters(rulerValue)}'
-        : displayName;
+    if (rulerValue is num) {
+      return '$displayName · ${_formatMeters(rulerValue)}';
+    }
+
+    final tideEvents = <String>[];
+    final previousLow = _formatTideEvent(value['previousLowTide']);
+    final nextHigh = _formatTideEvent(value['nextHighTide']);
+    if (previousLow.isNotEmpty) {
+      tideEvents.add('${l10n.previousLowTide}: $previousLow');
+    }
+    if (nextHigh.isNotEmpty) {
+      tideEvents.add('${l10n.nextHighTide}: $nextHigh');
+    }
+
+    return tideEvents.isEmpty
+        ? displayName
+        : '$displayName\n${tideEvents.join(' · ')}';
+  }
+
+  String _formatTideEvent(dynamic value) {
+    if (value is! Map || value['height'] is! num) return '';
+
+    final height = _formatMeters(value['height']);
+    final rawDate = value['dateTime'];
+    if (rawDate is! Timestamp) return height;
+
+    final date = rawDate.toDate();
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$height ($day/$month $hour:$minute)';
   }
 
   List<Widget> _buildPositionRows() {

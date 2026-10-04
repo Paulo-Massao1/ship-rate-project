@@ -92,6 +92,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   final _maxDraftController = TextEditingController();
   final _ukcController = TextEditingController();
   final _squatController = TextEditingController();
+  final _rulerValueController = TextEditingController();
   final _speedController = TextEditingController();
   String? _sonarPosition; // 'proa' or 'popa'
 
@@ -194,6 +195,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (d['squat'] != null) {
         _squatController.text = d['squat'].toString();
       }
+      final depthReference = d['depthReference'];
+      if (depthReference is Map && depthReference['value'] != null) {
+        _rulerValueController.text = depthReference['value'].toString();
+      }
       // Point
       if (d['ponto'] != null) {
         _selectedPoint = d['ponto'] as int?;
@@ -251,6 +256,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     _maxDraftController.dispose();
     _ukcController.dispose();
     _squatController.dispose();
+    _rulerValueController.dispose();
     _speedController.dispose();
     _latDegController.dispose();
     _latMinController.dispose();
@@ -367,6 +373,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     );
     if (picked == null) return;
 
+    final dateChanged = picked.year != _selectedDate.year ||
+        picked.month != _selectedDate.month ||
+        picked.day != _selectedDate.day;
     setState(() {
       _selectedDate = DateTime(
         picked.year,
@@ -375,6 +384,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         _selectedDate.hour,
         _selectedDate.minute,
       );
+      if (dateChanged &&
+          _depthReference?.type == DepthReferenceType.ruler) {
+        _rulerValueController.clear();
+      }
     });
     await _refreshDepthReference();
   }
@@ -429,6 +442,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     if (_maxDraftController.text.trim().isEmpty) return l10n.draftRequired;
     if (_ukcController.text.trim().isEmpty) return l10n.ukcRequired;
     if (_calculatedDepth == null) return l10n.depthRequired;
+    if (_depthReference?.type == DepthReferenceType.ruler &&
+        _rulerValueController.text.trim().isNotEmpty &&
+        _parseDecimal(_rulerValueController.text) == null) {
+      return l10n.invalidRulerReading;
+    }
     return null;
   }
 
@@ -488,6 +506,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           'name': reference.name,
           if (reference.code != null) 'code': reference.code,
         };
+
+        if (reference.type == DepthReferenceType.ruler) {
+          final rulerValue = _parseDecimal(_rulerValueController.text);
+          if (rulerValue != null) referenceData['value'] = rulerValue;
+        }
 
         final tideWindow = _santanaTideWindow;
         if (reference.type == DepthReferenceType.santanaTide) {
@@ -825,7 +848,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     if (reference == null) return '';
 
     if (reference.type == DepthReferenceType.ruler) {
-      return '\u{1F4D0} ${reference.displayName}\n';
+      final value = _parseDecimal(_rulerValueController.text);
+      final valueText = value == null ? '' : ': ${_formatMetersValue(value)}';
+      return '\u{1F4D0} ${reference.displayName}$valueText\n';
     }
 
     final window = _santanaTideWindow;
@@ -870,6 +895,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       _selectedLocationId = null;
       _selectedLocationName = name;
       _showNewLocationInput = false;
+      _rulerValueController.clear();
     });
     await _refreshDepthReference();
   }
@@ -1081,6 +1107,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _selectedPoint = null;
                   _showNewLocationInput = false;
                   _newLocationController.clear();
+                  _rulerValueController.clear();
                 });
                 unawaited(_refreshDepthReference());
               },
@@ -1348,9 +1375,38 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: _inputBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0x4DFFC107)),
+              ),
+              child: TextField(
+                controller: _rulerValueController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: _textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                decoration: InputDecoration(
+                  hintText: l10n.rulerReading,
+                  hintStyle: const TextStyle(color: _textMuted, fontSize: 12),
+                  suffixText: 'm',
+                  suffixStyle: const TextStyle(color: Color(0xFFFFD54F)),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
             Text(
-              l10n.rulerValuePendingWebPilot,
+              l10n.rulerManualHint,
               textAlign: TextAlign.center,
               style: const TextStyle(color: _textMuted, fontSize: 10),
             ),

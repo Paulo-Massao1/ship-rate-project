@@ -1529,11 +1529,23 @@ abstract class AppLocalizations {
   /// **'Este local usa a Maré de Santana como referência.'**
   String get santanaTideReferenceHint;
 
-  /// Explains why the daily ruler value is not displayed yet.
+  /// Placeholder for the manual ruler reading.
   ///
   /// In pt, this message translates to:
-  /// **'Leitura automática disponível após integração com o WebPilot.'**
-  String get rulerValuePendingWebPilot;
+  /// **'Leitura da régua'**
+  String get rulerReading;
+
+  /// Explains that the ruler reading is currently entered manually.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe manualmente a leitura atual da régua.'**
+  String get rulerManualHint;
+
+  /// Validation message for an invalid manual ruler reading.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informe uma leitura de régua válida'**
+  String get invalidRulerReading;
 
   /// Shown when no tide window can be resolved for the measurement time.
   ///
@@ -3191,11 +3203,23 @@ abstract class AppLocalizations {
   /// **'Tendência de profundidade'**
   String get depthTrends;
 
-  /// Label of the six-month average depth shown on the depth trend card.
+  /// Six-month period filter label.
   ///
   /// In pt, this message translates to:
-  /// **'Média 6 meses'**
-  String get sixMonthAverage;
+  /// **'6 meses'**
+  String get sixMonths;
+
+  /// Twelve-month period filter label.
+  ///
+  /// In pt, this message translates to:
+  /// **'12 meses'**
+  String get twelveMonths;
+
+  /// Two-year period filter label.
+  ///
+  /// In pt, this message translates to:
+  /// **'2 anos'**
+  String get twoYears;
 
   /// Header of the record list of the depth trend page.
   ///

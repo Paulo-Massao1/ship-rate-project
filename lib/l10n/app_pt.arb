@@ -1057,9 +1057,17 @@
   "@santanaTideReferenceHint": {
     "description": "Explains that the selected location uses Santana tide data."
   },
-  "rulerValuePendingWebPilot": "Leitura automática disponível após integração com o WebPilot.",
-  "@rulerValuePendingWebPilot": {
-    "description": "Explains why the daily ruler value is not displayed yet."
+  "rulerReading": "Leitura da régua",
+  "@rulerReading": {
+    "description": "Placeholder for the manual ruler reading."
+  },
+  "rulerManualHint": "Informe manualmente a leitura atual da régua.",
+  "@rulerManualHint": {
+    "description": "Explains that the ruler reading is currently entered manually."
+  },
+  "invalidRulerReading": "Informe uma leitura de régua válida",
+  "@invalidRulerReading": {
+    "description": "Validation message for an invalid manual ruler reading."
   },
   "tideReferenceUnavailable": "Dados de maré indisponíveis para este horário.",
   "@tideReferenceUnavailable": {
@@ -2310,9 +2318,17 @@
   "@depthTrends": {
     "description": "Title of the Premium depth trend page."
   },
-  "sixMonthAverage": "Média 6 meses",
-  "@sixMonthAverage": {
-    "description": "Label of the six-month average depth shown on the depth trend card."
+  "sixMonths": "6 meses",
+  "@sixMonths": {
+    "description": "Six-month period filter label."
+  },
+  "twelveMonths": "12 meses",
+  "@twelveMonths": {
+    "description": "Twelve-month period filter label."
+  },
+  "twoYears": "2 anos",
+  "@twoYears": {
+    "description": "Two-year period filter label."
   },
   "depthHistory": "Histórico de registros",
   "@depthHistory": {

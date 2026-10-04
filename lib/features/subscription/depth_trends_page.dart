@@ -8,14 +8,15 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../core/subscription_constants.dart';
 import '../../data/services/depth_trend_service.dart';
 import '../../shared/widgets/subscription_gate.dart';
+import '../navigation_safety/nav_safety_record_detail_page.dart';
 
 /// Premium screen plotting how the depth of one location changed over time.
 ///
 /// The selector lists every location that has depth records; picking one
 /// reloads its history through [DepthTrendService]. The card on top shows the
-/// latest depth, the six-month average and the line chart — one point per
-/// month, at most six — and the list below repeats every record with its exact
-/// date and the pilot who saved it.
+/// latest depth and the line chart — one point per month in the selected
+/// period — and the list below repeats every record with its exact date and the
+/// pilot who saved it.
 class DepthTrendsPage extends StatefulWidget {
   const DepthTrendsPage({super.key});
 
@@ -42,7 +43,6 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   static const _cardBackground = Color(0x0F64B5F6);
   static const _cardBorder = Color(0x2664B5F6);
   static const _chartAreaColor = Color(0x1464B5F6);
-  static const _averageLineColor = Color(0x4D64B5F6);
   static const _gridLineColor = Color(0x0AFFFFFF);
 
   /// Height reserved for the line chart inside the card, value labels included.
@@ -61,6 +61,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
   List<String> _locations = const [];
   String? _selectedLocation;
+  DepthTrendPeriod _selectedPeriod = DepthTrendPeriod.sixMonths;
 
   DepthTrendData? _data;
 
@@ -114,7 +115,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     setState(() => _loadingTrend = true);
 
-    final data = await _service.getTrendData(location, locale: _locale);
+    final data = await _service.getTrendData(
+      location,
+      locale: _locale,
+      period: _selectedPeriod,
+    );
     if (!mounted) return;
 
     setState(() {
@@ -130,6 +135,25 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     setState(() => _selectedLocation = location);
     _loadTrend();
+  }
+
+  void _onPeriodSelected(DepthTrendPeriod period) {
+    if (period == _selectedPeriod || _loadingTrend) return;
+
+    setState(() => _selectedPeriod = period);
+    _loadTrend();
+  }
+
+  void _openRecord(DepthDataPoint point) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NavSafetyRecordDetailPage(
+          locationName: point.locationName,
+          record: point.record,
+        ),
+      ),
+    );
   }
 
   // ===========================================================================
@@ -239,6 +263,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
         child: Column(
           children: [
             _buildLocationSelector(l10n),
+            _buildPeriodSelector(l10n),
             Expanded(child: _buildTrend(l10n)),
           ],
         ),
@@ -317,6 +342,72 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                   size: 20,
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodSelector(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildPeriodButton(
+              label: l10n.sixMonths,
+              period: DepthTrendPeriod.sixMonths,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildPeriodButton(
+              label: l10n.twelveMonths,
+              period: DepthTrendPeriod.twelveMonths,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildPeriodButton(
+              label: l10n.twoYears,
+              period: DepthTrendPeriod.twoYears,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPeriodButton({
+    required String label,
+    required DepthTrendPeriod period,
+  }) {
+    final selected = period == _selectedPeriod;
+
+    return Material(
+      color: selected ? _cardBackground : _white04,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: _loadingTrend ? null : () => _onPeriodSelected(period),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: selected ? _premiumColor : _white10,
+            ),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: selected ? _premiumColor : _white60,
+              fontSize: 12,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
         ),
@@ -423,24 +514,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryValue(
-                  label: l10n.lastDepth,
-                  value: _depthLabel(data.lastDepth),
-                  valueColor: Colors.white,
-                  alignment: CrossAxisAlignment.start,
-                ),
-              ),
-              const SizedBox(width: 12),
-              _buildSummaryValue(
-                label: l10n.sixMonthAverage,
-                value: _depthLabel(data.sixMonthAverage),
-                valueColor: _premiumColor,
-                alignment: CrossAxisAlignment.end,
-              ),
-            ],
+          _buildSummaryValue(
+            label: l10n.lastDepth,
+            value: _depthLabel(data.lastDepth),
+            valueColor: Colors.white,
+            alignment: CrossAxisAlignment.start,
           ),
           const SizedBox(height: 18),
           SizedBox(height: _chartHeight, child: _buildChart(data)),
@@ -494,6 +572,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     final bounds = _yAxisBounds(points);
     final lastIndex = spots.length - 1;
+    final labelStep = (spots.length / 6).ceil();
 
     // A single month has no range on the X axis, so it is centered by hand.
     final minX = points.length == 1 ? -0.5 : 0.0;
@@ -542,10 +621,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
               ],
             ),
           ),
-          // One always-on label per month, drawn above its own dot.
+          // Keeps value labels readable when 12 or 24 months are visible.
           showingTooltipIndicators: [
-            for (final spot in spots)
-              ShowingTooltipIndicators([LineBarSpot(bar, 0, spot)]),
+            for (var i = 0; i < spots.length; i++)
+              if (i % labelStep == 0 || i == lastIndex)
+                ShowingTooltipIndicators([LineBarSpot(bar, 0, spots[i])]),
           ],
           gridData: FlGridData(
             drawVerticalLine: false,
@@ -570,22 +650,16 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 24,
-                // One label per month, right under its dot.
+                // Periods with many points show a reduced set of labels.
                 interval: 1,
-                getTitlesWidget: (value, meta) =>
-                    _buildBottomTitle(value, meta, points),
+                getTitlesWidget: (value, meta) => _buildBottomTitle(
+                  value,
+                  meta,
+                  points,
+                  labelStep,
+                ),
               ),
             ),
-          ),
-          extraLinesData: ExtraLinesData(
-            horizontalLines: [
-              HorizontalLine(
-                y: data.sixMonthAverage,
-                color: _averageLineColor,
-                strokeWidth: 1,
-                dashArray: const [4, 3],
-              ),
-            ],
           ),
           lineBarsData: [bar],
         ),
@@ -622,18 +696,28 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     double value,
     TitleMeta meta,
     List<DepthMonthPoint> points,
+    int labelStep,
   ) {
     final index = value.round();
     if (index < 0 || index >= points.length) return const SizedBox.shrink();
     // Only whole positions carry a month, never the padded edges of a chart
     // holding a single month.
     if ((value - index).abs() > 0.01) return const SizedBox.shrink();
+    if (index % labelStep != 0 && index != points.length - 1) {
+      return const SizedBox.shrink();
+    }
+
+    final point = points[index];
+    final yearSuffix = (point.month.year % 100).toString().padLeft(2, '0');
+    final label = _selectedPeriod == DepthTrendPeriod.sixMonths
+        ? point.monthLabel
+        : '${point.monthLabel}/$yearSuffix';
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
       child: Text(
-        points[index].monthLabel,
+        label,
         style: const TextStyle(color: _white30, fontSize: 10),
       ),
     );
@@ -681,13 +765,6 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
           l10n.depth,
           style: const TextStyle(color: _white60, fontSize: 11),
         ),
-        const SizedBox(width: 16),
-        const _DashedLineMark(color: _averageLineColor),
-        const SizedBox(width: 6),
-        Text(
-          l10n.average,
-          style: const TextStyle(color: _white60, fontSize: 11),
-        ),
       ],
     );
   }
@@ -712,49 +789,65 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     final pilotName =
         point.pilotName.isEmpty ? l10n.notAvailable : point.pilotName;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
-      decoration: BoxDecoration(
-        color: _white04,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: InkWell(
+          onTap: () => _openRecord(point),
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+            decoration: BoxDecoration(
+              color: _white04,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
               children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _dateLabel(point.date),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        l10n.pilotCallSign(pilotName),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _white60, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Text(
-                  _dateLabel(point.date),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  _depthLabel(point.depth),
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
+                    color: _depthColor,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  l10n.pilotCallSign(pilotName),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _white60, fontSize: 11),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right,
+                  color: _white40,
+                  size: 18,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            _depthLabel(point.depth),
-            style: const TextStyle(
-              color: _depthColor,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -795,23 +888,4 @@ class _AxisBounds {
     required this.max,
     required this.interval,
   });
-}
-
-/// Dashed stroke standing for the average line in the legend.
-class _DashedLineMark extends StatelessWidget {
-  final Color color;
-
-  const _DashedLineMark({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < 3; i++) ...[
-          if (i > 0) const SizedBox(width: 3),
-          Container(width: 4, height: 2, color: color),
-        ],
-      ],
-    );
-  }
 }
