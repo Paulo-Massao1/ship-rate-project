@@ -205,7 +205,11 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '${port.name} (${port.code})',
-                  style: const TextStyle(color: _muted, fontSize: 12),
+                  style: const TextStyle(
+                    color: _amber,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(

@@ -158,7 +158,7 @@ class ManeuversPage extends StatelessWidget {
           child: Text(
             '${port.name} (${port.code})',
             style: const TextStyle(
-              color: Color(0x99FFFFFF),
+              color: _amber,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,

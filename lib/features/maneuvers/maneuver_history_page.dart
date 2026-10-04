@@ -128,7 +128,11 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
                 const SizedBox(height: 3),
                 Text(
                   '${widget.portName} (${widget.portCode})',
-                  style: const TextStyle(color: _muted, fontSize: 12),
+                  style: const TextStyle(
+                    color: Color(0xFFFFB74D),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(

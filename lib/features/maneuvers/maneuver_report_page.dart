@@ -30,7 +30,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   static const _blue = Color(0xFF64B5F6);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
-  static const _card = Color(0x0DFFFFFF);
   static const _muted = Color(0x99FFFFFF);
   static final _decimalFormatter = FilteringTextInputFormatter.allow(
     RegExp(r'[0-9,.]'),
@@ -112,15 +111,40 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.reportManeuver,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        automaticallyImplyLeading: false,
+        toolbarHeight: 76,
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.maneuverNewReportTitle,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              l10n.maneuverReportPort(
+                widget.terminalName,
+                widget.portName,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: _amber,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         foregroundColor: Colors.white,
         backgroundColor: _bgDark,
+        elevation: 0,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, color: Color(0x1FFFFFFF)),
+        ),
       ),
-      bottomNavigationBar: _buildSaveBar(l10n),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -133,16 +157,32 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
               children: [
-                _buildHeader(l10n),
-                const SizedBox(height: 18),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.maybePop(context),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xCCFFFFFF),
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 36),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    icon: const Icon(Icons.chevron_left, size: 18),
+                    label: Text(l10n.back),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 _buildShipSection(l10n),
-                const SizedBox(height: 14),
+                const SizedBox(height: 28),
                 _buildTugSection(l10n),
-                const SizedBox(height: 14),
+                const SizedBox(height: 28),
                 _buildMooringSection(l10n),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
+                _buildFormActions(l10n),
               ],
             ),
           ),
@@ -151,50 +191,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     );
   }
 
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: _amber.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _amber.withValues(alpha: 0.22)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.terminalName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            '${widget.portName} (${widget.portCode})',
-            style: const TextStyle(color: _muted, fontSize: 12),
-          ),
-          const SizedBox(height: 9),
-          Row(
-            children: [
-              const Icon(Icons.info_outline, color: _amber, size: 16),
-              const SizedBox(width: 7),
-              Expanded(
-                child: Text(
-                  l10n.maneuverReportOptionalFields,
-                  style: const TextStyle(color: _muted, fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildShipSection(AppLocalizations l10n) {
-    return _buildSectionCard(
+    return _buildFormSection(
       icon: Icons.directions_boat_outlined,
       title: l10n.shipData,
       child: Column(
@@ -295,84 +293,97 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }
 
   Widget _buildShipAutocomplete(AppLocalizations l10n) {
-    return RawAutocomplete<ManeuverShipOption>(
-      textEditingController: _shipNameController,
-      focusNode: _shipNameFocusNode,
-      displayStringForOption: (ship) => ship.name.toUpperCase(),
-      optionsBuilder: (value) {
-        final query = value.text.trim().toUpperCase();
-        if (query.isEmpty) return const Iterable<ManeuverShipOption>.empty();
-        return _ships
-            .where((ship) => ship.name.toUpperCase().contains(query))
-            .take(20);
-      },
-      fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
-        return TextField(
-          controller: controller,
-          focusNode: focusNode,
-          enabled: !_saving,
-          textCapitalization: TextCapitalization.characters,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(120),
-            _UpperCaseTextFormatter(),
-          ],
-          style: const TextStyle(color: Colors.white),
-          decoration: _inputDecoration(
-            label: l10n.shipName,
-            hint: _loadingShips
-                ? l10n.maneuverLoadingShips
-                : l10n.maneuverSearchShip,
-            prefixIcon: Icons.search,
-          ),
-          onChanged: (_) => _selectedShipId = null,
-        );
-      },
-      optionsViewBuilder: (context, onSelected, options) {
-        if (options.isEmpty) return const SizedBox.shrink();
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            color: _bgMid,
-            elevation: 10,
-            borderRadius: BorderRadius.circular(10),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 568, maxHeight: 260),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: options.length,
-                itemBuilder: (_, index) {
-                  final ship = options.elementAt(index);
-                  return ListTile(
-                    dense: true,
-                    leading: const Icon(
-                      Icons.directions_boat_outlined,
-                      color: _blue,
-                      size: 20,
-                    ),
-                    title: Text(
-                      ship.name.toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                    onTap: () {
-                      onSelected(ship);
-                      setState(() {
-                        _selectedShipId = ship.id;
-                        _shipNameController.text = ship.name.toUpperCase();
-                      });
-                    },
-                  );
-                },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(l10n.shipName),
+        const SizedBox(height: 6),
+        RawAutocomplete<ManeuverShipOption>(
+          textEditingController: _shipNameController,
+          focusNode: _shipNameFocusNode,
+          displayStringForOption: (ship) => ship.name.toUpperCase(),
+          optionsBuilder: (value) {
+            final query = value.text.trim().toUpperCase();
+            if (query.isEmpty) {
+              return const Iterable<ManeuverShipOption>.empty();
+            }
+            return _ships
+                .where((ship) => ship.name.toUpperCase().contains(query))
+                .take(20);
+          },
+          fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              enabled: !_saving,
+              textCapitalization: TextCapitalization.characters,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(120),
+                _UpperCaseTextFormatter(),
+              ],
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              decoration: _inputDecoration(
+                hint: _loadingShips
+                    ? l10n.maneuverLoadingShips
+                    : l10n.maneuverSearchShip,
               ),
-            ),
-          ),
-        );
-      },
+              onChanged: (_) => _selectedShipId = null,
+            );
+          },
+          optionsViewBuilder: (context, onSelected, options) {
+            if (options.isEmpty) return const SizedBox.shrink();
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                color: _bgMid,
+                elevation: 10,
+                borderRadius: BorderRadius.circular(10),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 564,
+                    maxHeight: 260,
+                  ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (_, index) {
+                      final ship = options.elementAt(index);
+                      return ListTile(
+                        dense: true,
+                        leading: const Icon(
+                          Icons.directions_boat_outlined,
+                          color: _blue,
+                          size: 20,
+                        ),
+                        title: Text(
+                          ship.name.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                        ),
+                        onTap: () {
+                          onSelected(ship);
+                          setState(() {
+                            _selectedShipId = ship.id;
+                            _shipNameController.text = ship.name.toUpperCase();
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildMooringSection(AppLocalizations l10n) {
-    return _buildSectionCard(
+    return _buildFormSection(
       icon: Icons.anchor,
       title: l10n.maneuverMooring,
       child: Column(
@@ -410,39 +421,33 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     );
   }
 
-  Widget _buildSectionCard({
+  Widget _buildFormSection({
     required IconData icon,
     required String title,
     required Widget child,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x1FFFFFFF)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: _amber, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: _amber, size: 18),
+            const SizedBox(width: 7),
+            Text(
+              title,
+              style: const TextStyle(
+                color: _amber,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Divider(height: 1, color: Color(0x33FFB74D)),
+        const SizedBox(height: 13),
+        child,
+      ],
     );
   }
 
@@ -455,43 +460,56 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     int? maxLength,
     int maxLines = 1,
   }) {
-    return TextField(
-      controller: controller,
-      enabled: !_saving,
-      keyboardType: keyboardType,
-      inputFormatters: [
-        if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
-        ...?inputFormatters,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(label),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          enabled: !_saving,
+          keyboardType: keyboardType,
+          inputFormatters: [
+            if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+            ...?inputFormatters,
+          ],
+          maxLines: maxLines,
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+          decoration: _inputDecoration(hint: hint),
+        ),
       ],
-      maxLines: maxLines,
-      style: const TextStyle(color: Colors.white, fontSize: 13),
-      decoration: _inputDecoration(label: label, hint: hint),
     );
   }
 
-  InputDecoration _inputDecoration({
-    required String label,
-    String? hint,
-    IconData? prefixIcon,
-  }) {
+  Widget _buildFieldLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(
+        color: Color(0xB3FFFFFF),
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({String? hint}) {
     return InputDecoration(
-      labelText: label,
       hintText: hint,
-      labelStyle: const TextStyle(color: _muted, fontSize: 12),
-      hintStyle: const TextStyle(color: Color(0x55FFFFFF), fontSize: 12),
-      prefixIcon: prefixIcon == null
-          ? null
-          : Icon(prefixIcon, color: _blue, size: 19),
+      hintStyle: const TextStyle(color: Color(0x66FFFFFF), fontSize: 12),
       filled: true,
-      fillColor: const Color(0x0AFFFFFF),
+      fillColor: const Color(0x0DFFFFFF),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: Color(0x1FFFFFFF)),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0x2EFFFFFF)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: _amber),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0x99FFB74D)),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0x1AFFFFFF)),
       ),
     );
   }
@@ -505,86 +523,74 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: _muted, fontSize: 12)),
+        _buildFieldLabel(label),
         const SizedBox(height: 7),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: options.entries.map((entry) {
-            final selected = value == entry.key;
-            return Semantics(
-              button: true,
-              selected: selected,
-              child: Material(
-                color: selected
-                    ? _amber.withValues(alpha: 0.13)
-                    : const Color(0x08FFFFFF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                    color: selected
-                        ? _amber.withValues(alpha: 0.55)
-                        : const Color(0x33FFFFFF),
-                  ),
-                ),
-                child: InkWell(
-                  onTap: _saving
-                      ? null
-                      : () => onChanged(selected ? null : entry.key),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 9,
-                    ),
-                    child: Text(
-                      entry.value,
-                      style: TextStyle(
+        Row(
+          children: [
+            for (final (index, entry) in options.entries.indexed) ...[
+              if (index > 0) const SizedBox(width: 6),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    final selected = value == entry.key;
+                    return Semantics(
+                      button: true,
+                      selected: selected,
+                      child: Material(
                         color: selected
-                            ? _amber
-                            : const Color(0xD9FFFFFF),
-                        fontSize: 11,
-                        fontWeight: selected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
+                            ? _amber.withValues(alpha: 0.13)
+                            : const Color(0x08FFFFFF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                          side: BorderSide(
+                            color: selected
+                                ? _amber.withValues(alpha: 0.55)
+                                : const Color(0x2EFFFFFF),
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _saving
+                              ? null
+                              : () => onChanged(selected ? null : entry.key),
+                          borderRadius: BorderRadius.circular(7),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              entry.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: selected
+                                    ? _amber
+                                    : const Color(0xE6FFFFFF),
+                                fontSize: 11,
+                                fontWeight: selected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
-            );
-          }).toList(growable: false),
+            ],
+          ],
         ),
       ],
     );
   }
 
   Widget _buildTugSection(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _card,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x1FFFFFFF)),
-      ),
+    return _buildFormSection(
+      icon: Icons.assistant_direction,
+      title: l10n.maneuverApproach,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.assistant_direction, color: _amber, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                l10n.maneuverApproach,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           Text(
             l10n.maneuverTugboats,
             style: const TextStyle(
@@ -764,50 +770,43 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }) {
     final validValue = tugs.any((tug) => tug.id == value) ? value : null;
 
-    return DropdownButtonFormField<String>(
-      value: validValue,
-      isExpanded: true,
-      dropdownColor: _bgMid,
-      iconEnabledColor: const Color(0x99FFFFFF),
-      style: const TextStyle(color: Colors.white, fontSize: 13),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: _muted, fontSize: 12),
-        filled: true,
-        fillColor: const Color(0x0AFFFFFF),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(9),
-          borderSide: const BorderSide(color: Color(0x1FFFFFFF)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(9),
-          borderSide: const BorderSide(color: _amber),
-        ),
-      ),
-      hint: Text(
-        tugs.isEmpty ? l10n.maneuverNoTugs : l10n.maneuverSelectTug,
-        style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 13),
-      ),
-      items: [
-        DropdownMenuItem<String>(
-          value: '',
-          child: Text(l10n.maneuverNoTugSelected),
-        ),
-        ...tugs.map(
-          (tug) => DropdownMenuItem<String>(
-            value: tug.id,
-            child: Text(
-              _tugOptionLabel(tug, l10n),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(label),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: validValue,
+          isExpanded: true,
+          dropdownColor: _bgMid,
+          iconEnabledColor: const Color(0x99FFFFFF),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+          decoration: _inputDecoration(),
+          hint: Text(
+            tugs.isEmpty ? l10n.maneuverNoTugs : l10n.maneuverSelectTug,
+            style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 12),
           ),
+          items: [
+            DropdownMenuItem<String>(
+              value: '',
+              child: Text(l10n.maneuverNoTugSelected),
+            ),
+            ...tugs.map(
+              (tug) => DropdownMenuItem<String>(
+                value: tug.id,
+                child: Text(
+                  _tugOptionLabel(tug, l10n),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
+          onChanged: tugs.isEmpty
+              ? null
+              : (selected) => onChanged(selected == '' ? null : selected),
         ),
       ],
-      onChanged: tugs.isEmpty
-          ? null
-          : (selected) => onChanged(selected == '' ? null : selected),
     );
   }
 
@@ -850,54 +849,54 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     );
   }
 
-  Widget _buildSaveBar(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(
-        color: _bgDark,
-        border: Border(top: BorderSide(color: Color(0x1AFFFFFF))),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _saving ? null : () => Navigator.maybePop(context),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _muted,
-                  side: const BorderSide(color: Color(0x33FFFFFF)),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-                child: Text(l10n.cancel),
+  Widget _buildFormActions(AppLocalizations l10n) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: _saving ? null : _saveReport,
+            style: FilledButton.styleFrom(
+              backgroundColor: _amber,
+              foregroundColor: _bgDark,
+              disabledBackgroundColor: _amber.withValues(alpha: 0.45),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: FilledButton.icon(
-                onPressed: _saving ? null : _saveReport,
-                style: FilledButton.styleFrom(
-                  backgroundColor: _amber,
-                  foregroundColor: _bgDark,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-                icon: _saving
-                    ? const SizedBox(
-                        width: 17,
-                        height: 17,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: _bgDark,
-                        ),
-                      )
-                    : const Icon(Icons.save_outlined, size: 19),
-                label: Text(l10n.maneuverSaveReport),
-              ),
-            ),
-          ],
+            child: _saving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _bgDark,
+                    ),
+                  )
+                : Text(
+                    l10n.maneuverSaveReport,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: _saving ? null : () => Navigator.maybePop(context),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xCCFFFFFF),
+              side: const BorderSide(color: Color(0x40FFFFFF)),
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(l10n.cancel),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1031,12 +1030,12 @@ class _AddManeuverTugSheet extends StatefulWidget {
 }
 
 class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
-  static const _blue = Color(0xFF64B5F6);
+  static const _amber = Color(0xFFFFB74D);
   static const _muted = Color(0x99FFFFFF);
 
   final _nameController = TextEditingController();
   final _bollardPullController = TextEditingController();
-  ManeuverTugType _type = ManeuverTugType.unspecified;
+  ManeuverTugType _type = ManeuverTugType.azimuthal;
   bool _saving = false;
   String? _error;
 
@@ -1054,159 +1053,242 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          20,
           12,
-          20,
-          20 + MediaQuery.viewInsetsOf(context).bottom,
+          12,
+          12,
+          12 + MediaQuery.viewInsetsOf(context).bottom,
         ),
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0x33FFFFFF),
-                    borderRadius: BorderRadius.circular(2),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF13263A),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0x2EFFFFFF)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    l10n.maneuverAddTugTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                l10n.maneuverAddTugTitle,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                l10n.maneuverTugRegistrationNotice,
-                style: const TextStyle(color: _muted, fontSize: 12),
-              ),
-              const SizedBox(height: 18),
-              TextField(
-                controller: _nameController,
-                enabled: !_saving,
-                maxLength: 60,
-                textCapitalization: TextCapitalization.characters,
-                style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration(
-                  label: l10n.maneuverTugName,
-                  hint: l10n.maneuverTugNameHint,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _bollardPullController,
-                enabled: !_saving,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9,.]')),
-                ],
-                style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration(
-                  label: l10n.maneuverTugBollardPull,
-                  hint: '50,00',
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<ManeuverTugType>(
-                value: _type,
-                dropdownColor: const Color(0xFF0D2137),
-                style: const TextStyle(color: Colors.white),
-                decoration: _inputDecoration(label: l10n.maneuverTugType),
-                items: [
-                  DropdownMenuItem(
-                    value: ManeuverTugType.unspecified,
-                    child: Text(l10n.maneuverTugTypeUnspecified),
+                const SizedBox(height: 18),
+                _buildLabel(l10n.maneuverTugName),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _nameController,
+                  enabled: !_saving,
+                  maxLength: 60,
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    _UpperCaseTextFormatter(),
+                  ],
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  decoration: _inputDecoration(
+                    hint: l10n.maneuverTugNameHint,
                   ),
-                  DropdownMenuItem(
-                    value: ManeuverTugType.azimuthal,
-                    child: Text(l10n.maneuverTugTypeAzimuthal),
-                  ),
-                  DropdownMenuItem(
-                    value: ManeuverTugType.conventional,
-                    child: Text(l10n.maneuverTugTypeConventional),
-                  ),
-                ],
-                onChanged: _saving
-                    ? null
-                    : (value) {
-                        if (value != null) setState(() => _type = value);
-                      },
-              ),
-              if (_error != null) ...[
+                ),
                 const SizedBox(height: 12),
-                Text(
-                  _error!,
-                  style: const TextStyle(color: Color(0xFFEF9A9A), fontSize: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel(l10n.maneuverTugBollardPull),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: _bollardPullController,
+                            enabled: !_saving,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9,.]'),
+                              ),
+                            ],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                            ),
+                            decoration: _inputDecoration(
+                              hint: l10n.maneuverTugBollardPullHint,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel(l10n.maneuverTugType),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildTypeButton(
+                                  label: l10n.maneuverTugTypeAzimuthal,
+                                  value: ManeuverTugType.azimuthal,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: _buildTypeButton(
+                                  label: l10n.maneuverTugTypeConventional,
+                                  value: ManeuverTugType.conventional,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: Color(0xFFEF9A9A),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: _saving ? null : _save,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _amber,
+                          foregroundColor: const Color(0xFF0A1628),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: _saving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF0A1628),
+                                ),
+                              )
+                            : Text(l10n.maneuverSaveTug),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _saving
+                            ? null
+                            : () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _muted,
+                          side: const BorderSide(color: Color(0x40FFFFFF)),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(l10n.cancel),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _saving ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: _muted,
-                        side: const BorderSide(color: Color(0x33FFFFFF)),
-                      ),
-                      child: Text(l10n.cancel),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _saving ? null : _save,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: _blue,
-                        foregroundColor: const Color(0xFF0A1628),
-                      ),
-                      child: _saving
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Color(0xFF0A1628),
-                              ),
-                            )
-                          : Text(l10n.maneuverSaveTug),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  InputDecoration _inputDecoration({required String label, String? hint}) {
+  Widget _buildLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(
+        color: Color(0xB3FFFFFF),
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildTypeButton({
+    required String label,
+    required ManeuverTugType value,
+  }) {
+    final selected = _type == value;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected
+            ? _amber.withValues(alpha: 0.13)
+            : const Color(0x08FFFFFF),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(7),
+          side: BorderSide(
+            color: selected
+                ? _amber.withValues(alpha: 0.55)
+                : const Color(0x2EFFFFFF),
+          ),
+        ),
+        child: InkWell(
+          onTap: _saving ? null : () => setState(() => _type = value),
+          borderRadius: BorderRadius.circular(7),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 13),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: selected ? _amber : const Color(0xE6FFFFFF),
+                fontSize: 10,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({String? hint}) {
     return InputDecoration(
-      labelText: label,
       hintText: hint,
-      labelStyle: const TextStyle(color: _muted),
-      hintStyle: const TextStyle(color: Color(0x55FFFFFF)),
-      counterStyle: const TextStyle(color: Color(0x55FFFFFF)),
+      hintStyle: const TextStyle(color: Color(0x66FFFFFF), fontSize: 12),
+      counterText: '',
       filled: true,
-      fillColor: const Color(0x0AFFFFFF),
+      fillColor: const Color(0x0DFFFFFF),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: Color(0x1FFFFFFF)),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0x2EFFFFFF)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(9),
-        borderSide: const BorderSide(color: _blue),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0x99FFB74D)),
       ),
     );
   }

@@ -3293,6 +3293,18 @@ abstract class AppLocalizations {
   /// **'Relatar manobra'**
   String get reportManeuver;
 
+  /// Title shown at the top of the new maneuver report form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo Relato de Manobra'**
+  String get maneuverNewReportTitle;
+
+  /// Terminal and port subtitle shown in the maneuver report form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Porto: {terminal} — {port}'**
+  String maneuverReportPort(String terminal, String port);
+
   /// Description of the maneuver reporting area.
   ///
   /// In pt, this message translates to:
@@ -3458,25 +3470,31 @@ abstract class AppLocalizations {
   /// Label for the tugboat name field.
   ///
   /// In pt, this message translates to:
-  /// **'Nome do rebocador'**
+  /// **'Nome'**
   String get maneuverTugName;
 
   /// Example shown in the tugboat name field.
   ///
   /// In pt, this message translates to:
-  /// **'Ex.: NOVO REBOCADOR'**
+  /// **'Ex.: TATU BOLA'**
   String get maneuverTugNameHint;
 
   /// Label for the optional tugboat bollard pull field.
   ///
   /// In pt, this message translates to:
-  /// **'Bollard pull — BP (opcional)'**
+  /// **'BP (bollard pull)'**
   String get maneuverTugBollardPull;
+
+  /// Example range shown in the tugboat bollard pull field.
+  ///
+  /// In pt, this message translates to:
+  /// **'10 a 100 t'**
+  String get maneuverTugBollardPullHint;
 
   /// Label for the optional tugboat type selector.
   ///
   /// In pt, this message translates to:
-  /// **'Tipo (opcional)'**
+  /// **'Tipo'**
   String get maneuverTugType;
 
   /// Azimuthal tugboat type.
@@ -3500,7 +3518,7 @@ abstract class AppLocalizations {
   /// Button that saves a new community tugboat.
   ///
   /// In pt, this message translates to:
-  /// **'Salvar rebocador'**
+  /// **'Salvar'**
   String get maneuverSaveTug;
 
   /// Confirmation shown after a community tugboat is created.

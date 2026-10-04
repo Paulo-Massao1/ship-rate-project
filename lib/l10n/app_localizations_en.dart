@@ -1735,6 +1735,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportManeuver => 'Report maneuver';
 
   @override
+  String get maneuverNewReportTitle => 'New Maneuver Report';
+
+  @override
+  String maneuverReportPort(String terminal, String port) {
+    return 'Port: $terminal — $port';
+  }
+
+  @override
   String get reportManeuverDesc => 'Record the conditions and data observed during the maneuver.';
 
   @override
@@ -1816,16 +1824,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugRegistrationNotice => 'The tugboat will be available to other pilots in this location.';
 
   @override
-  String get maneuverTugName => 'Tugboat name';
+  String get maneuverTugName => 'Name';
 
   @override
-  String get maneuverTugNameHint => 'E.g. NEW TUGBOAT';
+  String get maneuverTugNameHint => 'E.g. TATU BOLA';
 
   @override
-  String get maneuverTugBollardPull => 'Bollard pull — BP (optional)';
+  String get maneuverTugBollardPull => 'BP (bollard pull)';
 
   @override
-  String get maneuverTugType => 'Type (optional)';
+  String get maneuverTugBollardPullHint => '10 to 100 t';
+
+  @override
+  String get maneuverTugType => 'Type';
 
   @override
   String get maneuverTugTypeAzimuthal => 'Azimuthal';
@@ -1837,7 +1848,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugTypeUnspecified => 'Not provided';
 
   @override
-  String get maneuverSaveTug => 'Save tugboat';
+  String get maneuverSaveTug => 'Save';
 
   @override
   String maneuverTugSaved(String name) {

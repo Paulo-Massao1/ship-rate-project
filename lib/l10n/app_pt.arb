@@ -2378,6 +2378,22 @@
   "@reportManeuver": {
     "description": "Title of the maneuver reporting area."
   },
+  "maneuverNewReportTitle": "Novo Relato de Manobra",
+  "@maneuverNewReportTitle": {
+    "description": "Title shown at the top of the new maneuver report form."
+  },
+  "maneuverReportPort": "Porto: {terminal} — {port}",
+  "@maneuverReportPort": {
+    "description": "Terminal and port subtitle shown in the maneuver report form.",
+    "placeholders": {
+      "terminal": {
+        "type": "String"
+      },
+      "port": {
+        "type": "String"
+      }
+    }
+  },
   "reportManeuverDesc": "Registre as condições e os dados observados na manobra.",
   "@reportManeuverDesc": {
     "description": "Description of the maneuver reporting area."
@@ -2486,19 +2502,23 @@
   "@maneuverTugRegistrationNotice": {
     "description": "Notice explaining that a new tugboat is shared with other pilots."
   },
-  "maneuverTugName": "Nome do rebocador",
+  "maneuverTugName": "Nome",
   "@maneuverTugName": {
     "description": "Label for the tugboat name field."
   },
-  "maneuverTugNameHint": "Ex.: NOVO REBOCADOR",
+  "maneuverTugNameHint": "Ex.: TATU BOLA",
   "@maneuverTugNameHint": {
     "description": "Example shown in the tugboat name field."
   },
-  "maneuverTugBollardPull": "Bollard pull — BP (opcional)",
+  "maneuverTugBollardPull": "BP (bollard pull)",
   "@maneuverTugBollardPull": {
     "description": "Label for the optional tugboat bollard pull field."
   },
-  "maneuverTugType": "Tipo (opcional)",
+  "maneuverTugBollardPullHint": "10 a 100 t",
+  "@maneuverTugBollardPullHint": {
+    "description": "Example range shown in the tugboat bollard pull field."
+  },
+  "maneuverTugType": "Tipo",
   "@maneuverTugType": {
     "description": "Label for the optional tugboat type selector."
   },
@@ -2514,7 +2534,7 @@
   "@maneuverTugTypeUnspecified": {
     "description": "Unspecified tugboat type."
   },
-  "maneuverSaveTug": "Salvar rebocador",
+  "maneuverSaveTug": "Salvar",
   "@maneuverSaveTug": {
     "description": "Button that saves a new community tugboat."
   },

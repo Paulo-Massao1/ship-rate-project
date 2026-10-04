@@ -1735,6 +1735,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get reportManeuver => 'Relatar manobra';
 
   @override
+  String get maneuverNewReportTitle => 'Novo Relato de Manobra';
+
+  @override
+  String maneuverReportPort(String terminal, String port) {
+    return 'Porto: $terminal — $port';
+  }
+
+  @override
   String get reportManeuverDesc => 'Registre as condições e os dados observados na manobra.';
 
   @override
@@ -1816,16 +1824,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugRegistrationNotice => 'O rebocador ficará disponível para os demais práticos desta localidade.';
 
   @override
-  String get maneuverTugName => 'Nome do rebocador';
+  String get maneuverTugName => 'Nome';
 
   @override
-  String get maneuverTugNameHint => 'Ex.: NOVO REBOCADOR';
+  String get maneuverTugNameHint => 'Ex.: TATU BOLA';
 
   @override
-  String get maneuverTugBollardPull => 'Bollard pull — BP (opcional)';
+  String get maneuverTugBollardPull => 'BP (bollard pull)';
 
   @override
-  String get maneuverTugType => 'Tipo (opcional)';
+  String get maneuverTugBollardPullHint => '10 a 100 t';
+
+  @override
+  String get maneuverTugType => 'Tipo';
 
   @override
   String get maneuverTugTypeAzimuthal => 'Azimutal';
@@ -1837,7 +1848,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugTypeUnspecified => 'Não informado';
 
   @override
-  String get maneuverSaveTug => 'Salvar rebocador';
+  String get maneuverSaveTug => 'Salvar';
 
   @override
   String maneuverTugSaved(String name) {
