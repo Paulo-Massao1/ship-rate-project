@@ -11,11 +11,29 @@ service firebase.storage {
           && request.resource.contentType.matches('image/(jpeg|png|webp)');
     }
 
+    function isSupportedManeuverMedia() {
+      return request.resource != null
+          && request.resource.size > 0
+          && request.resource.size <= 20 * 1024 * 1024
+          && request.resource.contentType.matches(
+            '(image/(jpeg|png|webp)|video/(mp4|quicktime))'
+          );
+    }
+
     match /registros/{locationId}/{recordId}/{fileName} {
       allow read: if isSignedIn();
       allow create, update: if isSignedIn() && isSupportedImageUpload();
       allow delete: if isSignedIn()
                     && resource.metadata.uploadedBy == request.auth.uid;
+    }
+
+    match /manobras/{ownerUid}/{reportId}/{section}/{fileName} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn()
+                            && request.auth.uid == ownerUid
+                            && section in ['approach', 'mooring']
+                            && isSupportedManeuverMedia();
+      allow delete: if isSignedIn() && request.auth.uid == ownerUid;
     }
   }
 }

@@ -31,6 +31,14 @@ const {
   backfillCrossingCounts,
 } = require("./crossings/backfill_crossing_counts");
 const { expireCrossingPush } = require("./crossings/expire_crossing_push");
+const {
+  createManeuverMediaUploadUrls,
+  finalizeManeuverMedia,
+  deleteManeuverMedia,
+} = require("./maneuvers/media_uploads");
+const {
+  onManeuverReportDeleted,
+} = require("./maneuvers/on_report_deleted");
 
 exports.sendOTP = sendOTP;
 exports.verifyOTP = verifyOTP;
@@ -57,3 +65,7 @@ exports.onCrossingDeleted = onCrossingDeleted;
 exports.cleanupCruzamentos = cleanupCrossings;
 exports.backfillCrossingCounts = backfillCrossingCounts;
 exports.expireCrossingPush = expireCrossingPush;
+exports.createManeuverMediaUploadUrls = createManeuverMediaUploadUrls;
+exports.finalizeManeuverMedia = finalizeManeuverMedia;
+exports.deleteManeuverMedia = deleteManeuverMedia;
+exports.onManeuverReportDeleted = onManeuverReportDeleted;

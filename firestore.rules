@@ -135,7 +135,66 @@ service cloud.firestore {
                      && mooring.comments.size() <= 2000));
     }
 
-    function isValidManeuverReport(data) {
+    function isValidManeuverMediaItem(item, pilotId, reportId, section) {
+      return item is map
+             && item.keys().hasAll([
+               'path', 'originalName', 'contentType', 'sizeBytes', 'type'
+             ])
+             && item.keys().hasOnly([
+               'path', 'originalName', 'contentType', 'sizeBytes', 'type'
+             ])
+             && item.path is string
+             && item.path.matches(
+               '^manobras/' + pilotId + '/' + reportId + '/' + section
+               + '/[A-Za-z0-9._-]+$'
+             )
+             && item.originalName is string
+             && item.originalName.size() >= 1
+             && item.originalName.size() <= 160
+             && item.contentType in [
+               'image/jpeg', 'image/png', 'image/webp',
+               'video/mp4', 'video/quicktime'
+             ]
+             && item.sizeBytes is int
+             && item.sizeBytes > 0
+             && item.sizeBytes <= 20 * 1024 * 1024
+             && item.type in ['photo', 'video']
+             && ((item.type == 'photo'
+                  && item.contentType.matches('^image/.*$'))
+                 || (item.type == 'video'
+                     && item.contentType.matches('^video/.*$')));
+    }
+
+    function isValidManeuverMediaList(items, pilotId, reportId, section) {
+      return items is list
+             && items.size() <= 3
+             && (items.size() < 1
+                 || isValidManeuverMediaItem(
+                      items[0], pilotId, reportId, section
+                    ))
+             && (items.size() < 2
+                 || isValidManeuverMediaItem(
+                      items[1], pilotId, reportId, section
+                    ))
+             && (items.size() < 3
+                 || isValidManeuverMediaItem(
+                      items[2], pilotId, reportId, section
+                    ));
+    }
+
+    function isValidManeuverMedia(media, pilotId, reportId) {
+      return media is map
+             && media.keys().hasAll(['approach', 'mooring'])
+             && media.keys().hasOnly(['approach', 'mooring'])
+             && isValidManeuverMediaList(
+                  media.approach, pilotId, reportId, 'approach'
+                )
+             && isValidManeuverMediaList(
+                  media.mooring, pilotId, reportId, 'mooring'
+                );
+    }
+
+    function isValidManeuverReport(data, reportId) {
       return data.keys().hasAll([
                'schemaVersion',
                'pilotId',
@@ -160,10 +219,11 @@ service cloud.firestore {
                'ship',
                'approach',
                'mooring',
+               'media',
                'createdAt',
                'updatedAt'
              ])
-             && data.schemaVersion == 2
+             && data.schemaVersion in [2, 3]
              && data.pilotId is string
              && (!('pilotName' in data)
                  || (data.pilotName is string && data.pilotName.size() <= 80))
@@ -179,7 +239,12 @@ service cloud.firestore {
              && data.terminalName.size() <= 80
              && isValidManeuverShip(data.ship)
              && isValidManeuverApproach(data.approach)
-             && isValidManeuverMooring(data.mooring);
+             && isValidManeuverMooring(data.mooring)
+             && ((data.schemaVersion == 2 && !('media' in data))
+                 || (data.schemaVersion == 3
+                     && isValidManeuverMedia(
+                          data.media, data.pilotId, reportId
+                        )));
     }
 
     function isReleasedManeuverTerminal(data) {
@@ -303,7 +368,9 @@ service cloud.firestore {
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.updatedAt == request.time
                     && isReleasedManeuverTerminal(request.resource.data)
-                    && isValidManeuverReport(request.resource.data);
+                    && isValidManeuverReport(
+                         request.resource.data, reportId
+                       );
       allow update: if isSignedIn()
                     && resource.data.pilotId == request.auth.uid
                     && request.resource.data.pilotId == resource.data.pilotId
@@ -316,7 +383,9 @@ service cloud.firestore {
                     && isReleasedManeuverTerminal(request.resource.data)
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.updatedAt == request.time
-                    && isValidManeuverReport(request.resource.data);
+                    && isValidManeuverReport(
+                         request.resource.data, reportId
+                       );
       allow delete: if isSignedIn()
                     && resource.data.pilotId == request.auth.uid;
     }

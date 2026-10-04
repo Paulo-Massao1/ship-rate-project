@@ -8,6 +8,49 @@ enum ManeuverPropellerPitch { fixed, controllable }
 
 enum ManeuverFirstLine { headLine, breastLine, spring }
 
+enum ManeuverMediaType { photo, video }
+
+class ManeuverMediaAttachment {
+  const ManeuverMediaAttachment({
+    required this.path,
+    required this.originalName,
+    required this.contentType,
+    required this.sizeBytes,
+    required this.type,
+  });
+
+  final String path;
+  final String originalName;
+  final String contentType;
+  final int sizeBytes;
+  final ManeuverMediaType type;
+
+  factory ManeuverMediaAttachment.fromMap(Map<String, dynamic> data) {
+    return ManeuverMediaAttachment(
+      path: (data['path'] ?? '').toString(),
+      originalName: (data['originalName'] ?? '').toString(),
+      contentType: (data['contentType'] ?? '').toString(),
+      sizeBytes: data['sizeBytes'] is num
+          ? (data['sizeBytes'] as num).toInt()
+          : 0,
+      type: ManeuverMediaType.values.firstWhere(
+        (candidate) => candidate.name == data['type'],
+        orElse: () => ManeuverMediaType.photo,
+      ),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'path': path,
+      'originalName': originalName,
+      'contentType': contentType,
+      'sizeBytes': sizeBytes,
+      'type': type.name,
+    };
+  }
+}
+
 class ManeuverShipOption {
   const ManeuverShipOption({required this.id, required this.name});
 
@@ -70,6 +113,8 @@ class ManeuverReportRecord {
     this.forwardFirstLine,
     this.aftFirstLine,
     this.mooringComments,
+    this.approachMedia = const [],
+    this.mooringMedia = const [],
   });
 
   final String id;
@@ -98,6 +143,8 @@ class ManeuverReportRecord {
   final ManeuverFirstLine? forwardFirstLine;
   final ManeuverFirstLine? aftFirstLine;
   final String? mooringComments;
+  final List<ManeuverMediaAttachment> approachMedia;
+  final List<ManeuverMediaAttachment> mooringMedia;
 
   bool get hasShipData =>
       shipName != null ||
@@ -116,12 +163,14 @@ class ManeuverReportRecord {
       currentIntensityKnots != null ||
       windDirectionDegrees != null ||
       windIntensityKnots != null ||
-      approachComments != null;
+      approachComments != null ||
+      approachMedia.isNotEmpty;
 
   bool get hasMooringData =>
       forwardFirstLine != null ||
       aftFirstLine != null ||
-      mooringComments != null;
+      mooringComments != null ||
+      mooringMedia.isNotEmpty;
 
   factory ManeuverReportRecord.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> document,
@@ -130,6 +179,7 @@ class ManeuverReportRecord {
     final ship = _asMap(data['ship']);
     final approach = _asMap(data['approach']);
     final mooring = _asMap(data['mooring']);
+    final media = _asMap(data['media']);
     final createdAt = data['createdAt'];
 
     return ManeuverReportRecord(
@@ -171,6 +221,8 @@ class ManeuverReportRecord {
         mooring['aftFirstLine'],
       ),
       mooringComments: _asOptionalString(mooring['comments']),
+      approachMedia: _asMediaList(media['approach']),
+      mooringMedia: _asMediaList(media['mooring']),
     );
   }
 
@@ -202,6 +254,20 @@ class ManeuverReportRecord {
     final map = _asMap(value);
     return map.isEmpty ? null : ManeuverTugSnapshot.fromMap(map);
   }
+
+  static List<ManeuverMediaAttachment> _asMediaList(Object? value) {
+    if (value is! List) return const [];
+
+    return value
+        .whereType<Map>()
+        .map(
+          (item) => ManeuverMediaAttachment.fromMap(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .where((item) => item.path.isNotEmpty)
+        .toList(growable: false);
+  }
 }
 
 class ManeuverReportDraft {
@@ -229,6 +295,8 @@ class ManeuverReportDraft {
     this.forwardFirstLine,
     this.aftFirstLine,
     this.mooringComments,
+    this.approachMedia = const [],
+    this.mooringMedia = const [],
   });
 
   final String portName;
@@ -254,13 +322,16 @@ class ManeuverReportDraft {
   final ManeuverFirstLine? forwardFirstLine;
   final ManeuverFirstLine? aftFirstLine;
   final String? mooringComments;
+  final List<ManeuverMediaAttachment> approachMedia;
+  final List<ManeuverMediaAttachment> mooringMedia;
 
   Map<String, dynamic> toFirestore({
     required String pilotId,
     String? pilotName,
   }) {
+    final hasMedia = approachMedia.isNotEmpty || mooringMedia.isNotEmpty;
     return {
-      'schemaVersion': 2,
+      'schemaVersion': hasMedia ? 3 : 2,
       'pilotId': pilotId,
       if (pilotName != null && pilotName.isNotEmpty) 'pilotName': pilotName,
       'portName': portName,
@@ -292,6 +363,15 @@ class ManeuverReportDraft {
         'aftFirstLine': aftFirstLine?.name,
         'comments': mooringComments,
       }),
+      if (hasMedia)
+        'media': {
+          'approach': approachMedia
+              .map((attachment) => attachment.toFirestore())
+              .toList(growable: false),
+          'mooring': mooringMedia
+              .map((attachment) => attachment.toFirestore())
+              .toList(growable: false),
+        },
     };
   }
 
