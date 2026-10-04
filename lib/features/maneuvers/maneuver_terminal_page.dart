@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../data/models/maneuver_catalog.dart';
 import 'maneuver_history_page.dart';
 import 'maneuver_initial_info_page.dart';
 import 'maneuver_report_page.dart';
@@ -9,14 +10,12 @@ import 'maneuver_report_page.dart';
 class ManeuverTerminalPage extends StatelessWidget {
   const ManeuverTerminalPage({
     super.key,
-    required this.portName,
-    required this.portCode,
-    required this.terminalName,
+    required this.port,
+    required this.terminal,
   });
 
-  final String portName;
-  final String portCode;
-  final String terminalName;
+  final ManeuverPortDefinition port;
+  final ManeuverTerminalDefinition terminal;
 
   static const _amber = Color(0xFFFFB74D);
   static const _blue = Color(0xFF64B5F6);
@@ -30,7 +29,7 @@ class ManeuverTerminalPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: _buildSectionAppBar(context, terminalName),
+      appBar: _buildSectionAppBar(context, terminal.name),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -57,9 +56,9 @@ class ManeuverTerminalPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => ManeuverReportPage(
-                        portName: portName,
-                        portCode: portCode,
-                        terminalName: terminalName,
+                        portName: port.name,
+                        portCode: port.code,
+                        terminalName: terminal.name,
                       ),
                     ),
                   ),
@@ -74,9 +73,9 @@ class ManeuverTerminalPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => ManeuverHistoryPage(
-                        portName: portName,
-                        portCode: portCode,
-                        terminalName: terminalName,
+                        portName: port.name,
+                        portCode: port.code,
+                        terminalName: terminal.name,
                       ),
                     ),
                   ),
@@ -92,9 +91,8 @@ class ManeuverTerminalPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => ManeuverInitialInfoPage(
-                        portName: portName,
-                        portCode: portCode,
-                        terminalName: terminalName,
+                        port: port,
+                        terminal: terminal,
                       ),
                     ),
                   ),
@@ -131,7 +129,7 @@ class ManeuverTerminalPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  terminalName,
+                  terminal.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -140,7 +138,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '$portName ($portCode)',
+                  '${port.name} (${port.code})',
                   style: const TextStyle(color: _textMuted, fontSize: 12),
                 ),
               ],

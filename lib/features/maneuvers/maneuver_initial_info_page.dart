@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
+import '../../data/models/maneuver_catalog.dart';
 import '../../data/models/maneuver_tug.dart';
 import '../../data/services/maneuver_tug_service.dart';
 import '../../shared/widgets/subscription_gate.dart';
@@ -9,14 +10,12 @@ import '../../shared/widgets/subscription_gate.dart';
 class ManeuverInitialInfoPage extends StatelessWidget {
   const ManeuverInitialInfoPage({
     super.key,
-    required this.portName,
-    required this.portCode,
-    required this.terminalName,
-  });
+    required this.port,
+    required this.terminal,
+  }) : assert(terminal.operationalInfo != null);
 
-  final String portName;
-  final String portCode;
-  final String terminalName;
+  final ManeuverPortDefinition port;
+  final ManeuverTerminalDefinition terminal;
 
   static const _amber = Color(0xFFFFB74D);
   static const _teal = Color(0xFF26A69A);
@@ -56,6 +55,9 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, AppLocalizations l10n) {
+    final info = terminal.operationalInfo!;
+    final locale = Localizations.localeOf(context);
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
@@ -71,40 +73,47 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               children: [
                 _InfoRow(
                   label: l10n.maneuverSchedule,
-                  value: l10n.maneuverNoRestrictions,
+                  value: info.scheduleRestriction?.resolve(locale) ??
+                      l10n.maneuverNoRestrictions,
                 ),
                 _InfoRow(
                   label: l10n.maneuverMaximumLength,
-                  value: '260 m',
+                  value: '${_formatNumber(info.maximumLengthMeters, locale)} m',
                 ),
                 _InfoRow(
                   label: l10n.maneuverBeamRestriction,
-                  value: l10n.maneuverNoRestriction,
+                  value: info.beamRestriction?.resolve(locale) ??
+                      l10n.maneuverNoRestriction,
                 ),
                 _InfoRow(
                   label: l10n.maneuverPierLength,
-                  value: '250 m',
+                  value: '${_formatNumber(info.pierLengthMeters, locale)} m',
                 ),
-                _InfoRow(label: l10n.maneuverMaximumDwt, value: '120.000 t'),
+                _InfoRow(
+                  label: l10n.maneuverMaximumDwt,
+                  value: '${_formatInteger(info.maximumDwtTons, locale)} t',
+                ),
                 _InfoRow(
                   label: l10n.maneuverAirDraft,
-                  value: '90 m',
-                  detail: l10n.maneuverAirDraftDetail,
+                  value: '${_formatNumber(info.airDraftMeters, locale)} m',
+                  detail: info.airDraftDetail.resolve(locale),
                 ),
                 _InfoRow(
                   label: l10n.maneuverMaximumWind,
-                  value: '15 ${l10n.maneuverKnotsShort}',
+                  value:
+                      '${_formatNumber(info.maximumWindKnots, locale)} ${l10n.maneuverKnotsShort}',
                 ),
                 _InfoRow(
                   label: l10n.maneuverMinimumVisibility,
-                  value: '500 m',
+                  value: '${info.minimumVisibilityMeters} m',
                 ),
                 _InfoRow(
                   label: l10n.maneuverCrossing,
-                  value: l10n.maneuverNoRestriction,
+                  value: info.crossingRestriction?.resolve(locale) ??
+                      l10n.maneuverNoRestriction,
                 ),
                 const SizedBox(height: 12),
-                _buildDraftTables(context, l10n),
+                _buildDraftTables(context, l10n, info),
               ],
             ),
             const SizedBox(height: 12),
@@ -113,17 +122,22 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               title: l10n.initialManeuverInfo,
               initiallyExpanded: true,
               children: [
-                _InfoRow(label: l10n.maneuverVhfChannel, value: '12'),
+                _InfoRow(
+                  label: l10n.maneuverVhfChannel,
+                  value: '${info.vhfChannel}',
+                ),
                 _InfoRow(
                   label: l10n.maneuverTugboats,
-                  value: l10n.maneuverMandatory,
+                  value: info.tugboatsMandatory
+                      ? l10n.maneuverMandatory
+                      : l10n.maneuverNoRestriction,
                   valueColor: _amber,
                   trailingIcon: Icons.info_outline,
-                  onTap: () => _showTugInformation(context, l10n),
+                  onTap: () => _showTugInformation(context, l10n, info),
                 ),
                 _InfoRow(
                   label: l10n.maneuverNavigation,
-                  value: l10n.maneuverTapajosNavigation,
+                  value: info.navigation.resolve(locale),
                 ),
               ],
             ),
@@ -142,14 +156,11 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                _InfoRow(
-                  label: 'Panamax',
-                  value: l10n.maneuverNormally222,
-                ),
-                _InfoRow(
-                  label: 'Handmax',
-                  value: l10n.maneuverNormally42,
-                ),
+                for (final mooring in info.mooring)
+                  _InfoRow(
+                    label: mooring.vesselClass,
+                    value: _formatMooring(mooring, locale),
+                  ),
               ],
             ),
             const SizedBox(height: 14),
@@ -184,7 +195,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  terminalName,
+                  terminal.name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -193,7 +204,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '$portName ($portCode)',
+                  '${port.name} (${port.code})',
                   style: const TextStyle(color: _muted, fontSize: 12),
                 ),
                 const SizedBox(height: 6),
@@ -209,10 +220,12 @@ class ManeuverInitialInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDraftTables(BuildContext context, AppLocalizations l10n) {
-    final portuguese = Localizations.localeOf(context).languageCode == 'pt';
-    String value(String pt, String en) => portuguese ? pt : en;
-
+  Widget _buildDraftTables(
+    BuildContext context,
+    AppLocalizations l10n,
+    ManeuverOperationalInfo info,
+  ) {
+    final locale = Localizations.localeOf(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -225,24 +238,30 @@ class ManeuverInitialInfoPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        _DraftTable(
-          title: l10n.maneuverGeneralCargo,
-          dryFacultative: value('11,55 m', '11.55 m'),
-          floodFacultative: value('11,60 m', '11.60 m'),
-          dryMandatory: value('11,56–11,75 m', '11.56–11.75 m'),
-          floodMandatory: value('11,61–11,90 m', '11.61–11.90 m'),
-        ),
-        const SizedBox(height: 10),
-        _DraftTable(
-          title: l10n.maneuverDangerousCargo,
-          dryFacultative: value('11,55 m', '11.55 m'),
-          floodFacultative: value('11,60 m', '11.60 m'),
-          dryMandatory: '—',
-          floodMandatory: value('11,61–11,70 m', '11.61–11.70 m'),
-        ),
+        for (var index = 0; index < info.draftTables.length; index++) ...[
+          if (index > 0) const SizedBox(height: 10),
+          _DraftTable(
+            title: info.draftTables[index].cargoType ==
+                    ManeuverCargoType.general
+                ? l10n.maneuverGeneralCargo
+                : l10n.maneuverDangerousCargo,
+            dryFacultative:
+                _formatDraftLimit(info.draftTables[index].dryOptional, locale),
+            floodFacultative: _formatDraftLimit(
+              info.draftTables[index].floodOptional,
+              locale,
+            ),
+            dryMandatory:
+                _formatDraftLimit(info.draftTables[index].dryMandatory, locale),
+            floodMandatory: _formatDraftLimit(
+              info.draftTables[index].floodMandatory,
+              locale,
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         Text(
-          l10n.maneuverDraftFootnote,
+          info.draftFootnote.resolve(locale),
           style: const TextStyle(
             color: Color(0x80FFFFFF),
             fontSize: 10,
@@ -280,8 +299,10 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   Future<void> _showTugInformation(
     BuildContext context,
     AppLocalizations l10n,
+    ManeuverOperationalInfo info,
   ) async {
-    final tugs = ManeuverTugService().officialTugsForPort(portCode);
+    final locale = Localizations.localeOf(context);
+    final tugs = ManeuverTugService().officialTugsForPort(port.code);
 
     await showModalBottomSheet<void>(
       context: context,
@@ -318,14 +339,14 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                l10n.maneuverTugRequirementDetail,
+                info.tugRequirementDetail.resolve(locale),
                 style: const TextStyle(color: _muted, fontSize: 12, height: 1.45),
               ),
               const SizedBox(height: 16),
-              ...tugs.map((tug) => _buildTugTile(tug, l10n)),
+              ...tugs.map((tug) => _buildTugTile(context, tug, l10n)),
               const SizedBox(height: 10),
               Text(
-                l10n.maneuverTugNoSpecificMinimum,
+                info.tugMinimumNote.resolve(locale),
                 style: const TextStyle(
                   color: Color(0xB3FFB74D),
                   fontSize: 11,
@@ -339,7 +360,11 @@ class ManeuverInitialInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTugTile(ManeuverTug tug, AppLocalizations l10n) {
+  Widget _buildTugTile(
+    BuildContext context,
+    ManeuverTug tug,
+    AppLocalizations l10n,
+  ) {
     final type = switch (tug.type) {
       ManeuverTugType.azimuthal => l10n.maneuverTugTypeAzimuthal,
       ManeuverTugType.conventional => l10n.maneuverTugTypeConventional,
@@ -382,6 +407,51 @@ class ManeuverInitialInfoPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDraftLimit(ManeuverDraftLimit limit, Locale locale) {
+    final minimum = limit.minimum;
+    if (minimum == null) return '—';
+
+    final first = _formatNumber(minimum, locale, fractionDigits: 2);
+    final maximum = limit.maximum;
+    if (maximum == null) return '$first m';
+
+    final last = _formatNumber(maximum, locale, fractionDigits: 2);
+    return '$first–$last m';
+  }
+
+  String _formatMooring(
+    ManeuverMooringDefinition mooring,
+    Locale locale,
+  ) {
+    final prefix = locale.languageCode == 'pt' ? 'normalmente' : 'normally';
+    return '$prefix ${mooring.lineGroups.join(' × ')}';
+  }
+
+  String _formatNumber(
+    double value,
+    Locale locale, {
+    int? fractionDigits,
+  }) {
+    final digits = fractionDigits ?? (value == value.roundToDouble() ? 0 : 2);
+    final formatted = value.toStringAsFixed(digits);
+    return locale.languageCode == 'pt'
+        ? formatted.replaceAll('.', ',')
+        : formatted;
+  }
+
+  String _formatInteger(int value, Locale locale) {
+    final separator = locale.languageCode == 'pt' ? '.' : ',';
+    final digits = value.toString();
+    final result = StringBuffer();
+    for (var index = 0; index < digits.length; index++) {
+      if (index > 0 && (digits.length - index) % 3 == 0) {
+        result.write(separator);
+      }
+      result.write(digits[index]);
+    }
+    return result.toString();
   }
 }
 

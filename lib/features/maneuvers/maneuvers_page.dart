@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../data/models/maneuver_catalog.dart';
 import 'maneuver_terminal_page.dart';
 
 /// Entry point for maneuver information, reports and history by terminal.
@@ -13,64 +14,6 @@ class ManeuversPage extends StatelessWidget {
   static const _cardBg = Color(0x0DFFFFFF);
   static const _cardBorder = Color(0x1AFFFFFF);
   static const _textMuted = Color(0x80FFFFFF);
-
-  static const _ports = [
-    _ManeuverPort(
-      name: 'Santana',
-      code: 'SAN',
-      terminals: [
-        _ManeuverTerminal(name: 'CDSA 1'),
-        _ManeuverTerminal(name: 'CDSA 2'),
-      ],
-    ),
-    _ManeuverPort(
-      name: 'Santarém',
-      code: 'STM',
-      terminals: [
-        _ManeuverTerminal(name: 'Cargill', available: true),
-        _ManeuverTerminal(name: 'CDP 101'),
-        _ManeuverTerminal(name: 'CDP 201'),
-        _ManeuverTerminal(name: 'ATEM'),
-        _ManeuverTerminal(name: 'Transbordo 1'),
-        _ManeuverTerminal(name: 'Transbordo 2'),
-      ],
-    ),
-    _ManeuverPort(
-      name: 'Jari',
-      code: 'JAR',
-      terminals: [
-        _ManeuverTerminal(name: 'CADAM'),
-        _ManeuverTerminal(name: 'JARCEL'),
-      ],
-    ),
-    _ManeuverPort(
-      name: 'Juruti',
-      code: 'JUR',
-      terminals: [_ManeuverTerminal(name: 'ALCOA')],
-    ),
-    _ManeuverPort(
-      name: 'Trombetas',
-      code: 'PTR',
-      terminals: [
-        _ManeuverTerminal(name: 'MRN'),
-        _ManeuverTerminal(name: 'Boia 1'),
-        _ManeuverTerminal(name: 'Boia 2'),
-        _ManeuverTerminal(name: 'Boia 3'),
-      ],
-    ),
-    _ManeuverPort(
-      name: 'Itacoatiara',
-      code: 'ITA',
-      terminals: [
-        _ManeuverTerminal(name: 'Hermasa 1'),
-        _ManeuverTerminal(name: 'Hermasa 2'),
-        _ManeuverTerminal(name: 'Hermasa 3'),
-        _ManeuverTerminal(name: 'TFB'),
-        _ManeuverTerminal(name: 'Chibatão'),
-        _ManeuverTerminal(name: 'Superterminais'),
-      ],
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +37,7 @@ class ManeuversPage extends StatelessWidget {
               children: [
                 _buildIntroCard(l10n),
                 const SizedBox(height: 20),
-                for (final port in _ports) ...[
+                for (final port in ManeuverCatalog.ports) ...[
                   _buildPortGroup(context, l10n, port),
                   const SizedBox(height: 18),
                 ],
@@ -205,7 +148,7 @@ class ManeuversPage extends StatelessWidget {
   Widget _buildPortGroup(
     BuildContext context,
     AppLocalizations l10n,
-    _ManeuverPort port,
+    ManeuverPortDefinition port,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,10 +174,10 @@ class ManeuversPage extends StatelessWidget {
   Widget _buildTerminalTile(
     BuildContext context,
     AppLocalizations l10n,
-    _ManeuverPort port,
-    _ManeuverTerminal terminal,
+    ManeuverPortDefinition port,
+    ManeuverTerminalDefinition terminal,
   ) {
-    final available = terminal.available;
+    final available = terminal.isReleased;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
@@ -247,9 +190,8 @@ class ManeuversPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => ManeuverTerminalPage(
-                        portName: port.name,
-                        portCode: port.code,
-                        terminalName: terminal.name,
+                        port: port,
+                        terminal: terminal,
                       ),
                     ),
                   )
@@ -322,26 +264,4 @@ class ManeuversPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ManeuverPort {
-  final String name;
-  final String code;
-  final List<_ManeuverTerminal> terminals;
-
-  const _ManeuverPort({
-    required this.name,
-    required this.code,
-    required this.terminals,
-  });
-}
-
-class _ManeuverTerminal {
-  final String name;
-  final bool available;
-
-  const _ManeuverTerminal({
-    required this.name,
-    this.available = false,
-  });
 }
