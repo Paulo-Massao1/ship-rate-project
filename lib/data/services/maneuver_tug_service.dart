@@ -124,7 +124,6 @@ class ManeuverTugService {
       type: ManeuverTugType.azimuthal,
       source: ManeuverTugSource.operationalParameters,
       bollardPull: 50.00,
-      officialTerminalNames: {'Hermasa 1', 'Hermasa 2', 'Hermasa 3'},
     ),
     ManeuverTug(
       id: 'official-ita-joao-triches',
@@ -133,7 +132,6 @@ class ManeuverTugService {
       type: ManeuverTugType.azimuthal,
       source: ManeuverTugSource.operationalParameters,
       bollardPull: 27.60,
-      officialTerminalNames: {'Hermasa 1', 'Hermasa 2', 'Hermasa 3'},
     ),
     ManeuverTug(
       id: 'official-ita-j-guilherme-ii',
@@ -142,7 +140,6 @@ class ManeuverTugService {
       type: ManeuverTugType.azimuthal,
       source: ManeuverTugSource.operationalParameters,
       bollardPull: 60.50,
-      officialTerminalNames: {'TFB'},
     ),
     ManeuverTug(
       id: 'official-ita-j-guilherme-vii',
@@ -151,35 +148,19 @@ class ManeuverTugService {
       type: ManeuverTugType.azimuthal,
       source: ManeuverTugSource.operationalParameters,
       bollardPull: 56.88,
-      officialTerminalNames: {'TFB'},
     ),
   ];
 
-  List<ManeuverTug> officialTugsForPort(
-    String portCode, {
-    String? terminalName,
-  }) {
+  List<ManeuverTug> officialTugsForPort(String portCode) {
     final normalizedPortCode = portCode.trim().toUpperCase();
     return _officialTugs
-        .where(
-          (tug) =>
-              tug.portCode == normalizedPortCode &&
-              (terminalName == null ||
-                  tug.officialTerminalNames.isEmpty ||
-                  tug.officialTerminalNames.contains(terminalName)),
-        )
+        .where((tug) => tug.portCode == normalizedPortCode)
         .toList(growable: false);
   }
 
-  Stream<List<ManeuverTug>> watchTugsForPort(
-    String portCode, {
-    String? terminalName,
-  }) {
+  Stream<List<ManeuverTug>> watchTugsForPort(String portCode) {
     final normalizedPortCode = portCode.trim().toUpperCase();
-    final official = officialTugsForPort(
-      normalizedPortCode,
-      terminalName: terminalName,
-    );
+    final official = officialTugsForPort(normalizedPortCode);
     final officialNames = official.map((tug) => normalizeName(tug.name)).toSet();
 
     return _firestore

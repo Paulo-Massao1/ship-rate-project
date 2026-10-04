@@ -1868,4 +1868,91 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get maneuverTugSaveError =>
       'Não foi possível cadastrar o rebocador agora. Tente novamente.';
+
+  @override
+  String get maneuverShipLength => 'Comprimento (m)';
+
+  @override
+  String get maneuverShipBeam => 'Boca (m)';
+
+  @override
+  String get maneuverMaximumDraft => 'Calado máximo (m)';
+
+  @override
+  String get maneuverPropellerDirection => 'Sentido da hélice';
+
+  @override
+  String get maneuverRightHanded => 'Direito';
+
+  @override
+  String get maneuverLeftHanded => 'Esquerdo';
+
+  @override
+  String get maneuverPropellerPitch => 'Passo';
+
+  @override
+  String get maneuverPitchFixed => 'Fixo';
+
+  @override
+  String get maneuverPitchControllable => 'Controlado';
+
+  @override
+  String get maneuverOfficerNationality => 'Nac. comandante/oficiais';
+
+  @override
+  String get maneuverSearchShip => 'Buscar navio...';
+
+  @override
+  String get maneuverLoadingShips => 'Carregando navios...';
+
+  @override
+  String get maneuverMooring => 'Amarração';
+
+  @override
+  String get maneuverForwardFirstLines => 'Primeiros cabos AV';
+
+  @override
+  String get maneuverAftFirstLines => 'Primeiros cabos AR';
+
+  @override
+  String get maneuverHeadLine => 'Lançante';
+
+  @override
+  String get maneuverBreastLine => 'Través';
+
+  @override
+  String get maneuverSpring => 'Spring';
+
+  @override
+  String get maneuverComments => 'Comentários';
+
+  @override
+  String get maneuverCurrent => 'Corrente';
+
+  @override
+  String get maneuverDirectionDegrees => 'Direção (000–359°)';
+
+  @override
+  String get maneuverIntensityKnots => 'Intensidade (nós)';
+
+  @override
+  String get maneuverWind => 'Vento';
+
+  @override
+  String get maneuverSaveReport => 'Salvar relato';
+
+  @override
+  String get maneuverInvalidNumericValue =>
+      'Revise os valores numéricos. As direções devem estar entre 000° e 359°.';
+
+  @override
+  String get maneuverReportSaved => 'Relato de manobra salvo com sucesso.';
+
+  @override
+  String get maneuverReportSignedOut =>
+      'Entre novamente na sua conta para salvar o relato.';
+
+  @override
+  String get maneuverReportSaveError =>
+      'Não foi possível salvar o relato agora. Tente novamente.';
 }

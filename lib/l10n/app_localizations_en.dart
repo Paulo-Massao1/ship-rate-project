@@ -1866,4 +1866,92 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get maneuverTugSaveError =>
       'The tugboat could not be registered right now. Try again.';
+
+  @override
+  String get maneuverShipLength => 'Length (m)';
+
+  @override
+  String get maneuverShipBeam => 'Beam (m)';
+
+  @override
+  String get maneuverMaximumDraft => 'Maximum draft (m)';
+
+  @override
+  String get maneuverPropellerDirection => 'Propeller direction';
+
+  @override
+  String get maneuverRightHanded => 'Right-handed';
+
+  @override
+  String get maneuverLeftHanded => 'Left-handed';
+
+  @override
+  String get maneuverPropellerPitch => 'Pitch';
+
+  @override
+  String get maneuverPitchFixed => 'Fixed';
+
+  @override
+  String get maneuverPitchControllable => 'Controllable';
+
+  @override
+  String get maneuverOfficerNationality => 'Master/officers nationality';
+
+  @override
+  String get maneuverSearchShip => 'Search ship...';
+
+  @override
+  String get maneuverLoadingShips => 'Loading ships...';
+
+  @override
+  String get maneuverMooring => 'Mooring';
+
+  @override
+  String get maneuverForwardFirstLines => 'First lines FWD';
+
+  @override
+  String get maneuverAftFirstLines => 'First lines AFT';
+
+  @override
+  String get maneuverHeadLine => 'Head line';
+
+  @override
+  String get maneuverBreastLine => 'Breast line';
+
+  @override
+  String get maneuverSpring => 'Spring';
+
+  @override
+  String get maneuverComments => 'Comments';
+
+  @override
+  String get maneuverCurrent => 'Current';
+
+  @override
+  String get maneuverDirectionDegrees => 'Direction (000–359°)';
+
+  @override
+  String get maneuverIntensityKnots => 'Intensity (knots)';
+
+  @override
+  String get maneuverWind => 'Wind';
+
+  @override
+  String get maneuverSaveReport => 'Save report';
+
+  @override
+  String get maneuverInvalidNumericValue =>
+      'Review the numeric values. Directions must be between 000° and 359°.';
+
+  @override
+  String get maneuverReportSaved =>
+      'Maneuver report saved successfully.';
+
+  @override
+  String get maneuverReportSignedOut =>
+      'Sign in again to save the report.';
+
+  @override
+  String get maneuverReportSaveError =>
+      'The report could not be saved right now. Try again.';
 }

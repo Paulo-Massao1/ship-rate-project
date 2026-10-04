@@ -27,7 +27,6 @@ class ManeuverTug {
     this.bollardPull,
     this.createdBy,
     this.createdAt,
-    this.officialTerminalNames = const <String>{},
   });
 
   final String id;
@@ -38,7 +37,6 @@ class ManeuverTug {
   final double? bollardPull;
   final String? createdBy;
   final DateTime? createdAt;
-  final Set<String> officialTerminalNames;
 
   bool get isOfficial =>
       source == ManeuverTugSource.operationalParameters;

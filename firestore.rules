@@ -20,6 +20,163 @@ service cloud.firestore {
       return isSignedIn() && !isRestrictedModuleUser();
     }
 
+    function isValidManeuverTugSnapshot(tug) {
+      return tug is map
+             && tug.keys().hasAll(['id', 'name', 'type', 'source'])
+             && tug.keys().hasOnly([
+               'id', 'name', 'bollardPull', 'type', 'source'
+             ])
+             && tug.id is string
+             && tug.id.size() >= 1
+             && tug.id.size() <= 120
+             && tug.name is string
+             && tug.name.size() >= 1
+             && tug.name.size() <= 60
+             && tug.type in ['azimuthal', 'conventional', 'unspecified']
+             && tug.source in ['operationalParameters', 'community']
+             && (!('bollardPull' in tug)
+                 || (tug.bollardPull is number
+                     && tug.bollardPull > 0
+                     && tug.bollardPull <= 200));
+    }
+
+    function isValidManeuverShip(ship) {
+      return ship is map
+             && ship.keys().hasOnly([
+               'id',
+               'name',
+               'lengthMeters',
+               'beamMeters',
+               'maximumDraftMeters',
+               'propellerDirection',
+               'propellerPitch',
+               'officerNationality',
+               'crewNationality'
+             ])
+             && (!('id' in ship)
+                 || (ship.id is string && ship.id.size() <= 120))
+             && (!('name' in ship)
+                 || (ship.name is string && ship.name.size() <= 120))
+             && (!('lengthMeters' in ship)
+                 || (ship.lengthMeters is number
+                     && ship.lengthMeters > 0
+                     && ship.lengthMeters <= 500))
+             && (!('beamMeters' in ship)
+                 || (ship.beamMeters is number
+                     && ship.beamMeters > 0
+                     && ship.beamMeters <= 100))
+             && (!('maximumDraftMeters' in ship)
+                 || (ship.maximumDraftMeters is number
+                     && ship.maximumDraftMeters > 0
+                     && ship.maximumDraftMeters <= 100))
+             && (!('propellerDirection' in ship)
+                 || ship.propellerDirection in ['rightHanded', 'leftHanded'])
+             && (!('propellerPitch' in ship)
+                 || ship.propellerPitch in ['fixed', 'controllable'])
+             && (!('officerNationality' in ship)
+                 || (ship.officerNationality is string
+                     && ship.officerNationality.size() <= 80))
+             && (!('crewNationality' in ship)
+                 || (ship.crewNationality is string
+                     && ship.crewNationality.size() <= 80));
+    }
+
+    function isValidManeuverApproach(approach) {
+      return approach is map
+             && approach.keys().hasOnly([
+               'forwardTug',
+               'aftTug',
+               'currentDirectionDegrees',
+               'currentIntensityKnots',
+               'windDirectionDegrees',
+               'windIntensityKnots',
+               'comments'
+             ])
+             && (!('forwardTug' in approach)
+                 || isValidManeuverTugSnapshot(approach.forwardTug))
+             && (!('aftTug' in approach)
+                 || isValidManeuverTugSnapshot(approach.aftTug))
+             && (!('currentDirectionDegrees' in approach)
+                 || (approach.currentDirectionDegrees is int
+                     && approach.currentDirectionDegrees >= 0
+                     && approach.currentDirectionDegrees <= 359))
+             && (!('currentIntensityKnots' in approach)
+                 || (approach.currentIntensityKnots is number
+                     && approach.currentIntensityKnots >= 0
+                     && approach.currentIntensityKnots <= 100))
+             && (!('windDirectionDegrees' in approach)
+                 || (approach.windDirectionDegrees is int
+                     && approach.windDirectionDegrees >= 0
+                     && approach.windDirectionDegrees <= 359))
+             && (!('windIntensityKnots' in approach)
+                 || (approach.windIntensityKnots is number
+                     && approach.windIntensityKnots >= 0
+                     && approach.windIntensityKnots <= 200))
+             && (!('comments' in approach)
+                 || (approach.comments is string
+                     && approach.comments.size() <= 2000));
+    }
+
+    function isValidManeuverMooring(mooring) {
+      return mooring is map
+             && mooring.keys().hasOnly([
+               'forwardFirstLine', 'aftFirstLine', 'comments'
+             ])
+             && (!('forwardFirstLine' in mooring)
+                 || mooring.forwardFirstLine in [
+                   'headLine', 'breastLine', 'spring'
+                 ])
+             && (!('aftFirstLine' in mooring)
+                 || mooring.aftFirstLine in [
+                   'headLine', 'breastLine', 'spring'
+                 ])
+             && (!('comments' in mooring)
+                 || (mooring.comments is string
+                     && mooring.comments.size() <= 2000));
+    }
+
+    function isValidManeuverReport(data) {
+      return data.keys().hasAll([
+               'schemaVersion',
+               'pilotId',
+               'portName',
+               'portCode',
+               'terminalName',
+               'ship',
+               'approach',
+               'mooring',
+               'createdAt',
+               'updatedAt'
+             ])
+             && data.keys().hasOnly([
+               'schemaVersion',
+               'pilotId',
+               'pilotName',
+               'portName',
+               'portCode',
+               'terminalName',
+               'ship',
+               'approach',
+               'mooring',
+               'createdAt',
+               'updatedAt'
+             ])
+             && data.schemaVersion == 1
+             && data.pilotId is string
+             && (!('pilotName' in data)
+                 || (data.pilotName is string && data.pilotName.size() <= 80))
+             && data.portName is string
+             && data.portName.size() >= 1
+             && data.portName.size() <= 80
+             && data.portCode in ['SAN', 'STM', 'JAR', 'JUR', 'PTR', 'ITA']
+             && data.terminalName is string
+             && data.terminalName.size() >= 1
+             && data.terminalName.size() <= 80
+             && isValidManeuverShip(data.ship)
+             && isValidManeuverApproach(data.approach)
+             && isValidManeuverMooring(data.mooring);
+    }
+
     match /usuarios/{uid} {
       allow read, write: if isSignedIn() && request.auth.uid == uid;
     }
@@ -125,6 +282,27 @@ service cloud.firestore {
                             && request.resource.data.bollardPull > 0
                             && request.resource.data.bollardPull <= 200));
       allow update, delete: if false;
+    }
+
+    match /manobras_relatos/{reportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.pilotId == request.auth.uid
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.updatedAt == request.time
+                    && isValidManeuverReport(request.resource.data);
+      allow update: if isSignedIn()
+                    && resource.data.pilotId == request.auth.uid
+                    && request.resource.data.pilotId == resource.data.pilotId
+                    && request.resource.data.portCode == resource.data.portCode
+                    && request.resource.data.portName == resource.data.portName
+                    && request.resource.data.terminalName
+                       == resource.data.terminalName
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.updatedAt == request.time
+                    && isValidManeuverReport(request.resource.data);
+      allow delete: if isSignedIn()
+                    && resource.data.pilotId == request.auth.uid;
     }
 
     match /authorized_emails/{docId} {

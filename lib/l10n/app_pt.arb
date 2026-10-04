@@ -2534,5 +2534,117 @@
   "maneuverTugSaveError": "Não foi possível cadastrar o rebocador agora. Tente novamente.",
   "@maneuverTugSaveError": {
     "description": "Generic error shown when a community tugboat cannot be saved."
+  },
+  "maneuverShipLength": "Comprimento (m)",
+  "@maneuverShipLength": {
+    "description": "Optional ship length field in a maneuver report."
+  },
+  "maneuverShipBeam": "Boca (m)",
+  "@maneuverShipBeam": {
+    "description": "Optional ship beam field in a maneuver report."
+  },
+  "maneuverMaximumDraft": "Calado máximo (m)",
+  "@maneuverMaximumDraft": {
+    "description": "Optional maximum draft field in a maneuver report."
+  },
+  "maneuverPropellerDirection": "Sentido da hélice",
+  "@maneuverPropellerDirection": {
+    "description": "Optional propeller direction field."
+  },
+  "maneuverRightHanded": "Direito",
+  "@maneuverRightHanded": {
+    "description": "Right-handed propeller option."
+  },
+  "maneuverLeftHanded": "Esquerdo",
+  "@maneuverLeftHanded": {
+    "description": "Left-handed propeller option."
+  },
+  "maneuverPropellerPitch": "Passo",
+  "@maneuverPropellerPitch": {
+    "description": "Optional propeller pitch field."
+  },
+  "maneuverPitchFixed": "Fixo",
+  "@maneuverPitchFixed": {
+    "description": "Fixed propeller pitch option."
+  },
+  "maneuverPitchControllable": "Controlado",
+  "@maneuverPitchControllable": {
+    "description": "Controllable propeller pitch option."
+  },
+  "maneuverOfficerNationality": "Nac. comandante/oficiais",
+  "@maneuverOfficerNationality": {
+    "description": "Optional nationality of the master and officers."
+  },
+  "maneuverSearchShip": "Buscar navio...",
+  "@maneuverSearchShip": {
+    "description": "Hint shown in the maneuver ship autocomplete."
+  },
+  "maneuverLoadingShips": "Carregando navios...",
+  "@maneuverLoadingShips": {
+    "description": "Hint shown while maneuver ship options load."
+  },
+  "maneuverMooring": "Amarração",
+  "@maneuverMooring": {
+    "description": "Title of the maneuver mooring section."
+  },
+  "maneuverForwardFirstLines": "Primeiros cabos AV",
+  "@maneuverForwardFirstLines": {
+    "description": "Optional first forward mooring lines field."
+  },
+  "maneuverAftFirstLines": "Primeiros cabos AR",
+  "@maneuverAftFirstLines": {
+    "description": "Optional first aft mooring lines field."
+  },
+  "maneuverHeadLine": "Lançante",
+  "@maneuverHeadLine": {
+    "description": "Head line mooring option."
+  },
+  "maneuverBreastLine": "Través",
+  "@maneuverBreastLine": {
+    "description": "Breast line mooring option."
+  },
+  "maneuverSpring": "Spring",
+  "@maneuverSpring": {
+    "description": "Spring mooring line option."
+  },
+  "maneuverComments": "Comentários",
+  "@maneuverComments": {
+    "description": "Optional maneuver comments field."
+  },
+  "maneuverCurrent": "Corrente",
+  "@maneuverCurrent": {
+    "description": "Current conditions subsection title."
+  },
+  "maneuverDirectionDegrees": "Direção (000–359°)",
+  "@maneuverDirectionDegrees": {
+    "description": "Optional current or wind direction field."
+  },
+  "maneuverIntensityKnots": "Intensidade (nós)",
+  "@maneuverIntensityKnots": {
+    "description": "Optional current or wind intensity field."
+  },
+  "maneuverWind": "Vento",
+  "@maneuverWind": {
+    "description": "Wind conditions subsection title."
+  },
+  "maneuverSaveReport": "Salvar relato",
+  "@maneuverSaveReport": {
+    "description": "Button that saves a maneuver report."
+  },
+  "maneuverInvalidNumericValue": "Revise os valores numéricos. As direções devem estar entre 000° e 359°.",
+  "@maneuverInvalidNumericValue": {
+    "description": "Validation error for invalid optional maneuver numbers."
+  },
+  "maneuverReportSaved": "Relato de manobra salvo com sucesso.",
+  "@maneuverReportSaved": {
+    "description": "Confirmation shown after saving a maneuver report."
+  },
+  "maneuverReportSignedOut": "Entre novamente na sua conta para salvar o relato.",
+  "@maneuverReportSignedOut": {
+    "description": "Error shown when a signed-out user attempts to save a report."
+  },
+  "maneuverReportSaveError": "Não foi possível salvar o relato agora. Tente novamente.",
+  "@maneuverReportSaveError": {
+    "description": "Generic error shown when a maneuver report cannot be saved."
   }
 }

@@ -3404,6 +3404,62 @@ abstract class AppLocalizations {
   String get maneuverTugSignedOut;
 
   String get maneuverTugSaveError;
+
+  String get maneuverShipLength;
+
+  String get maneuverShipBeam;
+
+  String get maneuverMaximumDraft;
+
+  String get maneuverPropellerDirection;
+
+  String get maneuverRightHanded;
+
+  String get maneuverLeftHanded;
+
+  String get maneuverPropellerPitch;
+
+  String get maneuverPitchFixed;
+
+  String get maneuverPitchControllable;
+
+  String get maneuverOfficerNationality;
+
+  String get maneuverSearchShip;
+
+  String get maneuverLoadingShips;
+
+  String get maneuverMooring;
+
+  String get maneuverForwardFirstLines;
+
+  String get maneuverAftFirstLines;
+
+  String get maneuverHeadLine;
+
+  String get maneuverBreastLine;
+
+  String get maneuverSpring;
+
+  String get maneuverComments;
+
+  String get maneuverCurrent;
+
+  String get maneuverDirectionDegrees;
+
+  String get maneuverIntensityKnots;
+
+  String get maneuverWind;
+
+  String get maneuverSaveReport;
+
+  String get maneuverInvalidNumericValue;
+
+  String get maneuverReportSaved;
+
+  String get maneuverReportSignedOut;
+
+  String get maneuverReportSaveError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
