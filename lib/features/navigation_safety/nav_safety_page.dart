@@ -302,12 +302,18 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   padding: EdgeInsets.only(
                     top: Navigator.canPop(context) ? 44 : 0,
                   ),
-                  child: Column(
-                    children: [
-                      if (_showDepthStats) _buildDepthStatsCard(l10n),
-                      _buildTabGrid(l10n),
-                      Expanded(child: _buildBody(l10n)),
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            if (_showDepthStats) _buildDepthStatsCard(l10n),
+                            _buildTabGrid(l10n),
+                          ],
+                        ),
+                      ),
                     ],
+                    body: _buildBody(l10n),
                   ),
                 ),
                 if (Navigator.canPop(context)) _buildPageBackButton(l10n),

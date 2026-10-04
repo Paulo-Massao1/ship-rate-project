@@ -746,6 +746,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get totalDepthLabel => 'PROFUNDIDADE TOTAL';
 
   @override
+  String get calculatedTotalDepth => 'PROFUNDIDADE TOTAL (CALCULADA)';
+
+  @override
+  String get depthCalculationFormula => 'Calado máximo + UKC + Squat';
+
+  @override
   String get complementaryData => 'Dados Complementares';
 
   @override
@@ -753,6 +759,30 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get ukcInput => 'UKC (m)';
+
+  @override
+  String get squatInput => 'Squat (m)';
+
+  @override
+  String get measurementTime => 'Horário da sondagem';
+
+  @override
+  String get santanaTideReferenceHint =>
+      'Este local usa a Maré de Santana como referência.';
+
+  @override
+  String get rulerValuePendingWebPilot =>
+      'Leitura automática disponível após integração com o WebPilot.';
+
+  @override
+  String get tideReferenceUnavailable =>
+      'Dados de maré indisponíveis para este horário.';
+
+  @override
+  String get previousLowTide => 'Baixamar anterior';
+
+  @override
+  String get nextHighTide => 'Preamar posterior';
 
   @override
   String get speedOptional => 'Velocidade (nós)';

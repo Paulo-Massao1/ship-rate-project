@@ -1025,6 +1025,14 @@
   "@totalDepthLabel": {
     "description": "Label text for total depth."
   },
+  "calculatedTotalDepth": "PROFUNDIDADE TOTAL (CALCULADA)",
+  "@calculatedTotalDepth": {
+    "description": "Label for the automatically calculated total depth."
+  },
+  "depthCalculationFormula": "Calado máximo + UKC + Squat",
+  "@depthCalculationFormula": {
+    "description": "Formula used to calculate total depth."
+  },
   "complementaryData": "Dados Complementares",
   "@complementaryData": {
     "description": "Localized text for complementary data."
@@ -1036,6 +1044,34 @@
   "ukcInput": "UKC (m)",
   "@ukcInput": {
     "description": "Localized text for ukc input."
+  },
+  "squatInput": "Squat (m)",
+  "@squatInput": {
+    "description": "Localized label for the optional numeric squat input."
+  },
+  "measurementTime": "Horário da sondagem",
+  "@measurementTime": {
+    "description": "Time when the depth measurement was taken."
+  },
+  "santanaTideReferenceHint": "Este local usa a Maré de Santana como referência.",
+  "@santanaTideReferenceHint": {
+    "description": "Explains that the selected location uses Santana tide data."
+  },
+  "rulerValuePendingWebPilot": "Leitura automática disponível após integração com o WebPilot.",
+  "@rulerValuePendingWebPilot": {
+    "description": "Explains why the daily ruler value is not displayed yet."
+  },
+  "tideReferenceUnavailable": "Dados de maré indisponíveis para este horário.",
+  "@tideReferenceUnavailable": {
+    "description": "Shown when no tide window can be resolved for the measurement time."
+  },
+  "previousLowTide": "Baixamar anterior",
+  "@previousLowTide": {
+    "description": "Label for the low tide before the measurement."
+  },
+  "nextHighTide": "Preamar posterior",
+  "@nextHighTide": {
+    "description": "Label for the high tide after the measurement."
   },
   "speedOptional": "Velocidade (nós)",
   "@speedOptional": {

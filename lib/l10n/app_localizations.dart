@@ -1481,6 +1481,18 @@ abstract class AppLocalizations {
   /// **'PROFUNDIDADE TOTAL'**
   String get totalDepthLabel;
 
+  /// Label for the automatically calculated total depth.
+  ///
+  /// In pt, this message translates to:
+  /// **'PROFUNDIDADE TOTAL (CALCULADA)'**
+  String get calculatedTotalDepth;
+
+  /// Formula used to calculate total depth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Calado máximo + UKC + Squat'**
+  String get depthCalculationFormula;
+
   /// Localized text for complementary data.
   ///
   /// In pt, this message translates to:
@@ -1498,6 +1510,48 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'UKC (m)'**
   String get ukcInput;
+
+  /// Localized label for the optional numeric squat input.
+  ///
+  /// In pt, this message translates to:
+  /// **'Squat (m)'**
+  String get squatInput;
+
+  /// Time when the depth measurement was taken.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horário da sondagem'**
+  String get measurementTime;
+
+  /// Explains that the selected location uses Santana tide data.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este local usa a Maré de Santana como referência.'**
+  String get santanaTideReferenceHint;
+
+  /// Explains why the daily ruler value is not displayed yet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Leitura automática disponível após integração com o WebPilot.'**
+  String get rulerValuePendingWebPilot;
+
+  /// Shown when no tide window can be resolved for the measurement time.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dados de maré indisponíveis para este horário.'**
+  String get tideReferenceUnavailable;
+
+  /// Label for the low tide before the measurement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixamar anterior'**
+  String get previousLowTide;
+
+  /// Label for the high tide after the measurement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preamar posterior'**
+  String get nextHighTide;
 
   /// Localized text for speed optional.
   ///

@@ -1006,6 +1006,14 @@
   "@totalDepthLabel": {
     "description": "Label text for total depth."
   },
+  "calculatedTotalDepth": "CALCULATED TOTAL DEPTH",
+  "@calculatedTotalDepth": {
+    "description": "Label for the automatically calculated total depth."
+  },
+  "depthCalculationFormula": "Max draft + UKC + Squat",
+  "@depthCalculationFormula": {
+    "description": "Formula used to calculate total depth."
+  },
   "complementaryData": "Complementary Data",
   "@complementaryData": {
     "description": "Localized text for complementary data."
@@ -1017,6 +1025,34 @@
   "ukcInput": "UKC (m)",
   "@ukcInput": {
     "description": "Localized text for ukc input."
+  },
+  "squatInput": "Squat (m)",
+  "@squatInput": {
+    "description": "Localized label for the optional numeric squat input."
+  },
+  "measurementTime": "Sounding time",
+  "@measurementTime": {
+    "description": "Time when the depth measurement was taken."
+  },
+  "santanaTideReferenceHint": "This location uses the Santana tide as its reference.",
+  "@santanaTideReferenceHint": {
+    "description": "Explains that the selected location uses Santana tide data."
+  },
+  "rulerValuePendingWebPilot": "Automatic reading available after the WebPilot integration.",
+  "@rulerValuePendingWebPilot": {
+    "description": "Explains why the daily ruler value is not displayed yet."
+  },
+  "tideReferenceUnavailable": "Tide data is unavailable for this time.",
+  "@tideReferenceUnavailable": {
+    "description": "Shown when no tide window can be resolved for the measurement time."
+  },
+  "previousLowTide": "Previous low tide",
+  "@previousLowTide": {
+    "description": "Label for the low tide before the measurement."
+  },
+  "nextHighTide": "Next high tide",
+  "@nextHighTide": {
+    "description": "Label for the high tide after the measurement."
   },
   "speedOptional": "Speed (knots)",
   "@speedOptional": {

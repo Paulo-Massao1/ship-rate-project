@@ -38,6 +38,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final depth = _formatMeters(record['profundidadeTotal']);
     final maxDraft = _formatMeters(record['caladoMax']);
     final ukc = _formatMeters(record['ukc']);
+    final depthReference = _formatDepthReference(record['depthReference']);
     final speed = _formatSpeed(record['velocidade']);
     final observations = (record['observacoes'] ?? '').toString().trim();
     final technicalRows = _buildTechnicalRows(l10n);
@@ -157,6 +158,18 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (depthReference.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      depthReference,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: _blueAccent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -306,7 +319,14 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
       );
     }
 
-    if (record['squatConsiderado'] != null) {
+    if (record['squat'] != null) {
+      compactTiles.add(
+        _buildCompactTile(
+          l10n.squatInput,
+          _formatMeters(record['squat']),
+        ),
+      );
+    } else if (record['squatConsiderado'] != null) {
       compactTiles.add(
         _buildCompactTile(
           l10n.squatConsidered,
@@ -327,6 +347,20 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     }
 
     return _withSpacing(rows);
+  }
+
+  String _formatDepthReference(dynamic value) {
+    if (value is! Map) return '';
+
+    final name = (value['name'] ?? '').toString().trim();
+    final code = (value['code'] ?? '').toString().trim();
+    if (name.isEmpty) return '';
+
+    final displayName = code.isEmpty ? name : '$name ($code)';
+    final rulerValue = value['value'];
+    return rulerValue is num
+        ? '$displayName · ${_formatMeters(rulerValue)}'
+        : displayName;
   }
 
   List<Widget> _buildPositionRows() {
@@ -661,4 +695,3 @@ class _DirectionData {
   final IconData icon;
   final String label;
 }
-

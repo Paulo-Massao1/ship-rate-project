@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../controllers/nav_safety_controller.dart';
+import '../../data/services/depth_reference_service.dart';
 import '../../data/services/image_upload_service.dart';
 import '../../data/services/url_launcher_service.dart';
 
@@ -88,9 +91,16 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   // Complementary data
   final _maxDraftController = TextEditingController();
   final _ukcController = TextEditingController();
+  final _squatController = TextEditingController();
   final _speedController = TextEditingController();
-  String? _squatConsidered; // 'sim' or 'nao'
   String? _sonarPosition; // 'proa' or 'popa'
+
+  // Location reference
+  DepthReference? _depthReference;
+  SantanaTideWindow? _santanaTideWindow;
+  bool _isLoadingTide = false;
+  bool _suspendDepthCalculation = false;
+  int _tideRequestId = 0;
 
   // LAT/LONG
   bool _latLongExpanded = false;
@@ -123,6 +133,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   @override
   void initState() {
     super.initState();
+    _maxDraftController.addListener(_onDepthComponentChanged);
+    _ukcController.addListener(_onDepthComponentChanged);
+    _squatController.addListener(_onDepthComponentChanged);
     _arrowAnimController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -130,13 +143,17 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     _arrowAnim = Tween<double>(begin: 0, end: 0.5).animate(
       CurvedAnimation(parent: _arrowAnimController, curve: Curves.easeInOut),
     );
-    _loadLocations().then((_) => _prefillIfEditing());
+    _loadLocations().then((_) {
+      _prefillIfEditing();
+      _refreshDepthReference();
+    });
   }
 
   void _prefillIfEditing() {
     if (!widget.isEditing || widget.editData == null) return;
     final d = widget.editData!;
 
+    _suspendDepthCalculation = true;
     setState(() {
       _selectedLocationId = widget.editLocationId;
       // Find location name from loaded locations
@@ -172,9 +189,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (d['velocidade'] != null) {
         _speedController.text = d['velocidade'].toString();
       }
-      // Squat
-      if (d['squatConsiderado'] != null) {
-        _squatConsidered = d['squatConsiderado'] == true ? 'sim' : 'nao';
+      // Squat value. Legacy records only stored a boolean and therefore do
+      // not have a numeric amount that can be restored safely.
+      if (d['squat'] != null) {
+        _squatController.text = d['squat'].toString();
       }
       // Point
       if (d['ponto'] != null) {
@@ -220,6 +238,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             .toList();
       }
     });
+    _suspendDepthCalculation = false;
+    _recalculateDepth();
   }
 
   @override
@@ -230,6 +250,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     _depthController.dispose();
     _maxDraftController.dispose();
     _ukcController.dispose();
+    _squatController.dispose();
     _speedController.dispose();
     _latDegController.dispose();
     _latMinController.dispose();
@@ -259,6 +280,73 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     }
   }
 
+  double? _parseDecimal(String value) {
+    return double.tryParse(value.trim().replaceAll(',', '.'));
+  }
+
+  double? get _calculatedDepth {
+    final maxDraft = _parseDecimal(_maxDraftController.text);
+    final ukc = _parseDecimal(_ukcController.text);
+    if (maxDraft == null || ukc == null) return null;
+
+    final squatText = _squatController.text.trim();
+    final squat = squatText.isEmpty ? 0.0 : _parseDecimal(squatText);
+    if (squat == null) return null;
+    return maxDraft + ukc + squat;
+  }
+
+  void _onDepthComponentChanged() {
+    if (_suspendDepthCalculation) return;
+    _recalculateDepth();
+  }
+
+  void _recalculateDepth() {
+    final total = _calculatedDepth;
+    final value = total == null ? '' : total.toStringAsFixed(2);
+    if (_depthController.text != value) _depthController.text = value;
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _refreshDepthReference() async {
+    final reference = DepthReferenceService.resolve(_selectedLocationName);
+    final requestId = ++_tideRequestId;
+
+    if (reference?.type != DepthReferenceType.santanaTide) {
+      if (!mounted) return;
+      setState(() {
+        _depthReference = reference;
+        _santanaTideWindow = null;
+        _isLoadingTide = false;
+      });
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        _depthReference = reference;
+        _santanaTideWindow = null;
+        _isLoadingTide = true;
+      });
+    }
+
+    try {
+      final window =
+          await DepthReferenceService.loadSantanaTideWindow(_selectedDate);
+      if (!mounted || requestId != _tideRequestId) return;
+      setState(() {
+        _santanaTideWindow = window;
+        _isLoadingTide = false;
+      });
+    } catch (error) {
+      debugPrint('[NavSafety] Error loading Santana tide reference: $error');
+      if (!mounted || requestId != _tideRequestId) return;
+      setState(() {
+        _santanaTideWindow = null;
+        _isLoadingTide = false;
+      });
+    }
+  }
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -277,7 +365,48 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         );
       },
     );
-    if (picked != null) setState(() => _selectedDate = picked);
+    if (picked == null) return;
+
+    setState(() {
+      _selectedDate = DateTime(
+        picked.year,
+        picked.month,
+        picked.day,
+        _selectedDate.hour,
+        _selectedDate.minute,
+      );
+    });
+    await _refreshDepthReference();
+  }
+
+  Future<void> _pickMeasurementTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: _teal,
+              surface: _bgMid,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _selectedDate = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        picked.hour,
+        picked.minute,
+      );
+    });
+    await _refreshDepthReference();
   }
 
   bool get _isItacoatiara {
@@ -297,7 +426,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         !hasPendingNewLocation) {
       return l10n.locationRequired;
     }
-    if (_depthController.text.trim().isEmpty) return l10n.depthRequired;
+    if (_maxDraftController.text.trim().isEmpty) return l10n.draftRequired;
+    if (_ukcController.text.trim().isEmpty) return l10n.ukcRequired;
+    if (_calculatedDepth == null) return l10n.depthRequired;
     return null;
   }
 
@@ -329,19 +460,58 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         nomeGuerra = (userDoc.data()?['nomeGuerra'] ?? '').toString();
       }
 
+      final calculatedDepth = _calculatedDepth!;
       final data = <String, dynamic>{
-        'profundidadeTotal': double.tryParse(_depthController.text.trim().replaceAll(',', '.')),
+        'profundidadeTotal': calculatedDepth,
         'data': Timestamp.fromDate(_selectedDate),
         'pilotId': user?.uid ?? '',
         'email': user?.email ?? '',
         'nomeGuerra': nomeGuerra,
       };
 
-      final caladoMax = double.tryParse(_maxDraftController.text.trim().replaceAll(',', '.'));
+      final caladoMax = _parseDecimal(_maxDraftController.text);
       if (caladoMax != null) data['caladoMax'] = caladoMax;
 
-      final ukc = double.tryParse(_ukcController.text.trim().replaceAll(',', '.'));
+      final ukc = _parseDecimal(_ukcController.text);
       if (ukc != null) data['ukc'] = ukc;
+
+      final squat = _parseDecimal(_squatController.text);
+      if (squat != null) data['squat'] = squat;
+      data['squatConsiderado'] = squat != null && squat > 0;
+
+      final reference = _depthReference;
+      if (reference != null) {
+        final referenceData = <String, dynamic>{
+          'type': reference.type == DepthReferenceType.ruler
+              ? 'ruler'
+              : 'santanaTide',
+          'name': reference.name,
+          if (reference.code != null) 'code': reference.code,
+        };
+
+        final tideWindow = _santanaTideWindow;
+        if (reference.type == DepthReferenceType.santanaTide) {
+          referenceData['measurementTime'] = Timestamp.fromDate(_selectedDate);
+          if (tideWindow != null) {
+            final previousLowTide = tideWindow.previousLowTide;
+            if (previousLowTide != null) {
+              referenceData['previousLowTide'] = {
+                'dateTime': Timestamp.fromDate(previousLowTide.dateTime),
+                'height': previousLowTide.height,
+              };
+            }
+            final nextHighTide = tideWindow.nextHighTide;
+            if (nextHighTide != null) {
+              referenceData['nextHighTide'] = {
+                'dateTime': Timestamp.fromDate(nextHighTide.dateTime),
+                'height': nextHighTide.height,
+              };
+            }
+          }
+        }
+
+        data['depthReference'] = referenceData;
+      }
 
       // Optional fields
       if (_direction != null) data['direcao'] = _direction;
@@ -350,12 +520,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       final shipName = _shipNameController.text.trim();
       if (shipName.isNotEmpty) data['nomeNavio'] = shipName;
 
-      final speed = double.tryParse(_speedController.text.trim().replaceAll(',', '.'));
+      final speed = _parseDecimal(_speedController.text);
       if (speed != null) data['velocidade'] = speed;
-
-      if (_squatConsidered != null) {
-        data['squatConsiderado'] = _squatConsidered == 'sim';
-      }
 
       if (_isItacoatiara && _selectedPoint != null) {
         data['ponto'] = _selectedPoint;
@@ -523,6 +689,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           depth: depth,
           nomeGuerra: nomeGuerra,
           dateStr: dateStr,
+          referenceLine: _buildReferenceShareLine(l10n),
         );
       } else {
         _showSnackBar(l10n.recordUpdatedSuccess);
@@ -593,12 +760,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     required String depth,
     required String nomeGuerra,
     required String dateStr,
+    required String referenceLine,
   }) async {
     final shareText =
         '⚓ ${l10n.shareDepthTitle}\n'
         '\u{1F4CD} Local: $locationName\n'
         '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
         '\u{1F4CF} Profundidade total: ${depth}m\n'
+        '$referenceLine'
         '\u{1F464} Prático: $nomeGuerra\n'
         '\u{1F4C5} Data: $dateStr\n\n'
         '${l10n.shareDepthFooter}\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
@@ -651,6 +820,48 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     );
   }
 
+  String _buildReferenceShareLine(AppLocalizations l10n) {
+    final reference = _depthReference;
+    if (reference == null) return '';
+
+    if (reference.type == DepthReferenceType.ruler) {
+      return '\u{1F4D0} ${reference.displayName}\n';
+    }
+
+    final window = _santanaTideWindow;
+    if (window == null || !window.hasData) {
+      return '\u{1F30A} ${reference.displayName}\n';
+    }
+
+    final low = window.previousLowTide;
+    final high = window.nextHighTide;
+    final parts = <String>[];
+    if (low != null) {
+      parts.add(
+        '${l10n.previousLowTide} ${_formatMetersValue(low.height)} '
+        '(${_formatTime(low.dateTime)})',
+      );
+    }
+    if (high != null) {
+      parts.add(
+        '${l10n.nextHighTide} ${_formatMetersValue(high.height)} '
+        '(${_formatTime(high.dateTime)})',
+      );
+    }
+
+    return '\u{1F30A} ${reference.displayName}: ${parts.join(' → ')}\n';
+  }
+
+  String _formatMetersValue(double value) {
+    return '${value.toStringAsFixed(2).replaceAll('.', ',')}m';
+  }
+
+  String _formatTime(DateTime value) {
+    final hour = value.hour.toString().padLeft(2, '0');
+    final minute = value.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
   Future<void> _selectNewLocation() async {
     final name = _newLocationController.text.trim();
     if (name.isEmpty) return;
@@ -660,6 +871,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       _selectedLocationName = name;
       _showNewLocationInput = false;
     });
+    await _refreshDepthReference();
   }
 
   // ===========================================================================
@@ -708,9 +920,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 children: [
                   _buildSection1PassageData(l10n),
                   const SizedBox(height: 16),
-                  _buildSection2TotalDepth(l10n),
-                  const SizedBox(height: 16),
                   _buildSection3ComplementaryData(l10n),
+                  const SizedBox(height: 16),
+                  _buildSection2TotalDepth(l10n),
                   const SizedBox(height: 16),
                   _buildSection4LatLong(l10n),
                   const SizedBox(height: 16),
@@ -778,9 +990,33 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           keyboardType: TextInputType.text,
         ),
         const SizedBox(height: 14),
-        _buildDateField(l10n),
-        const SizedBox(height: 14),
-        _buildDirectionToggle(l10n),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildDateField(l10n)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildTextField(
+                controller: _speedController,
+                label: l10n.speedOptional,
+                icon: Icons.speed,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                suffixText: '(${l10n.optional})',
+                compact: true,
+              ),
+            ),
+          ],
+        ),
+        if (_depthReference?.type == DepthReferenceType.santanaTide) ...[
+          const SizedBox(height: 14),
+          _buildMeasurementTimeField(l10n),
+          const SizedBox(height: 8),
+          Text(
+            l10n.santanaTideReferenceHint,
+            style: const TextStyle(color: Color(0x9964B5F6), fontSize: 11),
+          ),
+        ],
       ],
     );
   }
@@ -846,6 +1082,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   _showNewLocationInput = false;
                   _newLocationController.clear();
                 });
+                unawaited(_refreshDepthReference());
               },
             ),
           ),
@@ -967,7 +1204,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           onTap: _pickDate,
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
             decoration: BoxDecoration(
               color: _inputBg,
               borderRadius: BorderRadius.circular(10),
@@ -975,14 +1212,20 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today, color: _teal, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  dateStr,
-                  style: const TextStyle(
-                    color: _textPrimary,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
+                const Icon(Icons.calendar_today, color: _teal, size: 17),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      dateStr,
+                      style: const TextStyle(
+                        color: _textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -1045,7 +1288,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       child: Column(
         children: [
           Text(
-            l10n.totalDepthLabel,
+            l10n.calculatedTotalDepth,
             style: const TextStyle(
               color: _teal,
               fontSize: 11,
@@ -1054,49 +1297,175 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 120,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _inputBg,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0x4D26A69A)),
-                  ),
-                  child: TextField(
-                    controller: _depthController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _textPrimary,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'm',
-                style: TextStyle(
-                  color: _textSecondary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          Text(
+            _calculatedDepth == null
+                ? '—'
+                : '${_calculatedDepth!.toStringAsFixed(2).replaceAll('.', ',')} m',
+            style: const TextStyle(
+              color: _teal,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.depthCalculationFormula,
+            style: const TextStyle(color: Color(0x9926A69A), fontSize: 11),
+          ),
+          if (_depthReference != null) ...[
+            const SizedBox(height: 14),
+            _buildDepthReferenceCard(l10n),
+          ],
+          const SizedBox(height: 14),
+          _buildDirectionToggle(l10n),
         ],
       ),
     );
+  }
+
+  Widget _buildDepthReferenceCard(AppLocalizations l10n) {
+    final reference = _depthReference!;
+
+    if (reference.type == DepthReferenceType.ruler) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0x14FFC107),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0x33FFC107)),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.straighten, color: Color(0xFFFFC107), size: 20),
+            const SizedBox(height: 5),
+            Text(
+              reference.displayName,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFFFFD54F),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              l10n.rulerValuePendingWebPilot,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _textMuted, fontSize: 10),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0x1464B5F6),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0x3364B5F6)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            reference.displayName,
+            style: const TextStyle(
+              color: Color(0xFF90CAF9),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (_isLoadingTide)
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                color: Color(0xFF64B5F6),
+                strokeWidth: 2,
+              ),
+            )
+          else if (_santanaTideWindow == null ||
+              !_santanaTideWindow!.hasData)
+            Text(
+              l10n.tideReferenceUnavailable,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: _textMuted, fontSize: 11),
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: _buildTideEvent(
+                    label: l10n.previousLowTide,
+                    event: _santanaTideWindow!.previousLowTide,
+                    alignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 42,
+                  color: const Color(0x3364B5F6),
+                ),
+                Expanded(
+                  child: _buildTideEvent(
+                    label: l10n.nextHighTide,
+                    event: _santanaTideWindow!.nextHighTide,
+                    alignment: CrossAxisAlignment.end,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTideEvent({
+    required String label,
+    required TideReferenceEvent? event,
+    required CrossAxisAlignment alignment,
+  }) {
+    return Column(
+      crossAxisAlignment: alignment,
+      children: [
+        Text(
+          label,
+          textAlign: alignment == CrossAxisAlignment.end
+              ? TextAlign.right
+              : TextAlign.left,
+          style: const TextStyle(color: _textMuted, fontSize: 9),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          event == null ? '—' : _formatMetersValue(event.height),
+          style: const TextStyle(
+            color: Color(0xFF90CAF9),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (event != null)
+          Text(
+            _formatTideDateTime(event.dateTime),
+            style: const TextStyle(color: _textSecondary, fontSize: 9),
+          ),
+      ],
+    );
+  }
+
+  String _formatTideDateTime(DateTime value) {
+    final time = _formatTime(value);
+    final isSameDay = value.year == _selectedDate.year &&
+        value.month == _selectedDate.month &&
+        value.day == _selectedDate.day;
+    if (isSameDay) return time;
+
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    return '$day/$month $time';
   }
 
   // ===========================================================================
@@ -1108,69 +1477,84 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       icon: Icons.straighten,
       title: l10n.complementaryData,
       children: [
-        _buildTextField(
-          controller: _maxDraftController,
-          label: l10n.maxDraftInput,
-          icon: Icons.straighten,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          suffixText: '(${l10n.optional})',
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _buildTextField(
+                controller: _maxDraftController,
+                label: l10n.maxDraftInput,
+                icon: Icons.straighten,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildTextField(
+                controller: _ukcController,
+                label: l10n.ukcInput,
+                icon: Icons.straighten,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                compact: true,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 14),
         _buildTextField(
-          controller: _ukcController,
-          label: l10n.ukcInput,
-          icon: Icons.straighten,
+          controller: _squatController,
+          label: l10n.squatInput,
+          icon: Icons.vertical_align_bottom,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           suffixText: '(${l10n.optional})',
         ),
-        const SizedBox(height: 14),
-        _buildTextField(
-          controller: _speedController,
-          label: l10n.speedOptional,
-          icon: Icons.speed,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          suffixText: '(${l10n.optional})',
-        ),
-        const SizedBox(height: 14),
-        _buildSquatToggle(l10n),
         const SizedBox(height: 14),
         _buildSonarToggle(l10n),
       ],
     );
   }
 
-  Widget _buildSquatToggle(AppLocalizations l10n) {
+  Widget _buildMeasurementTimeField(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              l10n.squatConsidered,
-              style: const TextStyle(color: _textLabel, fontSize: 12),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '(${l10n.optional})',
-              style: const TextStyle(color: _textMuted, fontSize: 10),
-            ),
-          ],
+        Text(
+          l10n.measurementTime,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
-        Row(
-          children: [
-            _buildToggleBtn(
-              label: l10n.yes,
-              isActive: _squatConsidered == 'sim',
-              onTap: () => setState(() => _squatConsidered = 'sim'),
+        GestureDetector(
+          onTap: _pickMeasurementTime,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              color: _inputBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _inputBorder),
             ),
-            const SizedBox(width: 10),
-            _buildToggleBtn(
-              label: l10n.no,
-              isActive: _squatConsidered == 'nao',
-              onTap: () => setState(() => _squatConsidered = 'nao'),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.schedule,
+                  color: Color(0xFF64B5F6),
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _formatTime(_selectedDate),
+                  style: const TextStyle(
+                    color: _textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ],
     );
@@ -1797,7 +2181,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Container(
       margin: const EdgeInsets.only(top: 20, bottom: 24),
       child: GestureDetector(
-        onTap: _isSaving ? null : _save,
+        onTap: _isSaving || _isLoadingTide ? null : _save,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1817,7 +2201,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ],
           ),
           child: Center(
-            child: _isSaving
+            child: _isSaving || _isLoadingTide
                 ? const SizedBox(
                     width: 22,
                     height: 22,
@@ -1894,17 +2278,31 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     Color iconColor = _teal,
     TextInputType keyboardType = TextInputType.text,
     String? suffixText,
+    bool compact = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text(label, style: const TextStyle(color: _textLabel, fontSize: 12)),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: _textLabel, fontSize: 12),
+              ),
+            ),
             if (suffixText != null) ...[
               const SizedBox(width: 6),
-              Text(suffixText,
-                  style: const TextStyle(color: _textMuted, fontSize: 10)),
+              Flexible(
+                child: Text(
+                  suffixText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: _textMuted, fontSize: 10),
+                ),
+              ),
             ],
           ],
         ),
@@ -1920,10 +2318,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             keyboardType: keyboardType,
             style: const TextStyle(color: _textPrimary, fontSize: 14),
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: iconColor, size: 20),
+              prefixIcon: compact ? null : Icon(icon, color: iconColor, size: 20),
               border: InputBorder.none,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              isDense: compact,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: compact ? 10 : 14,
+                vertical: 12,
+              ),
             ),
           ),
         ),

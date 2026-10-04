@@ -746,6 +746,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalDepthLabel => 'TOTAL DEPTH';
 
   @override
+  String get calculatedTotalDepth => 'CALCULATED TOTAL DEPTH';
+
+  @override
+  String get depthCalculationFormula => 'Max draft + UKC + Squat';
+
+  @override
   String get complementaryData => 'Complementary Data';
 
   @override
@@ -753,6 +759,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ukcInput => 'UKC (m)';
+
+  @override
+  String get squatInput => 'Squat (m)';
+
+  @override
+  String get measurementTime => 'Sounding time';
+
+  @override
+  String get santanaTideReferenceHint =>
+      'This location uses the Santana tide as its reference.';
+
+  @override
+  String get rulerValuePendingWebPilot =>
+      'Automatic reading available after the WebPilot integration.';
+
+  @override
+  String get tideReferenceUnavailable =>
+      'Tide data is unavailable for this time.';
+
+  @override
+  String get previousLowTide => 'Previous low tide';
+
+  @override
+  String get nextHighTide => 'Next high tide';
 
   @override
   String get speedOptional => 'Speed (knots)';

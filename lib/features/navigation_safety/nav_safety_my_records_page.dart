@@ -154,6 +154,74 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     return '—';
   }
 
+  String _formatReferenceName(Map<dynamic, dynamic> reference) {
+    final name = (reference['name'] ?? '').toString().trim();
+    final code = (reference['code'] ?? '').toString().trim();
+    if (name.isEmpty) return '';
+    return code.isEmpty ? name : '$name ($code)';
+  }
+
+  String _formatReferenceTimestamp(dynamic value) {
+    if (value is! Timestamp) return '';
+    final date = value.toDate();
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$day/$month $hour:$minute';
+  }
+
+  String _formatStoredTideEvent(dynamic value) {
+    if (value is! Map) return '';
+    final height = value['height'];
+    if (height is! num) return '';
+
+    final dateTime = _formatReferenceTimestamp(value['dateTime']);
+    final meters = _formatMeters(height.toStringAsFixed(2));
+    return dateTime.isEmpty ? meters : '$meters ($dateTime)';
+  }
+
+  String _buildReferenceShareLine(
+    Map<String, dynamic> data,
+    AppLocalizations l10n,
+  ) {
+    final rawReference = data['depthReference'];
+    if (rawReference is! Map) return '';
+
+    final name = _formatReferenceName(rawReference);
+    if (name.isEmpty) return '';
+
+    if (rawReference['type'] == 'ruler') {
+      final value = rawReference['value'];
+      final valueText = value is num ? ': ${_formatMeters(value)}' : '';
+      return '\u{1F4D0} $name$valueText\n';
+    }
+
+    final events = <String>[];
+    final previousLow = _formatStoredTideEvent(rawReference['previousLowTide']);
+    final nextHigh = _formatStoredTideEvent(rawReference['nextHighTide']);
+    if (previousLow.isNotEmpty) {
+      events.add('${l10n.previousLowTide}: $previousLow');
+    }
+    if (nextHigh.isNotEmpty) {
+      events.add('${l10n.nextHighTide}: $nextHigh');
+    }
+
+    final eventText = events.isEmpty ? '' : ': ${events.join(' → ')}';
+    return '\u{1F30A} $name$eventText\n';
+  }
+
+  String _buildReferenceCardText(Map<String, dynamic> data) {
+    final rawReference = data['depthReference'];
+    if (rawReference is! Map) return '';
+
+    final name = _formatReferenceName(rawReference);
+    if (name.isEmpty) return '';
+
+    final value = rawReference['value'];
+    return value is num ? '$name · ${_formatMeters(value)}' : name;
+  }
+
   void _shareRecord(MyRecord record) {
     final l10n = AppLocalizations.of(context)!;
     final data = record.data;
@@ -167,6 +235,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         '\u{1F4CD} Local: ${record.locationName}\n'
         '${shipName.isNotEmpty ? '\u{1F6A2} Navio: $shipName\n' : ''}'
         '\u{1F4CF} Profundidade total: $depth\n'
+        '${_buildReferenceShareLine(data, l10n)}'
         '${nomeGuerra.isNotEmpty ? '\u{1F464} Prático: $nomeGuerra\n' : ''}'
         '\u{1F4C5} Data: $dateStr\n\n'
         '${l10n.shareDepthFooter}\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
@@ -370,6 +439,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     final profTotal = _formatMeters(data['profundidadeTotal']);
     final shipName = (data['nomeNavio'] ?? '').toString();
     final dateStr = _formatDate(data['data']);
+    final referenceText = _buildReferenceCardText(data);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -447,6 +517,17 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
                       fontSize: 18,
                     ),
                   ),
+                  if (referenceText.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      referenceText,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xFF90CAF9),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
