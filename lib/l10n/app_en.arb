@@ -2695,5 +2695,137 @@
   "maneuverAftShort": "AFT",
   "@maneuverAftShort": {
     "description": "Short aft position label."
+  },
+  "maneuverPortLimits": "Port/maneuver limits",
+  "@maneuverPortLimits": {
+    "description": "Title of the terminal operational limits section."
+  },
+  "maneuverSchedule": "Schedule",
+  "@maneuverSchedule": {
+    "description": "Maneuver schedule information label."
+  },
+  "maneuverNoRestrictions": "No schedule restrictions",
+  "@maneuverNoRestrictions": {
+    "description": "Value indicating no schedule restrictions."
+  },
+  "maneuverMaximumLength": "Maximum length",
+  "@maneuverMaximumLength": {
+    "description": "Maximum ship length information label."
+  },
+  "maneuverBeamRestriction": "Beam restriction",
+  "@maneuverBeamRestriction": {
+    "description": "Ship beam restriction information label."
+  },
+  "maneuverNoRestriction": "No restriction",
+  "@maneuverNoRestriction": {
+    "description": "Value indicating no operational restriction."
+  },
+  "maneuverPierLength": "Pier length",
+  "@maneuverPierLength": {
+    "description": "Terminal pier length information label."
+  },
+  "maneuverMaximumDwt": "Maximum DWT",
+  "@maneuverMaximumDwt": {
+    "description": "Maximum deadweight information label."
+  },
+  "maneuverAirDraft": "Air draft",
+  "@maneuverAirDraft": {
+    "description": "Air draft information label."
+  },
+  "maneuverAirDraftDetail": "Limited by the Almeirim/Jurupari power line",
+  "@maneuverAirDraftDetail": {
+    "description": "Air draft restriction detail for Santarem."
+  },
+  "maneuverMaximumWind": "Maximum wind",
+  "@maneuverMaximumWind": {
+    "description": "Maximum wind information label."
+  },
+  "maneuverMinimumVisibility": "Minimum visibility",
+  "@maneuverMinimumVisibility": {
+    "description": "Minimum visibility information label."
+  },
+  "maneuverCrossing": "Crossing",
+  "@maneuverCrossing": {
+    "description": "Crossing restriction information label."
+  },
+  "maneuverOperationalParametersSource": "Source: Eastern Amazon Basin Operational Parameters",
+  "@maneuverOperationalParametersSource": {
+    "description": "Source attribution for terminal operational data."
+  },
+  "maneuverMaximumDrafts": "Maximum departure drafts",
+  "@maneuverMaximumDrafts": {
+    "description": "Title above the maximum departure draft tables."
+  },
+  "maneuverGeneralCargo": "General cargo",
+  "@maneuverGeneralCargo": {
+    "description": "General cargo draft table title."
+  },
+  "maneuverDangerousCargo": "Dangerous cargo",
+  "@maneuverDangerousCargo": {
+    "description": "Dangerous cargo draft table title."
+  },
+  "maneuverDraftFootnote": "To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.",
+  "@maneuverDraftFootnote": {
+    "description": "Official five-centimeter draft adjustment footnote."
+  },
+  "maneuverVhfChannel": "VHF channel",
+  "@maneuverVhfChannel": {
+    "description": "VHF channel information label."
+  },
+  "maneuverMandatory": "Mandatory",
+  "@maneuverMandatory": {
+    "description": "Value indicating mandatory tugboat use."
+  },
+  "maneuverNavigation": "Navigation",
+  "@maneuverNavigation": {
+    "description": "Navigation recommendation information label."
+  },
+  "maneuverTapajosNavigation": "On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.",
+  "@maneuverTapajosNavigation": {
+    "description": "Tapajos River speed recommendation from the operational parameters."
+  },
+  "maneuverMooringReferenceNote": "Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.",
+  "@maneuverMooringReferenceNote": {
+    "description": "Context note above the terminal mooring arrangement."
+  },
+  "maneuverNormally222": "normally 2 × 2 × 2",
+  "@maneuverNormally222": {
+    "description": "Typical Panamax mooring arrangement."
+  },
+  "maneuverNormally42": "normally 4 × 2",
+  "@maneuverNormally42": {
+    "description": "Typical Handmax mooring arrangement."
+  },
+  "maneuverOperationalDisclaimer": "Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.",
+  "@maneuverOperationalDisclaimer": {
+    "description": "Safety disclaimer shown below terminal operational information."
+  },
+  "maneuverOfficialTugInfo": "Tugboats — Operational Parameters",
+  "@maneuverOfficialTugInfo": {
+    "description": "Title of the official tugboat information sheet."
+  },
+  "maneuverTugRequirementDetail": "The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:",
+  "@maneuverTugRequirementDetail": {
+    "description": "Description above the official Santarem tugboat list."
+  },
+  "maneuverTugNoSpecificMinimum": "The table does not state a minimum quantity or total BP specifically for the Cargill terminal.",
+  "@maneuverTugNoSpecificMinimum": {
+    "description": "Clarification preventing an unsupported Cargill tugboat minimum."
+  },
+  "maneuverDrySeason": "Dry · Aug 16–Jan 31",
+  "@maneuverDrySeason": {
+    "description": "Dry season column in the Santarem draft table."
+  },
+  "maneuverFloodSeason": "Flood · Feb 1–Aug 15",
+  "@maneuverFloodSeason": {
+    "description": "Flood season column in the Santarem draft table."
+  },
+  "maneuverPilotageOptional": "Optional pilotage",
+  "@maneuverPilotageOptional": {
+    "description": "Optional Barra Norte pilotage row label."
+  },
+  "maneuverPilotageMandatory": "Mandatory pilotage",
+  "@maneuverPilotageMandatory": {
+    "description": "Mandatory Barra Norte pilotage row label."
   }
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
-import '../../core/subscription_constants.dart';
-import '../../shared/widgets/subscription_gate.dart';
 import 'maneuver_history_page.dart';
+import 'maneuver_initial_info_page.dart';
 import 'maneuver_report_page.dart';
 
 /// Maneuver entry points for a single terminal.
@@ -92,7 +91,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => _ManeuverInitialInfoPage(
+                      builder: (_) => ManeuverInitialInfoPage(
                         portName: portName,
                         portCode: portCode,
                         terminalName: terminalName,
@@ -250,132 +249,6 @@ class ManeuverTerminalPage extends StatelessWidget {
     );
   }
 
-}
-
-class _ManeuverInitialInfoPage extends StatelessWidget {
-  const _ManeuverInitialInfoPage({
-    required this.portName,
-    required this.portCode,
-    required this.terminalName,
-  });
-
-  final String portName;
-  final String portCode;
-  final String terminalName;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Scaffold(
-      appBar: _buildSectionAppBar(context, l10n.initialManeuverInfo),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
-          ),
-        ),
-        child: SubscriptionGate(
-          requiredPlan: SubscriptionConstants.planPlus,
-          featureDescription: l10n.plusFeature2,
-          child: _ManeuverSectionEmptyState(
-            title: terminalName,
-            subtitle: '$portName ($portCode)',
-            description: l10n.maneuverInitialInfoComingSoon,
-            icon: Icons.info_outline,
-            color: const Color(0xFF26A69A),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ManeuverSectionEmptyState extends StatelessWidget {
-  const _ManeuverSectionEmptyState({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-    this.subtitle,
-  });
-
-  final String title;
-  final String? subtitle;
-  final String description;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: color.withValues(alpha: 0.25)),
-                ),
-                child: Icon(icon, color: color, size: 30),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subtitle!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0x80FFFFFF),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
-              Text(
-                l10n.comingSoon,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0x99FFFFFF),
-                  fontSize: 13,
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 PreferredSizeWidget _buildSectionAppBar(BuildContext context, String title) {

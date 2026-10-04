@@ -3498,6 +3498,72 @@ abstract class AppLocalizations {
   String get maneuverForwardShort;
 
   String get maneuverAftShort;
+
+  String get maneuverPortLimits;
+
+  String get maneuverSchedule;
+
+  String get maneuverNoRestrictions;
+
+  String get maneuverMaximumLength;
+
+  String get maneuverBeamRestriction;
+
+  String get maneuverNoRestriction;
+
+  String get maneuverPierLength;
+
+  String get maneuverMaximumDwt;
+
+  String get maneuverAirDraft;
+
+  String get maneuverAirDraftDetail;
+
+  String get maneuverMaximumWind;
+
+  String get maneuverMinimumVisibility;
+
+  String get maneuverCrossing;
+
+  String get maneuverOperationalParametersSource;
+
+  String get maneuverMaximumDrafts;
+
+  String get maneuverGeneralCargo;
+
+  String get maneuverDangerousCargo;
+
+  String get maneuverDraftFootnote;
+
+  String get maneuverVhfChannel;
+
+  String get maneuverMandatory;
+
+  String get maneuverNavigation;
+
+  String get maneuverTapajosNavigation;
+
+  String get maneuverMooringReferenceNote;
+
+  String get maneuverNormally222;
+
+  String get maneuverNormally42;
+
+  String get maneuverOperationalDisclaimer;
+
+  String get maneuverOfficialTugInfo;
+
+  String get maneuverTugRequirementDetail;
+
+  String get maneuverTugNoSpecificMinimum;
+
+  String get maneuverDrySeason;
+
+  String get maneuverFloodSeason;
+
+  String get maneuverPilotageOptional;
+
+  String get maneuverPilotageMandatory;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

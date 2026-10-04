@@ -2017,4 +2017,112 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maneuverAftShort => 'AFT';
+
+  @override
+  String get maneuverPortLimits => 'Port/maneuver limits';
+
+  @override
+  String get maneuverSchedule => 'Schedule';
+
+  @override
+  String get maneuverNoRestrictions => 'No schedule restrictions';
+
+  @override
+  String get maneuverMaximumLength => 'Maximum length';
+
+  @override
+  String get maneuverBeamRestriction => 'Beam restriction';
+
+  @override
+  String get maneuverNoRestriction => 'No restriction';
+
+  @override
+  String get maneuverPierLength => 'Pier length';
+
+  @override
+  String get maneuverMaximumDwt => 'Maximum DWT';
+
+  @override
+  String get maneuverAirDraft => 'Air draft';
+
+  @override
+  String get maneuverAirDraftDetail =>
+      'Limited by the Almeirim/Jurupari power line';
+
+  @override
+  String get maneuverMaximumWind => 'Maximum wind';
+
+  @override
+  String get maneuverMinimumVisibility => 'Minimum visibility';
+
+  @override
+  String get maneuverCrossing => 'Crossing';
+
+  @override
+  String get maneuverOperationalParametersSource =>
+      'Source: Eastern Amazon Basin Operational Parameters';
+
+  @override
+  String get maneuverMaximumDrafts => 'Maximum departure drafts';
+
+  @override
+  String get maneuverGeneralCargo => 'General cargo';
+
+  @override
+  String get maneuverDangerousCargo => 'Dangerous cargo';
+
+  @override
+  String get maneuverDraftFootnote =>
+      'To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.';
+
+  @override
+  String get maneuverVhfChannel => 'VHF channel';
+
+  @override
+  String get maneuverMandatory => 'Mandatory';
+
+  @override
+  String get maneuverNavigation => 'Navigation';
+
+  @override
+  String get maneuverTapajosNavigation =>
+      'On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.';
+
+  @override
+  String get maneuverMooringReferenceNote =>
+      'Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.';
+
+  @override
+  String get maneuverNormally222 => 'normally 2 × 2 × 2';
+
+  @override
+  String get maneuverNormally42 => 'normally 4 × 2';
+
+  @override
+  String get maneuverOperationalDisclaimer =>
+      'Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.';
+
+  @override
+  String get maneuverOfficialTugInfo =>
+      'Tugboats — Operational Parameters';
+
+  @override
+  String get maneuverTugRequirementDetail =>
+      'The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:';
+
+  @override
+  String get maneuverTugNoSpecificMinimum =>
+      'The table does not state a minimum quantity or total BP specifically for the Cargill terminal.';
+
+  @override
+  String get maneuverDrySeason => 'Dry · Aug 16–Jan 31';
+
+  @override
+  String get maneuverFloodSeason => 'Flood · Feb 1–Aug 15';
+
+  @override
+  String get maneuverPilotageOptional => 'Optional pilotage';
+
+  @override
+  String get maneuverPilotageMandatory => 'Mandatory pilotage';
 }

@@ -2019,4 +2019,112 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get maneuverAftShort => 'AR';
+
+  @override
+  String get maneuverPortLimits => 'Limites do porto/manobra';
+
+  @override
+  String get maneuverSchedule => 'Horário';
+
+  @override
+  String get maneuverNoRestrictions => 'Sem restrições de horário';
+
+  @override
+  String get maneuverMaximumLength => 'Comprimento máximo';
+
+  @override
+  String get maneuverBeamRestriction => 'Restrição de boca';
+
+  @override
+  String get maneuverNoRestriction => 'Sem restrição';
+
+  @override
+  String get maneuverPierLength => 'Comprimento do píer';
+
+  @override
+  String get maneuverMaximumDwt => 'DWT máximo';
+
+  @override
+  String get maneuverAirDraft => 'Calado aéreo';
+
+  @override
+  String get maneuverAirDraftDetail =>
+      'Limitado ao Linhão de Almeirim/Jurupari';
+
+  @override
+  String get maneuverMaximumWind => 'Vento máximo';
+
+  @override
+  String get maneuverMinimumVisibility => 'Visibilidade mínima';
+
+  @override
+  String get maneuverCrossing => 'Cruzamento';
+
+  @override
+  String get maneuverOperationalParametersSource =>
+      'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental';
+
+  @override
+  String get maneuverMaximumDrafts => 'Calados máximos para saída do porto';
+
+  @override
+  String get maneuverGeneralCargo => 'Carga geral';
+
+  @override
+  String get maneuverDangerousCargo => 'Carga perigosa';
+
+  @override
+  String get maneuverDraftFootnote =>
+      'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.';
+
+  @override
+  String get maneuverVhfChannel => 'Canal VHF';
+
+  @override
+  String get maneuverMandatory => 'Obrigatórios';
+
+  @override
+  String get maneuverNavigation => 'Navegação';
+
+  @override
+  String get maneuverTapajosNavigation =>
+      'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.';
+
+  @override
+  String get maneuverMooringReferenceNote =>
+      'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.';
+
+  @override
+  String get maneuverNormally222 => 'normalmente 2 × 2 × 2';
+
+  @override
+  String get maneuverNormally42 => 'normalmente 4 × 2';
+
+  @override
+  String get maneuverOperationalDisclaimer =>
+      'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.';
+
+  @override
+  String get maneuverOfficialTugInfo =>
+      'Rebocadores — Parâmetros Operacionais';
+
+  @override
+  String get maneuverTugRequirementDetail =>
+      'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:';
+
+  @override
+  String get maneuverTugNoSpecificMinimum =>
+      'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.';
+
+  @override
+  String get maneuverDrySeason => 'Seca · 16/08–31/01';
+
+  @override
+  String get maneuverFloodSeason => 'Cheia · 01/02–15/08';
+
+  @override
+  String get maneuverPilotageOptional => 'Praticagem facultativa';
+
+  @override
+  String get maneuverPilotageMandatory => 'Praticagem obrigatória';
 }
