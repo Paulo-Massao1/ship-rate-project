@@ -62,12 +62,11 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 28),
           children: [
             _buildHeader(l10n),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             _InfoAccordion(
-              icon: Icons.straighten,
               title: l10n.maneuverPortLimits,
               initiallyExpanded: true,
               children: [
@@ -116,9 +115,8 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 _buildDraftTables(context, l10n, info),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _InfoAccordion(
-              icon: Icons.info_outline,
               title: l10n.initialManeuverInfo,
               initiallyExpanded: true,
               children: [
@@ -141,9 +139,8 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             _InfoAccordion(
-              icon: Icons.anchor,
               title: l10n.maneuverMooring,
               initiallyExpanded: true,
               children: [
@@ -163,7 +160,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             _buildDisclaimer(l10n),
           ],
         ),
@@ -173,21 +170,22 @@ class ManeuverInitialInfoPage extends StatelessWidget {
 
   Widget _buildHeader(AppLocalizations l10n) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: _teal.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        color: _teal.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _teal.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(9),
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: _teal.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.anchor, color: _teal, size: 22),
+            child: const Icon(Icons.anchor, color: _teal, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -198,7 +196,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   terminal.name,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -207,14 +205,18 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   '${port.name} (${port.code})',
                   style: const TextStyle(
                     color: _amber,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   l10n.maneuverOperationalParametersSource,
-                  style: const TextStyle(color: _teal, fontSize: 10),
+                  style: const TextStyle(
+                    color: _teal,
+                    fontSize: 9,
+                    height: 1.25,
+                  ),
                 ),
               ],
             ),
@@ -459,48 +461,88 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   }
 }
 
-class _InfoAccordion extends StatelessWidget {
+class _InfoAccordion extends StatefulWidget {
   const _InfoAccordion({
-    required this.icon,
     required this.title,
     required this.children,
     this.initiallyExpanded = false,
   });
 
-  final IconData icon;
   final String title;
   final List<Widget> children;
   final bool initiallyExpanded;
 
   @override
+  State<_InfoAccordion> createState() => _InfoAccordionState();
+}
+
+class _InfoAccordionState extends State<_InfoAccordion> {
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x0DFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x26FFB74D)),
+        color: const Color(0x08000000),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0x1FFFFFFF)),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: initiallyExpanded,
-          iconColor: const Color(0xFFFFB74D),
-          collapsedIconColor: const Color(0x99FFB74D),
-          backgroundColor: const Color(0x08FFB74D),
-          collapsedBackgroundColor: const Color(0x08FFB74D),
-          leading: Icon(icon, color: const Color(0xFFFFB74D), size: 20),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFFFFB74D),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+      child: Column(
+        children: [
+          Material(
+            color: const Color(0xFF1A2B3D),
+            child: InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 11,
+                  vertical: 10,
+                ),
+                child: Row(
+                  children: [
+                    AnimatedRotation(
+                      turns: _expanded ? 0 : -0.25,
+                      duration: const Duration(milliseconds: 180),
+                      child: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Color(0xFFFFB74D),
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: const TextStyle(
+                          color: Color(0xFFFFB74D),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-          children: children,
-        ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            child: _expanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 2, 12, 10),
+                    child: Column(children: widget.children),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
+        ],
       ),
     );
   }
@@ -526,14 +568,18 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 11),
+              style: const TextStyle(
+                color: Color(0x99FFFFFF),
+                fontSize: 10,
+                height: 1.3,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -550,8 +596,9 @@ class _InfoRow extends StatelessWidget {
                         textAlign: TextAlign.end,
                         style: TextStyle(
                           color: valueColor ?? const Color(0xE6FFFFFF),
-                          fontSize: 12,
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
+                          height: 1.3,
                         ),
                       ),
                     ),
@@ -560,7 +607,7 @@ class _InfoRow extends StatelessWidget {
                       Icon(
                         trailingIcon,
                         color: valueColor ?? const Color(0x99FFFFFF),
-                        size: 15,
+                        size: 14,
                       ),
                     ],
                   ],
@@ -572,7 +619,7 @@ class _InfoRow extends StatelessWidget {
                     textAlign: TextAlign.end,
                     style: const TextStyle(
                       color: Color(0x66FFFFFF),
-                      fontSize: 9,
+                      fontSize: 8,
                       height: 1.3,
                     ),
                   ),
@@ -616,20 +663,20 @@ class _DraftTable extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0x1FFFFFFF)),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(7),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             color: const Color(0x12FFB74D),
             child: Text(
               title,
               style: const TextStyle(
                 color: Color(0xFFFFB74D),
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -662,7 +709,7 @@ class _DraftTable extends StatelessWidget {
         children: values.map((value) {
           return Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
               child: Text(
                 value,
                 textAlign: TextAlign.center,
@@ -670,7 +717,7 @@ class _DraftTable extends StatelessWidget {
                   color: header
                       ? const Color(0x99FFFFFF)
                       : const Color(0xD9FFFFFF),
-                  fontSize: header ? 9 : 10,
+                  fontSize: header ? 8 : 9,
                   fontWeight: header ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
