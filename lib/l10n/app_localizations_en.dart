@@ -1622,7 +1622,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plusFeature1 => 'Monthly PDF report with your contributions';
 
   @override
-  String get plusFeature2 => 'Access to maneuver information';
+  String get plusFeature2 => 'Maneuver preparation';
 
   @override
   String get subscribePremium => 'Subscribe Premium';

@@ -3086,7 +3086,7 @@ abstract class AppLocalizations {
   /// Second feature listed in the Plus plan card.
   ///
   /// In pt, this message translates to:
-  /// **'Acesso a informações de manobras'**
+  /// **'Preparação para manobra'**
   String get plusFeature2;
 
   /// Label of the button that purchases the Premium plan.

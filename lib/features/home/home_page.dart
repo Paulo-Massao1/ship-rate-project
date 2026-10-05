@@ -715,7 +715,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         child: Column(
           children: [
-            _buildSupportShipRateBanner(),
             _buildUpdateBanner(),
             _buildNotificationSetupBanner(),
             Expanded(
@@ -750,53 +749,62 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final l10n = AppLocalizations.of(context)!;
     final displayName = _nomeGuerra ?? l10n.defaultPilotName;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          l10n.welcomePilot(displayName),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Text(
+            l10n.welcomePilot(displayName),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              height: 1.05,
+            ),
           ),
         ),
+        const SizedBox(width: 10),
+        _buildSupportShipRateButton(l10n),
       ],
     );
   }
 
-  Widget _buildSupportShipRateBanner() {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Material(
-        color: const Color(0xFFFFB74D),
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
-          onTap: _navigateToSupportShipRate,
-          borderRadius: BorderRadius.circular(10),
-          child: SizedBox(
-            height: 44,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.star_rounded,
-                  color: Color(0xFF0A1628),
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
+  Widget _buildSupportShipRateButton(AppLocalizations l10n) {
+    return Material(
+      color: const Color(0xFFFFB74D),
+      borderRadius: BorderRadius.circular(9),
+      child: InkWell(
+        onTap: _navigateToSupportShipRate,
+        borderRadius: BorderRadius.circular(9),
+        child: Container(
+          height: 36,
+          constraints: const BoxConstraints(maxWidth: 142),
+          padding: const EdgeInsets.symmetric(horizontal: 11),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.star_rounded,
+                color: Color(0xFF0A1628),
+                size: 17,
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
                   l10n.supportShipRate,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Color(0xFF0A1628),
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1473,8 +1481,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   if (badge != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 2,
+                        horizontal: 6,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
                         color: (badgeColor ?? iconColor).withValues(
@@ -1486,7 +1494,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         badge,
                         style: TextStyle(
                           color: badgeColor ?? iconColor,
-                          fontSize: 8,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.4,
                         ),
@@ -1573,7 +1581,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(4),
@@ -1582,7 +1590,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   l10n.comingSoonBadge,
                   style: const TextStyle(
                     color: accent,
-                    fontSize: 8,
+                    fontSize: 9.5,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
                   ),

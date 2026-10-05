@@ -2191,7 +2191,7 @@
   "@plusFeature1": {
     "description": "First feature listed in the Plus plan card."
   },
-  "plusFeature2": "Access to maneuver information",
+  "plusFeature2": "Maneuver preparation",
   "@plusFeature2": {
     "description": "Second feature listed in the Plus plan card."
   },

@@ -202,12 +202,12 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.white,
         side: const BorderSide(color: Color(0x2EFFFFFF)),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         visualDensity: VisualDensity.compact,
       ),
-      icon: Icon(icon, color: _muted, size: 13),
-      label: Text(label, style: const TextStyle(fontSize: 9)),
+      icon: Icon(icon, color: _muted, size: 14),
+      label: Text(label, style: const TextStyle(fontSize: 11)),
     );
   }
 

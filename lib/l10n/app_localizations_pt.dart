@@ -1622,7 +1622,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get plusFeature1 => 'Relatório mensal em PDF com suas contribuições';
 
   @override
-  String get plusFeature2 => 'Acesso a informações de manobras';
+  String get plusFeature2 => 'Preparação para manobra';
 
   @override
   String get subscribePremium => 'Assinar Premium';
