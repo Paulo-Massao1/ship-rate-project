@@ -34,6 +34,16 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _muted = Color(0x99FFFFFF);
+  static const _otherNationalityKey = '__other__';
+  static const _addTugOptionValue = '__add_tug__';
+  static const _nationalityKeys = <String>[
+    'Filipino',
+    'Russian',
+    'Ukrainian',
+    'Indian',
+    'Chinese',
+    'Brazilian',
+  ];
   static final _decimalFormatter = FilteringTextInputFormatter.allow(
     RegExp(r'[0-9,.]'),
   );
@@ -61,6 +71,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   String? _selectedShipId;
   ManeuverTug? _forwardTug;
   ManeuverTug? _aftTug;
+  String? _officerNationalityKey;
+  String? _crewNationalityKey;
   ManeuverPropellerDirection? _propellerDirection;
   ManeuverPropellerPitch? _propellerPitch;
   ManeuverFirstLine? _forwardFirstLine;
@@ -183,6 +195,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                _buildOptionalFieldsNotice(l10n),
+                const SizedBox(height: 20),
                 _buildShipSection(l10n),
                 const SizedBox(height: 28),
                 _buildTugSection(l10n),
@@ -276,20 +290,29 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           ),
           const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _buildTextField(
+                child: _buildNationalitySelector(
                   controller: _officerNationalityController,
                   label: l10n.maneuverOfficerNationality,
-                  maxLength: 80,
+                  value: _officerNationalityKey,
+                  l10n: l10n,
+                  onChanged: (value) {
+                    setState(() => _officerNationalityKey = value);
+                  },
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _buildTextField(
+                child: _buildNationalitySelector(
                   controller: _crewNationalityController,
                   label: l10n.crewNationality,
-                  maxLength: 80,
+                  value: _crewNationalityKey,
+                  l10n: l10n,
+                  onChanged: (value) {
+                    setState(() => _crewNationalityKey = value);
+                  },
                 ),
               ),
             ],
@@ -297,6 +320,113 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildOptionalFieldsNotice(AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: _amber.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _amber.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: _amber, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.maneuverReportOptionalFields,
+              style: const TextStyle(
+                color: Color(0xCCFFFFFF),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNationalitySelector({
+    required TextEditingController controller,
+    required String label,
+    required String? value,
+    required AppLocalizations l10n,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel(label),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          dropdownColor: _bgMid,
+          iconEnabledColor: const Color(0x99FFFFFF),
+          style: const TextStyle(color: Colors.white, fontSize: 12),
+          decoration: _inputDecoration(),
+          hint: Text(
+            l10n.maneuverNationalityNotInformed,
+            style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 12),
+          ),
+          items: [
+            DropdownMenuItem<String>(
+              value: '',
+              child: Text(l10n.maneuverNationalityNotInformed),
+            ),
+            for (final key in _nationalityKeys)
+              DropdownMenuItem<String>(
+                value: key,
+                child: Text(
+                  _nationalityLabel(key, l10n),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            DropdownMenuItem<String>(
+              value: _otherNationalityKey,
+              child: Text(l10n.nationalityOther),
+            ),
+          ],
+          onChanged: _saving
+              ? null
+              : (selected) {
+                  final normalized = selected == '' ? null : selected;
+                  if (normalized != _otherNationalityKey) controller.clear();
+                  onChanged(normalized);
+                },
+        ),
+        if (value == _otherNationalityKey) ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            enabled: !_saving,
+            maxLength: 80,
+            textCapitalization: TextCapitalization.words,
+            inputFormatters: [LengthLimitingTextInputFormatter(80)],
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+            decoration: _inputDecoration(hint: l10n.specifyNationality)
+                .copyWith(counterText: ''),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _nationalityLabel(String key, AppLocalizations l10n) {
+    return switch (key) {
+      'Filipino' => l10n.nationalityFilipino,
+      'Russian' => l10n.nationalityRussian,
+      'Ukrainian' => l10n.nationalityUkrainian,
+      'Indian' => l10n.nationalityIndian,
+      'Chinese' => l10n.nationalityChinese,
+      'Brazilian' => l10n.nationalityBrazilian,
+      _ => key,
+    };
   }
 
   Widget _buildShipAutocomplete(AppLocalizations l10n) {
@@ -625,12 +755,12 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                   _buildTugDropdown(
                     l10n: l10n,
                     label: l10n.maneuverTugForward,
-                    value: _forwardTug?.id,
+                    selectedTug: _forwardTug,
                     tugs: tugs,
-                    onChanged: (value) {
+                    onChanged: (tug) {
                       setState(() {
-                        _forwardTug = _findTug(tugs, value);
-                        if (_aftTug?.id == value) _aftTug = null;
+                        _forwardTug = tug;
+                        if (_aftTug?.id == tug?.id) _aftTug = null;
                       });
                     },
                   ),
@@ -638,12 +768,12 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                   _buildTugDropdown(
                     l10n: l10n,
                     label: l10n.maneuverTugAft,
-                    value: _aftTug?.id,
+                    selectedTug: _aftTug,
                     tugs: tugs,
-                    onChanged: (value) {
+                    onChanged: (tug) {
                       setState(() {
-                        _aftTug = _findTug(tugs, value);
-                        if (_forwardTug?.id == value) _forwardTug = null;
+                        _aftTug = tug;
+                        if (_forwardTug?.id == tug?.id) _forwardTug = null;
                       });
                     },
                   ),
@@ -673,16 +803,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                 ],
               );
             },
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.center,
-            child: TextButton.icon(
-              onPressed: _saving ? null : () => _showAddTugSheet(l10n),
-              icon: const Icon(Icons.add, size: 17),
-              label: Text(l10n.maneuverAddTug),
-              style: TextButton.styleFrom(foregroundColor: _blue),
-            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -936,22 +1056,19 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     );
   }
 
-  ManeuverTug? _findTug(List<ManeuverTug> tugs, String? id) {
-    if (id == null) return null;
-    for (final tug in tugs) {
-      if (tug.id == id) return tug;
-    }
-    return null;
-  }
-
   Widget _buildTugDropdown({
     required AppLocalizations l10n,
     required String label,
-    required String? value,
+    required ManeuverTug? selectedTug,
     required List<ManeuverTug> tugs,
-    required ValueChanged<String?> onChanged,
+    required ValueChanged<ManeuverTug?> onChanged,
   }) {
-    final validValue = tugs.any((tug) => tug.id == value) ? value : null;
+    final availableTugs = <ManeuverTug>[
+      ...tugs,
+      if (selectedTug != null &&
+          !tugs.any((tug) => tug.id == selectedTug.id))
+        selectedTug,
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -959,14 +1076,14 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         _buildFieldLabel(label),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          value: validValue,
+          value: selectedTug?.id,
           isExpanded: true,
           dropdownColor: _bgMid,
           iconEnabledColor: const Color(0x99FFFFFF),
           style: const TextStyle(color: Colors.white, fontSize: 12),
           decoration: _inputDecoration(),
           hint: Text(
-            tugs.isEmpty ? l10n.maneuverNoTugs : l10n.maneuverSelectTug,
+            l10n.maneuverSelectTug,
             style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 12),
           ),
           items: [
@@ -974,42 +1091,96 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               value: '',
               child: Text(l10n.maneuverNoTugSelected),
             ),
-            ...tugs.map(
+            ...availableTugs.map(
               (tug) => DropdownMenuItem<String>(
                 value: tug.id,
-                child: Text(
-                  _tugOptionLabel(tug, l10n),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: _buildTugOption(tug, l10n),
+              ),
+            ),
+            DropdownMenuItem<String>(
+              value: _addTugOptionValue,
+              child: Row(
+                children: [
+                  const Icon(Icons.add, color: _amber, size: 17),
+                  const SizedBox(width: 7),
+                  Text(
+                    l10n.maneuverOtherTug,
+                    style: const TextStyle(
+                      color: _amber,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-          onChanged: tugs.isEmpty
+          onChanged: _saving
               ? null
-              : (selected) => onChanged(selected == '' ? null : selected),
+              : (selected) async {
+                  if (selected == _addTugOptionValue) {
+                    final created = await _showAddTugSheet(l10n);
+                    if (created != null) onChanged(created);
+                    return;
+                  }
+                  if (selected == null || selected.isEmpty) {
+                    onChanged(null);
+                    return;
+                  }
+                  for (final tug in availableTugs) {
+                    if (tug.id == selected) {
+                      onChanged(tug);
+                      return;
+                    }
+                  }
+                },
         ),
       ],
     );
   }
 
-  String _tugOptionLabel(ManeuverTug tug, AppLocalizations l10n) {
-    final metadata = <String>[
-      if (tug.bollardPull != null)
-        'BP ${tug.bollardPull!.toStringAsFixed(2).replaceAll('.', ',')}',
-      switch (tug.type) {
-        ManeuverTugType.azimuthal => l10n.maneuverTugTypeAzimuthal,
-        ManeuverTugType.conventional => l10n.maneuverTugTypeConventional,
-        ManeuverTugType.unspecified => l10n.maneuverTugTypeUnspecified,
-      },
-      tug.isOfficial
-          ? l10n.maneuverTugOfficialSource
-          : l10n.maneuverTugCommunitySource,
-    ];
-    return '${tug.name} · ${metadata.join(' · ')}';
+  Widget _buildTugOption(ManeuverTug tug, AppLocalizations l10n) {
+    final type = switch (tug.type) {
+      ManeuverTugType.azimuthal => l10n.maneuverTugTypeAzimuthal,
+      ManeuverTugType.conventional => l10n.maneuverTugTypeConventional,
+      ManeuverTugType.unspecified => l10n.maneuverTugTypeUnspecified,
+    };
+    final source = tug.isOfficial
+        ? l10n.maneuverTugOfficialSource
+        : l10n.maneuverTugCommunitySource;
+    final bollardPull = tug.bollardPull == null
+        ? ''
+        : ' · BP ${tug.bollardPull!.toStringAsFixed(2).replaceAll('.', ',')}';
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: tug.name,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          TextSpan(
+            text: bollardPull,
+            style: const TextStyle(color: _muted),
+          ),
+          TextSpan(
+            text: ' · $type',
+            style: const TextStyle(
+              color: _amber,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          TextSpan(
+            text: ' · $source',
+            style: const TextStyle(color: _muted),
+          ),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 
-  Future<void> _showAddTugSheet(AppLocalizations l10n) async {
+  Future<ManeuverTug?> _showAddTugSheet(AppLocalizations l10n) async {
     final created = await showModalBottomSheet<ManeuverTug>(
       context: context,
       isScrollControlled: true,
@@ -1022,7 +1193,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         service: _tugService,
       ),
     );
-    if (!mounted || created == null) return;
+    if (!mounted || created == null) return null;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1030,6 +1201,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         backgroundColor: const Color(0xFF1B5E20),
       ),
     );
+    return created;
   }
 
   Widget _buildFormActions(AppLocalizations l10n) {
@@ -1157,8 +1329,14 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         maximumDraftMeters: maximumDraft,
         propellerDirection: _propellerDirection,
         propellerPitch: _propellerPitch,
-        officerNationality: _trimmedOrNull(_officerNationalityController.text),
-        crewNationality: _trimmedOrNull(_crewNationalityController.text),
+        officerNationality: _selectedNationalityValue(
+          _officerNationalityKey,
+          _officerNationalityController,
+        ),
+        crewNationality: _selectedNationalityValue(
+          _crewNationalityKey,
+          _crewNationalityController,
+        ),
         forwardTug: _forwardTug,
         aftTug: _aftTug,
         currentDirectionDegrees: currentDirection,
@@ -1231,6 +1409,17 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   String? _trimmedOrNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
+  }
+
+  String? _selectedNationalityValue(
+    String? key,
+    TextEditingController otherController,
+  ) {
+    if (key == null) return null;
+    if (key == _otherNationalityKey) {
+      return _trimmedOrNull(otherController.text);
+    }
+    return key;
   }
 }
 
@@ -1481,7 +1670,7 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: selected ? _amber : const Color(0xE6FFFFFF),
+                color: _amber,
                 fontSize: 10,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               ),

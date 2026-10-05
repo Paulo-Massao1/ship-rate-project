@@ -1833,6 +1833,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNoTugSelected => 'None';
 
   @override
+  String get maneuverOtherTug => 'Other';
+
+  @override
   String get maneuverNoTugs => 'No tugboat available';
 
   @override
@@ -1929,6 +1932,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maneuverOfficerNationality => 'Master/officers nationality';
+
+  @override
+  String get maneuverNationalityNotInformed => 'Not provided';
 
   @override
   String get maneuverSearchShip => 'Search ship...';

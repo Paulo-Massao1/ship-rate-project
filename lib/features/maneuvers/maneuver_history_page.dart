@@ -490,15 +490,27 @@ class _ManeuverReportDetailsPageState
         if (report.officerNationality != null)
           _DetailRow(
             label: l10n.maneuverOfficerNationality,
-            value: report.officerNationality!,
+            value: _nationalityLabel(report.officerNationality!, l10n),
           ),
         if (report.crewNationality != null)
           _DetailRow(
             label: l10n.crewNationality,
-            value: report.crewNationality!,
+            value: _nationalityLabel(report.crewNationality!, l10n),
           ),
       ],
     );
+  }
+
+  String _nationalityLabel(String value, AppLocalizations l10n) {
+    return switch (value) {
+      'Filipino' => l10n.nationalityFilipino,
+      'Russian' => l10n.nationalityRussian,
+      'Ukrainian' => l10n.nationalityUkrainian,
+      'Indian' => l10n.nationalityIndian,
+      'Chinese' => l10n.nationalityChinese,
+      'Brazilian' => l10n.nationalityBrazilian,
+      _ => value,
+    };
   }
 
   Widget _buildApproachSection(AppLocalizations l10n) {

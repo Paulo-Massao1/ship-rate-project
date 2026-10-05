@@ -2514,6 +2514,10 @@
   "@maneuverNoTugSelected": {
     "description": "Option that clears an optional tugboat selection."
   },
+  "maneuverOtherTug": "Outros",
+  "@maneuverOtherTug": {
+    "description": "Option that opens the form for registering another tugboat."
+  },
   "maneuverNoTugs": "Nenhum rebocador disponível",
   "@maneuverNoTugs": {
     "description": "Message shown when no tugboats are available for a port."
@@ -2646,6 +2650,10 @@
   "maneuverOfficerNationality": "Nac. comandante/oficiais",
   "@maneuverOfficerNationality": {
     "description": "Optional nationality of the master and officers."
+  },
+  "maneuverNationalityNotInformed": "Não informada",
+  "@maneuverNationalityNotInformed": {
+    "description": "Option that clears an optional nationality selection."
   },
   "maneuverSearchShip": "Buscar navio...",
   "@maneuverSearchShip": {

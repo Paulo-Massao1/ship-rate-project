@@ -1833,6 +1833,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNoTugSelected => 'Nenhum';
 
   @override
+  String get maneuverOtherTug => 'Outros';
+
+  @override
   String get maneuverNoTugs => 'Nenhum rebocador disponível';
 
   @override
@@ -1929,6 +1932,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get maneuverOfficerNationality => 'Nac. comandante/oficiais';
+
+  @override
+  String get maneuverNationalityNotInformed => 'Não informada';
 
   @override
   String get maneuverSearchShip => 'Buscar navio...';

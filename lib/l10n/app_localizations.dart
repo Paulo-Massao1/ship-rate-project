@@ -3485,6 +3485,12 @@ abstract class AppLocalizations {
   /// **'Nenhum'**
   String get maneuverNoTugSelected;
 
+  /// Option that opens the form for registering another tugboat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outros'**
+  String get maneuverOtherTug;
+
   /// Message shown when no tugboats are available for a port.
   ///
   /// In pt, this message translates to:
@@ -3676,6 +3682,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Nac. comandante/oficiais'**
   String get maneuverOfficerNationality;
+
+  /// Option that clears an optional nationality selection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não informada'**
+  String get maneuverNationalityNotInformed;
 
   /// Hint shown in the maneuver ship autocomplete.
   ///

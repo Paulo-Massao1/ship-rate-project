@@ -2487,6 +2487,10 @@
   "@maneuverNoTugSelected": {
     "description": "Option that clears an optional tugboat selection."
   },
+  "maneuverOtherTug": "Other",
+  "@maneuverOtherTug": {
+    "description": "Option that opens the form for registering another tugboat."
+  },
   "maneuverNoTugs": "No tugboat available",
   "@maneuverNoTugs": {
     "description": "Message shown when no tugboats are available for a port."
@@ -2619,6 +2623,10 @@
   "maneuverOfficerNationality": "Master/officers nationality",
   "@maneuverOfficerNationality": {
     "description": "Optional nationality of the master and officers."
+  },
+  "maneuverNationalityNotInformed": "Not provided",
+  "@maneuverNationalityNotInformed": {
+    "description": "Option that clears an optional nationality selection."
   },
   "maneuverSearchShip": "Search ship...",
   "@maneuverSearchShip": {

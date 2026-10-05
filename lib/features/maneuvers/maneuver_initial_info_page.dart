@@ -293,9 +293,23 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 11),
             ),
           ),
-          Text(
-            'BP $bp · $type',
-            style: const TextStyle(color: _muted, fontSize: 9),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: 'BP $bp · ',
+                  style: const TextStyle(color: _muted),
+                ),
+                TextSpan(
+                  text: type,
+                  style: const TextStyle(
+                    color: _amber,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            style: const TextStyle(fontSize: 10),
           ),
         ],
       ),
