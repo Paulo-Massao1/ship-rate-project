@@ -708,6 +708,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             icon: Icons.add_circle_outline,
             label: l10n.newRecord,
             isActive: true,
+            centerContent: true,
+            labelFontSize: 15,
             onTap: _navigateToNewRecord,
           ),
           const SizedBox(height: 8),
@@ -795,6 +797,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     required VoidCallback onTap,
     bool isPremium = false,
     Widget? badge,
+    bool centerContent = false,
+    double labelFontSize = 13,
   }) {
     final Color background = isActive
         ? _tealLight
@@ -818,10 +822,40 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: isActive ? _teal : Colors.white,
-        fontSize: 13,
+        fontSize: labelFontSize,
         fontWeight: FontWeight.w700,
       ),
     );
+
+    final content = centerContent
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor, size: 21),
+              const SizedBox(width: 8),
+              Flexible(child: labelText),
+            ],
+          )
+        : Row(
+            children: [
+              Icon(icon, color: iconColor, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: badge == null
+                    ? labelText
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          labelText,
+                          const SizedBox(height: 4),
+                          badge,
+                        ],
+                      ),
+              ),
+            ],
+          );
 
     return Material(
       color: background,
@@ -841,26 +875,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
               width: isActive ? 1.5 : 1,
             ),
           ),
-          child: Row(
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: badge == null
-                    ? labelText
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          labelText,
-                          const SizedBox(height: 4),
-                          badge,
-                        ],
-                      ),
-              ),
-            ],
-          ),
+          child: content,
         ),
       ),
     );
@@ -922,10 +937,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
         : 0;
     final likeCount =
         cachedLikeCount > 0 ? cachedLikeCount : serverLikeCount;
-    final likerNames = latestRecordId != null
-        ? _controller.getLikerNames(loc.id, latestRecordId)
-        : const <String>[];
-    final likedByText = _formatLikedByText(likerNames, likeCount, l10n);
+    final hasPilot = loc.latestPilotName?.trim().isNotEmpty ?? false;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -935,169 +947,162 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           onTap: () => _onLocationTap(loc.id, loc.name),
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0x1A64B5F6)),
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(
+                  height: 24,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        loc.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.totalDepthShort,
-                              style: const TextStyle(
-                                color: Color(0x66FFFFFF),
-                                fontSize: 10,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _formatMeters(loc.latestDepth),
-                              style: const TextStyle(
-                                color: Color(0xFF26A69A),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        loc.latestDateFormatted ?? l10n.noRecords,
-                        style: const TextStyle(
-                          color: Color(0x99FFFFFF),
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (loc.latestPilotName != null && loc.latestPilotName!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.pilotCallSign(loc.latestPilotName!),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 54),
+                        child: Text(
+                          loc.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                            color: Color(0x66FFFFFF),
-                            fontSize: 11,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
                           ),
                         ),
-                      ],
-                      if (latestRecordId != null && (!isOwnRecord || likeCount > 0)) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (!isOwnRecord)
-                              GestureDetector(
-                                onTap: () {
-                                  _controller.toggleLike(loc.id, latestRecordId);
-                                },
-                                behavior: HitTestBehavior.opaque,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 2),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        liked
-                                            ? Icons.thumb_up
-                                            : Icons.thumb_up_outlined,
-                                        size: 16,
-                                        color: liked
-                                            ? const Color(0xFF26A69A)
-                                            : const Color(0x66FFFFFF),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$likeCount',
-                                        style: const TextStyle(
-                                          color: Color(0x99FFFFFF),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            if (isOwnRecord && likeCount > 0)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.thumb_up,
-                                      size: 16,
-                                      color: Color(0xFF26A69A),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '$likeCount',
-                                      style: const TextStyle(
-                                        color: Color(0x99FFFFFF),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            if (likedByText.isNotEmpty) ...[
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () => _showLikersSheet(
-                                    loc.id,
-                                    latestRecordId,
-                                    l10n,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 2),
-                                    child: Text(
-                                      likedByText,
-                                      style: const TextStyle(
-                                        color: Color(0x99FFFFFF),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                      ),
+                      if (latestRecordId != null &&
+                          (!isOwnRecord || likeCount > 0))
+                        Positioned(
+                          right: 0,
+                          child: _buildLatestLikeAction(
+                            locationId: loc.id,
+                            recordId: latestRecordId,
+                            liked: liked,
+                            likeCount: likeCount,
+                            isOwnRecord: isOwnRecord,
+                            l10n: l10n,
+                          ),
                         ),
-                      ],
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Color(0x66FFFFFF),
-                  size: 22,
+                const SizedBox(height: 5),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        loc.latestDateFormatted ?? l10n.noRecords,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 112,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            l10n.totalDepthShort,
+                            style: const TextStyle(
+                              color: Color(0x80FFFFFF),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            _formatMeters(loc.latestDepth),
+                            style: const TextStyle(
+                              color: Color(0xFFFFB74D),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        hasPilot
+                            ? l10n.pilotCallSign(loc.latestPilotName!.trim())
+                            : '—',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLatestLikeAction({
+    required String locationId,
+    required String recordId,
+    required bool liked,
+    required int likeCount,
+    required bool isOwnRecord,
+    required AppLocalizations l10n,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: isOwnRecord
+              ? () => _showLikersSheet(locationId, recordId, l10n)
+              : () => _controller.toggleLike(locationId, recordId),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Icon(
+              liked || isOwnRecord
+                  ? Icons.thumb_up
+                  : Icons.thumb_up_outlined,
+              size: 16,
+              color: liked || (isOwnRecord && likeCount > 0)
+                  ? _teal
+                  : const Color(0x80FFFFFF),
+            ),
+          ),
+        ),
+        if (likeCount > 0)
+          GestureDetector(
+            onTap: () => _showLikersSheet(locationId, recordId, l10n),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(1, 4, 2, 4),
+              child: Text(
+                '$likeCount',
+                style: const TextStyle(
+                  color: Color(0xB3FFFFFF),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
