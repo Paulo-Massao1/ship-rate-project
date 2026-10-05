@@ -45,7 +45,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   // Fixed height shared by every card of the 2x2 tab grid, so labels that wrap
   // to two lines do not make their card taller than the others.
-  static const _tabCardHeight = 60.0;
+  static const _tabCardHeight = 54.0;
 
   // ===========================================================================
   // STATE
@@ -947,93 +947,95 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           onTap: () => _onLocationTap(loc.id, loc.name),
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0x1A64B5F6)),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 24,
-                  child: Stack(
-                    alignment: Alignment.center,
+                Expanded(
+                  flex: 10,
+                  child: Text(
+                    loc.latestDateFormatted ?? l10n.noRecords,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF90CAF9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 14,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 54),
-                        child: Text(
-                          loc.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
+                      Text(
+                        loc.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          height: 1.05,
                         ),
                       ),
-                      if (latestRecordId != null &&
-                          (!isOwnRecord || likeCount > 0))
-                        Positioned(
-                          right: 0,
-                          child: _buildLatestLikeAction(
-                            locationId: loc.id,
-                            recordId: latestRecordId,
-                            liked: liked,
-                            likeCount: likeCount,
-                            isOwnRecord: isOwnRecord,
-                            l10n: l10n,
-                          ),
+                      const SizedBox(height: 3),
+                      Text(
+                        l10n.totalDepthShort,
+                        style: const TextStyle(
+                          color: Color(0xB3FFFFFF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        _formatMeters(loc.latestDepth),
+                        style: const TextStyle(
+                          color: Color(0xFFFFB74D),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 24,
+                          height: 1.05,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 5),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        loc.latestDateFormatted ?? l10n.noRecords,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0x99FFFFFF),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 10,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        height: 24,
+                        child: latestRecordId != null &&
+                                (!isOwnRecord || likeCount > 0)
+                            ? Align(
+                                alignment: Alignment.centerRight,
+                                child: _buildLatestLikeAction(
+                                  locationId: loc.id,
+                                  recordId: latestRecordId,
+                                  liked: liked,
+                                  likeCount: likeCount,
+                                  isOwnRecord: isOwnRecord,
+                                  l10n: l10n,
+                                ),
+                              )
+                            : null,
                       ),
-                    ),
-                    SizedBox(
-                      width: 112,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l10n.totalDepthShort,
-                            style: const TextStyle(
-                              color: Color(0x80FFFFFF),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            _formatMeters(loc.latestDepth),
-                            style: const TextStyle(
-                              color: Color(0xFFFFB74D),
-                              fontWeight: FontWeight.w800,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
+                      const SizedBox(height: 3),
+                      Text(
                         hasPilot
                             ? l10n.pilotCallSign(loc.latestPilotName!.trim())
                             : '—',
@@ -1041,13 +1043,14 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.right,
                         style: const TextStyle(
-                          color: Color(0x99FFFFFF),
+                          color: Color(0xB3FFFFFF),
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
+                          height: 1.15,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
