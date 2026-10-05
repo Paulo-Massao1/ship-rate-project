@@ -702,6 +702,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         final depth = _depthController.text.trim();
         final dateStr =
             '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
+        final shareDate =
+            _depthReference?.type == DepthReferenceType.santanaTide
+                ? '$dateStr · ${_formatTime(_selectedDate)}'
+                : dateStr;
 
         await _showShareDialog(
           l10n: l10n,
@@ -709,7 +713,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           shipName: shipName,
           depth: depth,
           nomeGuerra: nomeGuerra,
-          dateStr: dateStr,
+          dateStr: shareDate,
           referenceLine: _buildReferenceShareLine(l10n),
         );
       } else {
@@ -1017,6 +1021,12 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             l10n.santanaTideReferenceHint,
             style: const TextStyle(color: Color(0x9964B5F6), fontSize: 10),
           ),
+        ] else if (_depthReference?.type == DepthReferenceType.ruler) ...[
+          const SizedBox(height: 6),
+          Text(
+            '${_depthReference!.displayName} — ${l10n.rulerManualHint}',
+            style: const TextStyle(color: Color(0xB3FFC107), fontSize: 10),
+          ),
         ],
         if (_isItacoatiara) ...[
           const SizedBox(height: 14),
@@ -1038,22 +1048,70 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             Expanded(child: _buildDateField(l10n)),
             const SizedBox(width: 10),
             Expanded(
-              child: _buildTextField(
-                controller: _speedController,
-                label: l10n.speedOptional,
-                icon: Icons.speed,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                suffixText: '(${l10n.optional})',
-                compact: true,
-              ),
+              child: switch (_depthReference?.type) {
+                DepthReferenceType.santanaTide =>
+                  _buildMeasurementTimeField(l10n),
+                DepthReferenceType.ruler => _buildRulerReadingField(l10n),
+                null => _buildSpeedField(l10n),
+              },
             ),
           ],
         ),
-        if (_depthReference?.type == DepthReferenceType.santanaTide) ...[
+        if (_depthReference != null) ...[
           const SizedBox(height: 10),
-          _buildMeasurementTimeField(l10n),
+          _buildSpeedField(l10n),
         ],
+      ],
+    );
+  }
+
+  Widget _buildSpeedField(AppLocalizations l10n) {
+    return _buildTextField(
+      controller: _speedController,
+      label: l10n.speedOptional,
+      icon: Icons.speed,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      suffixText: '(${l10n.optional})',
+      compact: true,
+    );
+  }
+
+  Widget _buildRulerReadingField(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.rulerReading,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: _inputBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0x66FFC107)),
+          ),
+          child: TextField(
+            controller: _rulerValueController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(
+              color: Color(0xFFFFD54F),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: const InputDecoration(
+              hintText: '0,00',
+              hintStyle: TextStyle(color: Color(0x66FFFFFF), fontSize: 13),
+              suffixText: 'm',
+              suffixStyle: TextStyle(color: Color(0xFFFFD54F), fontSize: 12),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -1366,7 +1424,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ],
           ),
         ),
-        if (_depthReference != null) ...[
+        if (_depthReference?.type == DepthReferenceType.santanaTide) ...[
           const SizedBox(height: 8),
           _buildDepthReferenceCard(l10n),
         ],
@@ -1378,76 +1436,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Widget _buildDepthReferenceCard(AppLocalizations l10n) {
     final reference = _depthReference!;
-
-    if (reference.type == DepthReferenceType.ruler) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(
-          color: const Color(0x14FFC107),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0x33FFC107)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              reference.displayName,
-              style: const TextStyle(
-                color: Color(0xFFFFD54F),
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: TextField(
-                    controller: _rulerValueController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    style: const TextStyle(
-                      color: Color(0xFFFFC107),
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '0,00',
-                      hintStyle: const TextStyle(
-                        color: Color(0x66FFC107),
-                        fontSize: 18,
-                      ),
-                      suffixText: 'm',
-                      suffixStyle: const TextStyle(
-                        color: Color(0xFFFFC107),
-                        fontSize: 12,
-                      ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Text(
-                    l10n.depthDailyValue,
-                    style: const TextStyle(
-                      color: Color(0xB3FFC107),
-                      fontSize: 9,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
 
     final day = _selectedDate.day.toString().padLeft(2, '0');
     final month = _selectedDate.month.toString().padLeft(2, '0');
@@ -1596,6 +1584,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 icon: Icons.vertical_align_bottom,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
+                suffixText: '(${l10n.optional})',
                 compact: true,
               ),
             ),

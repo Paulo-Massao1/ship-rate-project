@@ -171,6 +171,7 @@ class DepthReferenceService {
     'mazagao',
     'oiapoque',
     'pracaubas bijogo',
+    'pracuubas bijogo',
   };
 
   static DepthReference? resolve(String? locationName) {

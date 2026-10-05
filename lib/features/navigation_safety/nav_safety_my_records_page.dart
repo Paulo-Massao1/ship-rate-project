@@ -146,12 +146,29 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     return text.endsWith('m') ? text : '${text}m';
   }
 
-  String _formatDate(dynamic data) {
+  String _formatDate(dynamic data, {bool includeTime = false}) {
     if (data is Timestamp) {
       final d = data.toDate();
-      return '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+      final date =
+          '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+      if (!includeTime) return date;
+
+      final hour = d.hour.toString().padLeft(2, '0');
+      final minute = d.minute.toString().padLeft(2, '0');
+      return '$date · $hour:$minute';
     }
     return '—';
+  }
+
+  String _formatShareDate(Map<String, dynamic> data) {
+    final rawReference = data['depthReference'];
+    if (rawReference is Map && rawReference['type'] == 'santanaTide') {
+      return _formatDate(
+        rawReference['measurementTime'] ?? data['data'],
+        includeTime: true,
+      );
+    }
+    return _formatDate(data['data']);
   }
 
   String _formatReferenceName(Map<dynamic, dynamic> reference) {
@@ -228,7 +245,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     final depth = _formatMeters(data['profundidadeTotal']);
     final shipName = (data['nomeNavio'] ?? '').toString();
     final nomeGuerra = (data['nomeGuerra'] ?? '').toString();
-    final dateStr = _formatDate(data['data']);
+    final dateStr = _formatShareDate(data);
 
     final shareText =
         '⚓ ${l10n.shareDepthTitle}\n'
