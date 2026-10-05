@@ -283,6 +283,12 @@ service cloud.firestore {
       }
     }
 
+    // Enables the signed-in monthly report to query ratings across ships.
+    // Direct reads already have the same access policy above.
+    match /{path=**}/avaliacoes/{ratingId} {
+      allow read: if isSignedIn();
+    }
+
     match /locais/{locationId} {
       allow read: if canAccessRestrictedModules();
       allow create: if canAccessRestrictedModules();

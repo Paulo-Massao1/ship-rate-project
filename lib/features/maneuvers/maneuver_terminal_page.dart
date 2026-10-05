@@ -47,19 +47,17 @@ class ManeuverTerminalPage extends StatelessWidget {
                 _buildTerminalHeader(),
                 const SizedBox(height: 20),
                 _buildActionCard(
-                  icon: Icons.add_circle_outline,
-                  title: l10n.reportManeuver,
-                  description: l10n.reportManeuverDesc,
-                  color: _amber,
-                  emphasized: true,
+                  icon: Icons.assignment_outlined,
+                  title: l10n.initialManeuverInfo,
+                  description: l10n.initialManeuverInfoDesc,
+                  color: _teal,
+                  badge: l10n.plusPlan.toUpperCase(),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ManeuverReportPage(
-                        portName: port.name,
-                        portCode: port.code,
-                        terminalId: terminal.id,
-                        terminalName: terminal.name,
+                      builder: (_) => ManeuverInitialInfoPage(
+                        port: port,
+                        terminal: terminal,
                       ),
                     ),
                   ),
@@ -84,17 +82,19 @@ class ManeuverTerminalPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 _buildActionCard(
-                  icon: Icons.info_outline,
-                  title: l10n.initialManeuverInfo,
-                  description: l10n.initialManeuverInfoDesc,
-                  color: _teal,
-                  badge: l10n.plusPlan.toUpperCase(),
+                  icon: Icons.add_circle_outline,
+                  title: l10n.reportManeuver,
+                  description: l10n.reportManeuverDesc,
+                  color: _amber,
+                  emphasized: true,
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ManeuverInitialInfoPage(
-                        port: port,
-                        terminal: terminal,
+                      builder: (_) => ManeuverReportPage(
+                        portName: port.name,
+                        portCode: port.code,
+                        terminalId: terminal.id,
+                        terminalName: terminal.name,
                       ),
                     ),
                   ),

@@ -30,7 +30,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           l10n.initialManeuverInfo,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         foregroundColor: Colors.white,
@@ -149,7 +149,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                     label: info.mooring[index].vesselClass,
                     value: info.mooring[index].finalPosition?.resolve(locale) ??
                         l10n.maneuverToDefine,
-                    valueColor: const Color(0x6664B5F6),
+                    valueColor: const Color(0x99FFFFFF),
                     showDivider: index < info.mooring.length - 1,
                   ),
                 const SizedBox(height: 8),
@@ -342,19 +342,20 @@ class _InfoAccordionState extends State<_InfoAccordion> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        color: const Color(0x08000000),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0x1FFFFFFF)),
+        border: Border.all(color: const Color(0x29FFFFFF)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           Material(
-            color: const Color(0xFF1A2B3D),
+            color: const Color(0xFF1D2A35),
             child: InkWell(
               onTap: () => setState(() => _expanded = !_expanded),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+                    const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
                 child: Row(
                   children: [
                     AnimatedRotation(
@@ -372,7 +373,7 @@ class _InfoAccordionState extends State<_InfoAccordion> {
                         widget.title,
                         style: const TextStyle(
                           color: Color(0xFFFFB74D),
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -386,7 +387,7 @@ class _InfoAccordionState extends State<_InfoAccordion> {
             duration: const Duration(milliseconds: 180),
             child: _expanded
                 ? Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 1, 12, 9),
+                    padding: const EdgeInsets.fromLTRB(14, 3, 14, 11),
                     child: Column(children: widget.children),
                   )
                 : const SizedBox(width: double.infinity),
@@ -410,7 +411,11 @@ class _InfoSubheading extends StatelessWidget {
         padding: const EdgeInsets.only(top: 7, bottom: 1),
         child: Text(
           text,
-          style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 9),
+          style: const TextStyle(
+            color: Color(0xFFFFB74D),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -437,14 +442,18 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: Color(0x9964B5F6), fontSize: 9),
+              style: const TextStyle(
+                color: Color(0xB3FFFFFF),
+                fontSize: 11,
+                height: 1.25,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -458,7 +467,7 @@ class _InfoRow extends StatelessWidget {
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       color: valueColor ?? Colors.white,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -468,7 +477,7 @@ class _InfoRow extends StatelessWidget {
                   Icon(
                     trailingIcon,
                     color: valueColor ?? const Color(0xFFFFB74D),
-                    size: 13,
+                    size: 16,
                   ),
                 ],
               ],

@@ -80,58 +80,70 @@ class AppDrawer extends StatelessWidget {
               _buildHeader(l10n),
               const SizedBox(height: 12),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      ..._buildModuleItems(context, l10n),
-                      ...additionalItems,
-                      const Spacer(),
-                      const _DrawerDivider(),
-                      const _SupportShipRateItem(),
-                      const _MonthlyReportItem(),
-                      // The bottom items keep their own top border, which also
-                      // closes the support block above.
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Color(0x1A64B5F6),
-                              width: 1,
-                            ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              ..._buildModuleItems(context, l10n),
+                              ...additionalItems,
+                              const Spacer(),
+                              const _DrawerDivider(),
+                              const _SupportShipRateItem(),
+                              const _MonthlyReportItem(),
+                              // The bottom items keep their own top border,
+                              // which also closes the support block above.
+                              Container(
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Color(0x1A64B5F6),
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    ...bottomItems,
+                                    DrawerItem(
+                                      icon: Icons.settings,
+                                      label: l10n.settings,
+                                      onTap: () {
+                                        final navigator = Navigator.of(context);
+                                        navigator.pop();
+                                        navigator.push(
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const SettingsPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    DrawerItem(
+                                      icon: Icons.logout,
+                                      label: l10n.drawerLogout,
+                                      color: const Color(0xFFEF5350),
+                                      onTap: () => performLogout(
+                                        context,
+                                        onBeforeLogout: onBeforeLogout,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            ...bottomItems,
-                            DrawerItem(
-                              icon: Icons.settings,
-                              label: l10n.settings,
-                              onTap: () {
-                                final navigator = Navigator.of(context);
-                                navigator.pop();
-                                navigator.push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const SettingsPage(),
-                                  ),
-                                );
-                              },
-                            ),
-                            DrawerItem(
-                              icon: Icons.logout,
-                              label: l10n.drawerLogout,
-                              color: const Color(0xFFEF5350),
-                              onTap: () => performLogout(
-                                context,
-                                onBeforeLogout: onBeforeLogout,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -306,7 +318,8 @@ class AppDrawer extends StatelessWidget {
       subtitleColor = const Color(0xB364B5F6);
       borderColor = const Color(0x2664B5F6);
     }
-    final subtitle = (isNavSafety || isCrossing || isNavInfo) ? null : l10n.appSubtitle;
+    final subtitle =
+        (isNavSafety || isCrossing || isNavInfo) ? null : l10n.appSubtitle;
 
     final content = Container(
       width: double.infinity,
@@ -318,9 +331,7 @@ class AppDrawer extends StatelessWidget {
           colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
           stops: [0.0, 0.5, 1.0],
         ),
-        border: Border(
-          bottom: BorderSide(color: borderColor, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: borderColor, width: 1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,10 +358,7 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               subtitle,
-              style: TextStyle(
-                color: subtitleColor,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: subtitleColor, fontSize: 13),
             ),
           ],
         ],
@@ -361,9 +369,7 @@ class AppDrawer extends StatelessWidget {
       return Stack(
         children: [
           content,
-          Positioned.fill(
-            child: CustomPaint(painter: headerOverlayPainter!),
-          ),
+          Positioned.fill(child: CustomPaint(painter: headerOverlayPainter!)),
         ],
       );
     }
@@ -388,8 +394,9 @@ class AppDrawer extends StatelessWidget {
       case AppScreen.shipRating:
         navigator.push(MaterialPageRoute(builder: (_) => const MainScreen()));
       case AppScreen.navSafety:
-        navigator
-            .push(MaterialPageRoute(builder: (_) => const NavSafetyPage()));
+        navigator.push(
+          MaterialPageRoute(builder: (_) => const NavSafetyPage()),
+        );
       case AppScreen.crossing:
         navigator.push(MaterialPageRoute(builder: (_) => const CrossingPage()));
       case AppScreen.navInfo:
@@ -400,14 +407,16 @@ class AppDrawer extends StatelessWidget {
   }
 
   String _switchToLabel(AppLocalizations l10n, String moduleName) {
-    final shipPrefix =
-        l10n.switchToShipRating.replaceFirst(l10n.shipRatingModule, '').trimRight();
+    final shipPrefix = l10n.switchToShipRating
+        .replaceFirst(l10n.shipRatingModule, '')
+        .trimRight();
     if (shipPrefix != l10n.switchToShipRating) {
       return '$shipPrefix $moduleName'.trim();
     }
 
-    final navPrefix =
-        l10n.switchToNavSafety.replaceFirst(l10n.navSafetyModule, '').trimRight();
+    final navPrefix = l10n.switchToNavSafety
+        .replaceFirst(l10n.navSafetyModule, '')
+        .trimRight();
     if (navPrefix != l10n.switchToNavSafety) {
       return '$navPrefix $moduleName'.trim();
     }
@@ -449,8 +458,9 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
   void initState() {
     super.initState();
     _isSubscriber = _hasActivePlan(SubscriptionService.lastCustomerInfo);
-    _customerInfoSubscription =
-        SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
+    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
+      _onCustomerInfoUpdated,
+    );
     _refreshSubscriberStatus();
   }
 
@@ -482,9 +492,7 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
   void _openSubscriptionPage() {
     final navigator = Navigator.of(context);
     navigator.pop();
-    navigator.push(
-      MaterialPageRoute(builder: (_) => const SubscriptionPage()),
-    );
+    navigator.push(MaterialPageRoute(builder: (_) => const SubscriptionPage()));
   }
 
   @override
@@ -512,8 +520,7 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
               ),
             ),
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               child: Row(
                 children: [
                   Icon(Icons.star, color: accentColor, size: 22),
@@ -579,8 +586,9 @@ class _MonthlyReportItemState extends State<_MonthlyReportItem> {
     }
 
     _hasAccess = _hasActivePlan(SubscriptionService.lastCustomerInfo);
-    _customerInfoSubscription =
-        SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
+    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
+      _onCustomerInfoUpdated,
+    );
     _refreshAccess();
   }
 
@@ -661,13 +669,10 @@ class _SwitchModuleItem extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border(
-                left: BorderSide(color: accentColor, width: 3),
-              ),
+              border: Border(left: BorderSide(color: accentColor, width: 3)),
             ),
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               child: Row(
                 children: [
                   Icon(icon, color: accentColor, size: 22),

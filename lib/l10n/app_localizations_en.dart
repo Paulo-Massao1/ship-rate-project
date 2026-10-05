@@ -1759,7 +1759,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuversSelectTerminal => 'Select a port or terminal';
 
   @override
-  String get maneuverAccessNotice => 'Reports and history are available to everyone. Initial information requires the Plus plan.';
+  String get maneuverAccessNotice => 'Reports and history are available to everyone. Maneuver preparation requires the Plus plan.';
 
   @override
   String get reportManeuver => 'Report maneuver';
@@ -1782,10 +1782,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverHistoryDesc => 'Review reports submitted for this terminal.';
 
   @override
-  String get initialManeuverInfo => 'Maneuver information';
+  String get initialManeuverInfo => 'Maneuver preparation';
 
   @override
-  String get initialManeuverInfoDesc => 'Operational information for maneuver preparation.';
+  String get initialManeuverInfoDesc => 'Operational limits for the port and maneuver.';
 
   @override
   String get maneuverReportComingSoon => 'The complete maneuver report form will be available soon.';
@@ -2042,7 +2042,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverAftShort => 'AFT';
 
   @override
-  String get maneuverPortLimits => 'Port/Maneuver Limits';
+  String get maneuverPortLimits => 'Operational port and maneuver limits';
 
   @override
   String get maneuverNoScheduleLimitation => 'No limitation';

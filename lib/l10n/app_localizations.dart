@@ -3344,7 +3344,7 @@ abstract class AppLocalizations {
   /// Explains the access rules of the maneuvers module.
   ///
   /// In pt, this message translates to:
-  /// **'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.'**
+  /// **'Relatos e histórico são livres para todos. A preparação para manobra requer o plano Plus.'**
   String get maneuverAccessNotice;
 
   /// Title of the maneuver reporting area.
@@ -3386,13 +3386,13 @@ abstract class AppLocalizations {
   /// Title of the Plus maneuver preparation information area.
   ///
   /// In pt, this message translates to:
-  /// **'Informações de manobra'**
+  /// **'Preparação para manobra'**
   String get initialManeuverInfo;
 
   /// Description of the initial maneuver information area.
   ///
   /// In pt, this message translates to:
-  /// **'Informações operacionais para preparação da manobra.'**
+  /// **'Limites operacionais do porto e da manobra.'**
   String get initialManeuverInfoDesc;
 
   /// Temporary message shown before the maneuver form is implemented.
@@ -3902,7 +3902,7 @@ abstract class AppLocalizations {
   /// Title of the terminal operational limits section.
   ///
   /// In pt, this message translates to:
-  /// **'Limites do Porto/Manobra'**
+  /// **'Limites operacionais do porto e da manobra'**
   String get maneuverPortLimits;
 
   /// Value indicating that the maneuver has no schedule limitation.

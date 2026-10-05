@@ -205,9 +205,9 @@ class MonthlyReportService {
 
   /// Ratings the pilot made during the month, oldest first.
   ///
-  /// Ratings live in one subcollection per ship and there is no composite
-  /// index for (usuarioId, createdAt), so this walks every ship in parallel -
-  /// the same pass [DashboardController] uses - and filters client side.
+  /// Ratings live in one subcollection per ship. A collection-group query
+  /// limits the read to this pilot before the month is filtered locally,
+  /// avoiding one request for every ship in the database.
   Future<List<MonthlyRating>> _fetchMonthRatings({
     required String userId,
     required String? callSign,
@@ -215,24 +215,63 @@ class MonthlyReportService {
     required DateTime monthEnd,
   }) async {
     try {
-      final shipsSnapshot = await _firestore
-          .collection(AppConstants.shipsCollection)
-          .get()
-          .timeout(_queryTimeout);
+      final queryFutures = <Future<QuerySnapshot<Map<String, dynamic>>>>[
+        _firestore
+            .collectionGroup(AppConstants.ratingsSubcollection)
+            .where('usuarioId', isEqualTo: userId)
+            .get()
+            .timeout(_queryTimeout),
+        if (callSign != null)
+          _firestore
+              .collectionGroup(AppConstants.ratingsSubcollection)
+              .where('nomeGuerra', isEqualTo: callSign)
+              .get()
+              .timeout(_queryTimeout),
+      ];
+      final snapshots = await Future.wait(queryFutures);
 
-      final perShip = await Future.wait(
-        shipsSnapshot.docs.map(
-          (ship) => _fetchShipMonthRatings(
-            ship: ship,
-            userId: userId,
-            callSign: callSign,
-            monthStart: monthStart,
-            monthEnd: monthEnd,
+      // A current rating matches both queries. Its full path is stable across
+      // both snapshots and lets us remove duplicates without relying on ids,
+      // which only need to be unique inside each ship.
+      final documentsByPath =
+          <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
+      for (final snapshot in snapshots) {
+        for (final document in snapshot.docs) {
+          documentsByPath[document.reference.path] = document;
+        }
+      }
+
+      final records = <_MonthlyRatingRecord>[];
+      for (final document in documentsByPath.values) {
+        final data = document.data();
+        if (!_ratingBelongsToUser(data, userId, callSign)) continue;
+
+        final date = _resolveRatingDate(data);
+        if (date == null || !_isInRange(date, monthStart, monthEnd)) continue;
+
+        final shipReference = document.reference.parent.parent;
+        if (shipReference == null) continue;
+        records.add(
+          _MonthlyRatingRecord(
+            shipReference: shipReference,
+            date: date,
+            averageScore: _calculateAverage(data),
           ),
-        ),
-      );
+        );
+      }
 
-      final ratings = perShip.expand((list) => list).toList()
+      final shipNames = await _resolveShipNames(
+        records.map((record) => record.shipReference).toSet(),
+      );
+      final ratings = records
+          .map(
+            (record) => MonthlyRating(
+              shipName: shipNames[record.shipReference.path] ?? '',
+              date: record.date,
+              averageScore: record.averageScore,
+            ),
+          )
+          .toList()
         ..sort((a, b) => a.date.compareTo(b.date));
       return ratings;
     } catch (e) {
@@ -241,41 +280,24 @@ class MonthlyReportService {
     }
   }
 
-  Future<List<MonthlyRating>> _fetchShipMonthRatings({
-    required QueryDocumentSnapshot<Map<String, dynamic>> ship,
-    required String userId,
-    required String? callSign,
-    required DateTime monthStart,
-    required DateTime monthEnd,
-  }) async {
-    try {
-      final ratingsSnapshot = await ship.reference
-          .collection(AppConstants.ratingsSubcollection)
-          .get()
-          .timeout(_queryTimeout);
-
-      final shipName = (ship.data()['nome'] ?? '').toString();
-      final ratings = <MonthlyRating>[];
-
-      for (final rating in ratingsSnapshot.docs) {
-        final data = rating.data();
-        if (!_ratingBelongsToUser(data, userId, callSign)) continue;
-
-        final date = _resolveRatingDate(data);
-        if (date == null || !_isInRange(date, monthStart, monthEnd)) continue;
-
-        ratings.add(MonthlyRating(
-          shipName: shipName,
-          date: date,
-          averageScore: _calculateAverage(data),
-        ));
-      }
-
-      return ratings;
-    } catch (e) {
-      debugPrint('[MonthlyReport] Error reading ratings of ${ship.id}: $e');
-      return const [];
-    }
+  Future<Map<String, String>> _resolveShipNames(
+    Set<DocumentReference<Map<String, dynamic>>> shipReferences,
+  ) async {
+    final entries = await Future.wait(
+      shipReferences.map((reference) async {
+        try {
+          final snapshot = await reference.get().timeout(_queryTimeout);
+          return MapEntry(
+            reference.path,
+            (snapshot.data()?['nome'] ?? '').toString(),
+          );
+        } catch (e) {
+          debugPrint('[MonthlyReport] Error reading ship ${reference.id}: $e');
+          return MapEntry(reference.path, '');
+        }
+      }),
+    );
+    return Map.fromEntries(entries);
   }
 
   /// Same ownership rule the dashboard uses: uid match, call sign as fallback
@@ -360,11 +382,13 @@ class MonthlyReportService {
         final date = data['data'];
         if (date is! Timestamp) continue;
 
-        records.add(MonthlyDepthRecord(
-          locationName: locationNames[locationId] ?? '',
-          date: date.toDate(),
-          totalDepth: (data['profundidadeTotal'] as num?)?.toDouble() ?? 0.0,
-        ));
+        records.add(
+          MonthlyDepthRecord(
+            locationName: locationNames[locationId] ?? '',
+            date: date.toDate(),
+            totalDepth: (data['profundidadeTotal'] as num?)?.toDouble() ?? 0.0,
+          ),
+        );
       }
 
       records.sort((a, b) => a.date.compareTo(b.date));
@@ -443,12 +467,14 @@ class MonthlyReportService {
           continue;
         }
 
-        crossings.add(MonthlyCrossing(
-          shipName: (data['nomeNavio'] ?? '').toString(),
-          locationName: (data['local'] ?? '').toString(),
-          date: date,
-          direction: (data['direcao'] ?? '').toString(),
-        ));
+        crossings.add(
+          MonthlyCrossing(
+            shipName: (data['nomeNavio'] ?? '').toString(),
+            locationName: (data['local'] ?? '').toString(),
+            date: date,
+            direction: (data['direcao'] ?? '').toString(),
+          ),
+        );
       }
 
       crossings.sort((a, b) => a.date.compareTo(b.date));
@@ -484,8 +510,9 @@ class MonthlyReportService {
   /// the pilot is not ranked (no contributions, or a dev account).
   Future<_ReportRankings> _fetchRankings() async {
     try {
-      final data =
-          await _dashboardController.loadDashboardData().timeout(_queryTimeout);
+      final data = await _dashboardController.loadDashboardData().timeout(
+            _queryTimeout,
+          );
       return _ReportRankings(
         ratingRanking: data.userRankingPosition,
         depthRanking: data.userDepthRanking,
@@ -521,6 +548,18 @@ class _PilotProfile {
     required this.callSign,
     required this.email,
     required this.subscriptionPlan,
+  });
+}
+
+class _MonthlyRatingRecord {
+  final DocumentReference<Map<String, dynamic>> shipReference;
+  final DateTime date;
+  final double averageScore;
+
+  const _MonthlyRatingRecord({
+    required this.shipReference,
+    required this.date,
+    required this.averageScore,
   });
 }
 

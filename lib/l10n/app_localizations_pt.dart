@@ -1759,7 +1759,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuversSelectTerminal => 'Selecione um porto ou terminal';
 
   @override
-  String get maneuverAccessNotice => 'Relatos e histórico são livres para todos. As informações iniciais requerem o plano Plus.';
+  String get maneuverAccessNotice => 'Relatos e histórico são livres para todos. A preparação para manobra requer o plano Plus.';
 
   @override
   String get reportManeuver => 'Relatar manobra';
@@ -1782,10 +1782,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverHistoryDesc => 'Consulte os relatos enviados para este terminal.';
 
   @override
-  String get initialManeuverInfo => 'Informações de manobra';
+  String get initialManeuverInfo => 'Preparação para manobra';
 
   @override
-  String get initialManeuverInfoDesc => 'Informações operacionais para preparação da manobra.';
+  String get initialManeuverInfoDesc => 'Limites operacionais do porto e da manobra.';
 
   @override
   String get maneuverReportComingSoon => 'O formulário completo de relato será disponibilizado em breve.';
@@ -2042,7 +2042,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverAftShort => 'AR';
 
   @override
-  String get maneuverPortLimits => 'Limites do Porto/Manobra';
+  String get maneuverPortLimits => 'Limites operacionais do porto e da manobra';
 
   @override
   String get maneuverNoScheduleLimitation => 'Sem limitação';

@@ -15,6 +15,7 @@ import '../crossing/crossing_page.dart';
 import '../maneuvers/maneuvers_page.dart';
 import '../ratings/last_rated_page.dart';
 import '../suggestions/suggestion_page.dart';
+import '../subscription/subscription_page.dart';
 import 'main_screen_page.dart';
 import '../nav_info/nav_info_page.dart';
 import '../navigation_safety/nav_safety_page.dart';
@@ -66,8 +67,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
   final _dashboardController = DashboardController();
-  DashboardData _statsData =
-      DashboardController.cachedData ??
+  DashboardData _statsData = DashboardController.cachedData ??
       (AppCache.stats.values.any((v) => v > 0)
           ? DashboardData(
               totalShips: AppCache.stats['ships'] ?? 0,
@@ -102,7 +102,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _refreshModuleAccess();
     _checkForUpdates();
     _fetchNomeGuerra();
-    debugPrint('HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, crossings=${_statsData.totalCrossings}');
+    debugPrint(
+      'HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, crossings=${_statsData.totalCrossings}',
+    );
     _loadStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _consumePendingRoute();
@@ -186,10 +188,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final doc = await FirebaseFirestore.instance
-        .collection('usuarios')
-        .doc(uid)
-        .get();
+    final doc =
+        await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
     if (!mounted) return;
 
     if (doc.data()?['notificationPromptShown'] == true) return;
@@ -201,7 +201,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0D2137),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -255,7 +257,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             style: TextButton.styleFrom(
               backgroundColor: const Color(0xFF26A69A),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -288,10 +293,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> _markNotificationPromptShown(String uid) async {
-    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
-      {'notificationPromptShown': true},
-      SetOptions(merge: true),
-    );
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
+      'notificationPromptShown': true,
+    }, SetOptions(merge: true));
   }
 
   Future<void> _fetchNomeGuerra() async {
@@ -359,7 +363,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
     try {
       final data = await _dashboardController.loadDashboardData();
-      debugPrint('HOME: Firestore returned fresh stats: ships=${data.totalShips}, ratings=${data.totalRatings}, crossings=${data.totalCrossings}');
+      debugPrint(
+        'HOME: Firestore returned fresh stats: ships=${data.totalShips}, ratings=${data.totalRatings}, crossings=${data.totalCrossings}',
+      );
       if (mounted) {
         setState(() => _statsData = data);
         _maybeShowMilestone();
@@ -488,18 +494,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() => _showNotificationSetupBanner = false);
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set(
-      {'notificationBannerDismissed': true},
-      SetOptions(merge: true),
-    );
+    await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
+      'notificationBannerDismissed': true,
+    }, SetOptions(merge: true));
   }
 
   bool _isAnyPushPreferenceEnabled(Map<String, dynamic>? data) {
     final pushNotifications = data?['pushNotifications'] as bool? ?? true;
-    final pushNavSafety =
-        data?['pushNavSafety'] as bool? ?? pushNotifications;
-    final pushCrossing =
-        data?['pushCruzamento'] as bool? ?? pushNotifications;
+    final pushNavSafety = data?['pushNavSafety'] as bool? ?? pushNotifications;
+    final pushCrossing = data?['pushCruzamento'] as bool? ?? pushNotifications;
 
     return pushNotifications || pushNavSafety || pushCrossing;
   }
@@ -532,9 +535,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          AppLocalizations.of(context)!.enableNotificationsMessage,
-        ),
+        content: Text(AppLocalizations.of(context)!.enableNotificationsMessage),
         backgroundColor: Colors.red.shade800,
         behavior: SnackBarBehavior.floating,
       ),
@@ -658,6 +659,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  void _navigateToSupportShipRate() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SubscriptionPage()),
+    );
+  }
+
   // ===========================================================================
   // BUILD
   // ===========================================================================
@@ -702,31 +710,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0A1628),
-              Color(0xFF0D2137),
-            ],
+            colors: [Color(0xFF0A1628), Color(0xFF0D2137)],
           ),
         ),
         child: Column(
           children: [
+            _buildSupportShipRateBanner(),
             _buildUpdateBanner(),
             _buildNotificationSetupBanner(),
             Expanded(
               child: SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.only(bottom: 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 10),
                         _buildWelcomeText(),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 12),
                         _buildStatsSection(),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 12),
                         _buildModulesGrid(AppLocalizations.of(context)!),
                       ],
                     ),
@@ -759,6 +765,44 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _buildSupportShipRateBanner() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Material(
+        color: const Color(0xFFFFB74D),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: _navigateToSupportShipRate,
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(
+            height: 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFF0A1628),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.supportShipRate,
+                  style: const TextStyle(
+                    color: Color(0xFF0A1628),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatsSection() {
     return _buildStatsCard(_statsData);
   }
@@ -769,7 +813,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
@@ -795,7 +839,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _buildPilotsBadge(data.totalUsers, l10n),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             // Breathing room between the four stats so the numbers do not
@@ -829,7 +873,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ],
           ),
           if (data.topRaterCount > 0) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1159,7 +1203,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   return const SizedBox(
                     height: 160,
                     child: Center(
-                      child: CircularProgressIndicator(color: Color(0xFF64B5F6)),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF64B5F6),
+                      ),
                     ),
                   );
                 }
@@ -1254,9 +1300,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: isUser
-            ? accent.withValues(alpha: 0.12)
-            : const Color(0x0DFFFFFF),
+        color:
+            isUser ? accent.withValues(alpha: 0.12) : const Color(0x0DFFFFFF),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isUser ? accent : const Color(0x1A64B5F6),
@@ -1375,8 +1420,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           spacing: spacing,
           runSpacing: spacing,
           children: [
-            for (final card in cards)
-              SizedBox(width: cardWidth, child: card),
+            for (final card in cards) SizedBox(width: cardWidth, child: card),
           ],
         );
       },
@@ -1403,7 +1447,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         splashColor: borderColor,
         child: Container(
           width: double.infinity,
-          height: 122,
+          height: 112,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0x0DFFFFFF),
@@ -1411,7 +1455,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             border: Border.all(color: borderColor),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
@@ -1433,7 +1477,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: (badgeColor ?? iconColor).withValues(alpha: 0.15),
+                        color: (badgeColor ?? iconColor).withValues(
+                          alpha: 0.15,
+                        ),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -1455,27 +1501,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   ),
                 ],
               ),
-              const SizedBox(height: 7),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  height: 1.1,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                subtitle,
-                maxLines: 2,
-                softWrap: true,
-                style: const TextStyle(
-                  color: Color(0x73FFFFFF),
-                  fontSize: 10,
-                  height: 1.2,
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      softWrap: true,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0x73FFFFFF),
+                        fontSize: 10,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1496,7 +1550,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      height: 122,
+      height: 112,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.02),
@@ -1504,7 +1558,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
@@ -1519,10 +1573,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(4),
@@ -1539,27 +1590,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ],
           ),
-          const SizedBox(height: 7),
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xCCFFFFFF),
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              height: 1.1,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            subtitle,
-            maxLines: 2,
-            softWrap: true,
-            style: const TextStyle(
-              color: Color(0x66FFFFFF),
-              fontSize: 10,
-              height: 1.2,
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xCCFFFFFF),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  maxLines: 2,
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0x66FFFFFF),
+                    fontSize: 10,
+                    height: 1.2,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -1583,6 +1642,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.white,
+              fontSize: 20,
               letterSpacing: 0.6,
             ),
           ),
@@ -1598,18 +1658,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0A1628),
-              Color(0xFF1A3A5C),
-              Color(0xFF0D2137),
-            ],
+            colors: [Color(0xFF0A1628), Color(0xFF1A3A5C), Color(0xFF0D2137)],
             stops: [0.0, 0.5, 1.0],
           ),
         ),
       ),
     );
   }
-
 
   Widget _buildNotificationSetupBanner() {
     if (!_showNotificationSetupBanner) return const SizedBox.shrink();
@@ -1624,9 +1679,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: const BoxDecoration(
             color: Color(0xFF0E3A3A),
-            border: Border(
-              bottom: BorderSide(color: Color(0x3326A69A)),
-            ),
+            border: Border(bottom: BorderSide(color: Color(0x3326A69A))),
           ),
           child: Row(
             children: [
@@ -1678,9 +1731,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (!_showUpdateBanner) return const SizedBox.shrink();
 
     final l10n = AppLocalizations.of(context)!;
-    final message = kIsWeb
-        ? l10n.updateAvailableWeb
-        : l10n.updateAvailable;
+    final message = kIsWeb ? l10n.updateAvailableWeb : l10n.updateAvailable;
 
     return Container(
       width: double.infinity,
@@ -1689,17 +1740,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         gradient: LinearGradient(
           colors: [Color(0x4064B5F6), Color(0x1A64B5F6)],
         ),
-        border: Border(
-          bottom: BorderSide(color: Color(0x6664B5F6)),
-        ),
+        border: Border(bottom: BorderSide(color: Color(0x6664B5F6))),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.system_update,
-            color: Color(0xFF64B5F6),
-            size: 24,
-          ),
+          const Icon(Icons.system_update, color: Color(0xFF64B5F6), size: 24),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

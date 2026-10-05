@@ -2383,7 +2383,7 @@
   "@maneuversSelectTerminal": {
     "description": "Instruction shown above the maneuver terminal list."
   },
-  "maneuverAccessNotice": "Reports and history are available to everyone. Initial information requires the Plus plan.",
+  "maneuverAccessNotice": "Reports and history are available to everyone. Maneuver preparation requires the Plus plan.",
   "@maneuverAccessNotice": {
     "description": "Explains the access rules of the maneuvers module."
   },
@@ -2419,11 +2419,11 @@
   "@maneuverHistoryDesc": {
     "description": "Description of the maneuver history area."
   },
-  "initialManeuverInfo": "Maneuver information",
+  "initialManeuverInfo": "Maneuver preparation",
   "@initialManeuverInfo": {
     "description": "Title of the Plus maneuver preparation information area."
   },
-  "initialManeuverInfoDesc": "Operational information for maneuver preparation.",
+  "initialManeuverInfoDesc": "Operational limits for the port and maneuver.",
   "@initialManeuverInfoDesc": {
     "description": "Description of the initial maneuver information area."
   },
@@ -2768,7 +2768,7 @@
   "@maneuverAftShort": {
     "description": "Short aft position label."
   },
-  "maneuverPortLimits": "Port/Maneuver Limits",
+  "maneuverPortLimits": "Operational port and maneuver limits",
   "@maneuverPortLimits": {
     "description": "Title of the terminal operational limits section."
   },
