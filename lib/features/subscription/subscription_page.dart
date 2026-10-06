@@ -5,6 +5,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
+import '../../core/theme/module_visuals.dart';
 import '../../data/services/subscription_service.dart';
 
 /// Subscription page offering the two ShipRate Pro plans.
@@ -404,8 +405,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           ),
           const SizedBox(height: 10),
           _buildFeature(
-            icon: Icons.anchor,
-            color: _plusColor,
+            icon: ModuleVisuals.maneuverIcon,
+            color: ModuleVisuals.maneuverColor,
             label: l10n.plusFeature2,
           ),
           const SizedBox(height: 18),

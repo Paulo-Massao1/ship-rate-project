@@ -9,6 +9,11 @@ import 'package:printing/printing.dart';
 /// mode. This custom page builder keeps document scrolling and gives each page
 /// its own [InteractiveViewer], so a two-finger gesture works on first touch.
 class PinchZoomPdfPreview extends StatelessWidget {
+  /// The default preview resolution follows the viewport width, which becomes
+  /// visibly soft as soon as a rasterized page is enlarged. A fixed print-like
+  /// resolution preserves table text while keeping multi-page memory bounded.
+  static const double _previewDpi = 240;
+
   final Uint8List bytes;
   final String fileName;
   final Color loadingColor;
@@ -36,6 +41,7 @@ class PinchZoomPdfPreview extends StatelessWidget {
       canChangePageFormat: false,
       canDebug: false,
       useActions: false,
+      dpi: _previewDpi,
       pdfFileName: fileName,
       loadingWidget: Center(
         child: CircularProgressIndicator(color: loadingColor),
@@ -161,7 +167,7 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
               final page = widget.pages[index];
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 70),
+                padding: const EdgeInsets.fromLTRB(12, 68, 12, 70),
                 child: InteractiveViewer(
                   transformationController: _zoomControllers[index],
                   minScale: _minScale,
@@ -184,7 +190,12 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
                             ),
                           ],
                         ),
-                        child: Image(image: page.image, fit: BoxFit.contain),
+                        child: Image(
+                          image: page.image,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                          gaplessPlayback: true,
+                        ),
                       ),
                     ),
                   ),
@@ -195,36 +206,40 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
           Positioned(
             left: 12,
             right: 12,
+            top: 12,
+            child: SafeArea(
+              bottom: false,
+              child: Center(
+                child: _PageNavigation(
+                  currentPage: _currentPage,
+                  pageCount: widget.pages.length,
+                  onPrevious: _currentPage > 0
+                      ? () => _changePage(-1)
+                      : null,
+                  onNext: _currentPage < widget.pages.length - 1
+                      ? () => _changePage(1)
+                      : null,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 12,
             bottom: 12,
             child: SafeArea(
               top: false,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _PageNavigation(
-                    currentPage: _currentPage,
-                    pageCount: widget.pages.length,
-                    onPrevious: _currentPage > 0
-                        ? () => _changePage(-1)
-                        : null,
-                    onNext: _currentPage < widget.pages.length - 1
-                        ? () => _changePage(1)
-                        : null,
-                  ),
-                  _ZoomControls(
-                    scale: _currentScale,
-                    zoomOutTooltip: widget.zoomOutTooltip,
-                    resetZoomTooltip: widget.resetZoomTooltip,
-                    zoomInTooltip: widget.zoomInTooltip,
-                    onZoomOut: _currentScale > _minScale
-                        ? () => _setScale(_currentScale - 0.5)
-                        : null,
-                    onReset: () => _setScale(_minScale),
-                    onZoomIn: _currentScale < _maxScale
-                        ? () => _setScale(_currentScale + 0.5)
-                        : null,
-                  ),
-                ],
+              child: _ZoomControls(
+                scale: _currentScale,
+                zoomOutTooltip: widget.zoomOutTooltip,
+                resetZoomTooltip: widget.resetZoomTooltip,
+                zoomInTooltip: widget.zoomInTooltip,
+                onZoomOut: _currentScale > _minScale
+                    ? () => _setScale(_currentScale - 0.5)
+                    : null,
+                onReset: () => _setScale(_minScale),
+                onZoomIn: _currentScale < _maxScale
+                    ? () => _setScale(_currentScale + 0.5)
+                    : null,
               ),
             ),
           ),
@@ -258,7 +273,7 @@ class _PageNavigation extends StatelessWidget {
           if (pageCount > 1)
             IconButton(
               onPressed: onPrevious,
-              icon: const Icon(Icons.chevron_left),
+              icon: const Icon(Icons.chevron_left, size: 26),
               tooltip: materialL10n.previousPageTooltip,
               visualDensity: VisualDensity.compact,
             ),
@@ -268,15 +283,16 @@ class _PageNavigation extends StatelessWidget {
               '${currentPage + 1} / $pageCount',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
               ),
             ),
           ),
           if (pageCount > 1)
             IconButton(
               onPressed: onNext,
-              icon: const Icon(Icons.chevron_right),
+              icon: const Icon(Icons.chevron_right, size: 26),
               tooltip: materialL10n.nextPageTooltip,
               visualDensity: VisualDensity.compact,
             ),

@@ -534,6 +534,7 @@ class _CrossingPageState extends State<CrossingPage> {
       drawer: AppDrawer(
         currentScreen: AppScreen.crossing,
         showNavSafety: _showRestrictedModules,
+        showManeuvers: _showRestrictedModules,
         showNavInfo: _showRestrictedModules,
         additionalItems: [
           DrawerItem(

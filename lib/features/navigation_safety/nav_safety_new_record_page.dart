@@ -1146,6 +1146,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         const SizedBox(height: 6),
         Container(
           width: double.infinity,
+          height: 44,
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: _inputBg,
             borderRadius: BorderRadius.circular(10),
@@ -1154,6 +1156,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           child: TextField(
             controller: _rulerValueController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               color: _textPrimary,
               fontSize: 14,
@@ -1165,11 +1168,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               suffixText: 'm',
               suffixStyle: TextStyle(color: Color(0xFFFFD54F), fontSize: 12),
               border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
               isDense: true,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 12,
-              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
             ),
           ),
         ),

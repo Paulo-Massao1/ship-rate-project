@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../data/models/maneuver_catalog.dart';
+import '../../core/theme/module_visuals.dart';
 import 'maneuver_history_page.dart';
 import 'maneuver_initial_info_page.dart';
 import 'maneuver_report_page.dart';
@@ -19,7 +20,6 @@ class ManeuverTerminalPage extends StatelessWidget {
 
   static const _amber = Color(0xFFFFB74D);
   static const _blue = Color(0xFF64B5F6);
-  static const _teal = Color(0xFF26A69A);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _textMuted = Color(0x80FFFFFF);
@@ -47,10 +47,10 @@ class ManeuverTerminalPage extends StatelessWidget {
                 _buildTerminalHeader(),
                 const SizedBox(height: 20),
                 _buildActionCard(
-                  icon: Icons.assignment_outlined,
+                  icon: ModuleVisuals.maneuverIcon,
                   title: l10n.initialManeuverInfo,
                   description: l10n.initialManeuverInfoDesc,
-                  color: _teal,
+                  color: ModuleVisuals.maneuverColor,
                   badge: l10n.plusPlan.toUpperCase(),
                   onTap: () => Navigator.push(
                     context,
@@ -111,19 +111,23 @@ class ManeuverTerminalPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x0FFFB74D),
+        color: ModuleVisuals.maneuverSurface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x33FFB74D)),
+        border: Border.all(color: ModuleVisuals.maneuverCardBorder),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0x1FFFB74D),
+              color: ModuleVisuals.maneuverBackground,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.anchor, color: _amber, size: 24),
+            child: const Icon(
+              ModuleVisuals.maneuverIcon,
+              color: ModuleVisuals.maneuverColor,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -142,7 +146,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                 Text(
                   '${port.name} (${port.code})',
                   style: const TextStyle(
-                    color: _amber,
+                    color: ModuleVisuals.maneuverColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),

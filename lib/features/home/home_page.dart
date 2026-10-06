@@ -23,6 +23,7 @@ import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../core/constants.dart';
 import '../../core/module_access.dart';
+import '../../core/theme/module_visuals.dart';
 import '../../data/services/milestone_service.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/milestone_overlay.dart';
@@ -677,6 +678,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       drawer: AppDrawer(
         currentScreen: AppScreen.home,
         showNavSafety: !_restrictedToCoreModules,
+        showManeuvers: !_restrictedToCoreModules,
         showNavInfo: !_restrictedToCoreModules,
         onBeforeLogout: () {
           _notificationsInitialized = false;
@@ -1394,15 +1396,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           if (!_restrictedToCoreModules)
             _buildModuleCard(
-              icon: Icons.anchor,
-              iconBgColor: const Color(0x1FFFB74D),
-              iconBorderColor: const Color(0x40FFB74D),
-              iconColor: const Color(0xFFFFB74D),
-              borderColor: const Color(0x33FFB74D),
+              icon: ModuleVisuals.maneuverIcon,
+              iconBgColor: ModuleVisuals.maneuverBackground,
+              iconBorderColor: ModuleVisuals.maneuverBorder,
+              iconColor: ModuleVisuals.maneuverColor,
+              borderColor: ModuleVisuals.maneuverCardBorder,
               title: l10n.maneuversModule,
               subtitle: l10n.maneuversDesc,
               badge: l10n.newBadge,
-              badgeColor: const Color(0xFFFFB74D),
+              badgeColor: ModuleVisuals.maneuverColor,
               onTap: _navigateToManeuvers,
             ),
           if (!_restrictedToCoreModules)

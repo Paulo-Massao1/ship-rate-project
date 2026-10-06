@@ -11,20 +11,23 @@ import '../../controllers/nav_safety_controller.dart';
 import '../../controllers/rating_controller.dart';
 import '../../core/constants.dart';
 import '../../core/subscription_constants.dart';
+import '../../core/theme/module_visuals.dart';
 import '../../data/services/subscription_service.dart';
 import '../../features/crossing/crossing_page.dart';
 import '../../features/home/main_screen_page.dart';
+import '../../features/maneuvers/maneuvers_page.dart';
 import '../../features/nav_info/nav_info_page.dart';
 import '../../features/navigation_safety/nav_safety_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/subscription/monthly_report_page.dart';
 import '../../features/subscription/subscription_page.dart';
 
-enum AppScreen { home, shipRating, navSafety, crossing, navInfo }
+enum AppScreen { home, shipRating, navSafety, crossing, maneuvers, navInfo }
 
 class AppDrawer extends StatelessWidget {
   final AppScreen currentScreen;
   final bool showNavSafety;
+  final bool showManeuvers;
   final bool showNavInfo;
   final List<Widget> additionalItems;
   final List<Widget> bottomItems;
@@ -35,6 +38,7 @@ class AppDrawer extends StatelessWidget {
     super.key,
     required this.currentScreen,
     this.showNavSafety = true,
+    this.showManeuvers = true,
     this.showNavInfo = true,
     this.additionalItems = const [],
     this.bottomItems = const [],
@@ -176,6 +180,13 @@ class AppDrawer extends StatelessWidget {
             isActive: false,
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          if (showManeuvers)
+            DrawerItem(
+              icon: ModuleVisuals.maneuverIcon,
+              label: l10n.maneuversModule,
+              isActive: false,
+              onTap: () => _navigateTo(context, AppScreen.maneuvers),
+            ),
           if (showNavInfo)
             DrawerItem(
               icon: Icons.explore,
@@ -199,6 +210,13 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          if (showManeuvers)
+            _SwitchModuleItem(
+              icon: ModuleVisuals.maneuverIcon,
+              label: _switchToLabel(l10n, l10n.maneuversModule),
+              accentColor: ModuleVisuals.maneuverColor,
+              onTap: () => _navigateTo(context, AppScreen.maneuvers),
+            ),
           if (showNavInfo)
             _SwitchModuleItem(
               icon: Icons.explore,
@@ -221,6 +239,13 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          if (showManeuvers)
+            _SwitchModuleItem(
+              icon: ModuleVisuals.maneuverIcon,
+              label: _switchToLabel(l10n, l10n.maneuversModule),
+              accentColor: ModuleVisuals.maneuverColor,
+              onTap: () => _navigateTo(context, AppScreen.maneuvers),
+            ),
           if (showNavInfo)
             _SwitchModuleItem(
               icon: Icons.explore,
@@ -243,6 +268,13 @@ class AppDrawer extends StatelessWidget {
               label: l10n.switchToNavSafety,
               accentColor: const Color(0xFF26A69A),
               onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
+          if (showManeuvers)
+            _SwitchModuleItem(
+              icon: ModuleVisuals.maneuverIcon,
+              label: _switchToLabel(l10n, l10n.maneuversModule),
+              accentColor: ModuleVisuals.maneuverColor,
+              onTap: () => _navigateTo(context, AppScreen.maneuvers),
             ),
           if (showNavInfo)
             _SwitchModuleItem(
@@ -273,6 +305,42 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
+          if (showManeuvers)
+            _SwitchModuleItem(
+              icon: ModuleVisuals.maneuverIcon,
+              label: _switchToLabel(l10n, l10n.maneuversModule),
+              accentColor: ModuleVisuals.maneuverColor,
+              onTap: () => _navigateTo(context, AppScreen.maneuvers),
+            ),
+        ];
+      case AppScreen.maneuvers:
+        return [
+          _SwitchModuleItem(
+            icon: Icons.directions_boat,
+            label: l10n.switchToShipRating,
+            accentColor: const Color(0xFF64B5F6),
+            onTap: () => _navigateTo(context, AppScreen.shipRating),
+          ),
+          if (showNavSafety)
+            _SwitchModuleItem(
+              icon: Icons.anchor,
+              label: l10n.switchToNavSafety,
+              accentColor: const Color(0xFF26A69A),
+              onTap: () => _navigateTo(context, AppScreen.navSafety),
+            ),
+          _SwitchModuleItem(
+            icon: Icons.compare_arrows,
+            label: _switchToLabel(l10n, l10n.cruzamentoModule),
+            accentColor: const Color(0xFFFFB74D),
+            onTap: () => _navigateTo(context, AppScreen.crossing),
+          ),
+          if (showNavInfo)
+            _SwitchModuleItem(
+              icon: Icons.explore,
+              label: _switchToLabel(l10n, l10n.navInfoModule),
+              accentColor: const Color(0xFFB388FF),
+              onTap: () => _navigateTo(context, AppScreen.navInfo),
+            ),
         ];
     }
   }
@@ -280,6 +348,7 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(AppLocalizations l10n) {
     final bool isNavSafety = currentScreen == AppScreen.navSafety;
     final bool isCrossing = currentScreen == AppScreen.crossing;
+    final bool isManeuvers = currentScreen == AppScreen.maneuvers;
     final bool isNavInfo = currentScreen == AppScreen.navInfo;
 
     final IconData icon;
@@ -289,7 +358,14 @@ class AppDrawer extends StatelessWidget {
     final Color subtitleColor;
     final Color borderColor;
 
-    if (isNavInfo) {
+    if (isManeuvers) {
+      icon = ModuleVisuals.maneuverIcon;
+      iconColor = ModuleVisuals.maneuverColor;
+      iconBgColor = ModuleVisuals.maneuverBackground;
+      title = l10n.maneuversModule;
+      subtitleColor = ModuleVisuals.maneuverColor;
+      borderColor = ModuleVisuals.maneuverCardBorder;
+    } else if (isNavInfo) {
       icon = Icons.explore;
       iconColor = const Color(0xFFB388FF);
       iconBgColor = const Color(0x26B388FF);
@@ -319,7 +395,9 @@ class AppDrawer extends StatelessWidget {
       borderColor = const Color(0x2664B5F6);
     }
     final subtitle =
-        (isNavSafety || isCrossing || isNavInfo) ? null : l10n.appSubtitle;
+        (isNavSafety || isCrossing || isManeuvers || isNavInfo)
+            ? null
+            : l10n.appSubtitle;
 
     final content = Container(
       width: double.infinity,
@@ -380,6 +458,7 @@ class AppDrawer extends StatelessWidget {
   void _navigateTo(BuildContext context, AppScreen target) {
     final navigator = Navigator.of(context);
     if ((target == AppScreen.navSafety && !showNavSafety) ||
+        (target == AppScreen.maneuvers && !showManeuvers) ||
         (target == AppScreen.navInfo && !showNavInfo)) {
       navigator.pop();
       return;
@@ -399,6 +478,8 @@ class AppDrawer extends StatelessWidget {
         );
       case AppScreen.crossing:
         navigator.push(MaterialPageRoute(builder: (_) => const CrossingPage()));
+      case AppScreen.maneuvers:
+        navigator.push(MaterialPageRoute(builder: (_) => const ManeuversPage()));
       case AppScreen.navInfo:
         navigator.push(MaterialPageRoute(builder: (_) => const NavInfoPage()));
       case AppScreen.home:

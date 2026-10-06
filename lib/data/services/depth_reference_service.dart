@@ -89,6 +89,11 @@ class DepthReferenceService {
       name: 'Régua de Itacoatiara',
       code: 'ITA',
     ),
+    'fundeadouro de itacoatiara': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Itacoatiara',
+      code: 'ITA',
+    ),
     'bicheira': DepthReference(
       type: DepthReferenceType.ruler,
       name: 'Régua de Parintins',
@@ -100,6 +105,11 @@ class DepthReferenceService {
       code: 'PAR',
     ),
     'ilha de parintins': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Parintins',
+      code: 'PAR',
+    ),
+    'ilha parintins': DepthReference(
       type: DepthReferenceType.ruler,
       name: 'Régua de Parintins',
       code: 'PAR',
@@ -139,6 +149,11 @@ class DepthReferenceService {
       name: 'Régua de Juruti',
       code: 'JUR',
     ),
+    'canal de juruti': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Juruti',
+      code: 'JUR',
+    ),
     'parauaquara': DepthReference(
       type: DepthReferenceType.ruler,
       name: 'Régua de Juruti',
@@ -150,6 +165,22 @@ class DepthReferenceService {
       code: 'JUR',
     ),
     'bacabal': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Trombetas',
+    ),
+    'rio trombetas': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Trombetas',
+    ),
+    'rio trombeta': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Trombetas',
+    ),
+    'trombetas': DepthReference(
+      type: DepthReferenceType.ruler,
+      name: 'Régua de Trombetas',
+    ),
+    'trombeta': DepthReference(
       type: DepthReferenceType.ruler,
       name: 'Régua de Trombetas',
     ),
@@ -173,7 +204,9 @@ class DepthReferenceService {
     final normalized = _normalize(locationName ?? '');
     if (normalized.isEmpty) return null;
 
-    if (_santanaLocations.contains(normalized)) return _santanaTide;
+    if (_matchesKnownLocation(normalized, _santanaLocations)) {
+      return _santanaTide;
+    }
     if (normalized.startsWith('prainha')) {
       return const DepthReference(
         type: DepthReferenceType.ruler,
@@ -182,7 +215,24 @@ class DepthReferenceService {
       );
     }
 
-    return _rulersByLocation[normalized];
+    for (final entry in _rulersByLocation.entries) {
+      if (_matchesKnownLocation(normalized, {entry.key})) return entry.value;
+    }
+
+    return null;
+  }
+
+  /// Accepts the stable reference name with an operational qualifier, such as
+  /// "Aruans - Enseada", without guessing a reference for unknown locations.
+  static bool _matchesKnownLocation(String normalized, Set<String> aliases) {
+    for (final alias in aliases) {
+      if (normalized == alias ||
+          normalized.startsWith('$alias ') ||
+          normalized.endsWith(' $alias')) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static Future<SantanaTideWindow> loadSantanaTideWindow(

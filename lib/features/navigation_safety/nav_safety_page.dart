@@ -250,6 +250,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       drawer: AppDrawer(
         currentScreen: AppScreen.navSafety,
         showNavSafety: _showRestrictedModules,
+        showManeuvers: _showRestrictedModules,
         showNavInfo: _showRestrictedModules,
         additionalItems: [
           DrawerItem(

@@ -86,6 +86,18 @@ class NavSafetyController extends ChangeNotifier {
   List<Map<String, dynamic>> _locationRecords = [];
   List<Map<String, dynamic>> get locationRecords => _locationRecords;
   String? _currentUserCallSign;
+  bool _isDisposed = false;
+
+  void _notifyListenersIfActive() {
+    if (_isDisposed) return;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   // ===========================================================================
   // PUBLIC METHODS
@@ -98,12 +110,12 @@ class NavSafetyController extends ChangeNotifier {
       _locations = _cachedLocationsWithLatest!;
       await loadLikeStatesForLatestLocations(_locations, notify: false);
       _isLoading = false;
-      notifyListeners();
+      _notifyListenersIfActive();
       return;
     }
 
     _isLoading = true;
-    notifyListeners();
+    _notifyListenersIfActive();
 
     try {
       // Fetch location documents (or use cache)
@@ -167,7 +179,7 @@ class NavSafetyController extends ChangeNotifier {
       debugPrint('[NavSafety] Error fetching locations: $e');
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _notifyListenersIfActive();
     }
   }
 
@@ -182,12 +194,12 @@ class NavSafetyController extends ChangeNotifier {
       _locationRecords = _cachedHistory[locationId]!;
       await loadLikeStatesForRecords(locationId, _locationRecords, notify: false);
       _isLoadingHistory = false;
-      notifyListeners();
+      _notifyListenersIfActive();
       return;
     }
 
     _isLoadingHistory = true;
-    notifyListeners();
+    _notifyListenersIfActive();
 
     try {
       final snapshot = await _firestore
@@ -211,7 +223,7 @@ class NavSafetyController extends ChangeNotifier {
       _locationRecords = [];
     } finally {
       _isLoadingHistory = false;
-      notifyListeners();
+      _notifyListenersIfActive();
     }
   }
 
@@ -318,7 +330,7 @@ class NavSafetyController extends ChangeNotifier {
       _cachedLikeStates[key] = false;
       _cachedLikeCounts[key] = ((_cachedLikeCounts[key] ?? 1) - 1).clamp(0, 999999);
       _cachedLikerNames[key]?.remove(userName);
-      notifyListeners();
+      _notifyListenersIfActive();
 
       try {
         await likeRef.delete();
@@ -329,7 +341,7 @@ class NavSafetyController extends ChangeNotifier {
           _cachedLikerNames[key] ??= [];
           _cachedLikerNames[key]!.add(userName);
         }
-        notifyListeners();
+        _notifyListenersIfActive();
         debugPrint('[NavSafety] Error removing like: $e');
       }
     } else {
@@ -341,7 +353,7 @@ class NavSafetyController extends ChangeNotifier {
         _cachedLikerNames[key] ??= [];
         _cachedLikerNames[key]!.add(nomeGuerra);
       }
-      notifyListeners();
+      _notifyListenersIfActive();
 
       try {
         await likeRef.set({
@@ -352,7 +364,7 @@ class NavSafetyController extends ChangeNotifier {
         _cachedLikeStates[key] = false;
         _cachedLikeCounts[key] = ((_cachedLikeCounts[key] ?? 1) - 1).clamp(0, 999999);
         _cachedLikerNames[key]?.remove(nomeGuerra);
-        notifyListeners();
+        _notifyListenersIfActive();
         debugPrint('[NavSafety] Error adding like: $e');
       }
     }
@@ -413,7 +425,7 @@ class NavSafetyController extends ChangeNotifier {
     });
 
     await Future.wait(futures);
-    if (notify) notifyListeners();
+    if (notify) _notifyListenersIfActive();
   }
 
   Future<void> loadLikeStatesForRecords(
@@ -441,7 +453,7 @@ class NavSafetyController extends ChangeNotifier {
     });
 
     await Future.wait(futures);
-    if (notify) notifyListeners();
+    if (notify) _notifyListenersIfActive();
   }
 
   /// Clears the selected location and returns to the list view.
@@ -449,7 +461,7 @@ class NavSafetyController extends ChangeNotifier {
     _selectedLocationId = null;
     _selectedLocationName = null;
     _locationRecords = [];
-    notifyListeners();
+    _notifyListenersIfActive();
   }
 
   /// Fetches all records belonging to the current user across all locations

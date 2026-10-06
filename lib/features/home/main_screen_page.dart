@@ -243,6 +243,7 @@ class _MainScreenState extends State<MainScreen> {
     return AppDrawer(
       currentScreen: AppScreen.shipRating,
       showNavSafety: _showRestrictedModules,
+      showManeuvers: _showRestrictedModules,
       showNavInfo: _showRestrictedModules,
       headerOverlayPainter: _LinePatternPainter(opacity: 0.04),
       additionalItems: [

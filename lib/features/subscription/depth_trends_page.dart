@@ -49,10 +49,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   static const double _chartHeight = 190;
 
   /// Band kept free above the plot area for the value of the highest point.
-  static const double _valueLabelBand = 18;
+  static const double _valueLabelBand = 26;
 
   /// Distance between a dot and the value printed above it.
-  static const double _valueLabelGap = 7;
+  static const double _valueLabelGap = 14;
 
   /// Most labels the Y axis takes before its one-meter step is widened.
   static const int _maxYLabels = 8;
@@ -62,7 +62,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
   /// Space, measured in X-axis units, before the first and after the last dot.
   /// It keeps edge labels centered instead of forcing them into the plot area.
-  static const double _horizontalAxisPadding = 0.55;
+  static const double _horizontalAxisPadding = 0.85;
 
   final DepthTrendService _service = DepthTrendService();
   final ScrollController _chartScrollController = ScrollController();

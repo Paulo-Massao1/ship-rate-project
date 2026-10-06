@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/module_access.dart';
+import '../../core/theme/module_visuals.dart';
 import '../../data/models/maneuver_catalog.dart';
+import '../../shared/widgets/app_drawer.dart';
+import '../home/main_screen_page.dart';
 import 'maneuver_terminal_page.dart';
 
 /// Entry point for maneuver information, reports and history by terminal.
 class ManeuversPage extends StatelessWidget {
   const ManeuversPage({super.key});
 
-  static const _amber = Color(0xFFFFB74D);
+  static const _maneuverColor = ModuleVisuals.maneuverColor;
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _cardBg = Color(0x0DFFFFFF);
@@ -17,10 +21,18 @@ class ManeuversPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!ModuleAccess.canAccessRestrictedModules) {
+      return const MainScreen();
+    }
+
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: _buildAppBar(context, l10n),
+      appBar: _buildAppBar(l10n),
+      drawer: const AppDrawer(
+        currentScreen: AppScreen.maneuvers,
+        showManeuvers: true,
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -49,28 +61,8 @@ class ManeuversPage extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) {
+  PreferredSizeWidget _buildAppBar(AppLocalizations l10n) {
     return AppBar(
-      leadingWidth: 96,
-      leading: TextButton.icon(
-        onPressed: () => Navigator.maybePop(context),
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.only(left: 8, right: 6),
-          minimumSize: const Size(0, kToolbarHeight),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        icon: const Icon(Icons.arrow_back_ios_new, size: 15),
-        label: Text(
-          l10n.back,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-        ),
-      ),
       title: Text(
         l10n.maneuvers,
         style: const TextStyle(
@@ -100,9 +92,9 @@ class ManeuversPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x0FFFB74D),
+        color: ModuleVisuals.maneuverSurface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x33FFB74D)),
+        border: Border.all(color: ModuleVisuals.maneuverCardBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,10 +102,14 @@ class ManeuversPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0x1FFFB74D),
+              color: ModuleVisuals.maneuverBackground,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.anchor, color: _amber, size: 22),
+            child: const Icon(
+              ModuleVisuals.maneuverIcon,
+              color: _maneuverColor,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -158,7 +154,7 @@ class ManeuversPage extends StatelessWidget {
           child: Text(
             '${port.name} (${port.code})',
             style: const TextStyle(
-              color: _amber,
+              color: _maneuverColor,
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
@@ -202,7 +198,9 @@ class ManeuversPage extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: available ? const Color(0x33FFB74D) : _cardBorder,
+                color: available
+                    ? ModuleVisuals.maneuverCardBorder
+                    : _cardBorder,
               ),
             ),
             child: Row(
@@ -212,7 +210,9 @@ class ManeuversPage extends StatelessWidget {
                   child: Text(
                     port.code,
                     style: TextStyle(
-                      color: available ? _amber : const Color(0x4DFFFFFF),
+                      color: available
+                          ? _maneuverColor
+                          : const Color(0x4DFFFFFF),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                     ),

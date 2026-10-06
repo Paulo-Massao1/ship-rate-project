@@ -3,13 +3,16 @@ class AppConstants {
 
   static const appUrl = 'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
   static const cspamUid = 'vvmd4t7NHgYEiRbE3aPPcyGscdq1';
+  static const andreiUid =
+      'Z8UTPteGM1Y6H2rqsAmCiFtJrNC2'; // andreibrilhante@gmail.com
   static const testEmails = ['gcbrgame@gmail.com', 'spaulomassao@gmail.com'];
 
-  // Dev accounts that unlock every gated feature without a subscription.
-  // Matches [testEmails], by uid so no runtime email->uid lookup is needed.
+  // Authorized accounts that unlock every gated feature without a
+  // subscription. UIDs avoid a runtime email lookup.
   static const List<String> devBypassUids = [
     'bb4dHPgpo8duX4hqRdpHFXXWVpF2', // spaulomassao@gmail.com
     'gcmL4ngjAbblC2LwfDUzSbpPTTH2', // gcbrgame@gmail.com
+    andreiUid, // andreibrilhante@gmail.com
   ];
 
   // Dev, admin and CSPAM accounts excluded from every ranking (count and
@@ -29,9 +32,6 @@ class AppConstants {
   static List<String> get excludedUidsCountedByBackend => excludedUids
       .where((uid) => !devBypassUids.contains(uid))
       .toList(growable: false);
-
-  static const String andreiUid =
-      'Z8UTPteGM1Y6H2rqsAmCiFtJrNC2'; // andreibrilhante@gmail.com
 
   // Ranking-only adjustments applied to the depth-record count of specific
   // accounts (uid -> delta). Does not affect overall totals.

@@ -117,6 +117,7 @@ class _NavInfoPageState extends State<NavInfoPage> {
       drawer: AppDrawer(
         currentScreen: AppScreen.navInfo,
         showNavSafety: _showRestrictedModules,
+        showManeuvers: _showRestrictedModules,
         showNavInfo: _showRestrictedModules,
         bottomItems: [
           DrawerItem(
