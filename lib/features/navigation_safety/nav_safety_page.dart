@@ -32,7 +32,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   // CONSTANTS
   // ===========================================================================
 
-  static const _shareUrl = 'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
+  static const _shareUrl =
+      'https://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   static const _teal = Color(0xFF26A69A);
   static const _tealLight = Color(0x1A26A69A);
@@ -97,16 +98,15 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   bool get _showDepthRanking =>
-      !_isExcludedFromRankings &&
-      _depthStats != null &&
-      _depthRankingTotal > 0;
+      !_isExcludedFromRankings && _depthStats != null && _depthRankingTotal > 0;
 
   int get _depthRankingPosition {
     final data = _depthStats!;
     final total = _depthRankingTotal;
-    final position = data.userDepthRanking > 0
-        ? data.userDepthRanking
-        : data.totalDepthPilots > 0
+    final position =
+        data.userDepthRanking > 0
+            ? data.userDepthRanking
+            : data.totalDepthPilots > 0
             ? data.totalDepthPilots + 1
             : total;
     return position > total ? total : position;
@@ -167,10 +167,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => NavSafetyRecordDetailPage(
-          locationName: _controller.selectedLocationName ?? '',
-          record: record,
-        ),
+        builder:
+            (_) => NavSafetyRecordDetailPage(
+              locationName: _controller.selectedLocationName ?? '',
+              record: record,
+            ),
       ),
     );
   }
@@ -196,34 +197,36 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _NavShareBottomSheet(
-        onWhatsAppTap: () {
-          Navigator.pop(context);
-          final l10n = AppLocalizations.of(context)!;
-          UrlLauncherService.openWhatsAppShare(l10n.shareText);
-        },
-        onCopyLinkTap: () async {
-          Navigator.pop(context);
-          await Clipboard.setData(const ClipboardData(text: _shareUrl));
-          if (!mounted) return;
-          final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.linkCopied),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
-      ),
+      builder:
+          (_) => _NavShareBottomSheet(
+            onWhatsAppTap: () {
+              Navigator.pop(context);
+              final l10n = AppLocalizations.of(context)!;
+              UrlLauncherService.openWhatsAppShare(l10n.shareText);
+            },
+            onCopyLinkTap: () async {
+              Navigator.pop(context);
+              await Clipboard.setData(const ClipboardData(text: _shareUrl));
+              if (!mounted) return;
+              final l10n = AppLocalizations.of(context)!;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.linkCopied),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
     );
   }
 
   void _toggleLocale() {
     Navigator.pop(context);
-    final next = localeController.locale.languageCode == 'pt'
-        ? const Locale('en')
-        : const Locale('pt');
+    final next =
+        localeController.locale.languageCode == 'pt'
+            ? const Locale('en')
+            : const Locale('pt');
     localeController.changeLocale(next);
   }
 
@@ -278,9 +281,10 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           ),
           DrawerItem(
             icon: Icons.language,
-            label: localeController.locale.languageCode == 'pt'
-                ? 'English'
-                : 'Português',
+            label:
+                localeController.locale.languageCode == 'pt'
+                    ? 'English'
+                    : 'Português',
             onTap: _toggleLocale,
           ),
         ],
@@ -304,16 +308,17 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     top: Navigator.canPop(context) ? 44 : 0,
                   ),
                   child: NestedScrollView(
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      SliverToBoxAdapter(
-                        child: Column(
-                          children: [
-                            if (_showDepthStats) _buildDepthStatsCard(l10n),
-                            _buildTabGrid(l10n),
-                          ],
-                        ),
-                      ),
-                    ],
+                    headerSliverBuilder:
+                        (context, innerBoxIsScrolled) => [
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                if (_showDepthStats) _buildDepthStatsCard(l10n),
+                                _buildTabGrid(l10n),
+                              ],
+                            ),
+                          ),
+                        ],
                     body: _buildBody(l10n),
                   ),
                 ),
@@ -442,11 +447,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.emoji_events,
-                        size: 16,
-                        color: _teal,
-                      ),
+                      const Icon(Icons.emoji_events, size: 16, color: _teal),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -478,10 +479,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final firestore = FirebaseFirestore.instance;
     final countsByUid = <String, int>{};
 
-    final snapshot = await firestore
-        .collection(AppConstants.pilotStatsCollection)
-        .where('depthRecordCount', isGreaterThan: 0)
-        .get();
+    final snapshot =
+        await firestore
+            .collection(AppConstants.pilotStatsCollection)
+            .where('depthRecordCount', isGreaterThan: 0)
+            .get();
     for (final doc in snapshot.docs) {
       if (doc.id == AppConstants.cspamUid) continue;
       final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
@@ -504,10 +506,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     String currentUserName = '';
     if (currentUid != null && countsByUid.containsKey(currentUid)) {
       try {
-        final userDoc = await firestore
-            .collection(AppConstants.usersCollection)
-            .doc(currentUid)
-            .get();
+        final userDoc =
+            await firestore
+                .collection(AppConstants.usersCollection)
+                .doc(currentUid)
+                .get();
         currentUserName =
             (userDoc.data()?['nomeGuerra'] ?? '').toString().trim();
       } catch (e) {
@@ -515,8 +518,9 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       }
     }
 
-    final sorted = countsByUid.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sorted =
+        countsByUid.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
     final counts = sorted.map((e) => e.value).toList();
 
     return [
@@ -607,9 +611,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: entries.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 6),
-                          itemBuilder: (_, index) =>
-                              _buildRankingRow(entries[index], l10n),
+                          separatorBuilder:
+                              (_, __) => const SizedBox(height: 6),
+                          itemBuilder:
+                              (_, index) =>
+                                  _buildRankingRow(entries[index], l10n),
                         ),
                       ),
                     ],
@@ -625,11 +631,12 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
 
   Widget _buildRankingRow(_DepthRankingEntry entry, AppLocalizations l10n) {
     final isUser = entry.isCurrentUser;
-    final label = isUser
-        ? (entry.name.isNotEmpty
-            ? '${l10n.depthRankingYou} (${entry.name})'
-            : l10n.depthRankingYou)
-        : l10n.pilot;
+    final label =
+        isUser
+            ? (entry.name.isNotEmpty
+                ? '${l10n.depthRankingYou} (${entry.name})'
+                : l10n.depthRankingYou)
+            : l10n.pilot;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -762,7 +769,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     child: _buildTabCard(
                       icon: Icons.waves,
                       label: l10n.latestDepths,
-                      isActive: _controller.selectedLocationId == null &&
+                      isActive:
+                          _controller.selectedLocationId == null &&
                           !_showLocationsDropdown,
                       onTap: () {
                         setState(() => _showLocationsDropdown = false);
@@ -801,19 +809,22 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     bool centerContent = false,
     double labelFontSize = 13,
   }) {
-    final Color background = isActive
-        ? _tealLight
-        : isPremium
+    final Color background =
+        isActive
+            ? _tealLight
+            : isPremium
             ? _premiumLight
             : const Color(0x14FFFFFF);
-    final Color borderColor = isActive
-        ? _teal
-        : isPremium
+    final Color borderColor =
+        isActive
+            ? _teal
+            : isPremium
             ? _premiumBorder
             : const Color(0x33FFFFFF);
-    final Color iconColor = isActive
-        ? _teal
-        : isPremium
+    final Color iconColor =
+        isActive
+            ? _teal
+            : isPremium
             ? _premium
             : const Color(0xCCFFFFFF);
 
@@ -828,35 +839,37 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       ),
     );
 
-    final content = centerContent
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: iconColor, size: 21),
-              const SizedBox(width: 8),
-              Flexible(child: labelText),
-            ],
-          )
-        : Row(
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: badge == null
-                    ? labelText
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          labelText,
-                          const SizedBox(height: 4),
-                          badge,
-                        ],
-                      ),
-              ),
-            ],
-          );
+    final content =
+        centerContent
+            ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: iconColor, size: 21),
+                const SizedBox(width: 8),
+                Flexible(child: labelText),
+              ],
+            )
+            : Row(
+              children: [
+                Icon(icon, color: iconColor, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child:
+                      badge == null
+                          ? labelText
+                          : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              labelText,
+                              const SizedBox(height: 4),
+                              badge,
+                            ],
+                          ),
+                ),
+              ],
+            );
 
     return Material(
       color: background,
@@ -871,10 +884,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: borderColor,
-              width: isActive ? 1.5 : 1,
-            ),
+            border: Border.all(color: borderColor, width: isActive ? 1.5 : 1),
           ),
           child: content,
         ),
@@ -912,10 +922,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           padding: const EdgeInsets.only(bottom: 12),
           child: Text(
             '\u{1F550} ${l10n.latestDepthsRegistered}',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0x99FFFFFF),
-            ),
+            style: const TextStyle(fontSize: 12, color: Color(0x99FFFFFF)),
           ),
         ),
         ..._controller.locations.map((loc) => _buildLocationCard(loc, l10n)),
@@ -923,21 +930,25 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
-  Widget _buildLocationCard(LocationWithLatestRecord loc, AppLocalizations l10n) {
+  Widget _buildLocationCard(
+    LocationWithLatestRecord loc,
+    AppLocalizations l10n,
+  ) {
     final latestRecord = loc.latestRecord;
     final latestRecordId = latestRecord?['recordId'] as String?;
     final recordPilotId = latestRecord?['pilotId'] as String?;
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     final isOwnRecord = recordPilotId != null && recordPilotId == currentUid;
-    final liked = latestRecordId != null
-        ? _controller.hasUserLiked(loc.id, latestRecordId)
-        : false;
+    final liked =
+        latestRecordId != null
+            ? _controller.hasUserLiked(loc.id, latestRecordId)
+            : false;
     final serverLikeCount = latestRecord?['likeCount'] as int? ?? 0;
-    final cachedLikeCount = latestRecordId != null
-        ? _controller.getLikeCount(loc.id, latestRecordId)
-        : 0;
-    final likeCount =
-        cachedLikeCount > 0 ? cachedLikeCount : serverLikeCount;
+    final cachedLikeCount =
+        latestRecordId != null
+            ? _controller.getLikeCount(loc.id, latestRecordId)
+            : 0;
+    final likeCount = cachedLikeCount > 0 ? cachedLikeCount : serverLikeCount;
     final hasPilot = loc.latestPilotName?.trim().isNotEmpty ?? false;
 
     return Padding(
@@ -1021,20 +1032,21 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     children: [
                       SizedBox(
                         height: 24,
-                        child: latestRecordId != null &&
-                                (!isOwnRecord || likeCount > 0)
-                            ? Align(
-                                alignment: Alignment.centerRight,
-                                child: _buildLatestLikeAction(
-                                  locationId: loc.id,
-                                  recordId: latestRecordId,
-                                  liked: liked,
-                                  likeCount: likeCount,
-                                  isOwnRecord: isOwnRecord,
-                                  l10n: l10n,
-                                ),
-                              )
-                            : null,
+                        child:
+                            latestRecordId != null &&
+                                    (!isOwnRecord || likeCount > 0)
+                                ? Align(
+                                  alignment: Alignment.centerRight,
+                                  child: _buildLatestLikeAction(
+                                    locationId: loc.id,
+                                    recordId: latestRecordId,
+                                    liked: liked,
+                                    likeCount: likeCount,
+                                    isOwnRecord: isOwnRecord,
+                                    l10n: l10n,
+                                  ),
+                                )
+                                : null,
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -1074,20 +1086,20 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: isOwnRecord
-              ? () => _showLikersSheet(locationId, recordId, l10n)
-              : () => _controller.toggleLike(locationId, recordId),
+          onTap:
+              isOwnRecord
+                  ? () => _showLikersSheet(locationId, recordId, l10n)
+                  : () => _controller.toggleLike(locationId, recordId),
           behavior: HitTestBehavior.opaque,
           child: Padding(
             padding: const EdgeInsets.all(4),
             child: Icon(
-              liked || isOwnRecord
-                  ? Icons.thumb_up
-                  : Icons.thumb_up_outlined,
+              liked || isOwnRecord ? Icons.thumb_up : Icons.thumb_up_outlined,
               size: 16,
-              color: liked || (isOwnRecord && likeCount > 0)
-                  ? _teal
-                  : const Color(0x80FFFFFF),
+              color:
+                  liked || (isOwnRecord && likeCount > 0)
+                      ? _teal
+                      : const Color(0x80FFFFFF),
             ),
           ),
         ),
@@ -1148,14 +1160,17 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
               return InkWell(
                 onTap: () => _onLocationTap(loc.id, loc.name),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 13,
+                  ),
                   decoration: BoxDecoration(
-                    border: index < _controller.locationsSortedByName.length - 1
-                        ? const Border(
-                            bottom: BorderSide(color: Color(0x0DFFFFFF)),
-                          )
-                        : null,
+                    border:
+                        index < _controller.locationsSortedByName.length - 1
+                            ? const Border(
+                              bottom: BorderSide(color: Color(0x0DFFFFFF)),
+                            )
+                            : null,
                   ),
                   child: Text(
                     '\u{1F4CD} ${loc.name}',
@@ -1244,13 +1259,10 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   Widget _buildRecordCard(Map<String, dynamic> record, AppLocalizations l10n) {
-    final pilotName = (record['nomeGuerra'] ?? '').toString();
-    final shipName = (record['nomeNavio'] ?? '').toString();
+    final pilotName = (record['nomeGuerra'] ?? '').toString().trim();
     final profTotal = record['profundidadeTotal'];
-    final caladoMax = record['caladoMax']?.toString() ?? '—';
-    final ukc = record['ukc']?.toString() ?? '—';
-    final direction = _formatDirection(record['direcao']?.toString(), l10n);
     final dateStr = _formatDate(record['data']);
+    final locationName = _controller.selectedLocationName?.trim() ?? '';
 
     final recordId = record['recordId'] as String?;
     final recordPilotId = record['pilotId'] as String?;
@@ -1258,222 +1270,136 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final isOwnRecord = recordPilotId != null && recordPilotId == currentUid;
     final locationId = _controller.selectedLocationId;
 
-    final bool liked = (locationId != null && recordId != null)
-        ? _controller.hasUserLiked(locationId, recordId)
-        : false;
-    final int likeCount = (locationId != null && recordId != null)
-        ? _controller.getLikeCount(locationId, recordId)
-        : 0;
-    final likerNames = (locationId != null && recordId != null)
-        ? _controller.getLikerNames(locationId, recordId)
-        : <String>[];
-    final likedByText = _formatLikedByText(likerNames, likeCount, l10n);
+    final bool liked =
+        (locationId != null && recordId != null)
+            ? _controller.hasUserLiked(locationId, recordId)
+            : false;
+    final int likeCount =
+        (locationId != null && recordId != null)
+            ? _controller.getLikeCount(locationId, recordId)
+            : 0;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _navigateToRecordDetails(record),
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            constraints: const BoxConstraints(minHeight: 106),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0x1A64B5F6)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        pilotName.isNotEmpty ? l10n.pilotCallSign(pilotName) : '—',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+                Expanded(
+                  flex: 10,
+                  child: Text(
+                    dateStr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF80CBC4),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      dateStr,
-                      style: const TextStyle(
-                        color: Color(0xD9FFFFFF),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                if (shipName.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.navShipLabel(shipName),
-                      style: const TextStyle(
-                        color: Color(0xFF64B5F6),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0x1426A69A),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0x2626A69A)),
-                  ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 14,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        l10n.totalDepth,
+                        locationName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Color(0x66FFFFFF),
-                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          height: 1.05,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.totalDepthShort,
+                        style: const TextStyle(
+                          color: Color(0xFFFFCC80),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _formatMeters(profTotal),
                         style: const TextStyle(
-                          color: Color(0xFF26A69A),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          color: Color(0xFFFFB74D),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 25,
+                          height: 1.05,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    _buildStatColumn(l10n.maxDraft, caladoMax),
-                    _buildStatColumn(l10n.ukc, ukc),
-                    _buildStatColumn(l10n.direction, direction),
-                  ],
-                ),
-                if (locationId != null && recordId != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: Color(0x1A64B5F6)),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 10,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        height: 24,
+                        child:
+                            locationId != null &&
+                                    recordId != null &&
+                                    (!isOwnRecord || likeCount > 0)
+                                ? Align(
+                                  alignment: Alignment.centerRight,
+                                  child: _buildLatestLikeAction(
+                                    locationId: locationId,
+                                    recordId: recordId,
+                                    liked: liked,
+                                    likeCount: likeCount,
+                                    isOwnRecord: isOwnRecord,
+                                    l10n: l10n,
+                                  ),
+                                )
+                                : null,
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: isOwnRecord
-                              ? null
-                              : () {
-                                  _controller.toggleLike(locationId, recordId);
-                                },
-                          behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  liked
-                                      ? Icons.thumb_up
-                                      : Icons.thumb_up_outlined,
-                                  size: 19,
-                                  color: liked
-                                      ? const Color(0xFF26A69A)
-                                      : const Color(0x66FFFFFF),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '$likeCount',
-                                  style: const TextStyle(
-                                    color: Color(0x99FFFFFF),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      const SizedBox(height: 3),
+                      Text(
+                        pilotName.isNotEmpty
+                            ? l10n.pilotCallSign(pilotName)
+                            : '—',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          color: Color(0xB3FFFFFF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          height: 1.15,
                         ),
-                        if (likedByText.isNotEmpty) ...[
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _showLikersSheet(
-                                locationId,
-                                recordId,
-                                l10n,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 2),
-                                child: Text(
-                                  likedByText,
-                                  style: const TextStyle(
-                                    color: Color(0x99FFFFFF),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  String _formatLikedByText(
-    List<String> names,
-    int totalCount,
-    AppLocalizations l10n,
-  ) {
-    if (names.isEmpty || totalCount <= 0) return '';
-
-    final visibleNames = names
-        .where((name) => name.trim().isNotEmpty)
-        .take(2)
-        .toList();
-    if (visibleNames.isEmpty) return '';
-
-    if (totalCount == 1 || visibleNames.length == 1) {
-      final remaining = totalCount - 1;
-      if (remaining > 0) {
-        return l10n.likedBy('${visibleNames.first} ${l10n.andMore(remaining)}');
-      }
-      return l10n.likedBy(visibleNames.first);
-    }
-
-    if (totalCount == 2) {
-      return l10n.likedBy('${visibleNames.first} e ${visibleNames.last}');
-    }
-
-    return l10n.likedBy(
-      '${visibleNames.first}, ${visibleNames.last} ${l10n.andMore(totalCount - 2)}',
     );
   }
 
@@ -1549,10 +1475,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: names.length,
-                          separatorBuilder: (_, __) => const Divider(
-                            color: Color(0x1A64B5F6),
-                            height: 1,
-                          ),
+                          separatorBuilder:
+                              (_, __) => const Divider(
+                                color: Color(0x1A64B5F6),
+                                height: 1,
+                              ),
                           itemBuilder: (_, index) {
                             final name = names[index];
                             return ListTile(
@@ -1586,31 +1513,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     );
   }
 
-  Widget _buildStatColumn(String label, String value) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0x66FFFFFF),
-              fontSize: 9,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xD9FFFFFF),
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   String _formatDate(dynamic data) {
     if (data is Timestamp) {
       final date = data.toDate();
@@ -1623,17 +1525,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final text = value?.toString().trim() ?? '';
     if (text.isEmpty) return '—';
     return text.endsWith('m') ? text : '${text}m';
-  }
-
-  String _formatDirection(String? value, AppLocalizations l10n) {
-    switch (value?.toLowerCase()) {
-      case 'subindo':
-        return l10n.goingUp;
-      case 'baixando':
-        return l10n.goingDown;
-      default:
-        return '—';
-    }
   }
 }
 

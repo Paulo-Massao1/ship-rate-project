@@ -10,6 +10,13 @@ void main() {
       );
     });
 
+    test('restricts the external app reviewer by uid', () {
+      expect(
+        ModuleAccess.isRestrictedUser(uid: '3tXrdYuTfgQsQgzvqbluyh0u7Xz2'),
+        isTrue,
+      );
+    });
+
     test('keeps the existing ADJ and CSPAM restrictions', () {
       expect(
         ModuleAccess.isRestrictedUser(email: 'jean@adjservicos.com.br'),

@@ -123,8 +123,8 @@ class AppDrawer extends StatelessWidget {
                                         navigator.pop();
                                         navigator.push(
                                           MaterialPageRoute(
-                                            builder: (_) =>
-                                                const SettingsPage(),
+                                            builder:
+                                                (_) => const SettingsPage(),
                                           ),
                                         );
                                       },
@@ -133,10 +133,11 @@ class AppDrawer extends StatelessWidget {
                                       icon: Icons.logout,
                                       label: l10n.drawerLogout,
                                       color: const Color(0xFFEF5350),
-                                      onTap: () => performLogout(
-                                        context,
-                                        onBeforeLogout: onBeforeLogout,
-                                      ),
+                                      onTap:
+                                          () => performLogout(
+                                            context,
+                                            onBeforeLogout: onBeforeLogout,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -167,63 +168,81 @@ class AppDrawer extends StatelessWidget {
             isActive: false,
             onTap: () => _navigateTo(context, AppScreen.shipRating),
           ),
-          if (showNavSafety)
-            DrawerItem(
-              icon: Icons.anchor,
-              label: l10n.navSafetyModule,
-              isActive: false,
-              onTap: () => _navigateTo(context, AppScreen.navSafety),
-            ),
+          DrawerItem(
+            icon: Icons.anchor,
+            label: l10n.navSafetyModule,
+            isActive: false,
+            isLocked: !showNavSafety,
+            onTap:
+                showNavSafety
+                    ? () => _navigateTo(context, AppScreen.navSafety)
+                    : null,
+          ),
           DrawerItem(
             icon: Icons.compare_arrows,
             label: l10n.cruzamentoModule,
             isActive: false,
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
-          if (showManeuvers)
-            DrawerItem(
-              icon: ModuleVisuals.maneuverIcon,
-              label: l10n.maneuversModule,
-              isActive: false,
-              onTap: () => _navigateTo(context, AppScreen.maneuvers),
-            ),
-          if (showNavInfo)
-            DrawerItem(
-              icon: Icons.explore,
-              label: l10n.navInfoModule,
-              isActive: false,
-              onTap: () => _navigateTo(context, AppScreen.navInfo),
-            ),
+          DrawerItem(
+            icon: ModuleVisuals.maneuverIcon,
+            label: l10n.maneuversModule,
+            isActive: false,
+            isLocked: !showManeuvers,
+            onTap:
+                showManeuvers
+                    ? () => _navigateTo(context, AppScreen.maneuvers)
+                    : null,
+          ),
+          DrawerItem(
+            icon: Icons.explore,
+            label: l10n.navInfoModule,
+            isActive: false,
+            isLocked: !showNavInfo,
+            onTap:
+                showNavInfo
+                    ? () => _navigateTo(context, AppScreen.navInfo)
+                    : null,
+          ),
         ];
       case AppScreen.shipRating:
         return [
-          if (showNavSafety)
-            _SwitchModuleItem(
-              icon: Icons.anchor,
-              label: l10n.switchToNavSafety,
-              accentColor: const Color(0xFF26A69A),
-              onTap: () => _navigateTo(context, AppScreen.navSafety),
-            ),
+          _SwitchModuleItem(
+            icon: Icons.anchor,
+            label: l10n.switchToNavSafety,
+            accentColor: const Color(0xFF26A69A),
+            isLocked: !showNavSafety,
+            onTap:
+                showNavSafety
+                    ? () => _navigateTo(context, AppScreen.navSafety)
+                    : null,
+          ),
           _SwitchModuleItem(
             icon: Icons.compare_arrows,
             label: _switchToLabel(l10n, l10n.cruzamentoModule),
             accentColor: const Color(0xFFFFB74D),
             onTap: () => _navigateTo(context, AppScreen.crossing),
           ),
-          if (showManeuvers)
-            _SwitchModuleItem(
-              icon: ModuleVisuals.maneuverIcon,
-              label: _switchToLabel(l10n, l10n.maneuversModule),
-              accentColor: ModuleVisuals.maneuverColor,
-              onTap: () => _navigateTo(context, AppScreen.maneuvers),
-            ),
-          if (showNavInfo)
-            _SwitchModuleItem(
-              icon: Icons.explore,
-              label: _switchToLabel(l10n, l10n.navInfoModule),
-              accentColor: const Color(0xFFB388FF),
-              onTap: () => _navigateTo(context, AppScreen.navInfo),
-            ),
+          _SwitchModuleItem(
+            icon: ModuleVisuals.maneuverIcon,
+            label: _switchToLabel(l10n, l10n.maneuversModule),
+            accentColor: ModuleVisuals.maneuverColor,
+            isLocked: !showManeuvers,
+            onTap:
+                showManeuvers
+                    ? () => _navigateTo(context, AppScreen.maneuvers)
+                    : null,
+          ),
+          _SwitchModuleItem(
+            icon: Icons.explore,
+            label: _switchToLabel(l10n, l10n.navInfoModule),
+            accentColor: const Color(0xFFB388FF),
+            isLocked: !showNavInfo,
+            onTap:
+                showNavInfo
+                    ? () => _navigateTo(context, AppScreen.navInfo)
+                    : null,
+          ),
         ];
       case AppScreen.navSafety:
         return [
@@ -262,27 +281,36 @@ class AppDrawer extends StatelessWidget {
             accentColor: const Color(0xFF64B5F6),
             onTap: () => _navigateTo(context, AppScreen.shipRating),
           ),
-          if (showNavSafety)
-            _SwitchModuleItem(
-              icon: Icons.anchor,
-              label: l10n.switchToNavSafety,
-              accentColor: const Color(0xFF26A69A),
-              onTap: () => _navigateTo(context, AppScreen.navSafety),
-            ),
-          if (showManeuvers)
-            _SwitchModuleItem(
-              icon: ModuleVisuals.maneuverIcon,
-              label: _switchToLabel(l10n, l10n.maneuversModule),
-              accentColor: ModuleVisuals.maneuverColor,
-              onTap: () => _navigateTo(context, AppScreen.maneuvers),
-            ),
-          if (showNavInfo)
-            _SwitchModuleItem(
-              icon: Icons.explore,
-              label: _switchToLabel(l10n, l10n.navInfoModule),
-              accentColor: const Color(0xFFB388FF),
-              onTap: () => _navigateTo(context, AppScreen.navInfo),
-            ),
+          _SwitchModuleItem(
+            icon: Icons.anchor,
+            label: l10n.switchToNavSafety,
+            accentColor: const Color(0xFF26A69A),
+            isLocked: !showNavSafety,
+            onTap:
+                showNavSafety
+                    ? () => _navigateTo(context, AppScreen.navSafety)
+                    : null,
+          ),
+          _SwitchModuleItem(
+            icon: ModuleVisuals.maneuverIcon,
+            label: _switchToLabel(l10n, l10n.maneuversModule),
+            accentColor: ModuleVisuals.maneuverColor,
+            isLocked: !showManeuvers,
+            onTap:
+                showManeuvers
+                    ? () => _navigateTo(context, AppScreen.maneuvers)
+                    : null,
+          ),
+          _SwitchModuleItem(
+            icon: Icons.explore,
+            label: _switchToLabel(l10n, l10n.navInfoModule),
+            accentColor: const Color(0xFFB388FF),
+            isLocked: !showNavInfo,
+            onTap:
+                showNavInfo
+                    ? () => _navigateTo(context, AppScreen.navInfo)
+                    : null,
+          ),
         ];
       case AppScreen.navInfo:
         return [
@@ -479,7 +507,9 @@ class AppDrawer extends StatelessWidget {
       case AppScreen.crossing:
         navigator.push(MaterialPageRoute(builder: (_) => const CrossingPage()));
       case AppScreen.maneuvers:
-        navigator.push(MaterialPageRoute(builder: (_) => const ManeuversPage()));
+        navigator.push(
+          MaterialPageRoute(builder: (_) => const ManeuversPage()),
+        );
       case AppScreen.navInfo:
         navigator.push(MaterialPageRoute(builder: (_) => const NavInfoPage()));
       case AppScreen.home:
@@ -488,16 +518,18 @@ class AppDrawer extends StatelessWidget {
   }
 
   String _switchToLabel(AppLocalizations l10n, String moduleName) {
-    final shipPrefix = l10n.switchToShipRating
-        .replaceFirst(l10n.shipRatingModule, '')
-        .trimRight();
+    final shipPrefix =
+        l10n.switchToShipRating
+            .replaceFirst(l10n.shipRatingModule, '')
+            .trimRight();
     if (shipPrefix != l10n.switchToShipRating) {
       return '$shipPrefix $moduleName'.trim();
     }
 
-    final navPrefix = l10n.switchToNavSafety
-        .replaceFirst(l10n.navSafetyModule, '')
-        .trimRight();
+    final navPrefix =
+        l10n.switchToNavSafety
+            .replaceFirst(l10n.navSafetyModule, '')
+            .trimRight();
     if (navPrefix != l10n.switchToNavSafety) {
       return '$navPrefix $moduleName'.trim();
     }
@@ -726,52 +758,57 @@ class _SwitchModuleItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color accentColor;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool isLocked;
 
   const _SwitchModuleItem({
     required this.icon,
     required this.label,
     required this.accentColor,
     required this.onTap,
+    this.isLocked = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    const lockedColor = Color(0x8AFFFFFF);
+    final effectiveColor = isLocked ? lockedColor : accentColor;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
-        color: accentColor.withValues(alpha: 0.08),
+        color: effectiveColor.withValues(alpha: isLocked ? 0.03 : 0.08),
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: onTap,
+          onTap: isLocked ? null : onTap,
           borderRadius: BorderRadius.circular(10),
-          hoverColor: accentColor.withValues(alpha: 0.12),
-          splashColor: accentColor.withValues(alpha: 0.12),
+          hoverColor: effectiveColor.withValues(alpha: 0.12),
+          splashColor: effectiveColor.withValues(alpha: 0.12),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border(left: BorderSide(color: accentColor, width: 3)),
+              border: Border(left: BorderSide(color: effectiveColor, width: 3)),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               child: Row(
                 children: [
-                  Icon(icon, color: accentColor, size: 22),
+                  Icon(icon, color: effectiveColor, size: 22),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       label,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: accentColor,
+                        color: effectiveColor,
                         fontSize: 14,
                       ),
                     ),
                   ),
                   Icon(
-                    Icons.chevron_right,
-                    color: accentColor.withValues(alpha: 0.5),
-                    size: 20,
+                    isLocked ? Icons.lock_outline : Icons.chevron_right,
+                    color: effectiveColor.withValues(alpha: 0.75),
+                    size: isLocked ? 18 : 20,
                   ),
                 ],
               ),
@@ -786,9 +823,10 @@ class _SwitchModuleItem extends StatelessWidget {
 class DrawerItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color? color;
   final bool isActive;
+  final bool isLocked;
 
   const DrawerItem({
     super.key,
@@ -797,15 +835,24 @@ class DrawerItem extends StatelessWidget {
     required this.onTap,
     this.color,
     this.isActive = false,
+    this.isLocked = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    const lockedColor = Color(0x8AFFFFFF);
     final textColor =
-        isActive ? const Color(0xFF26A69A) : (color ?? const Color(0xD9FFFFFF));
-    final iconColor = isActive
-        ? const Color(0xFF26A69A)
-        : (color ?? Colors.white.withValues(alpha: 0.7));
+        isLocked
+            ? lockedColor
+            : isActive
+            ? const Color(0xFF26A69A)
+            : (color ?? const Color(0xD9FFFFFF));
+    final iconColor =
+        isLocked
+            ? lockedColor
+            : isActive
+            ? const Color(0xFF26A69A)
+            : (color ?? Colors.white.withValues(alpha: 0.7));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -813,7 +860,7 @@ class DrawerItem extends StatelessWidget {
         color: isActive ? const Color(0x1A26A69A) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: onTap,
+          onTap: isLocked ? null : onTap,
           borderRadius: BorderRadius.circular(10),
           hoverColor: const Color(0x1A64B5F6),
           splashColor: const Color(0x1A64B5F6),
@@ -823,14 +870,18 @@ class DrawerItem extends StatelessWidget {
               children: [
                 Icon(icon, color: iconColor, size: 22),
                 const SizedBox(width: 16),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: textColor,
-                    fontSize: 14,
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: textColor,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
+                if (isLocked)
+                  const Icon(Icons.lock_outline, color: lockedColor, size: 18),
               ],
             ),
           ),

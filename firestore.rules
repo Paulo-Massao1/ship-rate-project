@@ -9,7 +9,12 @@ service cloud.firestore {
 
     function isRestrictedModuleUser() {
       return isSignedIn()
-             && (request.auth.uid == 'vvmd4t7NHgYEiRbE3aPPcyGscdq1'
+             && (request.auth.uid in [
+                   'vvmd4t7NHgYEiRbE3aPPcyGscdq1',
+                   'RckaridTpjOXQ37oY1tAXdQVoeE2',
+                   'upyJA8HoC9Y5LHv71654Mbt7w503',
+                   '3tXrdYuTfgQsQgzvqbluyh0u7Xz2'
+                 ]
                  || (request.auth.token.email != null
                      && (request.auth.token.email == 'plantao@nortepilot.com.br'
                          || request.auth.token.email == 'operacional@adjservicos.com.br'
@@ -318,8 +323,8 @@ service cloud.firestore {
     // Shared tugboat catalog for maneuver reports. Official entries remain
     // bundled with the app; this collection stores immutable community entries.
     match /maneuverTugs/{tugId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn()
+      allow read: if canAccessRestrictedModules();
+      allow create: if canAccessRestrictedModules()
                     && request.resource.data.keys().hasAll([
                       'name',
                       'normalizedName',
@@ -404,8 +409,8 @@ service cloud.firestore {
     }
 
     match /manobras_relatos/{reportId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn()
+      allow read: if canAccessRestrictedModules();
+      allow create: if canAccessRestrictedModules()
                     && request.resource.data.pilotId == request.auth.uid
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.updatedAt == request.time
@@ -413,7 +418,7 @@ service cloud.firestore {
                     && isValidManeuverReport(
                          request.resource.data, reportId
                        );
-      allow update: if isSignedIn()
+      allow update: if canAccessRestrictedModules()
                     && resource.data.pilotId == request.auth.uid
                     && request.resource.data.pilotId == resource.data.pilotId
                     && request.resource.data.portCode == resource.data.portCode
@@ -428,7 +433,7 @@ service cloud.firestore {
                     && isValidManeuverReport(
                          request.resource.data, reportId
                        );
-      allow delete: if isSignedIn()
+      allow delete: if canAccessRestrictedModules()
                     && resource.data.pilotId == request.auth.uid;
     }
 

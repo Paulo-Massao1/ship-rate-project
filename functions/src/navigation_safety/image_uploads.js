@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const functions = require("firebase-functions/v1");
 const { admin } = require("../shared/firestore");
+const { isRestrictedModuleUser } = require("../shared/constants");
 
 const MAX_IMAGES_PER_RECORD = 3;
 const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024;
@@ -62,6 +63,16 @@ function assertSignedIn(context) {
     throw new functions.https.HttpsError(
       "unauthenticated",
       "Must be signed in."
+    );
+  }
+
+  if (isRestrictedModuleUser({
+    uid: context.auth.uid,
+    email: context.auth.token?.email,
+  })) {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "This account cannot access Depths."
     );
   }
 }

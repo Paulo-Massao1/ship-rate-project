@@ -11,6 +11,7 @@ class ModuleAccess {
     AppConstants.cspamUid,
     'RckaridTpjOXQ37oY1tAXdQVoeE2', // operacional@adjservicos.com.br
     'upyJA8HoC9Y5LHv71654Mbt7w503', // jean@adjservicos.com.br
+    '3tXrdYuTfgQsQgzvqbluyh0u7Xz2', // testerapptores@gmail.com
   };
 
   static const restrictedEmails = <String>{

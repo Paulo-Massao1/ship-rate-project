@@ -1404,17 +1404,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             subtitle: l10n.shipRatingDesc,
             onTap: _navigateToShipRating,
           ),
-          if (!_restrictedToCoreModules)
-            _buildModuleCard(
-              icon: Icons.anchor,
-              iconBgColor: const Color(0x1F26A69A),
-              iconBorderColor: const Color(0x4026A69A),
-              iconColor: const Color(0xFF26A69A),
-              borderColor: const Color(0x3326A69A),
-              title: l10n.navSafetyModule,
-              subtitle: l10n.navSafetyDesc,
-              onTap: _navigateToNavSafety,
-            ),
+          _buildModuleCard(
+            icon: Icons.anchor,
+            iconBgColor: const Color(0x1F26A69A),
+            iconBorderColor: const Color(0x4026A69A),
+            iconColor: const Color(0xFF26A69A),
+            borderColor: const Color(0x3326A69A),
+            title: l10n.navSafetyModule,
+            subtitle: l10n.navSafetyDesc,
+            onTap: _navigateToNavSafety,
+            isLocked: _restrictedToCoreModules,
+          ),
           _buildModuleCard(
             icon: Icons.compare_arrows,
             iconBgColor: const Color(0x1FFFB74D),
@@ -1425,36 +1425,35 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             subtitle: l10n.cruzamentoDesc,
             onTap: _navigateToCrossing,
           ),
-          if (!_restrictedToCoreModules)
-            _buildModuleCard(
-              icon: ModuleVisuals.maneuverIcon,
-              iconBgColor: ModuleVisuals.maneuverBackground,
-              iconBorderColor: ModuleVisuals.maneuverBorder,
-              iconColor: ModuleVisuals.maneuverColor,
-              borderColor: ModuleVisuals.maneuverCardBorder,
-              title: l10n.maneuversModule,
-              subtitle: l10n.maneuversDesc,
-              badge: l10n.newBadge,
-              badgeColor: ModuleVisuals.maneuverColor,
-              onTap: _navigateToManeuvers,
-            ),
-          if (!_restrictedToCoreModules)
-            _buildModuleCard(
-              icon: Icons.explore,
-              iconBgColor: const Color(0x1FB388FF),
-              iconBorderColor: const Color(0x26B388FF),
-              iconColor: const Color(0xFFB388FF),
-              borderColor: const Color(0x26B388FF),
-              title: l10n.navInfoModule,
-              subtitle: l10n.navInfoDesc,
-              onTap: _navigateToNavInfo,
-            ),
-          if (!_restrictedToCoreModules)
-            _buildComingSoonModuleCard(
-              icon: Icons.groups_outlined,
-              title: l10n.onBoardPilotsModule,
-              subtitle: l10n.onBoardPilotsDesc,
-            ),
+          _buildModuleCard(
+            icon: ModuleVisuals.maneuverIcon,
+            iconBgColor: ModuleVisuals.maneuverBackground,
+            iconBorderColor: ModuleVisuals.maneuverBorder,
+            iconColor: ModuleVisuals.maneuverColor,
+            borderColor: ModuleVisuals.maneuverCardBorder,
+            title: l10n.maneuversModule,
+            subtitle: l10n.maneuversDesc,
+            badge: l10n.newBadge,
+            badgeColor: ModuleVisuals.maneuverColor,
+            onTap: _navigateToManeuvers,
+            isLocked: _restrictedToCoreModules,
+          ),
+          _buildModuleCard(
+            icon: Icons.explore,
+            iconBgColor: const Color(0x1FB388FF),
+            iconBorderColor: const Color(0x26B388FF),
+            iconColor: const Color(0xFFB388FF),
+            borderColor: const Color(0x26B388FF),
+            title: l10n.navInfoModule,
+            subtitle: l10n.navInfoDesc,
+            onTap: _navigateToNavInfo,
+            isLocked: _restrictedToCoreModules,
+          ),
+          _buildComingSoonModuleCard(
+            icon: Icons.groups_outlined,
+            title: l10n.onBoardPilotsModule,
+            subtitle: l10n.onBoardPilotsDesc,
+          ),
         ];
         final rowCount = (cards.length / 2).ceil();
         final availableForCards = targetHeight - (spacing * (rowCount - 1));
@@ -1484,20 +1483,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     required VoidCallback onTap,
     String? badge,
     Color? badgeColor,
+    bool isLocked = false,
   }) {
+    const lockedColor = Color(0x8AFFFFFF);
+    final effectiveIconColor = isLocked ? lockedColor : iconColor;
+    final effectiveBorderColor =
+        isLocked ? const Color(0x1FFFFFFF) : borderColor;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: isLocked ? null : onTap,
         borderRadius: BorderRadius.circular(12),
-        splashColor: borderColor,
+        splashColor: effectiveBorderColor,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0x0DFFFFFF),
+            color: isLocked ? const Color(0x08FFFFFF) : const Color(0x0DFFFFFF),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor),
+            border: Border.all(color: effectiveBorderColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1508,14 +1513,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: iconBgColor,
+                      color: isLocked ? const Color(0x0FFFFFFF) : iconBgColor,
                       borderRadius: BorderRadius.circular(9),
-                      border: Border.all(color: iconBorderColor),
+                      border: Border.all(
+                        color:
+                            isLocked
+                                ? const Color(0x1FFFFFFF)
+                                : iconBorderColor,
+                      ),
                     ),
-                    child: Icon(icon, color: iconColor, size: 20),
+                    child: Icon(icon, color: effectiveIconColor, size: 20),
                   ),
                   const Spacer(),
-                  if (badge != null) ...[
+                  if (isLocked)
+                    const Icon(Icons.lock_outline, color: lockedColor, size: 18)
+                  else if (badge != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -1538,12 +1550,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ),
                     ),
                   ],
-                  const SizedBox(width: 3),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.white.withValues(alpha: 0.3),
-                    size: 19,
-                  ),
+                  if (!isLocked) ...[
+                    const SizedBox(width: 3),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      size: 19,
+                    ),
+                  ],
                 ],
               ),
               Expanded(
@@ -1555,8 +1569,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: isLocked ? lockedColor : Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                         height: 1.1,
@@ -1568,8 +1582,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       maxLines: 2,
                       softWrap: true,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Color(0x73FFFFFF),
+                      style: TextStyle(
+                        color:
+                            isLocked
+                                ? const Color(0x66FFFFFF)
+                                : const Color(0x73FFFFFF),
                         fontSize: 11,
                         height: 1.2,
                       ),

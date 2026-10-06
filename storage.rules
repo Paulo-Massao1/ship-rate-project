@@ -5,6 +5,26 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    function isRestrictedModuleUser() {
+      return isSignedIn()
+             && (request.auth.uid in [
+                   'vvmd4t7NHgYEiRbE3aPPcyGscdq1',
+                   'RckaridTpjOXQ37oY1tAXdQVoeE2',
+                   'upyJA8HoC9Y5LHv71654Mbt7w503',
+                   '3tXrdYuTfgQsQgzvqbluyh0u7Xz2'
+                 ]
+                 || (request.auth.token.email != null
+                     && (request.auth.token.email == 'plantao@nortepilot.com.br'
+                         || request.auth.token.email == 'operacional@adjservicos.com.br'
+                         || request.auth.token.email == 'jean@adjservicos.com.br'
+                         || request.auth.token.email == 'testerapptores@gmail.com'
+                         || request.auth.token.email.matches('.*@cspam\\.com\\.br$'))));
+    }
+
+    function canAccessRestrictedModules() {
+      return isSignedIn() && !isRestrictedModuleUser();
+    }
+
     function isSupportedImageUpload() {
       return request.resource != null
           && request.resource.size <= 20 * 1024 * 1024
@@ -21,19 +41,21 @@ service firebase.storage {
     }
 
     match /registros/{locationId}/{recordId}/{fileName} {
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn() && isSupportedImageUpload();
-      allow delete: if isSignedIn()
+      allow read: if canAccessRestrictedModules();
+      allow create, update: if canAccessRestrictedModules()
+                            && isSupportedImageUpload();
+      allow delete: if canAccessRestrictedModules()
                     && resource.metadata.uploadedBy == request.auth.uid;
     }
 
     match /manobras/{ownerUid}/{reportId}/{section}/{fileName} {
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn()
+      allow read: if canAccessRestrictedModules();
+      allow create, update: if canAccessRestrictedModules()
                             && request.auth.uid == ownerUid
                             && section in ['approach', 'mooring']
                             && isSupportedManeuverMedia();
-      allow delete: if isSignedIn() && request.auth.uid == ownerUid;
+      allow delete: if canAccessRestrictedModules()
+                    && request.auth.uid == ownerUid;
     }
   }
 }

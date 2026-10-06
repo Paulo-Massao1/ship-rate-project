@@ -3,10 +3,13 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../core/subscription_constants.dart';
 import '../../data/models/maneuver_catalog.dart';
+import '../../data/models/maneuver_report.dart';
 import '../../data/models/maneuver_tug.dart';
+import '../../data/services/maneuver_media_service.dart';
+import '../../data/services/maneuver_report_service.dart';
 import '../../data/services/maneuver_tug_service.dart';
+import '../../data/services/url_launcher_service.dart';
 import '../../shared/widgets/subscription_gate.dart';
-import 'maneuver_report_page.dart';
 
 class ManeuverInitialInfoPage extends StatelessWidget {
   const ManeuverInitialInfoPage({
@@ -70,7 +73,8 @@ class ManeuverInitialInfoPage extends StatelessWidget {
               children: [
                 _InfoRow(
                   label: l10n.maneuverSchedule,
-                  value: info.scheduleRestriction?.resolve(locale) ??
+                  value:
+                      info.scheduleRestriction?.resolve(locale) ??
                       l10n.maneuverNoScheduleLimitation,
                 ),
                 _InfoRow(
@@ -107,9 +111,10 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 ),
                 _InfoRow(
                   label: l10n.maneuverTugboats,
-                  value: info.tugboatsMandatory
-                      ? l10n.maneuverMandatory
-                      : l10n.maneuverNoRestriction,
+                  value:
+                      info.tugboatsMandatory
+                          ? l10n.maneuverMandatory
+                          : l10n.maneuverNoRestriction,
                   valueColor: _amber,
                   trailingIcon: Icons.info_outline,
                   onTap: () => _showTugInformation(context, l10n, info),
@@ -148,7 +153,8 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 for (var index = 0; index < info.mooring.length; index++)
                   _InfoRow(
                     label: info.mooring[index].vesselClass,
-                    value: info.mooring[index].finalPosition?.resolve(locale) ??
+                    value:
+                        info.mooring[index].finalPosition?.resolve(locale) ??
                         l10n.maneuverToDefine,
                     valueColor: const Color(0x99FFFFFF),
                     showDivider: index < info.mooring.length - 1,
@@ -156,61 +162,16 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 _InfoSubheading(l10n.maneuverMedia),
                 const SizedBox(height: 7),
-                Wrap(
-                  spacing: 7,
-                  runSpacing: 7,
-                  children: [
-                    _mediaButton(
-                      context,
-                      Icons.videocam_outlined,
-                      l10n.maneuverNightVideos,
-                    ),
-                    _mediaButton(
-                      context,
-                      Icons.videocam_outlined,
-                      l10n.maneuverDayVideos,
-                    ),
-                    _mediaButton(
-                      context,
-                      Icons.photo_camera_outlined,
-                      l10n.photos,
-                    ),
-                  ],
+                _ManeuverTerminalMediaGallery(
+                  portCode: port.code,
+                  terminalId: terminal.id,
+                  terminalName: terminal.name,
                 ),
               ],
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _mediaButton(
-    BuildContext context,
-    IconData icon,
-    String label,
-  ) {
-    return OutlinedButton.icon(
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ManeuverReportPage(
-            portName: port.name,
-            portCode: port.code,
-            terminalId: terminal.id,
-            terminalName: terminal.name,
-          ),
-        ),
-      ),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: Color(0x2EFFFFFF)),
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        visualDensity: VisualDensity.compact,
-      ),
-      icon: Icon(icon, color: _muted, size: 14),
-      label: Text(label, style: const TextStyle(fontSize: 11)),
     );
   }
 
@@ -229,37 +190,38 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.maneuverOfficialTugInfo,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+      builder:
+          (_) => SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.maneuverOfficialTugInfo,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    info.tugRequirementDetail.resolve(locale),
+                    style: const TextStyle(color: _muted, fontSize: 11),
+                  ),
+                  const SizedBox(height: 12),
+                  ...tugs.map((tug) => _buildTugTile(context, tug, l10n)),
+                  const SizedBox(height: 4),
+                  Text(
+                    info.tugMinimumNote.resolve(locale),
+                    style: const TextStyle(color: _amber, fontSize: 10),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                info.tugRequirementDetail.resolve(locale),
-                style: const TextStyle(color: _muted, fontSize: 11),
-              ),
-              const SizedBox(height: 12),
-              ...tugs.map((tug) => _buildTugTile(context, tug, l10n)),
-              const SizedBox(height: 4),
-              Text(
-                info.tugMinimumNote.resolve(locale),
-                style: const TextStyle(color: _amber, fontSize: 10),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -274,9 +236,10 @@ class ManeuverInitialInfoPage extends StatelessWidget {
       ManeuverTugType.unspecified => l10n.maneuverTugTypeUnspecified,
     };
     final rawBp = tug.bollardPull?.toStringAsFixed(2);
-    final bp = rawBp == null
-        ? '—'
-        : Localizations.localeOf(context).languageCode == 'pt'
+    final bp =
+        rawBp == null
+            ? '—'
+            : Localizations.localeOf(context).languageCode == 'pt'
             ? rawBp.replaceAll('.', ',')
             : rawBp;
 
@@ -320,9 +283,10 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   }
 
   String _formatNumber(double value, Locale locale) {
-    final formatted = value == value.roundToDouble()
-        ? value.toInt().toString()
-        : value.toStringAsFixed(2);
+    final formatted =
+        value == value.roundToDouble()
+            ? value.toInt().toString()
+            : value.toStringAsFixed(2);
     return locale.languageCode == 'pt'
         ? formatted.replaceAll('.', ',')
         : formatted;
@@ -371,8 +335,10 @@ class _InfoAccordionState extends State<_InfoAccordion> {
             child: InkWell(
               onTap: () => setState(() => _expanded = !_expanded),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 13,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     AnimatedRotation(
@@ -402,12 +368,13 @@ class _InfoAccordionState extends State<_InfoAccordion> {
           ),
           AnimatedSize(
             duration: const Duration(milliseconds: 180),
-            child: _expanded
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 3, 14, 11),
-                    child: Column(children: widget.children),
-                  )
-                : const SizedBox(width: double.infinity),
+            child:
+                _expanded
+                    ? Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 3, 14, 11),
+                      child: Column(children: widget.children),
+                    )
+                    : const SizedBox(width: double.infinity),
           ),
         ],
       ),
@@ -506,11 +473,254 @@ class _InfoRow extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        border: showDivider
-            ? const Border(bottom: BorderSide(color: Color(0x12FFFFFF)))
-            : null,
+        border:
+            showDivider
+                ? const Border(bottom: BorderSide(color: Color(0x12FFFFFF)))
+                : null,
       ),
       child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }
+}
+
+class _ManeuverTerminalMediaGallery extends StatefulWidget {
+  const _ManeuverTerminalMediaGallery({
+    required this.portCode,
+    required this.terminalId,
+    required this.terminalName,
+  });
+
+  final String portCode;
+  final String terminalId;
+  final String terminalName;
+
+  @override
+  State<_ManeuverTerminalMediaGallery> createState() =>
+      _ManeuverTerminalMediaGalleryState();
+}
+
+class _ManeuverTerminalMediaGalleryState
+    extends State<_ManeuverTerminalMediaGallery> {
+  static const _amber = Color(0xFFFFB74D);
+  static const _muted = Color(0x99FFFFFF);
+
+  final ManeuverMediaService _mediaService = const ManeuverMediaService();
+  final Map<String, Future<String>> _downloadUrls = {};
+  late final Stream<List<ManeuverReportRecord>> _reportsStream;
+  String? _openingPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _reportsStream = ManeuverReportService().watchReports(
+      portCode: widget.portCode,
+      terminalId: widget.terminalId,
+      terminalName: widget.terminalName,
+    );
+  }
+
+  Future<String> _downloadUrl(String path) {
+    return _downloadUrls.putIfAbsent(
+      path,
+      () => _mediaService.getDownloadUrl(path),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return StreamBuilder<List<ManeuverReportRecord>>(
+      stream: _reportsStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 18),
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(color: _amber, strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+
+        final items = <_TerminalMediaItem>[
+          for (final report in snapshot.data ?? const <ManeuverReportRecord>[])
+            for (final attachment in [
+              ...report.approachMedia,
+              ...report.mooringMedia,
+            ])
+              _TerminalMediaItem(report: report, attachment: attachment),
+        ];
+
+        if (snapshot.hasError || items.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              l10n.maneuverMediaUnavailable,
+              style: const TextStyle(color: _muted, fontSize: 11, height: 1.3),
+            ),
+          );
+        }
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 280 ? 2 : 1;
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 1.35,
+              ),
+              itemCount: items.length,
+              itemBuilder:
+                  (context, index) => _buildMediaTile(items[index], l10n),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMediaTile(_TerminalMediaItem item, AppLocalizations l10n) {
+    final attachment = item.attachment;
+    final opening = _openingPath == attachment.path;
+
+    return FutureBuilder<String>(
+      future: _downloadUrl(attachment.path),
+      builder: (context, snapshot) {
+        final url = snapshot.data;
+        return Material(
+          color: const Color(0x12000000),
+          borderRadius: BorderRadius.circular(9),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap:
+                url == null || opening
+                    ? null
+                    : () => _openMedia(attachment.path, url, l10n),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (attachment.type == ManeuverMediaType.photo && url != null)
+                  Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (_, __, ___) => _mediaPlaceholder(attachment.type),
+                  )
+                else
+                  _mediaPlaceholder(attachment.type),
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Color(0xE60A1628)],
+                      stops: [0.35, 1],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 7,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        attachment.originalName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        item.report.shipName ??
+                            item.report.pilotName ??
+                            widget.terminalName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _muted, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ),
+                if (opening)
+                  const Center(
+                    child: CircularProgressIndicator(
+                      color: _amber,
+                      strokeWidth: 2,
+                    ),
+                  )
+                else if (attachment.type == ManeuverMediaType.video)
+                  const Center(
+                    child: Icon(
+                      Icons.play_circle_fill,
+                      color: Colors.white,
+                      size: 34,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _mediaPlaceholder(ManeuverMediaType type) {
+    return ColoredBox(
+      color: const Color(0xFF15283B),
+      child: Center(
+        child: Icon(
+          type == ManeuverMediaType.photo
+              ? Icons.photo_outlined
+              : Icons.videocam_outlined,
+          color: _amber,
+          size: 28,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openMedia(
+    String path,
+    String url,
+    AppLocalizations l10n,
+  ) async {
+    setState(() => _openingPath = path);
+    try {
+      final opened = await UrlLauncherService.openExternalUrl(url);
+      if (!opened) throw StateError('Could not open maneuver media.');
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.maneuverMediaOpenError),
+          backgroundColor: Colors.red.shade800,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _openingPath = null);
+    }
+  }
+}
+
+class _TerminalMediaItem {
+  const _TerminalMediaItem({required this.report, required this.attachment});
+
+  final ManeuverReportRecord report;
+  final ManeuverMediaAttachment attachment;
 }
