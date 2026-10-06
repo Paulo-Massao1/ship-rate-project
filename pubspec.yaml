@@ -73,6 +73,7 @@ flutter:
     - assets/documents/parametros_operacionais.pdf
     - assets/documents/calados_maximos.pdf
     - assets/documents/barra_norte/
+    - assets/fonts/
 
 flutter_launcher_icons:
   ios: true

@@ -1,7 +1,6 @@
 // lib/features/subscription/monthly_report_pdf.dart
 
-import 'dart:typed_data';
-
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -67,9 +66,20 @@ class MonthlyReportPdf {
   Future<Uint8List> generatePdf(MonthlyReportData data) async {
     final document = pw.Document();
     final dateFormat = DateFormat('dd/MM/yyyy');
+    final regularFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Regular.ttf'),
+    );
+    final boldFont = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/Roboto-Bold.ttf'),
+    );
+    final documentTheme = pw.ThemeData.withFont(
+      base: regularFont,
+      bold: boldFont,
+    );
 
     document.addPage(
       pw.MultiPage(
+        theme: documentTheme,
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(28, 28, 28, 24),
         footer: (_) => _buildFooter(),

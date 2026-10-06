@@ -531,13 +531,65 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   // ===========================================================================
 
   Widget _buildReport(AppLocalizations l10n, MonthlyReportData data) {
+    return Column(
+      children: [
+        Expanded(
+          child: data.isEmpty
+              ? _buildEmptyReport(l10n, data)
+              : _buildReportList(l10n, data),
+        ),
+        SafeArea(
+          top: false,
+          minimum: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+          child: _buildActionButtons(l10n, enabled: !data.isEmpty),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyReport(
+    AppLocalizations l10n,
+    MonthlyReportData data,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const verticalPadding = 24.0;
+        final minimumContentHeight = constraints.maxHeight > verticalPadding
+            ? constraints.maxHeight - verticalPadding
+            : 0.0;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minimumContentHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  _buildPilotCard(l10n, data),
+                  const SizedBox(height: 16),
+                  _buildSummaryGrid(l10n, data),
+                  Expanded(
+                    child: Center(child: _buildEmptyState(l10n)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReportList(
+    AppLocalizations l10n,
+    MonthlyReportData data,
+  ) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       children: [
         _buildPilotCard(l10n, data),
         const SizedBox(height: 16),
         _buildSummaryGrid(l10n, data),
-        if (data.isEmpty) _buildEmptyState(l10n),
         // A section with nothing in it is dropped instead of showing a header
         // above an empty list.
         if (data.ratings.isNotEmpty) ...[
@@ -559,9 +611,6 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           for (final crossing in data.crossings)
             _buildCrossingCard(l10n, crossing),
         ],
-        const SizedBox(height: 28),
-        // Nothing to export on a month without contributions.
-        _buildActionButtons(l10n, enabled: !data.isEmpty),
       ],
     );
   }
@@ -794,19 +843,17 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   // ===========================================================================
 
   Widget _buildEmptyState(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 48),
-      child: Column(
-        children: [
-          const Icon(Icons.insert_chart_outlined, color: _white40, size: 42),
-          const SizedBox(height: 14),
-          Text(
-            l10n.noContributions,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: _white60, fontSize: 13),
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.insert_chart_outlined, color: _white40, size: 42),
+        const SizedBox(height: 14),
+        Text(
+          l10n.noContributions,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: _white60, fontSize: 13),
+        ),
+      ],
     );
   }
 
