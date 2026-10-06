@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const { db } = require("../shared/firestore");
 
 exports.checkWhitelist = functions.https.onCall(async (data, context) => {

@@ -16,8 +16,7 @@ import '../../features/subscription/subscription_page.dart';
 ///
 /// Subscribers of [requiredPlan] (or of a plan that includes it) see [child]
 /// exactly as if the gate was not there. Everyone else gets a locked
-/// placeholder plus a bottom sheet inviting them to subscribe, with a button
-/// that opens the [SubscriptionPage].
+/// placeholder with a button that opens the [SubscriptionPage].
 ///
 /// The gate listens to [SubscriptionService.customerInfoStream], so it opens
 /// by itself as soon as a purchase is confirmed.
@@ -49,15 +48,11 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
   static const _premiumColor = Color(0xFF64B5F6);
   static const _plusColor = Color(0xFFFFB74D);
   static const _darkNavy = Color(0xFF0A1628);
-  static const _sheetBackground = Color(0xFF0D2137);
 
   StreamSubscription<CustomerInfo>? _customerInfoSubscription;
 
   /// Null while the plan is still being checked.
   bool? _hasAccess;
-
-  /// True while the upsell sheet is on screen.
-  bool _sheetVisible = false;
 
   bool get _isPremiumFeature =>
       widget.requiredPlan == SubscriptionConstants.planPremium;
@@ -95,18 +90,14 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
   // ACCESS
   // ===========================================================================
 
-  /// Refreshes the plan from RevenueCat and opens the upsell sheet when the
-  /// feature is still locked and [showSheetIfLocked] is true.
-  Future<void> _checkAccess({bool showSheetIfLocked = true}) async {
+  /// Refreshes the plan from RevenueCat before rendering the gated content.
+  Future<void> _checkAccess() async {
     // Refreshes the cached CustomerInfo before reading the active plan.
     await SubscriptionService.isAnySubscriber();
     final granted = _grantsAccess(SubscriptionService.lastCustomerInfo);
     if (!mounted) return;
 
     setState(() => _hasAccess = granted);
-    if (!granted && showSheetIfLocked) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showUpsellSheet());
-    }
   }
 
   /// True when the plan granted by [customerInfo] includes [requiredPlan].
@@ -125,47 +116,23 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
     if (!mounted || granted == _hasAccess) return;
 
     setState(() => _hasAccess = granted);
-    // The feature was just unlocked, drop the sheet covering it.
-    if (granted && _sheetVisible) Navigator.pop(context);
   }
 
   // ===========================================================================
   // ACTIONS
   // ===========================================================================
 
-  Future<void> _showUpsellSheet() async {
-    if (!mounted || _sheetVisible || _hasAccess != false) return;
-
-    _sheetVisible = true;
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: _sheetBackground,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _SubscriptionUpsellSheet(
-        featureDescription: widget.featureDescription,
-        isPremiumFeature: _isPremiumFeature,
-        accentColor: _accentColor,
-        onViewPlans: _openSubscriptionPage,
-      ),
-    );
-    _sheetVisible = false;
-  }
-
-  /// Opens the plans page, closing the upsell sheet first when it is open.
+  /// Opens the plans page from the locked view.
   Future<void> _openSubscriptionPage() async {
     final navigator = Navigator.of(context);
-    if (_sheetVisible) navigator.pop();
 
     await navigator.push(
       MaterialPageRoute(builder: (_) => const SubscriptionPage()),
     );
     if (!mounted) return;
 
-    // Back from the plans page: re-check silently, the user just saw the offer.
-    await _checkAccess(showSheetIfLocked: false);
+    // Back from the plans page: refresh access without interrupting the user.
+    await _checkAccess();
   }
 
   // ===========================================================================
@@ -242,93 +209,7 @@ class _SubscriptionGateState extends State<SubscriptionGate> {
   }
 }
 
-/// Bottom sheet inviting a non subscriber to unlock the feature.
-class _SubscriptionUpsellSheet extends StatelessWidget {
-  static const _darkNavy = Color(0xFF0A1628);
-
-  final String featureDescription;
-  final bool isPremiumFeature;
-  final Color accentColor;
-  final VoidCallback onViewPlans;
-
-  const _SubscriptionUpsellSheet({
-    required this.featureDescription,
-    required this.isPremiumFeature,
-    required this.accentColor,
-    required this.onViewPlans,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0x33FFFFFF),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 22),
-            _LockBadge(color: accentColor),
-            const SizedBox(height: 18),
-            Text(
-              l10n.exclusiveFeature,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              featureDescription,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xBFFFFFFF), fontSize: 14),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              l10n.subscriptionRequired(
-                isPremiumFeature ? l10n.premiumPlan : l10n.plusPlan,
-              ),
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 13),
-            ),
-            const SizedBox(height: 22),
-            _ViewPlansButton(
-              label: l10n.viewPlans,
-              color: accentColor,
-              foreground: _darkNavy,
-              onPressed: onViewPlans,
-            ),
-            const SizedBox(height: 4),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                l10n.close,
-                style: const TextStyle(
-                  color: Color(0x80FFFFFF),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Rounded lock icon shown on the locked view and on the upsell sheet.
+/// Rounded lock icon shown on the locked view.
 class _LockBadge extends StatelessWidget {
   final Color color;
 

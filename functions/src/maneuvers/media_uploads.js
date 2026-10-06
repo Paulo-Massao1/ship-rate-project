@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const { admin } = require("../shared/firestore");
 
 const MAX_MEDIA_PER_SECTION = 3;
