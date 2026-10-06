@@ -14,9 +14,9 @@ import '../navigation_safety/nav_safety_record_detail_page.dart';
 ///
 /// The selector lists every location that has depth records; picking one
 /// reloads its history through [DepthTrendService]. The card on top shows the
-/// latest depth and the line chart — one point per month in the selected
-/// period — and the list below repeats every record with its exact date and the
-/// pilot who saved it.
+/// latest depth and a horizontally scrollable line chart with every record in
+/// the selected period. The list below repeats those records with their exact
+/// date and the pilot who saved them.
 class DepthTrendsPage extends StatefulWidget {
   const DepthTrendsPage({super.key});
 
@@ -57,7 +57,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   /// Most labels the Y axis takes before its one-meter step is widened.
   static const int _maxYLabels = 8;
 
+  /// Horizontal room reserved for every recorded depth in the trend.
+  static const double _pointSpacing = 62;
+
   final DepthTrendService _service = DepthTrendService();
+  final ScrollController _chartScrollController = ScrollController();
 
   List<String> _locations = const [];
   String? _selectedLocation;
@@ -68,7 +72,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   bool _loadingLocations = true;
   bool _loadingTrend = false;
 
-  /// Language of the month labels, e.g. `pt`.
+  /// Locale used to format depth values, e.g. `pt-BR`.
   String? _locale;
 
   /// Depth with one decimal in the current locale, e.g. `17,2`.
@@ -117,7 +121,6 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     final data = await _service.getTrendData(
       location,
-      locale: _locale,
       period: _selectedPeriod,
     );
     if (!mounted) return;
@@ -125,6 +128,16 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     setState(() {
       _data = data;
       _loadingTrend = false;
+    });
+    _scrollChartToLatest();
+  }
+
+  void _scrollChartToLatest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_chartScrollController.hasClients) return;
+      _chartScrollController.jumpTo(
+        _chartScrollController.position.maxScrollExtent,
+      );
     });
   }
 
@@ -154,6 +167,12 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _chartScrollController.dispose();
+    super.dispose();
   }
 
   // ===========================================================================
@@ -561,10 +580,47 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   // CHART
   // ===========================================================================
 
-  /// Line chart of [DepthTrendData.monthlyPoints]: one dot per month, oldest
-  /// first, with its depth printed above it.
+  /// Line chart with every depth record in the period, oldest first.
+  ///
+  /// Each record receives enough horizontal space for its value and date. The
+  /// chart scrolls instead of dropping points or aggregating them by month.
   Widget _buildChart(DepthTrendData data) {
-    final points = data.monthlyPoints;
+    final points = data.dataPoints.reversed.toList(growable: false);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentWidth = points.length <= 1
+            ? constraints.maxWidth
+            : (points.length * _pointSpacing) + 34;
+        final chartWidth = contentWidth < constraints.maxWidth
+            ? constraints.maxWidth
+            : contentWidth;
+        final canScroll = chartWidth > constraints.maxWidth + 1;
+
+        return Scrollbar(
+          controller: _chartScrollController,
+          thumbVisibility: canScroll,
+          interactive: true,
+          thickness: 4,
+          radius: const Radius.circular(999),
+          child: SingleChildScrollView(
+            controller: _chartScrollController,
+            scrollDirection: Axis.horizontal,
+            physics: canScroll
+                ? const ClampingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
+            child: SizedBox(
+              width: chartWidth,
+              height: constraints.maxHeight,
+              child: _buildLineChart(points),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLineChart(List<DepthDataPoint> points) {
     final spots = [
       for (var i = 0; i < points.length; i++)
         FlSpot(i.toDouble(), points[i].depth),
@@ -572,9 +628,8 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     final bounds = _yAxisBounds(points);
     final lastIndex = spots.length - 1;
-    final labelStep = (spots.length / 6).ceil();
 
-    // A single month has no range on the X axis, so it is centered by hand.
+    // A single record has no range on the X axis, so it is centered by hand.
     final minX = points.length == 1 ? -0.5 : 0.0;
     final maxX = points.length == 1 ? 0.5 : lastIndex.toDouble();
 
@@ -586,7 +641,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
       isStrokeCapRound: true,
       belowBarData: BarAreaData(show: true, color: _chartAreaColor),
       dotData: FlDotData(
-        // The most recent month is highlighted with a bigger dot.
+        // The most recent record is highlighted with a bigger dot.
         getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
           radius: index == lastIndex ? 5 : 4,
           color: _premiumColor,
@@ -599,80 +654,111 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     return Padding(
       // Leaves room for the value printed above the highest dot.
       padding: const EdgeInsets.only(top: _valueLabelBand),
-      child: LineChart(
-        LineChartData(
-          minX: minX,
-          maxX: maxX,
-          minY: bounds.min,
-          maxY: bounds.max,
-          backgroundColor: Colors.transparent,
-          borderData: FlBorderData(show: false),
-          lineTouchData: LineTouchData(
-            enabled: false,
-            touchTooltipData: LineTouchTooltipData(
-              // A compact opaque label keeps the chart line from crossing the
-              // value text, especially on descending segments.
-              tooltipPadding: const EdgeInsets.symmetric(
-                horizontal: 3,
-                vertical: 1,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: LineChart(
+              LineChartData(
+                minX: minX,
+                maxX: maxX,
+                minY: bounds.min,
+                maxY: bounds.max,
+                backgroundColor: Colors.transparent,
+                borderData: FlBorderData(show: false),
+                // Tap targets are overlaid separately so horizontal dragging
+                // always belongs to the scroll view.
+                lineTouchData: LineTouchData(
+                  enabled: false,
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipPadding: const EdgeInsets.symmetric(
+                      horizontal: 3,
+                      vertical: 1,
+                    ),
+                    tooltipMargin: _valueLabelGap,
+                    tooltipRoundedRadius: 3,
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    getTooltipColor: (_) => _deepNavy,
+                    getTooltipItems: (touchedSpots) => [
+                      for (final spot in touchedSpots)
+                        _buildValueLabel(spot, lastIndex),
+                    ],
+                  ),
+                ),
+                showingTooltipIndicators: [
+                  for (var i = 0; i < spots.length; i++)
+                    ShowingTooltipIndicators([
+                      LineBarSpot(bar, 0, spots[i]),
+                    ]),
+                ],
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  horizontalInterval: bounds.interval,
+                  getDrawingHorizontalLine: (_) => const FlLine(
+                    color: _gridLineColor,
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(),
+                  rightTitles: const AxisTitles(),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 34,
+                      interval: bounds.interval,
+                      getTitlesWidget: _buildLeftTitle,
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 24,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) => _buildBottomTitle(
+                        value,
+                        meta,
+                        points,
+                      ),
+                    ),
+                  ),
+                ),
+                lineBarsData: [bar],
               ),
-              tooltipMargin: _valueLabelGap,
-              tooltipRoundedRadius: 3,
-              fitInsideHorizontally: true,
-              fitInsideVertically: true,
-              getTooltipColor: (_) => _deepNavy,
-              getTooltipItems: (touchedSpots) => [
-                for (final spot in touchedSpots) _buildValueLabel(spot, lastIndex),
-              ],
             ),
           ),
-          // Keeps value labels readable when 12 or 24 months are visible.
-          showingTooltipIndicators: [
-            for (var i = 0; i < spots.length; i++)
-              if (i % labelStep == 0 || i == lastIndex)
-                ShowingTooltipIndicators([LineBarSpot(bar, 0, spots[i])]),
-          ],
-          gridData: FlGridData(
-            drawVerticalLine: false,
-            horizontalInterval: bounds.interval,
-            getDrawingHorizontalLine: (_) => const FlLine(
-              color: _gridLineColor,
-              strokeWidth: 1,
-            ),
-          ),
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(),
-            rightTitles: const AxisTitles(),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 34,
-                interval: bounds.interval,
-                getTitlesWidget: _buildLeftTitle,
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 24,
-                // Periods with many points show a reduced set of labels.
-                interval: 1,
-                getTitlesWidget: (value, meta) => _buildBottomTitle(
-                  value,
-                  meta,
-                  points,
-                  labelStep,
+          Positioned(
+            left: 34,
+            top: 0,
+            right: 0,
+            bottom: 24,
+            child: LayoutBuilder(
+              builder: (context, constraints) => MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTapUp: (details) {
+                    final width = constraints.maxWidth;
+                    if (width <= 0) return;
+
+                    final index = points.length == 1
+                        ? 0
+                        : ((details.localPosition.dx / width) *
+                                (points.length - 1))
+                            .round()
+                            .clamp(0, points.length - 1);
+                    _openRecord(points[index]);
+                  },
                 ),
               ),
             ),
           ),
-          lineBarsData: [bar],
-        ),
+        ],
       ),
     );
   }
 
-  /// Depth printed above a dot. The most recent month stands out.
+  /// Depth printed above a dot. The most recent record stands out.
   LineTooltipItem _buildValueLabel(LineBarSpot spot, int lastIndex) {
     final isLast = spot.spotIndex == lastIndex;
 
@@ -700,23 +786,21 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   Widget _buildBottomTitle(
     double value,
     TitleMeta meta,
-    List<DepthMonthPoint> points,
-    int labelStep,
+    List<DepthDataPoint> points,
   ) {
     final index = value.round();
     if (index < 0 || index >= points.length) return const SizedBox.shrink();
-    // Only whole positions carry a month, never the padded edges of a chart
-    // holding a single month.
+    // Only whole positions carry a record, never the padded edges of a chart
+    // holding a single record.
     if ((value - index).abs() > 0.01) return const SizedBox.shrink();
-    if (index % labelStep != 0 && index != points.length - 1) {
-      return const SizedBox.shrink();
-    }
 
     final point = points[index];
-    final yearSuffix = (point.month.year % 100).toString().padLeft(2, '0');
-    final label = _selectedPeriod == DepthTrendPeriod.sixMonths
-        ? point.monthLabel
-        : '${point.monthLabel}/$yearSuffix';
+    final day = point.date.day.toString().padLeft(2, '0');
+    final month = point.date.month.toString().padLeft(2, '0');
+    final year = (point.date.year % 100).toString().padLeft(2, '0');
+    final label = _selectedPeriod == DepthTrendPeriod.twoYears
+        ? '$day/$month/$year'
+        : '$day/$month';
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -728,12 +812,12 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     );
   }
 
-  /// Y range in whole meters: from the floor of the shallowest month to the
+  /// Y range in whole meters: from the floor of the shallowest record to the
   /// ceiling of the deepest one, one gridline every meter.
   ///
   /// The step only grows past one meter when a single meter would crowd the
   /// axis with more than [_maxYLabels] labels.
-  _AxisBounds _yAxisBounds(List<DepthMonthPoint> points) {
+  _AxisBounds _yAxisBounds(List<DepthDataPoint> points) {
     var lowest = points.first.depth;
     var highest = points.first.depth;
     for (final point in points) {
@@ -745,7 +829,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     // Extra headroom prevents a value sitting on an exact whole-meter maximum
     // from being clipped by the plot boundary.
     var max = (highest + 0.5).ceilToDouble();
-    // Keeps the range positive when every month sits on the same whole meter.
+    // Keeps the range positive when every record sits on the same whole meter.
     if (max <= min) max = min + 1;
 
     final interval = ((max - min) / _maxYLabels).ceilToDouble();
