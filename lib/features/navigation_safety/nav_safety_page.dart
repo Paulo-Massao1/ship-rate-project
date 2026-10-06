@@ -947,7 +947,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           onTap: () => _onLocationTap(loc.id, loc.name),
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            constraints: const BoxConstraints(minHeight: 106),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
@@ -963,8 +964,8 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      color: Color(0xFF90CAF9),
-                      fontSize: 13,
+                      color: Color(0xFF80CBC4),
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -988,22 +989,22 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                           height: 1.05,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 6),
                       Text(
                         l10n.totalDepthShort,
                         style: const TextStyle(
-                          color: Color(0xB3FFFFFF),
+                          color: Color(0xFFFFCC80),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 2),
                       Text(
                         _formatMeters(loc.latestDepth),
                         style: const TextStyle(
                           color: Color(0xFFFFB74D),
                           fontWeight: FontWeight.w800,
-                          fontSize: 24,
+                          fontSize: 25,
                           height: 1.05,
                         ),
                       ),

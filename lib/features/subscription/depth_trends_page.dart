@@ -60,6 +60,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   /// Horizontal room reserved for every recorded depth in the trend.
   static const double _pointSpacing = 62;
 
+  /// Space, measured in X-axis units, before the first and after the last dot.
+  /// It keeps edge labels centered instead of forcing them into the plot area.
+  static const double _horizontalAxisPadding = 0.55;
+
   final DepthTrendService _service = DepthTrendService();
   final ScrollController _chartScrollController = ScrollController();
 
@@ -630,8 +634,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     final lastIndex = spots.length - 1;
 
     // A single record has no range on the X axis, so it is centered by hand.
-    final minX = points.length == 1 ? -0.5 : 0.0;
-    final maxX = points.length == 1 ? 0.5 : lastIndex.toDouble();
+    final minX = points.length == 1 ? -1.0 : -_horizontalAxisPadding;
+    final maxX = points.length == 1
+        ? 1.0
+        : lastIndex + _horizontalAxisPadding;
 
     // Held in a variable because [showingTooltipIndicators] points back at it.
     final bar = LineChartBarData(
@@ -741,12 +747,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                     final width = constraints.maxWidth;
                     if (width <= 0) return;
 
-                    final index = points.length == 1
-                        ? 0
-                        : ((details.localPosition.dx / width) *
-                                (points.length - 1))
-                            .round()
-                            .clamp(0, points.length - 1);
+                    final chartX = minX +
+                        ((details.localPosition.dx / width) * (maxX - minX));
+                    final index = chartX
+                        .round()
+                        .clamp(0, points.length - 1);
                     _openRecord(points[index]);
                   },
                 ),
