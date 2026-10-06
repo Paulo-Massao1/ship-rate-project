@@ -28,8 +28,7 @@ class NavSafetyNewRecordPage extends StatefulWidget {
   bool get isEditing => editRecordId != null && editLocationId != null;
 
   @override
-  State<NavSafetyNewRecordPage> createState() =>
-      _NavSafetyNewRecordPageState();
+  State<NavSafetyNewRecordPage> createState() => _NavSafetyNewRecordPageState();
 }
 
 class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
@@ -205,24 +204,34 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       if (d['latitude'] is Map) {
         final lat = d['latitude'] as Map;
         _latDegController.text = (lat['graus'] ?? '').toString();
-        final latMin = (lat['minutos'] is num) ? (lat['minutos'] as num).toDouble() : (double.tryParse(lat['minutos']?.toString() ?? '') ?? 0.0);
-        final latSec = double.tryParse(lat['segundos']?.toString() ?? '') ?? 0.0;
+        final latMin =
+            (lat['minutos'] is num)
+                ? (lat['minutos'] as num).toDouble()
+                : (double.tryParse(lat['minutos']?.toString() ?? '') ?? 0.0);
+        final latSec =
+            double.tryParse(lat['segundos']?.toString() ?? '') ?? 0.0;
         final latDecimalMin = latSec > 0 ? latMin + (latSec / 60.0) : latMin;
-        _latMinController.text = latDecimalMin == latDecimalMin.truncateToDouble()
-            ? latDecimalMin.toInt().toString()
-            : latDecimalMin.toStringAsFixed(1);
+        _latMinController.text =
+            latDecimalMin == latDecimalMin.truncateToDouble()
+                ? latDecimalMin.toInt().toString()
+                : latDecimalMin.toStringAsFixed(1);
         _latHemisphere = (lat['hemisferio'] ?? 'S').toString();
       }
       // Longitude
       if (d['longitude'] is Map) {
         final lon = d['longitude'] as Map;
         _lonDegController.text = (lon['graus'] ?? '').toString();
-        final lonMin = (lon['minutos'] is num) ? (lon['minutos'] as num).toDouble() : (double.tryParse(lon['minutos']?.toString() ?? '') ?? 0.0);
-        final lonSec = double.tryParse(lon['segundos']?.toString() ?? '') ?? 0.0;
+        final lonMin =
+            (lon['minutos'] is num)
+                ? (lon['minutos'] as num).toDouble()
+                : (double.tryParse(lon['minutos']?.toString() ?? '') ?? 0.0);
+        final lonSec =
+            double.tryParse(lon['segundos']?.toString() ?? '') ?? 0.0;
         final lonDecimalMin = lonSec > 0 ? lonMin + (lonSec / 60.0) : lonMin;
-        _lonMinController.text = lonDecimalMin == lonDecimalMin.truncateToDouble()
-            ? lonDecimalMin.toInt().toString()
-            : lonDecimalMin.toStringAsFixed(1);
+        _lonMinController.text =
+            lonDecimalMin == lonDecimalMin.truncateToDouble()
+                ? lonDecimalMin.toInt().toString()
+                : lonDecimalMin.toStringAsFixed(1);
         _lonHemisphere = (lon['hemisferio'] ?? 'W').toString();
       }
       // Observations
@@ -235,10 +244,11 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       }
       // File attachments
       if (d['fileAttachments'] is List) {
-        _existingFileAttachments = (d['fileAttachments'] as List)
-            .whereType<Map>()
-            .map((m) => Map<String, dynamic>.from(m))
-            .toList();
+        _existingFileAttachments =
+            (d['fileAttachments'] as List)
+                .whereType<Map>()
+                .map((m) => Map<String, dynamic>.from(m))
+                .toList();
       }
     });
     _suspendDepthCalculation = false;
@@ -334,8 +344,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     }
 
     try {
-      final window =
-          await DepthReferenceService.loadSantanaTideWindow(_selectedDate);
+      final window = await DepthReferenceService.loadSantanaTideWindow(
+        _selectedDate,
+      );
       if (!mounted || requestId != _tideRequestId) return;
       setState(() {
         _santanaTideWindow = window;
@@ -371,7 +382,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     );
     if (picked == null) return;
 
-    final dateChanged = picked.year != _selectedDate.year ||
+    final dateChanged =
+        picked.year != _selectedDate.year ||
         picked.month != _selectedDate.month ||
         picked.day != _selectedDate.day;
     setState(() {
@@ -382,8 +394,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         _selectedDate.hour,
         _selectedDate.minute,
       );
-      if (dateChanged &&
-          _depthReference?.type == DepthReferenceType.ruler) {
+      if (dateChanged && _depthReference?.type == DepthReferenceType.ruler) {
         _rulerValueController.clear();
       }
     });
@@ -422,9 +433,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   bool get _isItacoatiara {
     if (_selectedLocationName == null) return false;
-    return _selectedLocationName!
-        .toLowerCase()
-        .contains('fundeadouro itacoatiara');
+    return _selectedLocationName!.toLowerCase().contains(
+      'fundeadouro itacoatiara',
+    );
   }
 
   String? _validate() {
@@ -433,7 +444,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     if (widget.isEditing) {
       if (_selectedLocationId == null) return l10n.locationRequired;
     } else if (_selectedLocationId == null &&
-        (_selectedLocationName == null || _selectedLocationName!.trim().isEmpty) &&
+        (_selectedLocationName == null ||
+            _selectedLocationName!.trim().isEmpty) &&
         !hasPendingNewLocation) {
       return l10n.locationRequired;
     }
@@ -462,17 +474,19 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      final pendingLocationName = _newLocationController.text.trim().isNotEmpty
-          ? _newLocationController.text.trim()
-          : _selectedLocationName?.trim();
+      final pendingLocationName =
+          _newLocationController.text.trim().isNotEmpty
+              ? _newLocationController.text.trim()
+              : _selectedLocationName?.trim();
 
       // Fetch nomeGuerra from Firestore usuarios collection
       String nomeGuerra = '';
       if (user != null) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(user.uid)
-            .get();
+        final userDoc =
+            await FirebaseFirestore.instance
+                .collection('usuarios')
+                .doc(user.uid)
+                .get();
         nomeGuerra = (userDoc.data()?['nomeGuerra'] ?? '').toString();
       }
 
@@ -498,9 +512,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       final reference = _depthReference;
       if (reference != null) {
         final referenceData = <String, dynamic>{
-          'type': reference.type == DepthReferenceType.ruler
-              ? 'ruler'
-              : 'santanaTide',
+          'type':
+              reference.type == DepthReferenceType.ruler
+                  ? 'ruler'
+                  : 'santanaTide',
           'name': reference.name,
           if (reference.code != null) 'code': reference.code,
         };
@@ -590,32 +605,31 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
       if (widget.isEditing) {
         final preservedImageUrls = List<String>.from(_existingImageUrls);
-        final newUrls = _selectedImages.isEmpty
-            ? const <String>[]
-            : await ImageUploadService.uploadImages(
-                _selectedImages,
-                _selectedLocationId!,
-                widget.editRecordId!,
-              );
-
-        List<String> newFileUrls = const <String>[];
-        try {
-          newFileUrls = _selectedFiles.isEmpty
-              ? const <String>[]
-              : await ImageUploadService.uploadFiles(
-                  _selectedFiles,
+        final newUrls =
+            _selectedImages.isEmpty
+                ? const <String>[]
+                : await ImageUploadService.uploadImages(
+                  _selectedImages,
                   _selectedLocationId!,
                   widget.editRecordId!,
                 );
+
+        List<String> newFileUrls = const <String>[];
+        try {
+          newFileUrls =
+              _selectedFiles.isEmpty
+                  ? const <String>[]
+                  : await ImageUploadService.uploadFiles(
+                    _selectedFiles,
+                    _selectedLocationId!,
+                    widget.editRecordId!,
+                  );
         } catch (e) {
           await ImageUploadService.deleteImages(newUrls);
           rethrow;
         }
 
-        data['imageUrls'] = <String>[
-          ...preservedImageUrls,
-          ...newUrls,
-        ];
+        data['imageUrls'] = <String>[...preservedImageUrls, ...newUrls];
         data['fileAttachments'] = <Map<String, dynamic>>[
           ..._existingFileAttachments,
           ..._buildFileAttachmentMaps(newFileUrls),
@@ -638,34 +652,38 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         }
 
         if (_imagesToDelete.isNotEmpty || _filesToDelete.isNotEmpty) {
-          await ImageUploadService.deleteImages(
-            [..._imagesToDelete, ..._filesToDelete],
-          );
+          await ImageUploadService.deleteImages([
+            ..._imagesToDelete,
+            ..._filesToDelete,
+          ]);
         }
       } else {
-        final recordRef = FirebaseFirestore.instance
-            .collection('locais')
-            .doc(locationId)
-            .collection('registros')
-            .doc();
+        final recordRef =
+            FirebaseFirestore.instance
+                .collection('locais')
+                .doc(locationId)
+                .collection('registros')
+                .doc();
 
-        final newUrls = _selectedImages.isEmpty
-            ? const <String>[]
-            : await ImageUploadService.uploadImages(
-                _selectedImages,
-                locationId,
-                recordRef.id,
-              );
-
-        List<String> newFileUrls = const <String>[];
-        try {
-          newFileUrls = _selectedFiles.isEmpty
-              ? const <String>[]
-              : await ImageUploadService.uploadFiles(
-                  _selectedFiles,
+        final newUrls =
+            _selectedImages.isEmpty
+                ? const <String>[]
+                : await ImageUploadService.uploadImages(
+                  _selectedImages,
                   locationId,
                   recordRef.id,
                 );
+
+        List<String> newFileUrls = const <String>[];
+        try {
+          newFileUrls =
+              _selectedFiles.isEmpty
+                  ? const <String>[]
+                  : await ImageUploadService.uploadFiles(
+                    _selectedFiles,
+                    locationId,
+                    recordRef.id,
+                  );
         } catch (e) {
           await ImageUploadService.deleteImages(newUrls);
           rethrow;
@@ -758,8 +776,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       return <String, dynamic>{
         'url': urls[i],
         'name': file.originalName,
-        'contentType':
-            ImageUploadService.contentTypeFromFileName(file.originalName),
+        'contentType': ImageUploadService.contentTypeFromFileName(
+          file.originalName,
+        ),
       };
     });
   }
@@ -799,49 +818,52 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
     await showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF132D4A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Row(
-          children: [
-            const Icon(Icons.check_circle, color: _teal, size: 28),
-            const SizedBox(width: 10),
-            Text(
-              l10n.recordSaved,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+      builder:
+          (ctx) => AlertDialog(
+            backgroundColor: const Color(0xFF132D4A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.check_circle, color: _teal, size: 28),
+                const SizedBox(width: 10),
+                Text(
+                  l10n.recordSaved,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              l10n.shareRecordPrompt,
+              style: const TextStyle(color: Color(0xD9FFFFFF), fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(
+                  l10n.noThanks,
+                  style: const TextStyle(color: Color(0x99FFFFFF)),
+                ),
               ),
-            ),
-          ],
-        ),
-        content: Text(
-          l10n.shareRecordPrompt,
-          style: const TextStyle(color: Color(0xD9FFFFFF), fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              l10n.noThanks,
-              style: const TextStyle(color: Color(0x99FFFFFF)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              UrlLauncherService.openWhatsAppShare(shareText);
-            },
-            child: Text(
-              l10n.shareRecord,
-              style: const TextStyle(
-                color: _teal,
-                fontWeight: FontWeight.bold,
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  UrlLauncherService.openWhatsAppShare(shareText);
+                },
+                child: Text(
+                  l10n.shareRecord,
+                  style: const TextStyle(
+                    color: _teal,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -949,9 +971,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
-                        onPressed: _isSaving
-                            ? null
-                            : () => Navigator.maybePop(context),
+                        onPressed:
+                            _isSaving
+                                ? null
+                                : () => Navigator.maybePop(context),
                         style: TextButton.styleFrom(
                           foregroundColor: const Color(0xBFFFFFFF),
                           padding: EdgeInsets.zero,
@@ -1049,8 +1072,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             const SizedBox(width: 10),
             Expanded(
               child: switch (_depthReference?.type) {
-                DepthReferenceType.santanaTide =>
-                  _buildMeasurementTimeField(l10n),
+                DepthReferenceType.santanaTide => _buildMeasurementTimeField(
+                  l10n,
+                ),
                 DepthReferenceType.ruler => _buildRulerReadingField(l10n),
                 null => _buildSpeedField(l10n),
               },
@@ -1071,7 +1095,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       label: l10n.speedOptional,
       icon: Icons.speed,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      suffixText: '(${l10n.optional})',
       compact: true,
     );
   }
@@ -1088,6 +1111,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         ),
         const SizedBox(height: 6),
         Container(
+          width: double.infinity,
           decoration: BoxDecoration(
             color: _inputBg,
             borderRadius: BorderRadius.circular(10),
@@ -1097,7 +1121,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             controller: _rulerValueController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(
-              color: Color(0xFFFFD54F),
+              color: _textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -1108,7 +1132,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               suffixStyle: TextStyle(color: Color(0xFFFFD54F), fontSize: 12),
               border: InputBorder.none,
               isDense: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 12,
+              ),
             ),
           ),
         ),
@@ -1158,14 +1185,18 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               icon: const Icon(Icons.arrow_drop_down, color: _teal),
               menuMaxHeight: 300,
               items: [
-                ..._locations.map((loc) => DropdownMenuItem<String>(
-                      value: loc.id,
-                      child: Text(
-                        loc.name,
-                        style: const TextStyle(
-                            color: _textSecondary, fontSize: 14),
+                ..._locations.map(
+                  (loc) => DropdownMenuItem<String>(
+                    value: loc.id,
+                    child: Text(
+                      loc.name,
+                      style: const TextStyle(
+                        color: _textSecondary,
+                        fontSize: 14,
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ],
               onChanged: (value) {
                 if (value == null) return;
@@ -1234,18 +1265,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              l10n.anchoragePt,
-              style: const TextStyle(color: _textLabel, fontSize: 12),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '(${l10n.optional})',
-              style: const TextStyle(color: _textMuted, fontSize: 10),
-            ),
-          ],
+        Text(
+          l10n.anchoragePt,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
         Container(
@@ -1272,8 +1294,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                   value: i + 1,
                   child: Text(
                     '${i + 1}',
-                    style:
-                        const TextStyle(color: _textSecondary, fontSize: 14),
+                    style: const TextStyle(color: _textSecondary, fontSize: 14),
                   ),
                 ),
               ),
@@ -1336,18 +1357,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              l10n.direction,
-              style: const TextStyle(color: _textLabel, fontSize: 12),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '(${l10n.optional})',
-              style: const TextStyle(color: _textMuted, fontSize: 10),
-            ),
-          ],
+        Text(
+          l10n.direction,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
         Row(
@@ -1416,10 +1428,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               Text(
                 '= ${l10n.depthCalculationFormula}',
                 textAlign: TextAlign.end,
-                style: const TextStyle(
-                  color: Color(0x9926A69A),
-                  fontSize: 9,
-                ),
+                style: const TextStyle(color: Color(0x9926A69A), fontSize: 9),
               ),
             ],
           ),
@@ -1469,8 +1478,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 strokeWidth: 2,
               ),
             )
-          else if (_santanaTideWindow == null ||
-              !_santanaTideWindow!.hasData)
+          else if (_santanaTideWindow == null || !_santanaTideWindow!.hasData)
             Text(
               l10n.tideReferenceUnavailable,
               textAlign: TextAlign.center,
@@ -1518,9 +1526,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       children: [
         Text(
           label,
-          textAlign: alignment == CrossAxisAlignment.end
-              ? TextAlign.right
-              : TextAlign.left,
+          textAlign:
+              alignment == CrossAxisAlignment.end
+                  ? TextAlign.right
+                  : TextAlign.left,
           style: const TextStyle(color: _textMuted, fontSize: 9),
         ),
         const SizedBox(height: 3),
@@ -1543,7 +1552,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   String _formatTideDateTime(DateTime value) {
     final time = _formatTime(value);
-    final isSameDay = value.year == _selectedDate.year &&
+    final isSameDay =
+        value.year == _selectedDate.year &&
         value.month == _selectedDate.month &&
         value.day == _selectedDate.day;
     if (isSameDay) return time;
@@ -1573,18 +1583,16 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: _buildSonarToggle(l10n),
-            ),
+            Expanded(child: _buildSonarToggle(l10n)),
             const SizedBox(width: 10),
             Expanded(
               child: _buildTextField(
                 controller: _squatController,
                 label: l10n.squatInput,
                 icon: Icons.vertical_align_bottom,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                suffixText: '(${l10n.optional})',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 compact: true,
               ),
             ),
@@ -1599,8 +1607,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 controller: _maxDraftController,
                 label: l10n.maxDraftInput,
                 icon: Icons.straighten,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                isRequired: true,
                 compact: true,
               ),
             ),
@@ -1610,8 +1620,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 controller: _ukcController,
                 label: l10n.ukcInput,
                 icon: Icons.straighten,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                isRequired: true,
                 compact: true,
               ),
             ),
@@ -1642,11 +1654,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.schedule,
-                  color: Color(0xFF64B5F6),
-                  size: 18,
-                ),
+                const Icon(Icons.schedule, color: Color(0xFF64B5F6), size: 18),
                 const SizedBox(width: 8),
                 Text(
                   _formatTime(_selectedDate),
@@ -1668,18 +1676,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              l10n.sonarPosition,
-              style: const TextStyle(color: _textLabel, fontSize: 12),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '(${l10n.optional})',
-              style: const TextStyle(color: _textMuted, fontSize: 10),
-            ),
-          ],
+        Text(
+          l10n.sonarPosition,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
         Row(
@@ -1741,18 +1740,16 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                             fontSize: 11,
                           ),
                         ),
-                        Text(
-                          l10n.optional,
-                          style: const TextStyle(
-                              color: _textMuted, fontSize: 9),
-                        ),
                       ],
                     ),
                   ),
                   RotationTransition(
                     turns: _arrowAnim,
-                    child: const Icon(Icons.keyboard_arrow_down,
-                        color: _textMuted, size: 20),
+                    child: const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: _textMuted,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),
@@ -1766,8 +1763,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 children: [
                   const Divider(color: Color(0x1A64B5F6), height: 1),
                   const SizedBox(height: 14),
-                  const Text('Latitude',
-                      style: TextStyle(color: _textLabel, fontSize: 12)),
+                  const Text(
+                    'Latitude',
+                    style: TextStyle(color: _textLabel, fontSize: 12),
+                  ),
                   const SizedBox(height: 6),
                   _buildCoordRow(
                     degController: _latDegController,
@@ -1775,12 +1774,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     degDigits: 2,
                     hemisphere: _latHemisphere,
                     hemisphereOptions: const ['N', 'S'],
-                    onHemisphereChanged: (v) =>
-                        setState(() => _latHemisphere = v),
+                    onHemisphereChanged:
+                        (v) => setState(() => _latHemisphere = v),
                   ),
                   const SizedBox(height: 14),
-                  const Text('Longitude',
-                      style: TextStyle(color: _textLabel, fontSize: 12)),
+                  const Text(
+                    'Longitude',
+                    style: TextStyle(color: _textLabel, fontSize: 12),
+                  ),
                   const SizedBox(height: 6),
                   _buildCoordRow(
                     degController: _lonDegController,
@@ -1788,8 +1789,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     degDigits: 3,
                     hemisphere: _lonHemisphere,
                     hemisphereOptions: const ['W', 'E'],
-                    onHemisphereChanged: (v) =>
-                        setState(() => _lonHemisphere = v),
+                    onHemisphereChanged:
+                        (v) => setState(() => _lonHemisphere = v),
                   ),
                 ],
               ),
@@ -1810,43 +1811,54 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     return Row(
       children: [
         _buildCoordField(degController, degDigits, 48),
-        const Text(' \u00B0 ',
-            style: TextStyle(color: _textSecondary, fontSize: 16)),
+        const Text(
+          ' \u00B0 ',
+          style: TextStyle(color: _textSecondary, fontSize: 16),
+        ),
         _buildCoordField(minController, 6, 72),
-        const Text(" \u2032 ",
-            style: TextStyle(color: _textSecondary, fontSize: 16)),
+        const Text(
+          " \u2032 ",
+          style: TextStyle(color: _textSecondary, fontSize: 16),
+        ),
         const SizedBox(width: 4),
-        ...hemisphereOptions.map((opt) => Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: GestureDetector(
-                onTap: () => onHemisphereChanged(opt),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: hemisphere == opt ? _teal : _inputBg,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: hemisphere == opt ? _teal : _inputBorder,
-                    ),
+        ...hemisphereOptions.map(
+          (opt) => Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: GestureDetector(
+              onTap: () => onHemisphereChanged(opt),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: hemisphere == opt ? _teal : _inputBg,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: hemisphere == opt ? _teal : _inputBorder,
                   ),
-                  child: Text(
-                    opt,
-                    style: TextStyle(
-                      color: hemisphere == opt ? Colors.white : _textMuted,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                ),
+                child: Text(
+                  opt,
+                  style: TextStyle(
+                    color: hemisphere == opt ? Colors.white : _textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildCoordField(
-      TextEditingController controller, int maxLength, double width) {
+    TextEditingController controller,
+    int maxLength,
+    double width,
+  ) {
     return SizedBox(
       width: width,
       child: Container(
@@ -1953,9 +1965,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       return;
     }
 
-    final source = kIsWeb
-        ? ImagePickSource.gallery
-        : await _chooseImageSource();
+    final source =
+        kIsWeb ? ImagePickSource.gallery : await _chooseImageSource();
     if (source == null) return;
 
     try {
@@ -1979,33 +1990,34 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: _teal),
-              title: const Text(
-                'Camera',
-                style: TextStyle(color: _textPrimary),
-              ),
-              onTap: () {
-                Navigator.pop(sheetContext, ImagePickSource.camera);
-              },
+      builder:
+          (sheetContext) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: _teal),
+                  title: const Text(
+                    'Camera',
+                    style: TextStyle(color: _textPrimary),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext, ImagePickSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: _teal),
+                  title: const Text(
+                    'Photo library',
+                    style: TextStyle(color: _textPrimary),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext, ImagePickSource.gallery);
+                  },
+                ),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, color: _teal),
-              title: const Text(
-                'Photo library',
-                style: TextStyle(color: _textPrimary),
-              ),
-              onTap: () {
-                Navigator.pop(sheetContext, ImagePickSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -2023,9 +2035,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
   Widget _buildSection6Photos(AppLocalizations l10n) {
     final totalImages = _existingImageUrls.length + _selectedImages.length;
-    final totalAttachments = totalImages +
-        _existingFileAttachments.length +
-        _selectedFiles.length;
+    final totalAttachments =
+        totalImages + _existingFileAttachments.length + _selectedFiles.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2248,25 +2259,26 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             borderRadius: BorderRadius.circular(7),
           ),
           child: Center(
-            child: _isSaving || _isLoadingTide
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
+            child:
+                _isSaving || _isLoadingTide
+                    ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                    : Text(
+                      widget.isEditing
+                          ? l10n.updatePassage
+                          : l10n.saveDepthRecord,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
-                  )
-                : Text(
-                    widget.isEditing
-                        ? l10n.updatePassage
-                        : l10n.saveDepthRecord,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
           ),
         ),
       ),
@@ -2283,35 +2295,27 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     required IconData icon,
     Color iconColor = _teal,
     TextInputType keyboardType = TextInputType.text,
-    String? suffixText,
+    bool isRequired = false,
     bool compact = false,
     String? hint,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: _textLabel, fontSize: 12),
-              ),
-            ),
-            if (suffixText != null) ...[
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  suffixText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _textMuted, fontSize: 10),
+        Text.rich(
+          TextSpan(
+            text: label,
+            children: [
+              if (isRequired)
+                const TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: Color(0xFFFFB74D)),
                 ),
-              ),
             ],
-          ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
         Container(
@@ -2327,7 +2331,8 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: const TextStyle(color: _textMuted, fontSize: 13),
-              prefixIcon: compact ? null : Icon(icon, color: iconColor, size: 20),
+              prefixIcon:
+                  compact ? null : Icon(icon, color: iconColor, size: 20),
               border: InputBorder.none,
               isDense: compact,
               contentPadding: EdgeInsets.symmetric(
@@ -2358,8 +2363,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           hintText: hint,
           hintStyle: const TextStyle(color: _textMuted, fontSize: 13),
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
         ),
       ),
     );
@@ -2378,9 +2385,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           decoration: BoxDecoration(
             color: isActive ? const Color(0x2626A69A) : _fieldBg,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isActive ? _teal : _fieldBorder,
-            ),
+            border: Border.all(color: isActive ? _teal : _fieldBorder),
           ),
           child: Center(
             child: Text(

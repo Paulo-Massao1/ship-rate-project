@@ -1061,7 +1061,7 @@
   "@santanaTideReferenceHint": {
     "description": "Explains that the selected location uses Santana tide data."
   },
-  "rulerReading": "Leitura da régua",
+  "rulerReading": "Régua",
   "@rulerReading": {
     "description": "Placeholder for the manual ruler reading."
   },

@@ -773,7 +773,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get santanaTideReferenceHint => 'This location uses the Santana tide as its reference.';
 
   @override
-  String get rulerReading => 'Ruler reading';
+  String get rulerReading => 'Ruler';
 
   @override
   String get rulerManualHint => 'Enter the current ruler reading manually.';

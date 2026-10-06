@@ -773,7 +773,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get santanaTideReferenceHint => 'Este local usa a Maré de Santana como referência.';
 
   @override
-  String get rulerReading => 'Leitura da régua';
+  String get rulerReading => 'Régua';
 
   @override
   String get rulerManualHint => 'Informe manualmente a leitura atual da régua.';

@@ -1538,7 +1538,7 @@ abstract class AppLocalizations {
   /// Placeholder for the manual ruler reading.
   ///
   /// In pt, this message translates to:
-  /// **'Leitura da régua'**
+  /// **'Régua'**
   String get rulerReading;
 
   /// Explains that the ruler reading is currently entered manually.
