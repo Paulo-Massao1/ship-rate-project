@@ -1946,6 +1946,18 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNationalityNotInformed => 'Não informada';
 
   @override
+  String get maneuverAddNationality => 'Adicionar nacionalidade';
+
+  @override
+  String get maneuverNationalitySharedNotice => 'A nova nacionalidade ficará disponível em todos os portos e terminais de Manobras.';
+
+  @override
+  String get maneuverNationalityRegistrationError => 'Não foi possível cadastrar esta nacionalidade. Verifique o nome ou tente novamente.';
+
+  @override
+  String get maneuverSaveNationality => 'Salvar';
+
+  @override
   String get maneuverSearchShip => 'Buscar navio...';
 
   @override

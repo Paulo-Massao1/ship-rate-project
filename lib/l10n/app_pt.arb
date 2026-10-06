@@ -2667,6 +2667,22 @@
   "@maneuverNationalityNotInformed": {
     "description": "Option that clears an optional nationality selection."
   },
+  "maneuverAddNationality": "Adicionar nacionalidade",
+  "@maneuverAddNationality": {
+    "description": "Opção que abre o cadastro de uma nacionalidade compartilhada na feature Manobras."
+  },
+  "maneuverNationalitySharedNotice": "A nova nacionalidade ficará disponível em todos os portos e terminais de Manobras.",
+  "@maneuverNationalitySharedNotice": {
+    "description": "Explica o alcance global de uma nacionalidade cadastrada na feature Manobras."
+  },
+  "maneuverNationalityRegistrationError": "Não foi possível cadastrar esta nacionalidade. Verifique o nome ou tente novamente.",
+  "@maneuverNationalityRegistrationError": {
+    "description": "Erro ao cadastrar uma nacionalidade compartilhada."
+  },
+  "maneuverSaveNationality": "Salvar",
+  "@maneuverSaveNationality": {
+    "description": "Botão que salva uma nova nacionalidade compartilhada."
+  },
   "maneuverSearchShip": "Buscar navio...",
   "@maneuverSearchShip": {
     "description": "Hint shown in the maneuver ship autocomplete."

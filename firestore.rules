@@ -369,6 +369,40 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Global catalog shared by every port and terminal in Maneuvers.
+    match /maneuverNationalities/{nationalityId} {
+      allow read: if canAccessRestrictedModules();
+      allow create: if canAccessRestrictedModules()
+                    && request.resource.data.keys().hasAll([
+                      'name',
+                      'normalizedName',
+                      'lookupKey',
+                      'createdBy',
+                      'createdAt'
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      'name',
+                      'normalizedName',
+                      'lookupKey',
+                      'createdBy',
+                      'createdAt'
+                    ])
+                    && request.resource.data.createdBy == request.auth.uid
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 2
+                    && request.resource.data.name.size() <= 80
+                    && request.resource.data.normalizedName is string
+                    && request.resource.data.normalizedName.size() >= 2
+                    && request.resource.data.normalizedName.size() <= 80
+                    && request.resource.data.lookupKey is string
+                    && request.resource.data.lookupKey.size() >= 1
+                    && request.resource.data.lookupKey.size() <= 80
+                    && request.resource.data.lookupKey.matches('^[a-z0-9-]+$')
+                    && nationalityId == request.resource.data.lookupKey;
+      allow update, delete: if false;
+    }
+
     match /manobras_relatos/{reportId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn()

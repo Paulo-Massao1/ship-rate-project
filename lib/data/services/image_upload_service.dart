@@ -154,10 +154,10 @@ class ImageUploadService {
   /// On web an html input[type=file] is used because file_picker is not
   /// reliable across every browser (notably iOS PWAs). On other platforms
   /// file_picker is used as before.
-  static Future<PendingImageUpload?> pickFile() async {
+  static Future<PendingImageUpload?> pickFile({String? accept}) async {
     if (kIsWeb) {
       try {
-        return await _pickFileWeb();
+        return await _pickFileWeb(accept: accept);
       } on ImageUploadException {
         rethrow;
       } catch (e, stackTrace) {
@@ -191,7 +191,7 @@ class ImageUploadService {
 
   /// Web implementation of [pickFile] backed by a plain html file input,
   /// mirroring the approach already used by the web image picker backend.
-  static Future<PendingImageUpload?> _pickFileWeb() {
+  static Future<PendingImageUpload?> _pickFileWeb({String? accept}) {
     final body = html.document.body;
     if (body == null) {
       throw const ImageUploadException(
@@ -202,6 +202,9 @@ class ImageUploadService {
 
     final completer = Completer<PendingImageUpload?>();
     final input = html.FileUploadInputElement()..style.display = 'none';
+    if (accept != null && accept.trim().isNotEmpty) {
+      input.accept = accept;
+    }
 
     body.append(input);
 

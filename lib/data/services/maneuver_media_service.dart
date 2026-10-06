@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/maneuver_report.dart';
 import 'image_upload_service.dart';
@@ -39,6 +40,14 @@ class ManeuverMediaService {
   }
 
   Future<PendingManeuverMedia?> pickVideo() async {
+    if (kIsWeb) {
+      final file = await ImageUploadService.pickFile(
+        accept: 'video/mp4,video/quicktime,.mp4,.mov',
+      );
+      if (file == null) return null;
+      return _validated(file, ManeuverMediaType.video);
+    }
+
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['mp4', 'mov'],

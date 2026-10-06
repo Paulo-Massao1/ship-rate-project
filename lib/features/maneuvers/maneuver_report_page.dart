@@ -6,6 +6,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../data/models/maneuver_report.dart';
 import '../../data/models/maneuver_tug.dart';
 import '../../data/services/image_upload_service.dart';
+import '../../data/services/maneuver_nationality_service.dart';
 import '../../data/services/maneuver_report_service.dart';
 import '../../data/services/maneuver_media_service.dart';
 import '../../data/services/maneuver_tug_service.dart';
@@ -34,7 +35,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _muted = Color(0x99FFFFFF);
-  static const _otherNationalityKey = '__other__';
+  static const _addNationalityKey = '__add_nationality__';
   static const _addTugOptionValue = '__add_tug__';
   static const _nationalityKeys = <String>[
     'Filipino',
@@ -53,8 +54,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   final _lengthController = TextEditingController();
   final _beamController = TextEditingController();
   final _maximumDraftController = TextEditingController();
-  final _officerNationalityController = TextEditingController();
-  final _crewNationalityController = TextEditingController();
   final _currentDirectionController = TextEditingController();
   final _currentIntensityController = TextEditingController();
   final _windDirectionController = TextEditingController();
@@ -64,9 +63,11 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   final _shipNameFocusNode = FocusNode();
 
   late final ManeuverTugService _tugService;
+  late final ManeuverNationalityService _nationalityService;
   late final ManeuverReportService _reportService;
   late final ManeuverMediaService _mediaService;
   late final Stream<List<ManeuverTug>> _tugsStream;
+  late final Stream<List<String>> _nationalitiesStream;
   List<ManeuverShipOption> _ships = const [];
   String? _selectedShipId;
   ManeuverTug? _forwardTug;
@@ -86,9 +87,11 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   void initState() {
     super.initState();
     _tugService = ManeuverTugService();
+    _nationalityService = ManeuverNationalityService();
     _reportService = ManeuverReportService();
     _mediaService = const ManeuverMediaService();
     _tugsStream = _tugService.watchTugsForPort(widget.portCode);
+    _nationalitiesStream = _nationalityService.watchNationalities();
     _loadShips();
   }
 
@@ -98,8 +101,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     _lengthController.dispose();
     _beamController.dispose();
     _maximumDraftController.dispose();
-    _officerNationalityController.dispose();
-    _crewNationalityController.dispose();
     _currentDirectionController.dispose();
     _currentIntensityController.dispose();
     _windDirectionController.dispose();
@@ -294,7 +295,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             children: [
               Expanded(
                 child: _buildNationalitySelector(
-                  controller: _officerNationalityController,
                   label: l10n.maneuverOfficerNationality,
                   value: _officerNationalityKey,
                   l10n: l10n,
@@ -306,7 +306,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: _buildNationalitySelector(
-                  controller: _crewNationalityController,
                   label: l10n.crewNationality,
                   value: _crewNationalityKey,
                   l10n: l10n,
@@ -351,7 +350,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }
 
   Widget _buildNationalitySelector({
-    required TextEditingController controller,
     required String label,
     required String? value,
     required AppLocalizations l10n,
@@ -372,16 +370,19 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             );
             if (!mounted || selected == null) return;
 
-            final normalized = selected.isEmpty ? null : selected;
-            if (normalized != _otherNationalityKey) controller.clear();
-            onChanged(normalized);
+            if (selected == _addNationalityKey) {
+              final created = await _showAddNationalitySheet();
+              if (!mounted || created == null) return;
+              onChanged(created);
+              return;
+            }
+
+            onChanged(selected.isEmpty ? null : selected);
           },
           child: Text(
             value == null
                 ? l10n.maneuverNationalityNotInformed
-                : value == _otherNationalityKey
-                    ? l10n.nationalityOther
-                    : _nationalityLabel(value, l10n),
+                : _nationalityLabel(value, l10n),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -392,19 +393,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             ),
           ),
         ),
-        if (value == _otherNationalityKey) ...[
-          const SizedBox(height: 8),
-          TextField(
-            controller: controller,
-            enabled: !_saving,
-            maxLength: 80,
-            textCapitalization: TextCapitalization.words,
-            inputFormatters: [LengthLimitingTextInputFormatter(80)],
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-            decoration: _inputDecoration(hint: l10n.specifyNationality)
-                .copyWith(counterText: ''),
-          ),
-        ],
       ],
     );
   }
@@ -414,16 +402,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     required String? selectedValue,
     required AppLocalizations l10n,
   }) {
-    final options = <({String value, String label})>[
-      (
-        value: '',
-        label: l10n.maneuverNationalityNotInformed,
-      ),
-      for (final key in _nationalityKeys)
-        (value: key, label: _nationalityLabel(key, l10n)),
-      (value: _otherNationalityKey, label: l10n.nationalityOther),
-    ];
-
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -442,42 +420,83 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               _buildSelectionSheetHeader(sheetContext, title),
               const Divider(height: 1, color: Color(0x1FFFFFFF)),
               Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  itemCount: options.length,
-                  separatorBuilder: (_, __) =>
-                      const Divider(height: 1, color: Color(0x12FFFFFF)),
-                  itemBuilder: (_, index) {
-                    final option = options[index];
-                    final isSelected = selectedValue == null
-                        ? option.value.isEmpty
-                        : selectedValue == option.value;
-                    return ListTile(
-                      dense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 2,
+                child: StreamBuilder<List<String>>(
+                  stream: _nationalitiesStream,
+                  builder: (context, snapshot) {
+                    final predefined = _nationalityKeys
+                        .map(ManeuverNationalityService.normalizeName)
+                        .toSet();
+                    final custom = (snapshot.data ?? const <String>[])
+                        .where(
+                          (name) => !predefined.contains(
+                            ManeuverNationalityService.normalizeName(name),
+                          ),
+                        )
+                        .toList(growable: false);
+                    final options = <({String value, String label})>[
+                      (
+                        value: '',
+                        label: l10n.maneuverNationalityNotInformed,
                       ),
-                      leading: Icon(
-                        Icons.public,
-                        color: isSelected ? _amber : const Color(0x80FFFFFF),
-                        size: 19,
+                      for (final key in _nationalityKeys)
+                        (value: key, label: _nationalityLabel(key, l10n)),
+                      for (final name in custom) (value: name, label: name),
+                      (
+                        value: _addNationalityKey,
+                        label: l10n.maneuverAddNationality,
                       ),
-                      title: Text(
-                        option.label,
-                        style: TextStyle(
-                          color: isSelected ? _amber : Colors.white,
-                          fontSize: 13,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
+                    ];
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      itemCount: options.length,
+                      separatorBuilder: (_, __) => const Divider(
+                        height: 1,
+                        color: Color(0x12FFFFFF),
                       ),
-                      trailing: isSelected
-                          ? const Icon(Icons.check, color: _amber, size: 19)
-                          : null,
-                      onTap: () => Navigator.pop(sheetContext, option.value),
+                      itemBuilder: (_, index) {
+                        final option = options[index];
+                        final isAdd = option.value == _addNationalityKey;
+                        final isSelected = selectedValue == null
+                            ? option.value.isEmpty
+                            : selectedValue == option.value;
+                        return ListTile(
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 2,
+                          ),
+                          leading: Icon(
+                            isAdd ? Icons.add : Icons.public,
+                            color: isAdd || isSelected
+                                ? _amber
+                                : const Color(0x80FFFFFF),
+                            size: 19,
+                          ),
+                          title: Text(
+                            option.label,
+                            style: TextStyle(
+                              color: isAdd || isSelected
+                                  ? _amber
+                                  : Colors.white,
+                              fontSize: 13,
+                              fontWeight: isAdd || isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                          trailing: isSelected && !isAdd
+                              ? const Icon(
+                                  Icons.check,
+                                  color: _amber,
+                                  size: 19,
+                                )
+                              : null,
+                          onTap: () =>
+                              Navigator.pop(sheetContext, option.value),
+                        );
+                      },
                     );
                   },
                 ),
@@ -485,6 +504,20 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<String?> _showAddNationalitySheet() {
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: _bgMid,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _AddManeuverNationalitySheet(
+        service: _nationalityService,
       ),
     );
   }
@@ -1571,14 +1604,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         maximumDraftMeters: maximumDraft,
         propellerDirection: _propellerDirection,
         propellerPitch: _propellerPitch,
-        officerNationality: _selectedNationalityValue(
-          _officerNationalityKey,
-          _officerNationalityController,
-        ),
-        crewNationality: _selectedNationalityValue(
-          _crewNationalityKey,
-          _crewNationalityController,
-        ),
+        officerNationality: _selectedNationalityValue(_officerNationalityKey),
+        crewNationality: _selectedNationalityValue(_crewNationalityKey),
         forwardTug: _forwardTug,
         aftTug: _aftTug,
         currentDirectionDegrees: currentDirection,
@@ -1653,15 +1680,164 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     return trimmed.isEmpty ? null : trimmed;
   }
 
-  String? _selectedNationalityValue(
-    String? key,
-    TextEditingController otherController,
-  ) {
-    if (key == null) return null;
-    if (key == _otherNationalityKey) {
-      return _trimmedOrNull(otherController.text);
+  String? _selectedNationalityValue(String? key) =>
+      key == null ? null : _trimmedOrNull(key);
+}
+
+class _AddManeuverNationalitySheet extends StatefulWidget {
+  const _AddManeuverNationalitySheet({required this.service});
+
+  final ManeuverNationalityService service;
+
+  @override
+  State<_AddManeuverNationalitySheet> createState() =>
+      _AddManeuverNationalitySheetState();
+}
+
+class _AddManeuverNationalitySheetState
+    extends State<_AddManeuverNationalitySheet> {
+  static const _amber = Color(0xFFFFB74D);
+  static const _bgDark = Color(0xFF0A1628);
+  static const _muted = Color(0x99FFFFFF);
+
+  final _nameController = TextEditingController();
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+    final name = _nameController.text.trim();
+    if (name.length < 2) {
+      setState(() => _error = AppLocalizations.of(context)!
+          .maneuverNationalityRegistrationError);
+      return;
     }
-    return key;
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final created = await widget.service.createNationality(name);
+      if (!mounted) return;
+      Navigator.pop(context, created);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = AppLocalizations.of(context)!
+            .maneuverNationalityRegistrationError;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          18,
+          18,
+          18,
+          MediaQuery.viewInsetsOf(context).bottom + 18,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.maneuverAddNationality,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.maneuverNationalitySharedNotice,
+              style: const TextStyle(color: _muted, fontSize: 11),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: _nameController,
+              enabled: !_saving,
+              autofocus: true,
+              maxLength: 80,
+              textCapitalization: TextCapitalization.words,
+              inputFormatters: [LengthLimitingTextInputFormatter(80)],
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              decoration: InputDecoration(
+                hintText: l10n.specifyNationality,
+                hintStyle: const TextStyle(color: _muted),
+                counterText: '',
+                filled: true,
+                fillColor: const Color(0xFF1A2E45),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(9),
+                  borderSide: const BorderSide(color: Color(0x33FFFFFF)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(9),
+                  borderSide: const BorderSide(color: Color(0x33FFFFFF)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(9),
+                  borderSide: const BorderSide(color: _amber),
+                ),
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _error!,
+                style: const TextStyle(color: Color(0xFFFF8A80), fontSize: 11),
+              ),
+            ],
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _saving ? null : () => Navigator.pop(context),
+                    child: Text(l10n.cancel),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _saving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _amber,
+                      foregroundColor: _bgDark,
+                    ),
+                    child: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: _bgDark,
+                            ),
+                          )
+                        : Text(l10n.maneuverSaveNationality),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -3707,6 +3707,30 @@ abstract class AppLocalizations {
   /// **'Não informada'**
   String get maneuverNationalityNotInformed;
 
+  /// Opção que abre o cadastro de uma nacionalidade compartilhada na feature Manobras.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar nacionalidade'**
+  String get maneuverAddNationality;
+
+  /// Explica o alcance global de uma nacionalidade cadastrada na feature Manobras.
+  ///
+  /// In pt, this message translates to:
+  /// **'A nova nacionalidade ficará disponível em todos os portos e terminais de Manobras.'**
+  String get maneuverNationalitySharedNotice;
+
+  /// Erro ao cadastrar uma nacionalidade compartilhada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível cadastrar esta nacionalidade. Verifique o nome ou tente novamente.'**
+  String get maneuverNationalityRegistrationError;
+
+  /// Botão que salva uma nova nacionalidade compartilhada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salvar'**
+  String get maneuverSaveNationality;
+
   /// Hint shown in the maneuver ship autocomplete.
   ///
   /// In pt, this message translates to:

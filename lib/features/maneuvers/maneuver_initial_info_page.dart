@@ -6,6 +6,7 @@ import '../../data/models/maneuver_catalog.dart';
 import '../../data/models/maneuver_tug.dart';
 import '../../data/services/maneuver_tug_service.dart';
 import '../../shared/widgets/subscription_gate.dart';
+import 'maneuver_report_page.dart';
 
 class ManeuverInitialInfoPage extends StatelessWidget {
   const ManeuverInitialInfoPage({
@@ -161,19 +162,16 @@ class ManeuverInitialInfoPage extends StatelessWidget {
                   children: [
                     _mediaButton(
                       context,
-                      l10n,
                       Icons.videocam_outlined,
                       l10n.maneuverNightVideos,
                     ),
                     _mediaButton(
                       context,
-                      l10n,
                       Icons.videocam_outlined,
                       l10n.maneuverDayVideos,
                     ),
                     _mediaButton(
                       context,
-                      l10n,
                       Icons.photo_camera_outlined,
                       l10n.photos,
                     ),
@@ -189,16 +187,21 @@ class ManeuverInitialInfoPage extends StatelessWidget {
 
   Widget _mediaButton(
     BuildContext context,
-    AppLocalizations l10n,
     IconData icon,
     String label,
   ) {
     return OutlinedButton.icon(
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.maneuverMediaUnavailable)),
-        );
-      },
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ManeuverReportPage(
+            portName: port.name,
+            portCode: port.code,
+            terminalId: terminal.id,
+            terminalName: terminal.name,
+          ),
+        ),
+      ),
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.white,
         side: const BorderSide(color: Color(0x2EFFFFFF)),

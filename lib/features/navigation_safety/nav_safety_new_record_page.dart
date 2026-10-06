@@ -1157,6 +1157,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
             controller: _rulerValueController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlignVertical: TextAlignVertical.center,
+            expands: true,
+            minLines: null,
+            maxLines: null,
             style: const TextStyle(
               color: _textPrimary,
               fontSize: 14,
@@ -1170,8 +1173,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              filled: false,
+              isCollapsed: true,
+              contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 0),
             ),
           ),
         ),
@@ -1781,6 +1785,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       child: Column(
         children: [
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               setState(() => _latLongExpanded = !_latLongExpanded);
               if (_latLongExpanded) {

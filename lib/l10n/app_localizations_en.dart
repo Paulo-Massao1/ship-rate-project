@@ -1946,6 +1946,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNationalityNotInformed => 'Not provided';
 
   @override
+  String get maneuverAddNationality => 'Add nationality';
+
+  @override
+  String get maneuverNationalitySharedNotice => 'The new nationality will be available across all Maneuvers ports and terminals.';
+
+  @override
+  String get maneuverNationalityRegistrationError => 'This nationality could not be saved. Check the name or try again.';
+
+  @override
+  String get maneuverSaveNationality => 'Save';
+
+  @override
   String get maneuverSearchShip => 'Search ship...';
 
   @override

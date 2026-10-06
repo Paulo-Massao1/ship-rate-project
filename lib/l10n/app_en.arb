@@ -2640,6 +2640,22 @@
   "@maneuverNationalityNotInformed": {
     "description": "Option that clears an optional nationality selection."
   },
+  "maneuverAddNationality": "Add nationality",
+  "@maneuverAddNationality": {
+    "description": "Option that opens the shared nationality form in Maneuvers."
+  },
+  "maneuverNationalitySharedNotice": "The new nationality will be available across all Maneuvers ports and terminals.",
+  "@maneuverNationalitySharedNotice": {
+    "description": "Explains the global scope of a nationality registered in Maneuvers."
+  },
+  "maneuverNationalityRegistrationError": "This nationality could not be saved. Check the name or try again.",
+  "@maneuverNationalityRegistrationError": {
+    "description": "Error shown when a shared nationality cannot be saved."
+  },
+  "maneuverSaveNationality": "Save",
+  "@maneuverSaveNationality": {
+    "description": "Button that saves a new shared nationality."
+  },
   "maneuverSearchShip": "Search ship...",
   "@maneuverSearchShip": {
     "description": "Hint shown in the maneuver ship autocomplete."
