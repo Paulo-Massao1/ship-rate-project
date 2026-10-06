@@ -331,6 +331,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         _depthReference = reference;
         _santanaTideWindow = null;
         _isLoadingTide = false;
+        // Non-tide records represent a calendar date only. Normalizing the
+        // time avoids persisting an invisible hour inherited from another
+        // reference type or from the form initialization.
+        _selectedDate = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+        );
       });
       return;
     }
@@ -386,13 +394,14 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         picked.year != _selectedDate.year ||
         picked.month != _selectedDate.month ||
         picked.day != _selectedDate.day;
+    final usesTide = _depthReference?.type == DepthReferenceType.santanaTide;
     setState(() {
       _selectedDate = DateTime(
         picked.year,
         picked.month,
         picked.day,
-        _selectedDate.hour,
-        _selectedDate.minute,
+        usesTide ? _selectedDate.hour : 0,
+        usesTide ? _selectedDate.minute : 0,
       );
       if (dateChanged && _depthReference?.type == DepthReferenceType.ruler) {
         _rulerValueController.clear();
@@ -529,19 +538,23 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         if (reference.type == DepthReferenceType.santanaTide) {
           referenceData['measurementTime'] = Timestamp.fromDate(_selectedDate);
           if (tideWindow != null) {
-            final previousLowTide = tideWindow.previousLowTide;
-            if (previousLowTide != null) {
-              referenceData['previousLowTide'] = {
-                'dateTime': Timestamp.fromDate(previousLowTide.dateTime),
-                'height': previousLowTide.height,
-              };
+            final previousTide = tideWindow.previousTide;
+            if (previousTide != null) {
+              final eventData = _serializeTideEvent(previousTide);
+              referenceData['previousTide'] = eventData;
+              // Kept for records opened by app versions that predate the
+              // generic adjacent-event fields.
+              if (!previousTide.isHighTide) {
+                referenceData['previousLowTide'] = eventData;
+              }
             }
-            final nextHighTide = tideWindow.nextHighTide;
-            if (nextHighTide != null) {
-              referenceData['nextHighTide'] = {
-                'dateTime': Timestamp.fromDate(nextHighTide.dateTime),
-                'height': nextHighTide.height,
-              };
+            final nextTide = tideWindow.nextTide;
+            if (nextTide != null) {
+              final eventData = _serializeTideEvent(nextTide);
+              referenceData['nextTide'] = eventData;
+              if (nextTide.isHighTide) {
+                referenceData['nextHighTide'] = eventData;
+              }
             }
           }
         }
@@ -882,19 +895,21 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       return '\u{1F30A} ${reference.displayName}\n';
     }
 
-    final low = window.previousLowTide;
-    final high = window.nextHighTide;
+    final previous = window.previousTide;
+    final next = window.nextTide;
     final parts = <String>[];
-    if (low != null) {
+    if (previous != null) {
       parts.add(
-        '${l10n.previousLowTide} ${_formatMetersValue(low.height)} '
-        '(${_formatTime(low.dateTime)})',
+        '${_tideEventLabel(l10n, previous, isPrevious: true)} '
+        '${_formatMetersValue(previous.height)} '
+        '(${_formatTime(previous.dateTime)})',
       );
     }
-    if (high != null) {
+    if (next != null) {
       parts.add(
-        '${l10n.nextHighTide} ${_formatMetersValue(high.height)} '
-        '(${_formatTime(high.dateTime)})',
+        '${_tideEventLabel(l10n, next, isPrevious: false)} '
+        '${_formatMetersValue(next.height)} '
+        '(${_formatTime(next.dateTime)})',
       );
     }
 
@@ -909,6 +924,25 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     final hour = value.hour.toString().padLeft(2, '0');
     final minute = value.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  Map<String, dynamic> _serializeTideEvent(TideReferenceEvent event) {
+    return {
+      'dateTime': Timestamp.fromDate(event.dateTime),
+      'height': event.height,
+      'type': event.isHighTide ? 'preamar' : 'baixamar',
+    };
+  }
+
+  String _tideEventLabel(
+    AppLocalizations l10n,
+    TideReferenceEvent event, {
+    required bool isPrevious,
+  }) {
+    if (isPrevious) {
+      return event.isHighTide ? l10n.previousHighTide : l10n.previousLowTide;
+    }
+    return event.isHighTide ? l10n.nextHighTide : l10n.nextLowTide;
   }
 
   Future<void> _selectNewLocation() async {
@@ -1065,22 +1099,22 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           hint: l10n.maneuverSearchShip,
         ),
         const SizedBox(height: 14),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _buildDateField(l10n)),
-            const SizedBox(width: 10),
-            Expanded(
-              child: switch (_depthReference?.type) {
-                DepthReferenceType.santanaTide => _buildMeasurementTimeField(
-                  l10n,
-                ),
-                DepthReferenceType.ruler => _buildRulerReadingField(l10n),
-                null => _buildSpeedField(l10n),
-              },
-            ),
-          ],
-        ),
+        if (_depthReference?.type == DepthReferenceType.santanaTide)
+          _buildDateTimeField(l10n)
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _buildDateField(l10n)),
+              const SizedBox(width: 10),
+              Expanded(
+                child:
+                    _depthReference?.type == DepthReferenceType.ruler
+                        ? _buildRulerReadingField(l10n)
+                        : _buildSpeedField(l10n),
+              ),
+            ],
+          ),
         if (_depthReference != null) ...[
           const SizedBox(height: 10),
           _buildSpeedField(l10n),
@@ -1307,8 +1341,6 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   }
 
   Widget _buildDateField(AppLocalizations l10n) {
-    final dateStr =
-        '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1317,39 +1349,68 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           style: const TextStyle(color: _textLabel, fontSize: 12),
         ),
         const SizedBox(height: 6),
-        GestureDetector(
-          onTap: _pickDate,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            decoration: BoxDecoration(
-              color: _inputBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _inputBorder),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_today, color: _teal, size: 17),
-                const SizedBox(width: 7),
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      dateStr,
-                      style: const TextStyle(
-                        color: _textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        _buildDateControl(),
+      ],
+    );
+  }
+
+  Widget _buildDateTimeField(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.passageDateTime,
+          style: const TextStyle(color: _textLabel, fontSize: 12),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(flex: 3, child: _buildDateControl()),
+            const SizedBox(width: 10),
+            Expanded(flex: 2, child: _buildMeasurementTimeControl()),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDateControl() {
+    final date =
+        '${_selectedDate.day.toString().padLeft(2, '0')}/'
+        '${_selectedDate.month.toString().padLeft(2, '0')}/'
+        '${_selectedDate.year}';
+
+    return GestureDetector(
+      onTap: _pickDate,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: _inputBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _inputBorder),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today, color: _teal, size: 17),
+            const SizedBox(width: 7),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  date,
+                  style: const TextStyle(
+                    color: _textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1489,8 +1550,15 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
               children: [
                 Expanded(
                   child: _buildTideEvent(
-                    label: l10n.previousLowTide,
-                    event: _santanaTideWindow!.previousLowTide,
+                    label:
+                        _santanaTideWindow!.previousTide == null
+                            ? ''
+                            : _tideEventLabel(
+                              l10n,
+                              _santanaTideWindow!.previousTide!,
+                              isPrevious: true,
+                            ),
+                    event: _santanaTideWindow!.previousTide,
                     alignment: CrossAxisAlignment.start,
                   ),
                 ),
@@ -1504,8 +1572,15 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                 ),
                 Expanded(
                   child: _buildTideEvent(
-                    label: l10n.nextHighTide,
-                    event: _santanaTideWindow!.nextHighTide,
+                    label:
+                        _santanaTideWindow!.nextTide == null
+                            ? ''
+                            : _tideEventLabel(
+                              l10n,
+                              _santanaTideWindow!.nextTide!,
+                              isPrevious: false,
+                            ),
+                    event: _santanaTideWindow!.nextTide,
                     alignment: CrossAxisAlignment.end,
                   ),
                 ),
@@ -1633,42 +1708,32 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
     );
   }
 
-  Widget _buildMeasurementTimeField(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.measurementTime,
-          style: const TextStyle(color: _textLabel, fontSize: 12),
+  Widget _buildMeasurementTimeControl() {
+    return GestureDetector(
+      onTap: _pickMeasurementTime,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: _inputBg,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _inputBorder),
         ),
-        const SizedBox(height: 6),
-        GestureDetector(
-          onTap: _pickMeasurementTime,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: _inputBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _inputBorder),
+        child: Row(
+          children: [
+            const Icon(Icons.schedule, color: _teal, size: 18),
+            const SizedBox(width: 8),
+            Text(
+              _formatTime(_selectedDate),
+              style: const TextStyle(
+                color: _textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.schedule, color: Color(0xFF64B5F6), size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  _formatTime(_selectedDate),
-                  style: const TextStyle(
-                    color: _textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

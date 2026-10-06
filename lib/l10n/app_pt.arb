@@ -1017,6 +1017,10 @@
   "@passageDate": {
     "description": "Localized text for passage date."
   },
+  "passageDateTime": "Data/hora",
+  "@passageDateTime": {
+    "description": "Label for the date and time controls used by tide-reference locations."
+  },
   "goingUp": "Subindo",
   "@goingUp": {
     "description": "Localized text for going up."
@@ -1085,9 +1089,17 @@
   "@previousLowTide": {
     "description": "Label for the low tide before the measurement."
   },
+  "previousHighTide": "Preamar anterior",
+  "@previousHighTide": {
+    "description": "Label for the high tide before the measurement."
+  },
   "nextHighTide": "Preamar posterior",
   "@nextHighTide": {
     "description": "Label for the high tide after the measurement."
+  },
+  "nextLowTide": "Baixamar posterior",
+  "@nextLowTide": {
+    "description": "Label for the low tide after the measurement."
   },
   "speedOptional": "Velocidade (nós)",
   "@speedOptional": {

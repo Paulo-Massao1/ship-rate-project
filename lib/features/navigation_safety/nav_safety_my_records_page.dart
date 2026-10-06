@@ -12,8 +12,7 @@ class NavSafetyMyRecordsPage extends StatefulWidget {
   const NavSafetyMyRecordsPage({super.key});
 
   @override
-  State<NavSafetyMyRecordsPage> createState() =>
-      _NavSafetyMyRecordsPageState();
+  State<NavSafetyMyRecordsPage> createState() => _NavSafetyMyRecordsPageState();
 }
 
 class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
@@ -76,11 +75,12 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => NavSafetyNewRecordPage(
-          editLocationId: record.locationId,
-          editRecordId: record.recordId,
-          editData: record.data,
-        ),
+        builder:
+            (_) => NavSafetyNewRecordPage(
+              editLocationId: record.locationId,
+              editRecordId: record.recordId,
+              editData: record.data,
+            ),
       ),
     );
     if (result == true) _loadData();
@@ -91,30 +91,40 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF132D4A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(
-          l10n.deleteRecordTitle,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          l10n.deleteRecordConfirm,
-          style: const TextStyle(color: Color(0xD9FFFFFF), fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.cancel,
-                style: const TextStyle(color: Color(0x99FFFFFF))),
+      builder:
+          (ctx) => AlertDialog(
+            backgroundColor: const Color(0xFF132D4A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            title: Text(
+              l10n.deleteRecordTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              l10n.deleteRecordConfirm,
+              style: const TextStyle(color: Color(0xD9FFFFFF), fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(color: Color(0x99FFFFFF)),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  l10n.deleteRecord,
+                  style: const TextStyle(color: Color(0xFFEF5350)),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l10n.deleteRecord,
-                style: const TextStyle(color: Color(0xFFEF5350))),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true) return;
@@ -215,17 +225,43 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
     }
 
     final events = <String>[];
-    final previousLow = _formatStoredTideEvent(rawReference['previousLowTide']);
-    final nextHigh = _formatStoredTideEvent(rawReference['nextHighTide']);
-    if (previousLow.isNotEmpty) {
-      events.add('${l10n.previousLowTide}: $previousLow');
+    final previousRaw =
+        rawReference['previousTide'] ?? rawReference['previousLowTide'];
+    final nextRaw = rawReference['nextTide'] ?? rawReference['nextHighTide'];
+    final previous = _formatStoredTideEvent(previousRaw);
+    final next = _formatStoredTideEvent(nextRaw);
+    if (previous.isNotEmpty) {
+      events.add(
+        '${_storedTideEventLabel(previousRaw, l10n, isPrevious: true, legacyIsHighTide: false)}: $previous',
+      );
     }
-    if (nextHigh.isNotEmpty) {
-      events.add('${l10n.nextHighTide}: $nextHigh');
+    if (next.isNotEmpty) {
+      events.add(
+        '${_storedTideEventLabel(nextRaw, l10n, isPrevious: false, legacyIsHighTide: true)}: $next',
+      );
     }
 
     final eventText = events.isEmpty ? '' : ': ${events.join(' → ')}';
     return '\u{1F30A} $name$eventText\n';
+  }
+
+  String _storedTideEventLabel(
+    dynamic value,
+    AppLocalizations l10n, {
+    required bool isPrevious,
+    required bool legacyIsHighTide,
+  }) {
+    final type = value is Map ? value['type'] : null;
+    final isHighTide = switch (type) {
+      'preamar' => true,
+      'baixamar' => false,
+      _ => legacyIsHighTide,
+    };
+
+    if (isPrevious) {
+      return isHighTide ? l10n.previousHighTide : l10n.previousLowTide;
+    }
+    return isHighTide ? l10n.nextHighTide : l10n.nextLowTide;
   }
 
   String _buildReferenceCardText(Map<String, dynamic> data) {
@@ -281,28 +317,29 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: _teal),
-                  )
-                : _records.isEmpty
+            child:
+                _isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(color: _teal),
+                    )
+                    : _records.isEmpty
                     ? _buildEmptyState(l10n)
                     : ListView(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                        children: [
-                          _buildSummaryCard(l10n),
-                          const SizedBox(height: 20),
-                          Text(
-                            l10n.yourRecords,
-                            style: const TextStyle(
-                              color: Color(0x99FFFFFF),
-                              fontSize: 12,
-                            ),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                      children: [
+                        _buildSummaryCard(l10n),
+                        const SizedBox(height: 20),
+                        Text(
+                          l10n.yourRecords,
+                          style: const TextStyle(
+                            color: Color(0x99FFFFFF),
+                            fontSize: 12,
                           ),
-                          const SizedBox(height: 10),
-                          ..._records.map((r) => _buildRecordCard(r, l10n)),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 10),
+                        ..._records.map((r) => _buildRecordCard(r, l10n)),
+                      ],
+                    ),
           ),
         ),
       ),
@@ -343,8 +380,11 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.description_outlined,
-                color: Color(0x66FFFFFF), size: 64),
+            const Icon(
+              Icons.description_outlined,
+              color: Color(0x66FFFFFF),
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.noRecordsYet,
@@ -358,10 +398,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
             Text(
               l10n.noRecordsSubtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0x66FFFFFF),
-                fontSize: 13,
-              ),
+              style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 13),
             ),
           ],
         ),
@@ -391,10 +428,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
                 valueColor: Colors.white,
               ),
             ),
-            Container(
-              width: 1,
-              color: const Color(0x2626A69A),
-            ),
+            Container(width: 1, color: const Color(0x2626A69A)),
             Expanded(
               child: _buildStatItem(
                 value: _uniqueLocationsCount.toString(),
@@ -402,10 +436,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
                 valueColor: Colors.white,
               ),
             ),
-            Container(
-              width: 1,
-              color: const Color(0x2626A69A),
-            ),
+            Container(width: 1, color: const Color(0x2626A69A)),
             Expanded(
               child: _buildStatItem(
                 value: _contributionPercentage,
@@ -438,10 +469,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0x66FFFFFF),
-            fontSize: 10,
-          ),
+          style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 10),
         ),
       ],
     );

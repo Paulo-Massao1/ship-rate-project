@@ -8,11 +8,7 @@ class DepthReference {
   final String name;
   final String? code;
 
-  const DepthReference({
-    required this.type,
-    required this.name,
-    this.code,
-  });
+  const DepthReference({required this.type, required this.name, this.code});
 
   String get displayName => code == null ? name : '$name ($code)';
 }
@@ -20,23 +16,22 @@ class DepthReference {
 class TideReferenceEvent {
   final DateTime dateTime;
   final double height;
+  final bool isHighTide;
 
   const TideReferenceEvent({
     required this.dateTime,
     required this.height,
+    required this.isHighTide,
   });
 }
 
 class SantanaTideWindow {
-  final TideReferenceEvent? previousLowTide;
-  final TideReferenceEvent? nextHighTide;
+  final TideReferenceEvent? previousTide;
+  final TideReferenceEvent? nextTide;
 
-  const SantanaTideWindow({
-    required this.previousLowTide,
-    required this.nextHighTide,
-  });
+  const SantanaTideWindow({required this.previousTide, required this.nextTide});
 
-  bool get hasData => previousLowTide != null || nextHighTide != null;
+  bool get hasData => previousTide != null || nextTide != null;
 }
 
 /// Resolves the depth reference used by each passage location.
@@ -218,35 +213,31 @@ class DepthReferenceService {
       }
     }
 
-    TideReferenceEvent? previousLowTide;
-    TideReferenceEvent? nextHighTide;
+    TideReferenceEvent? previousTide;
+    TideReferenceEvent? nextTide;
 
     for (final event in events) {
-      if (!event.tide.isHighTide &&
-          !event.dateTime.isAfter(measurement) &&
-          (previousLowTide == null ||
-              event.dateTime.isAfter(previousLowTide.dateTime))) {
-        previousLowTide = TideReferenceEvent(
+      if (!event.dateTime.isAfter(measurement) &&
+          (previousTide == null ||
+              event.dateTime.isAfter(previousTide.dateTime))) {
+        previousTide = TideReferenceEvent(
           dateTime: event.dateTime,
           height: event.tide.height,
+          isHighTide: event.tide.isHighTide,
         );
       }
 
-      if (event.tide.isHighTide &&
-          !event.dateTime.isBefore(measurement) &&
-          (nextHighTide == null ||
-              event.dateTime.isBefore(nextHighTide.dateTime))) {
-        nextHighTide = TideReferenceEvent(
+      if (event.dateTime.isAfter(measurement) &&
+          (nextTide == null || event.dateTime.isBefore(nextTide.dateTime))) {
+        nextTide = TideReferenceEvent(
           dateTime: event.dateTime,
           height: event.tide.height,
+          isHighTide: event.tide.isHighTide,
         );
       }
     }
 
-    return SantanaTideWindow(
-      previousLowTide: previousLowTide,
-      nextHighTide: nextHighTide,
-    );
+    return SantanaTideWindow(previousTide: previousTide, nextTide: nextTide);
   }
 
   static String _normalize(String value) {

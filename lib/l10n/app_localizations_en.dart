@@ -740,6 +740,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passageDate => 'Date';
 
   @override
+  String get passageDateTime => 'Date/time';
+
+  @override
   String get goingUp => 'Going up';
 
   @override
@@ -791,7 +794,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previousLowTide => 'Previous low tide';
 
   @override
+  String get previousHighTide => 'Previous high tide';
+
+  @override
   String get nextHighTide => 'Next high tide';
+
+  @override
+  String get nextLowTide => 'Next low tide';
 
   @override
   String get speedOptional => 'Speed (knots)';

@@ -1469,6 +1469,12 @@ abstract class AppLocalizations {
   /// **'Data'**
   String get passageDate;
 
+  /// Label for the date and time controls used by tide-reference locations.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data/hora'**
+  String get passageDateTime;
+
   /// Localized text for going up.
   ///
   /// In pt, this message translates to:
@@ -1571,11 +1577,23 @@ abstract class AppLocalizations {
   /// **'Baixamar anterior'**
   String get previousLowTide;
 
+  /// Label for the high tide before the measurement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preamar anterior'**
+  String get previousHighTide;
+
   /// Label for the high tide after the measurement.
   ///
   /// In pt, this message translates to:
   /// **'Preamar posterior'**
   String get nextHighTide;
+
+  /// Label for the low tide after the measurement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixamar posterior'**
+  String get nextLowTide;
 
   /// Localized text for speed optional.
   ///

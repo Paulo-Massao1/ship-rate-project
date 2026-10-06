@@ -38,8 +38,10 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final depth = _formatMeters(record['profundidadeTotal']);
     final maxDraft = _formatMeters(record['caladoMax']);
     final ukc = _formatMeters(record['ukc']);
-    final depthReference =
-        _formatDepthReference(record['depthReference'], l10n);
+    final depthReference = _formatDepthReference(
+      record['depthReference'],
+      l10n,
+    );
     final speed = _formatSpeed(record['velocidade']);
     final observations = (record['observacoes'] ?? '').toString().trim();
     final technicalRows = _buildTechnicalRows(l10n);
@@ -82,144 +84,144 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          children: [
-            _buildCard(
-              title: l10n.passageInfo,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    locationName,
-                    style: const TextStyle(
-                      color: _textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // Ship and date stay on the same line when they fit, and the
-                  // date drops to the next line when the ship name is long.
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _buildCard(
+                  title: l10n.passageInfo,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (shipName.isNotEmpty)
-                        _buildPassageField(
-                          'Navio',
-                          shipName,
-                          valueColor: _blueAccent,
-                        ),
-                      _buildPassageField('Data', date),
-                    ],
-                  ),
-                  if (pilotName.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    _buildPassageField(l10n.pilot, pilotName),
-                  ],
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(direction.icon, color: _teal, size: 18),
-                      const SizedBox(width: 8),
                       Text(
-                        direction.label,
+                        locationName,
                         style: const TextStyle(
-                          color: _textSecondary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          color: _textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildCard(
-              title: l10n.totalDepthLabel,
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0x1426A69A),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0x3326A69A)),
-                    ),
-                    child: Text(
-                      depth,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: _teal,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 6),
+                      // Ship and date stay on the same line when they fit, and the
+                      // date drops to the next line when the ship name is long.
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if (shipName.isNotEmpty)
+                            _buildPassageField(
+                              'Navio',
+                              shipName,
+                              valueColor: _blueAccent,
+                            ),
+                          _buildPassageField('Data', date),
+                        ],
                       ),
-                    ),
-                  ),
-                  if (depthReference.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      depthReference,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: _blueAccent,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                      if (pilotName.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        _buildPassageField(l10n.pilot, pilotName),
+                      ],
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(direction.icon, color: _teal, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            direction.label,
+                            style: const TextStyle(
+                              color: _textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _buildMetricColumn(l10n.maxDraft, maxDraft),
-                      _buildMetricColumn(l10n.ukc, ukc),
-                      if (speed != null)
-                        _buildMetricColumn(l10n.speedOptional, speed),
                     ],
-                  ),
-                ],
-              ),
-            ),
-            if (technicalRows.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _buildCard(
-                title: l10n.technicalData,
-                padding: const EdgeInsets.all(8),
-                child: Column(children: technicalRows),
-              ),
-            ],
-            if (observations.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _buildCard(
-                title: l10n.observations,
-                child: Text(
-                  observations,
-                  style: const TextStyle(
-                    color: _textSecondary,
-                    fontSize: 14,
-                    height: 1.45,
                   ),
                 ),
-              ),
-            ],
-            if (record['imageUrls'] is List &&
-                (record['imageUrls'] as List).isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _buildPhotosCard(context, l10n),
-            ],
-            if (record['fileAttachments'] is List &&
-                (record['fileAttachments'] as List).isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _buildFilesCard(context, l10n),
-            ],
-            ],
+                const SizedBox(height: 8),
+                _buildCard(
+                  title: l10n.totalDepthLabel,
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1426A69A),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0x3326A69A)),
+                        ),
+                        child: Text(
+                          depth,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: _teal,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (depthReference.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          depthReference,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: _blueAccent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildMetricColumn(l10n.maxDraft, maxDraft),
+                          _buildMetricColumn(l10n.ukc, ukc),
+                          if (speed != null)
+                            _buildMetricColumn(l10n.speedOptional, speed),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (technicalRows.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildCard(
+                    title: l10n.technicalData,
+                    padding: const EdgeInsets.all(8),
+                    child: Column(children: technicalRows),
+                  ),
+                ],
+                if (observations.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildCard(
+                    title: l10n.observations,
+                    child: Text(
+                      observations,
+                      style: const TextStyle(
+                        color: _textSecondary,
+                        fontSize: 14,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ],
+                if (record['imageUrls'] is List &&
+                    (record['imageUrls'] as List).isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildPhotosCard(context, l10n),
+                ],
+                if (record['fileAttachments'] is List &&
+                    (record['fileAttachments'] as List).isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _buildFilesCard(context, l10n),
+                ],
+              ],
+            ),
           ),
         ),
-          ),
-        ),
+      ),
     );
   }
 
@@ -261,17 +263,11 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
         children: [
           TextSpan(
             text: '$label: ',
-            style: const TextStyle(
-              color: _textMuted,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: _textMuted, fontSize: 12),
           ),
           TextSpan(
             text: value,
-            style: TextStyle(
-              color: valueColor ?? _textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: valueColor ?? _textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -285,10 +281,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: _textMuted,
-              fontSize: 10,
-            ),
+            style: const TextStyle(color: _textMuted, fontSize: 10),
           ),
           const SizedBox(height: 4),
           Text(
@@ -322,10 +315,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
 
     if (record['squat'] != null) {
       compactTiles.add(
-        _buildCompactTile(
-          l10n.squatInput,
-          _formatMeters(record['squat']),
-        ),
+        _buildCompactTile(l10n.squatInput, _formatMeters(record['squat'])),
       );
     } else if (record['squatConsiderado'] != null) {
       compactTiles.add(
@@ -364,18 +354,43 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     }
 
     final tideEvents = <String>[];
-    final previousLow = _formatTideEvent(value['previousLowTide']);
-    final nextHigh = _formatTideEvent(value['nextHighTide']);
-    if (previousLow.isNotEmpty) {
-      tideEvents.add('${l10n.previousLowTide}: $previousLow');
+    final previousRaw = value['previousTide'] ?? value['previousLowTide'];
+    final nextRaw = value['nextTide'] ?? value['nextHighTide'];
+    final previous = _formatTideEvent(previousRaw);
+    final next = _formatTideEvent(nextRaw);
+    if (previous.isNotEmpty) {
+      tideEvents.add(
+        '${_storedTideEventLabel(previousRaw, l10n, isPrevious: true, legacyIsHighTide: false)}: $previous',
+      );
     }
-    if (nextHigh.isNotEmpty) {
-      tideEvents.add('${l10n.nextHighTide}: $nextHigh');
+    if (next.isNotEmpty) {
+      tideEvents.add(
+        '${_storedTideEventLabel(nextRaw, l10n, isPrevious: false, legacyIsHighTide: true)}: $next',
+      );
     }
 
     return tideEvents.isEmpty
         ? displayName
         : '$displayName\n${tideEvents.join(' · ')}';
+  }
+
+  String _storedTideEventLabel(
+    dynamic value,
+    AppLocalizations l10n, {
+    required bool isPrevious,
+    required bool legacyIsHighTide,
+  }) {
+    final type = value is Map ? value['type'] : null;
+    final isHighTide = switch (type) {
+      'preamar' => true,
+      'baixamar' => false,
+      _ => legacyIsHighTide,
+    };
+
+    if (isPrevious) {
+      return isHighTide ? l10n.previousHighTide : l10n.previousLowTide;
+    }
+    return isHighTide ? l10n.nextHighTide : l10n.nextLowTide;
   }
 
   String _formatTideEvent(dynamic value) {
@@ -448,13 +463,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: _textMuted,
-              fontSize: 10,
-            ),
-          ),
+          Text(label, style: const TextStyle(color: _textMuted, fontSize: 10)),
           const SizedBox(height: 4),
           Text(
             value,
@@ -483,10 +492,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: _textMuted,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: _textMuted, fontSize: 12),
             ),
           ),
           const SizedBox(width: 12),
@@ -532,7 +538,10 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final degrees = raw['graus']?.toString();
     final hemisphere = raw['hemisferio']?.toString();
 
-    if (degrees == null || hemisphere == null || degrees.isEmpty || hemisphere.isEmpty) {
+    if (degrees == null ||
+        hemisphere == null ||
+        degrees.isEmpty ||
+        hemisphere.isEmpty) {
       return null;
     }
 
@@ -554,14 +563,16 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
       }
     }
 
-    if (decimalMin == 0.0 && (minutesRaw == null || minutesRaw.toString().isEmpty)) {
+    if (decimalMin == 0.0 &&
+        (minutesRaw == null || minutesRaw.toString().isEmpty)) {
       return null;
     }
 
     final degreeWidth = isLatitude ? 2 : 3;
-    final formattedMin = decimalMin == decimalMin.truncateToDouble()
-        ? '${decimalMin.toInt()}'
-        : decimalMin.toStringAsFixed(1);
+    final formattedMin =
+        decimalMin == decimalMin.truncateToDouble()
+            ? '${decimalMin.toInt()}'
+            : decimalMin.toStringAsFixed(1);
 
     return '${degrees.padLeft(degreeWidth, '0')}\u00B0 $formattedMin\' $hemisphere';
   }
@@ -600,75 +611,77 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   }
 
   Widget _buildFilesCard(BuildContext context, AppLocalizations l10n) {
-    final attachments = (record['fileAttachments'] as List)
-        .whereType<Map>()
-        .map((m) => Map<String, dynamic>.from(m))
-        .where((m) => (m['url'] ?? '').toString().trim().isNotEmpty)
-        .toList();
+    final attachments =
+        (record['fileAttachments'] as List)
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .where((m) => (m['url'] ?? '').toString().trim().isNotEmpty)
+            .toList();
 
     if (attachments.isEmpty) return const SizedBox.shrink();
 
     return _buildCard(
       title: l10n.files,
       child: Column(
-        children: attachments.asMap().entries.map((entry) {
-          final attachment = entry.value;
-          final url = attachment['url'].toString();
-          final name = (attachment['name'] ?? '').toString().trim();
-          final displayName = name.isNotEmpty ? name : l10n.file;
-          final contentType = (attachment['contentType'] ?? '')
-                  .toString()
-                  .trim()
-                  .isNotEmpty
-              ? attachment['contentType'].toString()
-              : ImageUploadService.contentTypeFromFileName(displayName);
+        children:
+            attachments.asMap().entries.map((entry) {
+              final attachment = entry.value;
+              final url = attachment['url'].toString();
+              final name = (attachment['name'] ?? '').toString().trim();
+              final displayName = name.isNotEmpty ? name : l10n.file;
+              final contentType =
+                  (attachment['contentType'] ?? '').toString().trim().isNotEmpty
+                      ? attachment['contentType'].toString()
+                      : ImageUploadService.contentTypeFromFileName(displayName);
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: entry.key < attachments.length - 1 ? 10 : 0,
-            ),
-            child: GestureDetector(
-              onTap: () => UrlLauncherService.openExternalUrl(url),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: _tealBg,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: _tealBorder),
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: entry.key < attachments.length - 1 ? 10 : 0,
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _fileIconForContentType(contentType),
-                      color: _teal,
-                      size: 22,
+                child: GestureDetector(
+                  onTap: () => UrlLauncherService.openExternalUrl(url),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        displayName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _textSecondary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                    decoration: BoxDecoration(
+                      color: _tealBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: _tealBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _fileIconForContentType(contentType),
+                          color: _teal,
+                          size: 22,
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            displayName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: _textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(
+                          Icons.open_in_new,
+                          color: _blueAccent,
+                          size: 18,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    const Icon(
-                      Icons.open_in_new,
-                      color: _blueAccent,
-                      size: 18,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -683,27 +696,28 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   void _showFullScreenImage(BuildContext context, String url) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black87,
-        insetPadding: const EdgeInsets.all(16),
-        child: Stack(
-          children: [
-            Center(
-              child: InteractiveViewer(
-                child: Image.network(url),
-              ),
+      builder:
+          (context) => Dialog(
+            backgroundColor: Colors.black87,
+            insetPadding: const EdgeInsets.all(16),
+            child: Stack(
+              children: [
+                Center(child: InteractiveViewer(child: Image.network(url))),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: Colors.white, size: 28),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 

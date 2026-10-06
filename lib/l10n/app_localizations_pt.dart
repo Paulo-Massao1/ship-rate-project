@@ -740,6 +740,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get passageDate => 'Data';
 
   @override
+  String get passageDateTime => 'Data/hora';
+
+  @override
   String get goingUp => 'Subindo';
 
   @override
@@ -791,7 +794,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get previousLowTide => 'Baixamar anterior';
 
   @override
+  String get previousHighTide => 'Preamar anterior';
+
+  @override
   String get nextHighTide => 'Preamar posterior';
+
+  @override
+  String get nextLowTide => 'Baixamar posterior';
 
   @override
   String get speedOptional => 'Velocidade (nós)';
