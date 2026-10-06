@@ -28,7 +28,7 @@ class ManeuversPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: _buildAppBar(l10n),
+      appBar: _buildAppBar(context, l10n),
       drawer: const AppDrawer(
         currentScreen: AppScreen.maneuvers,
         showManeuvers: true,
@@ -61,8 +61,35 @@ class ManeuversPage extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(AppLocalizations l10n) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
+    final canPop = Navigator.canPop(context);
+
     return AppBar(
+      leadingWidth: canPop ? 88 : null,
+      leading:
+          canPop
+              ? TextButton.icon(
+                onPressed: () => Navigator.maybePop(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.only(left: 8, right: 4),
+                  minimumSize: const Size(0, kToolbarHeight),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.arrow_back_ios_new, size: 15),
+                label: Text(
+                  l10n.back,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              )
+              : null,
       title: Text(
         l10n.maneuvers,
         style: const TextStyle(
@@ -181,26 +208,27 @@ class ManeuversPage extends StatelessWidget {
         color: available ? _cardBg : const Color(0x08FFFFFF),
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
-          onTap: available
-              ? () => Navigator.push(
+          onTap:
+              available
+                  ? () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ManeuverTerminalPage(
-                        port: port,
-                        terminal: terminal,
-                      ),
+                      builder:
+                          (_) => ManeuverTerminalPage(
+                            port: port,
+                            terminal: terminal,
+                          ),
                     ),
                   )
-              : null,
+                  : null,
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: available
-                    ? ModuleVisuals.maneuverCardBorder
-                    : _cardBorder,
+                color:
+                    available ? ModuleVisuals.maneuverCardBorder : _cardBorder,
               ),
             ),
             child: Row(
@@ -210,9 +238,8 @@ class ManeuversPage extends StatelessWidget {
                   child: Text(
                     port.code,
                     style: TextStyle(
-                      color: available
-                          ? _maneuverColor
-                          : const Color(0x4DFFFFFF),
+                      color:
+                          available ? _maneuverColor : const Color(0x4DFFFFFF),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                     ),

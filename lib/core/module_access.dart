@@ -17,11 +17,10 @@ class ModuleAccess {
     'plantao@nortepilot.com.br',
     'operacional@adjservicos.com.br',
     'jean@adjservicos.com.br',
+    'testerapptores@gmail.com',
   };
 
-  static const restrictedEmailDomains = <String>[
-    '@cspam.com.br',
-  ];
+  static const restrictedEmailDomains = <String>['@cspam.com.br'];
 
   static bool get isCurrentUserRestricted {
     final user = FirebaseAuth.instance.currentUser;

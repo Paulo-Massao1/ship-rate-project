@@ -13,6 +13,8 @@ service cloud.firestore {
                  || (request.auth.token.email != null
                      && (request.auth.token.email == 'plantao@nortepilot.com.br'
                          || request.auth.token.email == 'operacional@adjservicos.com.br'
+                         || request.auth.token.email == 'jean@adjservicos.com.br'
+                         || request.auth.token.email == 'testerapptores@gmail.com'
                          || request.auth.token.email.matches('.*@cspam\\.com\\.br$'))));
     }
 

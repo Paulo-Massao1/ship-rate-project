@@ -162,6 +162,10 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
           PageView.builder(
             controller: _pageController,
             itemCount: widget.pages.length,
+            physics:
+                _currentScale > _minScale + 0.01
+                    ? const NeverScrollableScrollPhysics()
+                    : const PageScrollPhysics(),
             onPageChanged: (page) => setState(() => _currentPage = page),
             itemBuilder: (context, index) {
               final page = widget.pages[index];
@@ -213,12 +217,11 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
                 child: _PageNavigation(
                   currentPage: _currentPage,
                   pageCount: widget.pages.length,
-                  onPrevious: _currentPage > 0
-                      ? () => _changePage(-1)
-                      : null,
-                  onNext: _currentPage < widget.pages.length - 1
-                      ? () => _changePage(1)
-                      : null,
+                  onPrevious: _currentPage > 0 ? () => _changePage(-1) : null,
+                  onNext:
+                      _currentPage < widget.pages.length - 1
+                          ? () => _changePage(1)
+                          : null,
                 ),
               ),
             ),
@@ -233,13 +236,15 @@ class _PdfPagesViewerState extends State<_PdfPagesViewer> {
                 zoomOutTooltip: widget.zoomOutTooltip,
                 resetZoomTooltip: widget.resetZoomTooltip,
                 zoomInTooltip: widget.zoomInTooltip,
-                onZoomOut: _currentScale > _minScale
-                    ? () => _setScale(_currentScale - 0.5)
-                    : null,
+                onZoomOut:
+                    _currentScale > _minScale
+                        ? () => _setScale(_currentScale - 0.5)
+                        : null,
                 onReset: () => _setScale(_minScale),
-                onZoomIn: _currentScale < _maxScale
-                    ? () => _setScale(_currentScale + 0.5)
-                    : null,
+                onZoomIn:
+                    _currentScale < _maxScale
+                        ? () => _setScale(_currentScale + 0.5)
+                        : null,
               ),
             ),
           ),

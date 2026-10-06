@@ -4,6 +4,8 @@ const CRUZAMENTOS_COLLECTION = "cruzamentos";
 const RESTRICTED_MODULE_EMAILS = [
   "plantao@nortepilot.com.br",
   "operacional@adjservicos.com.br",
+  "jean@adjservicos.com.br",
+  "testerapptores@gmail.com",
 ];
 const RESTRICTED_MODULE_EMAIL_DOMAINS = ["@cspam.com.br"];
 

@@ -68,28 +68,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
   final _dashboardController = DashboardController();
-  DashboardData _statsData = DashboardController.cachedData ??
+  DashboardData _statsData =
+      DashboardController.cachedData ??
       (AppCache.stats.values.any((v) => v > 0)
           ? DashboardData(
-              totalShips: AppCache.stats['ships'] ?? 0,
-              totalRatings: AppCache.stats['ratings'] ?? 0,
-              totalCrossings: AppCache.stats['crossings'] ?? 0,
-              totalUsers: AppCache.stats['pilots'] ?? 0,
-              topRaterCount: AppCache.stats['topRaterCount'] ?? 0,
-              userRatings: 0,
-              userRankingPosition: 0,
-              totalPilotsWhoRated: 0,
-              userCrossingCount: 0,
-              topCrosserCount: 0,
-              userCrossingRanking: 0,
-              totalCrossingPilots: 0,
-              totalDepthRecords: 0,
-              userDepthRecordCount: 0,
-              topDepthContributorCount: 0,
-              userDepthRanking: 0,
-              totalDepthPilots: 0,
-              recentRatings: const [],
-            )
+            totalShips: AppCache.stats['ships'] ?? 0,
+            totalRatings: AppCache.stats['ratings'] ?? 0,
+            totalCrossings: AppCache.stats['crossings'] ?? 0,
+            totalUsers: AppCache.stats['pilots'] ?? 0,
+            topRaterCount: AppCache.stats['topRaterCount'] ?? 0,
+            userRatings: 0,
+            userRankingPosition: 0,
+            totalPilotsWhoRated: 0,
+            userCrossingCount: 0,
+            topCrosserCount: 0,
+            userCrossingRanking: 0,
+            totalCrossingPilots: 0,
+            totalDepthRecords: 0,
+            userDepthRecordCount: 0,
+            topDepthContributorCount: 0,
+            userDepthRanking: 0,
+            totalDepthPilots: 0,
+            recentRatings: const [],
+          )
           : DashboardData.empty());
 
   // ===========================================================================
@@ -200,96 +201,97 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D2137),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0x1A26A69A),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.notifications_active,
-                color: Color(0xFF26A69A),
-                size: 48,
-              ),
+      builder:
+          (ctx) => AlertDialog(
+            backgroundColor: const Color(0xFF0D2137),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.notificationDialogTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.notificationDialogBody,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await _markNotificationPromptShown(uid);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: Text(
-              l10n.notificationDialogNotNow,
-              style: const TextStyle(color: Colors.white54),
-            ),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: const Color(0xFF26A69A),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            onPressed: () async {
-              final granted =
-                  await NotificationService.requestPermissionAndEnable();
-              await _markNotificationPromptShown(uid);
-              if (!ctx.mounted) return;
-              Navigator.pop(ctx);
-
-              if (granted && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.notificationsEnabled),
-                    backgroundColor: const Color(0xFF26A69A),
-                    behavior: SnackBarBehavior.floating,
+            contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1A26A69A),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                );
-              }
-            },
-            child: Text(
-              l10n.notificationDialogEnable,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+                  child: const Icon(
+                    Icons.notifications_active,
+                    color: Color(0xFF26A69A),
+                    size: 48,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  l10n.notificationDialogTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.notificationDialogBody,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  await _markNotificationPromptShown(uid);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: Text(
+                  l10n.notificationDialogNotNow,
+                  style: const TextStyle(color: Colors.white54),
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF26A69A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () async {
+                  final granted =
+                      await NotificationService.requestPermissionAndEnable();
+                  await _markNotificationPromptShown(uid);
+                  if (!ctx.mounted) return;
+                  Navigator.pop(ctx);
+
+                  if (granted && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.notificationsEnabled),
+                        backgroundColor: const Color(0xFF26A69A),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  l10n.notificationDialogEnable,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -318,10 +320,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('[Home] Error fetching nomeGuerra: $e');
       try {
-        final doc = await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(uid)
-            .get();
+        final doc =
+            await FirebaseFirestore.instance
+                .collection('usuarios')
+                .doc(uid)
+                .get();
         _setNomeGuerraFromData(doc.data(), uid);
       } catch (_) {}
     }
@@ -411,11 +414,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     final entry = OverlayEntry(
-      builder: (_) => MilestoneOverlay(
-        title: title,
-        message: message,
-        onClose: () => _dismissMilestoneOverlay(milestoneId),
-      ),
+      builder:
+          (_) => MilestoneOverlay(
+            title: title,
+            message: message,
+            onClose: () => _dismissMilestoneOverlay(milestoneId),
+          ),
     );
 
     _milestoneOverlayEntry = entry;
@@ -467,10 +471,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (uid == null) return;
 
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(uid)
-          .get();
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('usuarios')
+              .doc(uid)
+              .get();
       final data = doc.data();
 
       if (data?['notificationBannerDismissed'] == true) {
@@ -557,9 +562,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   void _toggleLocale() {
     Navigator.pop(context);
-    final next = localeController.locale.languageCode == 'pt'
-        ? const Locale('en')
-        : const Locale('pt');
+    final next =
+        localeController.locale.languageCode == 'pt'
+            ? const Locale('en')
+            : const Locale('pt');
     localeController.changeLocale(next);
   }
 
@@ -569,10 +575,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _ShareBottomSheet(
-        onWhatsAppTap: _shareViaWhatsApp,
-        onCopyLinkTap: _copyLinkToClipboard,
-      ),
+      builder:
+          (_) => _ShareBottomSheet(
+            onWhatsAppTap: _shareViaWhatsApp,
+            onCopyLinkTap: _copyLinkToClipboard,
+          ),
     );
   }
 
@@ -700,9 +707,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           DrawerItem(
             icon: Icons.language,
-            label: localeController.locale.languageCode == 'pt'
-                ? 'English'
-                : 'Português',
+            label:
+                localeController.locale.languageCode == 'pt'
+                    ? 'English'
+                    : 'Português',
             onTap: _toggleLocale,
           ),
         ],
@@ -724,19 +732,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        _buildWelcomeText(),
-                        const SizedBox(height: 12),
-                        _buildStatsSection(),
-                        const SizedBox(height: 12),
-                        _buildModulesGrid(AppLocalizations.of(context)!),
-                      ],
-                    ),
+                  child: LayoutBuilder(
+                    builder: (context, viewport) {
+                      // Welcome, statistics and their gaps consume roughly
+                      // 205 px. The remaining viewport is offered to the
+                      // module grid, which still keeps sensible card limits.
+                      final targetGridHeight =
+                          (viewport.maxHeight - 205)
+                              .clamp(0.0, double.infinity)
+                              .toDouble();
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            _buildWelcomeText(),
+                            const SizedBox(height: 12),
+                            _buildStatsSection(),
+                            const SizedBox(height: 12),
+                            _buildModulesGrid(
+                              AppLocalizations.of(context)!,
+                              targetHeight: targetGridHeight,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -1091,10 +1114,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final firestore = FirebaseFirestore.instance;
     final countsByPilot = <String, int>{};
 
-    final snapshot = await firestore
-        .collection(AppConstants.pilotStatsCollection)
-        .where('depthRecordCount', isGreaterThan: 0)
-        .get();
+    final snapshot =
+        await firestore
+            .collection(AppConstants.pilotStatsCollection)
+            .where('depthRecordCount', isGreaterThan: 0)
+            .get();
     for (final doc in snapshot.docs) {
       if (doc.id == AppConstants.cspamUid) continue;
       final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
@@ -1122,10 +1146,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final countsByPilot = <String, int>{};
 
     try {
-      final statsSnapshot = await firestore
-          .collection(AppConstants.pilotStatsCollection)
-          .where('crossingCount', isGreaterThan: 0)
-          .get();
+      final statsSnapshot =
+          await firestore
+              .collection(AppConstants.pilotStatsCollection)
+              .where('crossingCount', isGreaterThan: 0)
+              .get();
       for (final doc in statsSnapshot.docs) {
         if (doc.id == AppConstants.cspamUid) continue;
         final count = (doc.data()['crossingCount'] as int?) ?? 0;
@@ -1175,8 +1200,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         key == currentUid ||
         (callSign != null && callSign.isNotEmpty && key == callSign);
 
-    final sorted = countsByPilot.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sorted =
+        countsByPilot.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
     final counts = sorted.map((e) => e.value).toList();
 
     return [
@@ -1274,13 +1300,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemCount: entries.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 6),
-                          itemBuilder: (_, index) => _buildStatRankingRow(
-                            entries[index],
-                            l10n,
-                            countLabel,
-                          ),
+                          separatorBuilder:
+                              (_, __) => const SizedBox(height: 6),
+                          itemBuilder:
+                              (_, index) => _buildStatRankingRow(
+                                entries[index],
+                                l10n,
+                                countLabel,
+                              ),
                         ),
                       ),
                     ],
@@ -1300,11 +1327,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String Function(int) countLabel,
   ) {
     final isUser = entry.isCurrentUser;
-    final label = isUser
-        ? (entry.name.isNotEmpty
-            ? '${l10n.rankingYou} (${entry.name})'
-            : l10n.rankingYou)
-        : l10n.pilot;
+    final label =
+        isUser
+            ? (entry.name.isNotEmpty
+                ? '${l10n.rankingYou} (${entry.name})'
+                : l10n.rankingYou)
+            : l10n.pilot;
     const accent = Color(0xFF64B5F6);
 
     return Container(
@@ -1356,7 +1384,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildModulesGrid(AppLocalizations l10n) {
+  Widget _buildModulesGrid(
+    AppLocalizations l10n, {
+    required double targetHeight,
+  }) {
     const spacing = 10.0;
 
     return LayoutBuilder(
@@ -1425,12 +1456,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               subtitle: l10n.onBoardPilotsDesc,
             ),
         ];
+        final rowCount = (cards.length / 2).ceil();
+        final availableForCards = targetHeight - (spacing * (rowCount - 1));
+        final cardHeight =
+            (availableForCards / rowCount).clamp(122.0, 152.0).toDouble();
 
         return Wrap(
           spacing: spacing,
           runSpacing: spacing,
           children: [
-            for (final card in cards) SizedBox(width: cardWidth, child: card),
+            for (final card in cards)
+              SizedBox(width: cardWidth, height: cardHeight, child: card),
           ],
         );
       },
@@ -1457,8 +1493,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         splashColor: borderColor,
         child: Container(
           width: double.infinity,
-          height: 112,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: const Color(0x0DFFFFFF),
             borderRadius: BorderRadius.circular(12),
@@ -1470,14 +1505,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: iconBgColor,
                       borderRadius: BorderRadius.circular(9),
                       border: Border.all(color: iconBorderColor),
                     ),
-                    child: Icon(icon, color: iconColor, size: 18),
+                    child: Icon(icon, color: iconColor, size: 20),
                   ),
                   const Spacer(),
                   if (badge != null) ...[
@@ -1523,7 +1558,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: 14,
                         height: 1.1,
                       ),
                     ),
@@ -1535,7 +1570,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Color(0x73FFFFFF),
-                        fontSize: 10,
+                        fontSize: 11,
                         height: 1.2,
                       ),
                     ),
@@ -1560,8 +1595,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Container(
       width: double.infinity,
-      height: 112,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),
@@ -1573,13 +1607,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, color: accent, size: 18),
+                child: Icon(icon, color: accent, size: 20),
               ),
               const Spacer(),
               Container(
@@ -1612,7 +1646,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   style: const TextStyle(
                     color: Color(0xCCFFFFFF),
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 14,
                     height: 1.1,
                   ),
                 ),
@@ -1624,7 +1658,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0x66FFFFFF),
-                    fontSize: 10,
+                    fontSize: 11,
                     height: 1.2,
                   ),
                 ),
@@ -1768,9 +1802,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
           ),
           TextButton(
-            onPressed: kIsWeb
-                ? (_isApplyingWebUpdate ? null : _applyWebUpdate)
-                : _openAppStore,
+            onPressed:
+                kIsWeb
+                    ? (_isApplyingWebUpdate ? null : _applyWebUpdate)
+                    : _openAppStore,
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF64B5F6),
             ),

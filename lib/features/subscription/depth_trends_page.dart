@@ -46,7 +46,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
   static const _gridLineColor = Color(0x0AFFFFFF);
 
   /// Height reserved for the line chart inside the card, value labels included.
-  static const double _chartHeight = 190;
+  static const double _chartHeight = 202;
+
+  /// Dedicated band below the dates for the horizontal scroll indicator.
+  static const double _scrollbarBand = 12;
 
   /// Band kept free above the plot area for the value of the highest point.
   static const double _valueLabelBand = 26;
@@ -123,10 +126,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     setState(() => _loadingTrend = true);
 
-    final data = await _service.getTrendData(
-      location,
-      period: _selectedPeriod,
-    );
+    final data = await _service.getTrendData(location, period: _selectedPeriod);
     if (!mounted) return;
 
     setState(() {
@@ -165,10 +165,11 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => NavSafetyRecordDetailPage(
-          locationName: point.locationName,
-          record: point.record,
-        ),
+        builder:
+            (_) => NavSafetyRecordDetailPage(
+              locationName: point.locationName,
+              record: point.record,
+            ),
       ),
     );
   }
@@ -418,9 +419,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: selected ? _premiumColor : _white10,
-            ),
+            border: Border.all(color: selected ? _premiumColor : _white10),
           ),
           child: Text(
             label,
@@ -449,46 +448,47 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(sheetContext).size.height * 0.6,
+      builder:
+          (sheetContext) => SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(sheetContext).size.height * 0.6,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _white20,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildSectionHeader(l10n.selectLocation),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(bottom: 8),
+                      children: [
+                        for (final location in _locations)
+                          _buildLocationTile(sheetContext, location),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: _white20,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _buildSectionHeader(l10n.selectLocation),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(bottom: 8),
-                  children: [
-                    for (final location in _locations)
-                      _buildLocationTile(sheetContext, location),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
 
     if (picked != null) _onLocationSelected(picked);
@@ -515,9 +515,10 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
-      trailing: isSelected
-          ? const Icon(Icons.check, color: _premiumColor, size: 18)
-          : null,
+      trailing:
+          isSelected
+              ? const Icon(Icons.check, color: _premiumColor, size: 18)
+              : null,
       onTap: () => Navigator.pop(sheetContext, location),
     );
   }
@@ -593,30 +594,44 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final contentWidth = points.length <= 1
-            ? constraints.maxWidth
-            : (points.length * _pointSpacing) + 34;
-        final chartWidth = contentWidth < constraints.maxWidth
-            ? constraints.maxWidth
-            : contentWidth;
+        final contentWidth =
+            points.length <= 1
+                ? constraints.maxWidth
+                : (points.length * _pointSpacing) + 34;
+        final chartWidth =
+            contentWidth < constraints.maxWidth
+                ? constraints.maxWidth
+                : contentWidth;
         final canScroll = chartWidth > constraints.maxWidth + 1;
 
-        return Scrollbar(
-          controller: _chartScrollController,
-          thumbVisibility: canScroll,
-          interactive: true,
-          thickness: 4,
-          radius: const Radius.circular(999),
-          child: SingleChildScrollView(
+        return ScrollbarTheme(
+          data: ScrollbarTheme.of(context).copyWith(
+            thumbColor: WidgetStatePropertyAll(
+              _premiumColor.withValues(alpha: 0.7),
+            ),
+          ),
+          child: Scrollbar(
             controller: _chartScrollController,
-            scrollDirection: Axis.horizontal,
-            physics: canScroll
-                ? const ClampingScrollPhysics()
-                : const NeverScrollableScrollPhysics(),
-            child: SizedBox(
-              width: chartWidth,
-              height: constraints.maxHeight,
-              child: _buildLineChart(points),
+            thumbVisibility: canScroll,
+            interactive: true,
+            thickness: 4,
+            radius: const Radius.circular(999),
+            scrollbarOrientation: ScrollbarOrientation.bottom,
+            child: SingleChildScrollView(
+              controller: _chartScrollController,
+              scrollDirection: Axis.horizontal,
+              physics:
+                  canScroll
+                      ? const ClampingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: _scrollbarBand),
+                child: SizedBox(
+                  width: chartWidth,
+                  height: constraints.maxHeight - _scrollbarBand,
+                  child: _buildLineChart(points),
+                ),
+              ),
             ),
           ),
         );
@@ -635,9 +650,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
 
     // A single record has no range on the X axis, so it is centered by hand.
     final minX = points.length == 1 ? -1.0 : -_horizontalAxisPadding;
-    final maxX = points.length == 1
-        ? 1.0
-        : lastIndex + _horizontalAxisPadding;
+    final maxX = points.length == 1 ? 1.0 : lastIndex + _horizontalAxisPadding;
 
     // Held in a variable because [showingTooltipIndicators] points back at it.
     final bar = LineChartBarData(
@@ -648,12 +661,13 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
       belowBarData: BarAreaData(show: true, color: _chartAreaColor),
       dotData: FlDotData(
         // The most recent record is highlighted with a bigger dot.
-        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-          radius: index == lastIndex ? 5 : 4,
-          color: _premiumColor,
-          strokeColor: _deepNavy,
-          strokeWidth: 2,
-        ),
+        getDotPainter:
+            (spot, percent, barData, index) => FlDotCirclePainter(
+              radius: index == lastIndex ? 5 : 4,
+              color: _premiumColor,
+              strokeColor: _deepNavy,
+              strokeWidth: 2,
+            ),
       ),
     );
 
@@ -685,25 +699,23 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                     fitInsideHorizontally: true,
                     fitInsideVertically: true,
                     getTooltipColor: (_) => _deepNavy,
-                    getTooltipItems: (touchedSpots) => [
-                      for (final spot in touchedSpots)
-                        _buildValueLabel(spot, lastIndex),
-                    ],
+                    getTooltipItems:
+                        (touchedSpots) => [
+                          for (final spot in touchedSpots)
+                            _buildValueLabel(spot, lastIndex),
+                        ],
                   ),
                 ),
                 showingTooltipIndicators: [
                   for (var i = 0; i < spots.length; i++)
-                    ShowingTooltipIndicators([
-                      LineBarSpot(bar, 0, spots[i]),
-                    ]),
+                    ShowingTooltipIndicators([LineBarSpot(bar, 0, spots[i])]),
                 ],
                 gridData: FlGridData(
                   drawVerticalLine: false,
                   horizontalInterval: bounds.interval,
-                  getDrawingHorizontalLine: (_) => const FlLine(
-                    color: _gridLineColor,
-                    strokeWidth: 1,
-                  ),
+                  getDrawingHorizontalLine:
+                      (_) =>
+                          const FlLine(color: _gridLineColor, strokeWidth: 1),
                 ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(),
@@ -721,11 +733,9 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                       showTitles: true,
                       reservedSize: 24,
                       interval: 1,
-                      getTitlesWidget: (value, meta) => _buildBottomTitle(
-                        value,
-                        meta,
-                        points,
-                      ),
+                      getTitlesWidget:
+                          (value, meta) =>
+                              _buildBottomTitle(value, meta, points),
                     ),
                   ),
                 ),
@@ -739,23 +749,27 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
             right: 0,
             bottom: 24,
             child: LayoutBuilder(
-              builder: (context, constraints) => MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTapUp: (details) {
-                    final width = constraints.maxWidth;
-                    if (width <= 0) return;
+              builder:
+                  (context, constraints) => MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTapUp: (details) {
+                        final width = constraints.maxWidth;
+                        if (width <= 0) return;
 
-                    final chartX = minX +
-                        ((details.localPosition.dx / width) * (maxX - minX));
-                    final index = chartX
-                        .round()
-                        .clamp(0, points.length - 1);
-                    _openRecord(points[index]);
-                  },
-                ),
-              ),
+                        final chartX =
+                            minX +
+                            ((details.localPosition.dx / width) *
+                                (maxX - minX));
+                        final index = chartX.round().clamp(
+                          0,
+                          points.length - 1,
+                        );
+                        _openRecord(points[index]);
+                      },
+                    ),
+                  ),
             ),
           ),
         ],
@@ -803,17 +817,15 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
     final day = point.date.day.toString().padLeft(2, '0');
     final month = point.date.month.toString().padLeft(2, '0');
     final year = (point.date.year % 100).toString().padLeft(2, '0');
-    final label = _selectedPeriod == DepthTrendPeriod.twoYears
-        ? '$day/$month/$year'
-        : '$day/$month';
+    final label =
+        _selectedPeriod == DepthTrendPeriod.twoYears
+            ? '$day/$month/$year'
+            : '$day/$month';
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
       space: 8,
-      child: Text(
-        label,
-        style: const TextStyle(color: _white30, fontSize: 10),
-      ),
+      child: Text(label, style: const TextStyle(color: _white30, fontSize: 10)),
     );
   }
 
@@ -857,10 +869,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          l10n.depth,
-          style: const TextStyle(color: _white60, fontSize: 11),
-        ),
+        Text(l10n.depth, style: const TextStyle(color: _white60, fontSize: 11)),
       ],
     );
   }
@@ -935,11 +944,7 @@ class _DepthTrendsPageState extends State<DepthTrendsPage> {
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Icon(
-                  Icons.chevron_right,
-                  color: _white40,
-                  size: 18,
-                ),
+                const Icon(Icons.chevron_right, color: _white40, size: 18),
               ],
             ),
           ),
