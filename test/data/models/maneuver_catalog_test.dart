@@ -21,4 +21,18 @@ void main() {
 
     expect(terminalsWithPreparation, equals(const ['STM:stm_cargill:Cargill']));
   });
+
+  test('only Cargill offers preparation without a Plus subscription', () {
+    final publicPreparationTerminals = <String>[
+      for (final port in ManeuverCatalog.ports)
+        for (final terminal in port.terminals)
+          if (!terminal.preparationRequiresPlus)
+            '${port.code}:${terminal.id}:${terminal.name}',
+    ];
+
+    expect(
+      publicPreparationTerminals,
+      equals(const ['STM:stm_cargill:Cargill']),
+    );
+  });
 }

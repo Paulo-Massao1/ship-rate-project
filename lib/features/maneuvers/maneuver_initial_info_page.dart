@@ -29,6 +29,7 @@ class ManeuverInitialInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final content = _buildContent(context, l10n);
 
     return Scaffold(
       appBar: AppBar(
@@ -49,11 +50,14 @@ class ManeuverInitialInfoPage extends StatelessWidget {
             colors: [_bgDark, _bgMid],
           ),
         ),
-        child: SubscriptionGate(
-          requiredPlan: SubscriptionConstants.planPlus,
-          featureDescription: l10n.plusFeature2,
-          child: _buildContent(context, l10n),
-        ),
+        child:
+            terminal.preparationRequiresPlus
+                ? SubscriptionGate(
+                  requiredPlan: SubscriptionConstants.planPlus,
+                  featureDescription: l10n.plusFeature2,
+                  child: content,
+                )
+                : content,
       ),
     );
   }

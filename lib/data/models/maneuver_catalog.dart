@@ -106,11 +106,13 @@ class ManeuverTerminalDefinition {
     required this.id,
     required this.name,
     this.operationalInfo,
+    this.preparationRequiresPlus = true,
   });
 
   final String id;
   final String name;
   final ManeuverOperationalInfo? operationalInfo;
+  final bool preparationRequiresPlus;
 
   bool get hasPreparationInfo => operationalInfo != null;
 }
@@ -146,6 +148,7 @@ abstract final class ManeuverCatalog {
           id: 'stm_cargill',
           name: 'Cargill',
           operationalInfo: _cargillOperationalInfo,
+          preparationRequiresPlus: false,
         ),
         ManeuverTerminalDefinition(id: 'stm_cdp_101', name: 'CDP 101'),
         ManeuverTerminalDefinition(id: 'stm_cdp_201', name: 'CDP 201'),

@@ -112,7 +112,10 @@ class _ManeuverTerminalPageState extends State<ManeuverTerminalPage> {
     final hasPreparation = terminal.hasPreparationInfo;
     final isCheckingSubscription = _hasPlusAccess == null;
     final hasPlusAccess = _hasPlusAccess == true;
-    final preparationUnavailable = hasPlusAccess && !hasPreparation;
+    final hasPreparationAccess =
+        !terminal.preparationRequiresPlus || hasPlusAccess;
+    final preparationUnavailable = hasPreparationAccess && !hasPreparation;
+    final canOpenPreparation = hasPreparationAccess && hasPreparation;
 
     return Scaffold(
       appBar: _buildSectionAppBar(context, terminal.name),
@@ -142,15 +145,19 @@ class _ManeuverTerminalPageState extends State<ManeuverTerminalPage> {
                           : null,
                   color: ModuleVisuals.maneuverColor,
                   badge:
-                      !isCheckingSubscription && !hasPlusAccess
+                      terminal.preparationRequiresPlus &&
+                              !isCheckingSubscription &&
+                              !hasPlusAccess
                           ? l10n.plusPlan.toUpperCase()
                           : null,
-                  enabled: !isCheckingSubscription && !preparationUnavailable,
+                  enabled:
+                      canOpenPreparation ||
+                      (!isCheckingSubscription && !hasPreparationAccess),
                   onTap:
-                      isCheckingSubscription
-                          ? null
-                          : hasPlusAccess
+                      canOpenPreparation
                           ? _openPreparation
+                          : isCheckingSubscription
+                          ? null
                           : _openSubscriptionPage,
                 ),
                 const SizedBox(height: 10),
