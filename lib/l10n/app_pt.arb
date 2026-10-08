@@ -2434,6 +2434,10 @@
   "@maneuverNewReportTitle": {
     "description": "Title shown at the top of the new maneuver report form."
   },
+  "maneuverEditReportTitle": "Editar Relato de Manobra",
+  "@maneuverEditReportTitle": {
+    "description": "Title shown at the top of the maneuver report editing form."
+  },
   "maneuverReportPort": "Porto: {terminal} — {port}",
   "@maneuverReportPort": {
     "description": "Terminal and port subtitle shown in the maneuver report form.",
@@ -2747,6 +2751,10 @@
   "@maneuverReportSaved": {
     "description": "Confirmation shown after saving a maneuver report."
   },
+  "maneuverReportUpdated": "Relato de manobra atualizado com sucesso.",
+  "@maneuverReportUpdated": {
+    "description": "Confirmation shown after updating a maneuver report."
+  },
   "maneuverReportSignedOut": "Entre novamente na sua conta para salvar o relato.",
   "@maneuverReportSignedOut": {
     "description": "Error shown when a signed-out user attempts to save a report."
@@ -2758,6 +2766,19 @@
   "maneuverHistoryIntro": "Consulte os relatos compartilhados pelos práticos neste terminal.",
   "@maneuverHistoryIntro": {
     "description": "Introduction shown above the maneuver report history."
+  },
+  "maneuverHistoryEditHint": "Seus relatos podem ser atualizados pelo ícone de edição.",
+  "@maneuverHistoryEditHint": {
+    "description": "Hint explaining how pilots can edit their own maneuver reports."
+  },
+  "maneuverLegacyCurrentDirection": "Direção registrada anteriormente: {degrees}°. Selecione Subindo ou Baixando para atualizá-la.",
+  "@maneuverLegacyCurrentDirection": {
+    "description": "Hint shown while editing a legacy report with current direction in degrees.",
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
   },
   "maneuverHistoryEmpty": "Nenhum relato de manobra",
   "@maneuverHistoryEmpty": {

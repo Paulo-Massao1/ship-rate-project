@@ -54,28 +54,61 @@ class ManeuverReportService {
     try {
       var profileName = '';
       try {
-        final userDocument = await _firestore
-            .collection('usuarios')
-            .doc(user.uid)
-            .get();
-        profileName = (userDocument.data()?['nomeGuerra'] ?? '')
-            .toString()
-            .trim();
+        final userDocument =
+            await _firestore.collection('usuarios').doc(user.uid).get();
+        profileName =
+            (userDocument.data()?['nomeGuerra'] ?? '').toString().trim();
       } catch (_) {
         // The report can still be saved with the Firebase profile fallback.
       }
       final authName = (user.displayName ?? '').trim();
       final pilotName = profileName.isNotEmpty ? profileName : authName;
 
-      final reference = reportId == null
-          ? _firestore.collection('manobras_relatos').doc()
-          : _firestore.collection('manobras_relatos').doc(reportId);
+      final reference =
+          reportId == null
+              ? _firestore.collection('manobras_relatos').doc()
+              : _firestore.collection('manobras_relatos').doc(reportId);
       await reference.set({
         ...draft.toFirestore(pilotId: user.uid, pilotName: pilotName),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
       return reference.id;
+    } on ManeuverReportException {
+      rethrow;
+    } catch (_) {
+      throw const ManeuverReportException(ManeuverReportError.saveFailed);
+    }
+  }
+
+  Future<void> updateReport(String reportId, ManeuverReportDraft draft) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw const ManeuverReportException(ManeuverReportError.signedOut);
+    }
+
+    try {
+      var profileName = '';
+      try {
+        final userDocument =
+            await _firestore.collection('usuarios').doc(user.uid).get();
+        profileName =
+            (userDocument.data()?['nomeGuerra'] ?? '').toString().trim();
+      } catch (_) {
+        // Keep the report editable when the profile lookup is unavailable.
+      }
+      final authName = (user.displayName ?? '').trim();
+      final pilotName = profileName.isNotEmpty ? profileName : authName;
+      final values = <String, dynamic>{
+        ...draft.toFirestore(pilotId: user.uid, pilotName: pilotName),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      if (!draft.hasMedia) values['media'] = FieldValue.delete();
+
+      await _firestore
+          .collection('manobras_relatos')
+          .doc(reportId)
+          .update(values);
     } on ManeuverReportException {
       rethrow;
     } catch (_) {

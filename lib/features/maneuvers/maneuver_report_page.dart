@@ -18,12 +18,14 @@ class ManeuverReportPage extends StatefulWidget {
     required this.portCode,
     required this.terminalId,
     required this.terminalName,
+    this.report,
   });
 
   final String portName;
   final String portCode;
   final String terminalId;
   final String terminalName;
+  final ManeuverReportRecord? report;
 
   @override
   State<ManeuverReportPage> createState() => _ManeuverReportPageState();
@@ -78,10 +80,16 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   ManeuverFirstLine? _forwardFirstLine;
   ManeuverFirstLine? _aftFirstLine;
   ManeuverCurrentDirection? _currentDirection;
+  int? _legacyCurrentDirectionDegrees;
   final List<PendingManeuverMedia> _approachMedia = [];
   final List<PendingManeuverMedia> _mooringMedia = [];
+  final List<ManeuverMediaAttachment> _existingApproachMedia = [];
+  final List<ManeuverMediaAttachment> _existingMooringMedia = [];
+  final Set<String> _removedMediaPaths = {};
   bool _loadingShips = true;
   bool _saving = false;
+
+  bool get _isEditing => widget.report != null;
 
   @override
   void initState() {
@@ -90,9 +98,62 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     _nationalityService = ManeuverNationalityService();
     _reportService = ManeuverReportService();
     _mediaService = const ManeuverMediaService();
+    _populateReport(widget.report);
     _tugsStream = _tugService.watchTugsForPort(widget.portCode);
     _nationalitiesStream = _nationalityService.watchNationalities();
     _loadShips();
+  }
+
+  void _populateReport(ManeuverReportRecord? report) {
+    if (report == null) return;
+
+    _selectedShipId = report.shipId;
+    _shipNameController.text = report.shipName ?? '';
+    _lengthController.text = _numberForInput(report.lengthMeters);
+    _beamController.text = _numberForInput(report.beamMeters);
+    _maximumDraftController.text = _numberForInput(report.maximumDraftMeters);
+    _currentIntensityController.text = _numberForInput(
+      report.currentIntensityKnots,
+    );
+    _windDirectionController.text =
+        report.windDirectionDegrees?.toString() ?? '';
+    _windIntensityController.text = _numberForInput(report.windIntensityKnots);
+    _approachCommentsController.text = report.approachComments ?? '';
+    _mooringCommentsController.text = report.mooringComments ?? '';
+    _officerNationalityKey = report.officerNationality;
+    _crewNationalityKey = report.crewNationality;
+    _propellerDirection = report.propellerDirection;
+    _propellerPitch = report.propellerPitch;
+    _forwardFirstLine = report.forwardFirstLine;
+    _aftFirstLine = report.aftFirstLine;
+    _currentDirection = report.currentDirection;
+    _legacyCurrentDirectionDegrees = report.currentDirectionDegrees;
+    _forwardTug = _tugFromSnapshot(report.forwardTug);
+    _aftTug = _tugFromSnapshot(report.aftTug);
+    _existingApproachMedia.addAll(report.approachMedia);
+    _existingMooringMedia.addAll(report.mooringMedia);
+  }
+
+  ManeuverTug? _tugFromSnapshot(ManeuverTugSnapshot? snapshot) {
+    if (snapshot == null) return null;
+    return ManeuverTug(
+      id: snapshot.id,
+      name: snapshot.name,
+      portCode: widget.portCode,
+      type: snapshot.type,
+      source:
+          snapshot.source == 'operationalParameters'
+              ? ManeuverTugSource.operationalParameters
+              : ManeuverTugSource.community,
+      bollardPull: snapshot.bollardPull,
+    );
+  }
+
+  String _numberForInput(num? value) {
+    if (value == null) return '';
+    return value is int || value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
   }
 
   @override
@@ -136,7 +197,9 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              l10n.maneuverNewReportTitle,
+              _isEditing
+                  ? l10n.maneuverEditReportTitle
+                  : l10n.maneuverNewReportTitle,
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 2),
@@ -1017,7 +1080,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                     ManeuverCurrentDirection.downstream: l10n.directionDown,
                   },
                   onChanged:
-                      (value) => setState(() => _currentDirection = value),
+                      (value) => setState(() {
+                        _currentDirection = value;
+                        _legacyCurrentDirectionDegrees = null;
+                      }),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1033,6 +1099,15 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               ),
             ],
           ),
+          if (_legacyCurrentDirectionDegrees != null) ...[
+            const SizedBox(height: 7),
+            Text(
+              l10n.maneuverLegacyCurrentDirection(
+                _legacyCurrentDirectionDegrees!,
+              ),
+              style: const TextStyle(color: _muted, fontSize: 10),
+            ),
+          ],
           const SizedBox(height: 14),
           Text(
             l10n.maneuverWind,
@@ -1088,49 +1163,44 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         section == ManeuverMediaSection.approach
             ? _approachMedia
             : _mooringMedia;
-    final atLimit = media.length >= ManeuverMediaService.maxMediaPerSection;
+    final existingMedia =
+        section == ManeuverMediaSection.approach
+            ? _existingApproachMedia
+            : _existingMooringMedia;
+    final atLimit =
+        existingMedia.length + media.length >=
+        ManeuverMediaService.maxMediaPerSection;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (media.isNotEmpty) ...[
+        if (existingMedia.isNotEmpty || media.isNotEmpty) ...[
           Wrap(
             spacing: 7,
             runSpacing: 7,
-            children: media.indexed
-                .map((entry) {
-                  final index = entry.$1;
-                  final item = entry.$2;
-                  return InputChip(
-                    avatar: Icon(
-                      item.type == ManeuverMediaType.photo
-                          ? Icons.photo_outlined
-                          : Icons.videocam_outlined,
-                      color: _amber,
-                      size: 15,
-                    ),
-                    label: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 130),
-                      child: Text(
-                        item.file.originalName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    labelStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
-                    backgroundColor: const Color(0x0DFFFFFF),
-                    side: const BorderSide(color: Color(0x2EFFFFFF)),
-                    deleteIconColor: const Color(0xB3FFFFFF),
-                    onDeleted:
-                        _saving
-                            ? null
-                            : () => setState(() => media.removeAt(index)),
-                  );
-                })
-                .toList(growable: false),
+            children: [
+              for (final (index, item) in existingMedia.indexed)
+                _buildMediaChip(
+                  type: item.type,
+                  name: item.originalName,
+                  onDeleted:
+                      _saving
+                          ? null
+                          : () => setState(() {
+                            _removedMediaPaths.add(item.path);
+                            existingMedia.removeAt(index);
+                          }),
+                ),
+              for (final (index, item) in media.indexed)
+                _buildMediaChip(
+                  type: item.type,
+                  name: item.file.originalName,
+                  onDeleted:
+                      _saving
+                          ? null
+                          : () => setState(() => media.removeAt(index)),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
         ],
@@ -1157,6 +1227,31 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildMediaChip({
+    required ManeuverMediaType type,
+    required String name,
+    required VoidCallback? onDeleted,
+  }) {
+    return InputChip(
+      avatar: Icon(
+        type == ManeuverMediaType.photo
+            ? Icons.photo_outlined
+            : Icons.videocam_outlined,
+        color: _amber,
+        size: 15,
+      ),
+      label: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 130),
+        child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
+      backgroundColor: const Color(0x0DFFFFFF),
+      side: const BorderSide(color: Color(0x2EFFFFFF)),
+      deleteIconColor: const Color(0xB3FFFFFF),
+      onDeleted: onDeleted,
     );
   }
 
@@ -1208,8 +1303,13 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         section == ManeuverMediaSection.approach
             ? _approachMedia
             : _mooringMedia;
+    final existingCount =
+        section == ManeuverMediaSection.approach
+            ? _existingApproachMedia.length
+            : _existingMooringMedia.length;
     final l10n = AppLocalizations.of(context)!;
-    if (media.length >= ManeuverMediaService.maxMediaPerSection) {
+    if (existingCount + media.length >=
+        ManeuverMediaService.maxMediaPerSection) {
       _showMediaError(l10n.maneuverMediaLimit);
       return;
     }
@@ -1532,7 +1632,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                       ),
                     )
                     : Text(
-                      l10n.maneuverSaveReport,
+                      _isEditing ? l10n.saveChanges : l10n.maneuverSaveReport,
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
           ),
@@ -1605,7 +1705,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     }
 
     setState(() => _saving = true);
-    final reportId = _reportService.createReportId();
+    final reportId = widget.report?.id ?? _reportService.createReportId();
     final uploadedPaths = <String>[];
     var reportSaved = false;
     try {
@@ -1641,6 +1741,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         forwardTug: _forwardTug,
         aftTug: _aftTug,
         currentDirection: _currentDirection,
+        currentDirectionDegrees:
+            _currentDirection == null ? _legacyCurrentDirectionDegrees : null,
         currentIntensityKnots: currentIntensity,
         windDirectionDegrees: windDirection,
         windIntensityKnots: windIntensity,
@@ -1648,15 +1750,22 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         forwardFirstLine: _forwardFirstLine,
         aftFirstLine: _aftFirstLine,
         mooringComments: _trimmedOrNull(_mooringCommentsController.text),
-        approachMedia: approachMedia,
-        mooringMedia: mooringMedia,
+        approachMedia: [..._existingApproachMedia, ...approachMedia],
+        mooringMedia: [..._existingMooringMedia, ...mooringMedia],
       );
-      await _reportService.saveReport(draft, reportId: reportId);
+      if (_isEditing) {
+        await _reportService.updateReport(reportId, draft);
+      } else {
+        await _reportService.saveReport(draft, reportId: reportId);
+      }
       reportSaved = true;
+      await _mediaService.deleteMedia(_removedMediaPaths);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.maneuverReportSaved),
+          content: Text(
+            _isEditing ? l10n.maneuverReportUpdated : l10n.maneuverReportSaved,
+          ),
           backgroundColor: const Color(0xFF1B5E20),
         ),
       );

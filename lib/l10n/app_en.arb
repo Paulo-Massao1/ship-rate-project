@@ -2407,6 +2407,10 @@
   "@maneuverNewReportTitle": {
     "description": "Title shown at the top of the new maneuver report form."
   },
+  "maneuverEditReportTitle": "Edit Maneuver Report",
+  "@maneuverEditReportTitle": {
+    "description": "Title shown at the top of the maneuver report editing form."
+  },
   "maneuverReportPort": "Port: {terminal} — {port}",
   "@maneuverReportPort": {
     "description": "Terminal and port subtitle shown in the maneuver report form.",
@@ -2720,6 +2724,10 @@
   "@maneuverReportSaved": {
     "description": "Confirmation shown after saving a maneuver report."
   },
+  "maneuverReportUpdated": "Maneuver report updated successfully.",
+  "@maneuverReportUpdated": {
+    "description": "Confirmation shown after updating a maneuver report."
+  },
   "maneuverReportSignedOut": "Sign in again to save the report.",
   "@maneuverReportSignedOut": {
     "description": "Error shown when a signed-out user attempts to save a report."
@@ -2731,6 +2739,19 @@
   "maneuverHistoryIntro": "Review reports shared by pilots for this terminal.",
   "@maneuverHistoryIntro": {
     "description": "Introduction shown above the maneuver report history."
+  },
+  "maneuverHistoryEditHint": "You can update your reports using the edit icon.",
+  "@maneuverHistoryEditHint": {
+    "description": "Hint explaining how pilots can edit their own maneuver reports."
+  },
+  "maneuverLegacyCurrentDirection": "Previously recorded direction: {degrees}°. Select Going up or Going down to update it.",
+  "@maneuverLegacyCurrentDirection": {
+    "description": "Hint shown while editing a legacy report with current direction in degrees.",
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
   },
   "maneuverHistoryEmpty": "No maneuver reports",
   "@maneuverHistoryEmpty": {

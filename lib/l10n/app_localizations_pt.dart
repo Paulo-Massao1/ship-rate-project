@@ -1777,6 +1777,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNewReportTitle => 'Novo Relato de Manobra';
 
   @override
+  String get maneuverEditReportTitle => 'Editar Relato de Manobra';
+
+  @override
   String maneuverReportPort(String terminal, String port) {
     return 'Porto: $terminal — $port';
   }
@@ -2006,6 +2009,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverReportSaved => 'Relato de manobra salvo com sucesso.';
 
   @override
+  String get maneuverReportUpdated => 'Relato de manobra atualizado com sucesso.';
+
+  @override
   String get maneuverReportSignedOut => 'Entre novamente na sua conta para salvar o relato.';
 
   @override
@@ -2013,6 +2019,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get maneuverHistoryIntro => 'Consulte os relatos compartilhados pelos práticos neste terminal.';
+
+  @override
+  String get maneuverHistoryEditHint => 'Seus relatos podem ser atualizados pelo ícone de edição.';
+
+  @override
+  String maneuverLegacyCurrentDirection(int degrees) {
+    return 'Direção registrada anteriormente: $degrees°. Selecione Subindo ou Baixando para atualizá-la.';
+  }
 
   @override
   String get maneuverHistoryEmpty => 'Nenhum relato de manobra';

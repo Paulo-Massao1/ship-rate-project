@@ -115,6 +115,7 @@ class ManeuverReportRecord {
     required this.terminalName,
     required this.createdAt,
     this.pilotName,
+    this.shipId,
     this.shipName,
     this.lengthMeters,
     this.beamMeters,
@@ -146,6 +147,7 @@ class ManeuverReportRecord {
   final String terminalId;
   final String terminalName;
   final DateTime? createdAt;
+  final String? shipId;
   final String? shipName;
   final double? lengthMeters;
   final double? beamMeters;
@@ -216,6 +218,7 @@ class ManeuverReportRecord {
       terminalId: (data['terminalId'] ?? '').toString(),
       terminalName: (data['terminalName'] ?? '').toString(),
       createdAt: createdAt is Timestamp ? createdAt.toDate() : null,
+      shipId: _asOptionalString(ship['id']),
       shipName: _asOptionalString(ship['name']),
       lengthMeters: _asDouble(ship['lengthMeters']),
       beamMeters: _asDouble(ship['beamMeters']),
@@ -315,6 +318,7 @@ class ManeuverReportDraft {
     this.forwardTug,
     this.aftTug,
     this.currentDirection,
+    this.currentDirectionDegrees,
     this.currentIntensityKnots,
     this.windDirectionDegrees,
     this.windIntensityKnots,
@@ -342,6 +346,7 @@ class ManeuverReportDraft {
   final ManeuverTug? forwardTug;
   final ManeuverTug? aftTug;
   final ManeuverCurrentDirection? currentDirection;
+  final int? currentDirectionDegrees;
   final double? currentIntensityKnots;
   final int? windDirectionDegrees;
   final double? windIntensityKnots;
@@ -352,11 +357,12 @@ class ManeuverReportDraft {
   final List<ManeuverMediaAttachment> approachMedia;
   final List<ManeuverMediaAttachment> mooringMedia;
 
+  bool get hasMedia => approachMedia.isNotEmpty || mooringMedia.isNotEmpty;
+
   Map<String, dynamic> toFirestore({
     required String pilotId,
     String? pilotName,
   }) {
-    final hasMedia = approachMedia.isNotEmpty || mooringMedia.isNotEmpty;
     return {
       'schemaVersion': 4,
       'pilotId': pilotId,
@@ -380,6 +386,7 @@ class ManeuverReportDraft {
         'forwardTug': _tugSnapshot(forwardTug),
         'aftTug': _tugSnapshot(aftTug),
         'currentDirection': currentDirection?.firestoreValue,
+        'currentDirectionDegrees': currentDirectionDegrees,
         'currentIntensityKnots': currentIntensityKnots,
         'windDirectionDegrees': windDirectionDegrees,
         'windIntensityKnots': windIntensityKnots,

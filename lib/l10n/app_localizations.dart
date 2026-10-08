@@ -3377,6 +3377,12 @@ abstract class AppLocalizations {
   /// **'Novo Relato de Manobra'**
   String get maneuverNewReportTitle;
 
+  /// Title shown at the top of the maneuver report editing form.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar Relato de Manobra'**
+  String get maneuverEditReportTitle;
+
   /// Terminal and port subtitle shown in the maneuver report form.
   ///
   /// In pt, this message translates to:
@@ -3827,6 +3833,12 @@ abstract class AppLocalizations {
   /// **'Relato de manobra salvo com sucesso.'**
   String get maneuverReportSaved;
 
+  /// Confirmation shown after updating a maneuver report.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relato de manobra atualizado com sucesso.'**
+  String get maneuverReportUpdated;
+
   /// Error shown when a signed-out user attempts to save a report.
   ///
   /// In pt, this message translates to:
@@ -3844,6 +3856,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Consulte os relatos compartilhados pelos práticos neste terminal.'**
   String get maneuverHistoryIntro;
+
+  /// Hint explaining how pilots can edit their own maneuver reports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seus relatos podem ser atualizados pelo ícone de edição.'**
+  String get maneuverHistoryEditHint;
+
+  /// Hint shown while editing a legacy report with current direction in degrees.
+  ///
+  /// In pt, this message translates to:
+  /// **'Direção registrada anteriormente: {degrees}°. Selecione Subindo ou Baixando para atualizá-la.'**
+  String maneuverLegacyCurrentDirection(int degrees);
 
   /// Title shown when a terminal has no maneuver reports.
   ///

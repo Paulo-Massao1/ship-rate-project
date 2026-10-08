@@ -7,6 +7,7 @@ import '../../data/models/maneuver_tug.dart';
 import '../../data/services/maneuver_media_service.dart';
 import '../../data/services/maneuver_report_service.dart';
 import '../../data/services/url_launcher_service.dart';
+import 'maneuver_report_page.dart';
 
 class ManeuverHistoryPage extends StatefulWidget {
   const ManeuverHistoryPage({
@@ -28,6 +29,7 @@ class ManeuverHistoryPage extends StatefulWidget {
 
 class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
   static const _blue = Color(0xFF64B5F6);
+  static const _amber = Color(0xFFFFB74D);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _muted = Color(0x99FFFFFF);
@@ -80,24 +82,53 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
 
             final reports = snapshot.data!;
             if (reports.isEmpty) return _buildEmpty(l10n);
+            final hasOwnReport = reports.any(_isOwner);
+            final headerCount = hasOwnReport ? 2 : 1;
 
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                  itemCount: reports.length + 1,
+                  itemCount: reports.length + headerCount,
                   separatorBuilder:
-                      (_, index) => SizedBox(height: index == 0 ? 16 : 10),
+                      (_, index) =>
+                          SizedBox(height: index == headerCount - 1 ? 16 : 10),
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildHeader(l10n);
-                    return _buildReportCard(l10n, reports[index - 1]);
+                    if (hasOwnReport && index == 1) {
+                      return _buildEditHint(l10n);
+                    }
+                    return _buildReportCard(l10n, reports[index - headerCount]);
                   },
                 ),
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildEditHint(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: _amber.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: _amber.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.edit_outlined, color: _amber, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.maneuverHistoryEditHint,
+              style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 10),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -222,10 +253,46 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
                 ),
               ),
               const SizedBox(width: 8),
+              if (_isOwner(report))
+                IconButton(
+                  tooltip: l10n.editLabel,
+                  onPressed: () => _editReport(report),
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    color: _amber,
+                    size: 19,
+                  ),
+                ),
               const Icon(Icons.chevron_right, color: Color(0x66FFFFFF)),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  bool _isOwner(ManeuverReportRecord report) {
+    final currentUserId = _service.currentUserId;
+    return currentUserId != null && currentUserId == report.pilotId;
+  }
+
+  Future<void> _editReport(ManeuverReportRecord report) async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => ManeuverReportPage(
+              portName: report.portName,
+              portCode: report.portCode,
+              terminalId: report.terminalId,
+              terminalName: report.terminalName,
+              report: report,
+            ),
       ),
     );
   }

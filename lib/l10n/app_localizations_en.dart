@@ -1777,6 +1777,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNewReportTitle => 'New Maneuver Report';
 
   @override
+  String get maneuverEditReportTitle => 'Edit Maneuver Report';
+
+  @override
   String maneuverReportPort(String terminal, String port) {
     return 'Port: $terminal — $port';
   }
@@ -2006,6 +2009,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverReportSaved => 'Maneuver report saved successfully.';
 
   @override
+  String get maneuverReportUpdated => 'Maneuver report updated successfully.';
+
+  @override
   String get maneuverReportSignedOut => 'Sign in again to save the report.';
 
   @override
@@ -2013,6 +2019,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maneuverHistoryIntro => 'Review reports shared by pilots for this terminal.';
+
+  @override
+  String get maneuverHistoryEditHint => 'You can update your reports using the edit icon.';
+
+  @override
+  String maneuverLegacyCurrentDirection(int degrees) {
+    return 'Previously recorded direction: $degrees°. Select Going up or Going down to update it.';
+  }
 
   @override
   String get maneuverHistoryEmpty => 'No maneuver reports';

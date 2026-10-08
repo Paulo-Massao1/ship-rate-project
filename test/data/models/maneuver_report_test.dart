@@ -34,4 +34,20 @@ void main() {
       ManeuverCurrentDirection.downstream,
     );
   });
+
+  test('preserves a legacy current direction while editing old reports', () {
+    const draft = ManeuverReportDraft(
+      portName: 'Santarém',
+      portCode: 'STM',
+      terminalId: 'stm_cargill',
+      terminalName: 'Cargill',
+      currentDirectionDegrees: 288,
+    );
+
+    final data = draft.toFirestore(pilotId: 'pilot-id');
+    final approach = data['approach']! as Map<String, dynamic>;
+
+    expect(approach['currentDirectionDegrees'], 288);
+    expect(approach, isNot(contains('currentDirection')));
+  });
 }
