@@ -1,14 +1,22 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/constants.dart';
+import '../../core/subscription_constants.dart';
 import '../../data/models/maneuver_catalog.dart';
 import '../../core/theme/module_visuals.dart';
+import '../../data/services/subscription_service.dart';
+import '../subscription/subscription_page.dart';
 import 'maneuver_history_page.dart';
 import 'maneuver_initial_info_page.dart';
 import 'maneuver_report_page.dart';
 
 /// Maneuver entry points for a single terminal.
-class ManeuverTerminalPage extends StatelessWidget {
+class ManeuverTerminalPage extends StatefulWidget {
   const ManeuverTerminalPage({
     super.key,
     required this.port,
@@ -18,15 +26,93 @@ class ManeuverTerminalPage extends StatelessWidget {
   final ManeuverPortDefinition port;
   final ManeuverTerminalDefinition terminal;
 
+  @override
+  State<ManeuverTerminalPage> createState() => _ManeuverTerminalPageState();
+}
+
+class _ManeuverTerminalPageState extends State<ManeuverTerminalPage> {
+  ManeuverPortDefinition get port => widget.port;
+  ManeuverTerminalDefinition get terminal => widget.terminal;
+
   static const _amber = Color(0xFFFFB74D);
   static const _blue = Color(0xFF64B5F6);
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _textMuted = Color(0x80FFFFFF);
 
+  StreamSubscription<CustomerInfo>? _customerInfoSubscription;
+  bool? _hasPlusAccess;
+
+  bool get _hasDevBypass {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid != null && AppConstants.devBypassUids.contains(uid);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (_hasDevBypass) {
+      _hasPlusAccess = true;
+      return;
+    }
+
+    final cachedInfo = SubscriptionService.lastCustomerInfo;
+    if (cachedInfo != null) {
+      _hasPlusAccess = _grantsPlusAccess(cachedInfo);
+    }
+
+    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen((
+      customerInfo,
+    ) {
+      final granted = _grantsPlusAccess(customerInfo);
+      if (!mounted || granted == _hasPlusAccess) return;
+      setState(() => _hasPlusAccess = granted);
+    });
+    unawaited(_refreshSubscriptionAccess());
+  }
+
+  @override
+  void dispose() {
+    _customerInfoSubscription?.cancel();
+    super.dispose();
+  }
+
+  bool _grantsPlusAccess(CustomerInfo customerInfo) {
+    return SubscriptionService.activePlan(customerInfo) !=
+        SubscriptionConstants.planNone;
+  }
+
+  Future<void> _refreshSubscriptionAccess() async {
+    final granted = await SubscriptionService.isAnySubscriber();
+    if (!mounted || granted == _hasPlusAccess) return;
+    setState(() => _hasPlusAccess = granted);
+  }
+
+  Future<void> _openSubscriptionPage() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const SubscriptionPage()));
+    if (!mounted) return;
+    await _refreshSubscriptionAccess();
+  }
+
+  void _openPreparation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ManeuverInitialInfoPage(port: port, terminal: terminal),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final hasPreparation = terminal.hasPreparationInfo;
+    final isCheckingSubscription = _hasPlusAccess == null;
+    final hasPlusAccess = _hasPlusAccess == true;
+    final preparationUnavailable = hasPlusAccess && !hasPreparation;
 
     return Scaffold(
       appBar: _buildSectionAppBar(context, terminal.name),
@@ -50,17 +136,22 @@ class ManeuverTerminalPage extends StatelessWidget {
                   icon: ModuleVisuals.maneuverIcon,
                   title: l10n.initialManeuverInfo,
                   description: l10n.initialManeuverInfoDesc,
+                  unavailableDescription:
+                      preparationUnavailable
+                          ? l10n.maneuverInitialInfoComingSoon
+                          : null,
                   color: ModuleVisuals.maneuverColor,
-                  badge: l10n.plusPlan.toUpperCase(),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ManeuverInitialInfoPage(
-                        port: port,
-                        terminal: terminal,
-                      ),
-                    ),
-                  ),
+                  badge:
+                      !isCheckingSubscription && !hasPlusAccess
+                          ? l10n.plusPlan.toUpperCase()
+                          : null,
+                  enabled: !isCheckingSubscription && !preparationUnavailable,
+                  onTap:
+                      isCheckingSubscription
+                          ? null
+                          : hasPlusAccess
+                          ? _openPreparation
+                          : _openSubscriptionPage,
                 ),
                 const SizedBox(height: 10),
                 _buildActionCard(
@@ -68,17 +159,19 @@ class ManeuverTerminalPage extends StatelessWidget {
                   title: l10n.maneuverHistory,
                   description: l10n.maneuverHistoryDesc,
                   color: _blue,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ManeuverHistoryPage(
-                        portName: port.name,
-                        portCode: port.code,
-                        terminalId: terminal.id,
-                        terminalName: terminal.name,
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => ManeuverHistoryPage(
+                                portName: port.name,
+                                portCode: port.code,
+                                terminalId: terminal.id,
+                                terminalName: terminal.name,
+                              ),
+                        ),
                       ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 10),
                 _buildActionCard(
@@ -87,17 +180,19 @@ class ManeuverTerminalPage extends StatelessWidget {
                   description: l10n.reportManeuverDesc,
                   color: _amber,
                   emphasized: true,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ManeuverReportPage(
-                        portName: port.name,
-                        portCode: port.code,
-                        terminalId: terminal.id,
-                        terminalName: terminal.name,
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => ManeuverReportPage(
+                                portName: port.name,
+                                portCode: port.code,
+                                terminalId: terminal.id,
+                                terminalName: terminal.name,
+                              ),
+                        ),
                       ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -163,25 +258,33 @@ class ManeuverTerminalPage extends StatelessWidget {
     required IconData icon,
     required String title,
     required String description,
+    String? unavailableDescription,
     required Color color,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     bool emphasized = false,
     String? badge,
+    bool enabled = true,
   }) {
+    final effectiveColor = enabled ? color : _textMuted;
+
     return Material(
-      color: emphasized ? color.withValues(alpha: 0.10) : const Color(0x0DFFFFFF),
+      color:
+          emphasized && enabled
+              ? color.withValues(alpha: 0.10)
+              : const Color(0x0DFFFFFF),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: emphasized
-                  ? color.withValues(alpha: 0.45)
-                  : color.withValues(alpha: 0.22),
+              color:
+                  emphasized && enabled
+                      ? color.withValues(alpha: 0.45)
+                      : effectiveColor.withValues(alpha: 0.22),
             ),
           ),
           child: Row(
@@ -189,10 +292,10 @@ class ManeuverTerminalPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
+                  color: effectiveColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, color: color, size: 21),
+                child: Icon(icon, color: effectiveColor, size: 21),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -205,7 +308,10 @@ class ManeuverTerminalPage extends StatelessWidget {
                           child: Text(
                             title,
                             style: TextStyle(
-                              color: emphasized ? color : Colors.white,
+                              color:
+                                  enabled
+                                      ? (emphasized ? color : Colors.white)
+                                      : _textMuted,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -219,7 +325,7 @@ class ManeuverTerminalPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      description,
+                      unavailableDescription ?? description,
                       style: const TextStyle(
                         color: _textMuted,
                         fontSize: 11,
@@ -230,7 +336,10 @@ class ManeuverTerminalPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: color.withValues(alpha: 0.65)),
+              Icon(
+                enabled ? Icons.chevron_right : Icons.lock_outline,
+                color: effectiveColor.withValues(alpha: 0.65),
+              ),
             ],
           ),
         ),
@@ -256,7 +365,6 @@ class ManeuverTerminalPage extends StatelessWidget {
       ),
     );
   }
-
 }
 
 PreferredSizeWidget _buildSectionAppBar(BuildContext context, String title) {

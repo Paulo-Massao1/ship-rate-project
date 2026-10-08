@@ -1,7 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-enum ManeuverTerminalStatus { comingSoon, released }
-
 enum ManeuverCargoType { general, dangerous }
 
 /// Text supplied by an operational source, rather than by the application UI.
@@ -19,9 +17,7 @@ class ManeuverDraftLimit {
 
   const ManeuverDraftLimit.range(this.minimum, this.maximum);
 
-  const ManeuverDraftLimit.unavailable()
-      : minimum = null,
-        maximum = null;
+  const ManeuverDraftLimit.unavailable() : minimum = null, maximum = null;
 
   final double? minimum;
   final double? maximum;
@@ -109,19 +105,14 @@ class ManeuverTerminalDefinition {
   const ManeuverTerminalDefinition({
     required this.id,
     required this.name,
-    this.status = ManeuverTerminalStatus.comingSoon,
     this.operationalInfo,
-  }) : assert(
-          status != ManeuverTerminalStatus.released || operationalInfo != null,
-          'A released terminal must have confirmed operational information.',
-        );
+  });
 
   final String id;
   final String name;
-  final ManeuverTerminalStatus status;
   final ManeuverOperationalInfo? operationalInfo;
 
-  bool get isReleased => status == ManeuverTerminalStatus.released;
+  bool get hasPreparationInfo => operationalInfo != null;
 }
 
 class ManeuverPortDefinition {
@@ -136,7 +127,7 @@ class ManeuverPortDefinition {
   final List<ManeuverTerminalDefinition> terminals;
 }
 
-/// Single source of truth for the phased release of maneuver terminals.
+/// Maneuver terminals available for reports and the phased preparation data.
 abstract final class ManeuverCatalog {
   static const ports = <ManeuverPortDefinition>[
     ManeuverPortDefinition(
@@ -154,7 +145,6 @@ abstract final class ManeuverCatalog {
         ManeuverTerminalDefinition(
           id: 'stm_cargill',
           name: 'Cargill',
-          status: ManeuverTerminalStatus.released,
           operationalInfo: _cargillOperationalInfo,
         ),
         ManeuverTerminalDefinition(id: 'stm_cdp_101', name: 'CDP 101'),
@@ -181,9 +171,7 @@ abstract final class ManeuverCatalog {
     ManeuverPortDefinition(
       name: 'Juruti',
       code: 'JUR',
-      terminals: [
-        ManeuverTerminalDefinition(id: 'jur_alcoa', name: 'ALCOA'),
-      ],
+      terminals: [ManeuverTerminalDefinition(id: 'jur_alcoa', name: 'ALCOA')],
     ),
     ManeuverPortDefinition(
       name: 'Trombetas',
@@ -247,8 +235,10 @@ abstract final class ManeuverCatalog {
       ),
     ],
     draftFootnote: ManeuverLocalizedText(
-      pt: 'Subtrair 5 cm dos calados conforme Portaria nº 223/Com4ºDN, de 24/04/2026.',
-      en: 'Subtract 5 cm from drafts according to Ordinance No. 223/Com4ºDN, dated 24 Apr 2026.',
+      pt:
+          'Subtrair 5 cm dos calados conforme Portaria nº 223/Com4ºDN, de 24/04/2026.',
+      en:
+          'Subtract 5 cm from drafts according to Ordinance No. 223/Com4ºDN, dated 24 Apr 2026.',
     ),
     vhfChannel: 12,
     launchArrangement: ManeuverLocalizedText(
@@ -259,26 +249,25 @@ abstract final class ManeuverCatalog {
     quayAlignmentDegrees: 288,
     tugboatsMandatory: true,
     tugRequirementDetail: ManeuverLocalizedText(
-      pt: 'O uso de rebocadores é obrigatório. Consulte abaixo os rebocadores informados para Santarém.',
+      pt:
+          'O uso de rebocadores é obrigatório. Consulte abaixo os rebocadores informados para Santarém.',
       en: 'Tugboat use is mandatory. See below the tugboats listed for Santarém.',
     ),
     tugMinimumNote: ManeuverLocalizedText(
-      pt: 'O documento não especifica quantidade mínima nem BP total mínimo para a Cargill.',
-      en: 'The document does not specify a minimum quantity or total bollard pull for Cargill.',
+      pt:
+          'O documento não especifica quantidade mínima nem BP total mínimo para a Cargill.',
+      en:
+          'The document does not specify a minimum quantity or total bollard pull for Cargill.',
     ),
     navigation: ManeuverLocalizedText(
-      pt: 'No rio Tapajós, recomenda-se no máximo meia força adiante, sem exceder “devagar adiante”.',
-      en: 'On the Tapajós River, a maximum of half ahead is recommended, without exceeding slow ahead.',
+      pt:
+          'No rio Tapajós, recomenda-se no máximo meia força adiante, sem exceder “devagar adiante”.',
+      en:
+          'On the Tapajós River, a maximum of half ahead is recommended, without exceeding slow ahead.',
     ),
     mooring: [
-      ManeuverMooringDefinition(
-        vesselClass: 'Panamax',
-        lineGroups: [2, 2, 2],
-      ),
-      ManeuverMooringDefinition(
-        vesselClass: 'Handmax',
-        lineGroups: [4, 2],
-      ),
+      ManeuverMooringDefinition(vesselClass: 'Panamax', lineGroups: [2, 2, 2]),
+      ManeuverMooringDefinition(vesselClass: 'Handmax', lineGroups: [4, 2]),
     ],
   );
 }

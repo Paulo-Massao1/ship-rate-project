@@ -950,123 +950,162 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
             : 0;
     final likeCount = cachedLikeCount > 0 ? cachedLikeCount : serverLikeCount;
     final hasPilot = loc.latestPilotName?.trim().isNotEmpty ?? false;
+    final likeAction =
+        latestRecordId != null && (!isOwnRecord || likeCount > 0)
+            ? _buildLatestLikeAction(
+              locationId: loc.id,
+              recordId: latestRecordId,
+              liked: liked,
+              likeCount: likeCount,
+              isOwnRecord: isOwnRecord,
+              l10n: l10n,
+            )
+            : null;
 
+    return _buildDepthSummaryCard(
+      locationName: loc.name,
+      dateText: loc.latestDateFormatted ?? l10n.noRecords,
+      depth: loc.latestDepth,
+      pilotText:
+          hasPilot ? l10n.pilotCallSign(loc.latestPilotName!.trim()) : '—',
+      likeAction: likeAction,
+      onTap: () => _onLocationTap(loc.id, loc.name),
+      l10n: l10n,
+    );
+  }
+
+  Widget _buildDepthSummaryCard({
+    required String locationName,
+    required String dateText,
+    required dynamic depth,
+    required String pilotText,
+    required VoidCallback onTap,
+    required AppLocalizations l10n,
+    Widget? likeAction,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _onLocationTap(loc.id, loc.name),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            constraints: const BoxConstraints(minHeight: 106),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+            constraints: const BoxConstraints(minHeight: 98),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0x1A64B5F6)),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Text(
-                    loc.latestDateFormatted ?? l10n.noRecords,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF80CBC4),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+            child: SizedBox(
+              height: 54,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 9,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        dateText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF80CBC4),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 14,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        loc.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          height: 1.05,
+                  Expanded(
+                    flex: 18,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                locationName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.right,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                l10n.totalDepthShort,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  color: Color(0xFFFFCC80),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.totalDepthShort,
-                        style: const TextStyle(
-                          color: Color(0xFFFFCC80),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _formatMeters(depth),
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Color(0xFFFFB74D),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 21,
+                                height: 1,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _formatMeters(loc.latestDepth),
-                        style: const TextStyle(
-                          color: Color(0xFFFFB74D),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 25,
-                          height: 1.05,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 10,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        height: 24,
-                        child:
-                            latestRecordId != null &&
-                                    (!isOwnRecord || likeCount > 0)
-                                ? Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _buildLatestLikeAction(
-                                    locationId: loc.id,
-                                    recordId: latestRecordId,
-                                    liked: liked,
-                                    likeCount: likeCount,
-                                    isOwnRecord: isOwnRecord,
-                                    l10n: l10n,
+                  Expanded(
+                    flex: 10,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                          child:
+                              likeAction == null
+                                  ? null
+                                  : Align(
+                                    alignment: Alignment.centerRight,
+                                    child: likeAction,
                                   ),
-                                )
-                                : null,
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        hasPilot
-                            ? l10n.pilotCallSign(loc.latestPilotName!.trim())
-                            : '—',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          color: Color(0xB3FFFFFF),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          height: 1.15,
                         ),
-                      ),
-                    ],
+                        Text(
+                          pilotText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            color: Color(0xB3FFFFFF),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1269,137 +1308,36 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     final isOwnRecord = recordPilotId != null && recordPilotId == currentUid;
     final locationId = _controller.selectedLocationId;
-
-    final bool liked =
-        (locationId != null && recordId != null)
+    final liked =
+        locationId != null && recordId != null
             ? _controller.hasUserLiked(locationId, recordId)
             : false;
-    final int likeCount =
-        (locationId != null && recordId != null)
+    final likeCount =
+        locationId != null && recordId != null
             ? _controller.getLikeCount(locationId, recordId)
             : 0;
+    final likeAction =
+        locationId != null &&
+                recordId != null &&
+                (!isOwnRecord || likeCount > 0)
+            ? _buildLatestLikeAction(
+              locationId: locationId,
+              recordId: recordId,
+              liked: liked,
+              likeCount: likeCount,
+              isOwnRecord: isOwnRecord,
+              l10n: l10n,
+            )
+            : null;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _navigateToRecordDetails(record),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 106),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-            decoration: BoxDecoration(
-              color: const Color(0x0DFFFFFF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1A64B5F6)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Text(
-                    dateStr,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF80CBC4),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 14,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        locationName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          height: 1.05,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.totalDepthShort,
-                        style: const TextStyle(
-                          color: Color(0xFFFFCC80),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _formatMeters(profTotal),
-                        style: const TextStyle(
-                          color: Color(0xFFFFB74D),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 25,
-                          height: 1.05,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  flex: 10,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        height: 24,
-                        child:
-                            locationId != null &&
-                                    recordId != null &&
-                                    (!isOwnRecord || likeCount > 0)
-                                ? Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _buildLatestLikeAction(
-                                    locationId: locationId,
-                                    recordId: recordId,
-                                    liked: liked,
-                                    likeCount: likeCount,
-                                    isOwnRecord: isOwnRecord,
-                                    l10n: l10n,
-                                  ),
-                                )
-                                : null,
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        pilotName.isNotEmpty
-                            ? l10n.pilotCallSign(pilotName)
-                            : '—',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          color: Color(0xB3FFFFFF),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          height: 1.15,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return _buildDepthSummaryCard(
+      locationName: locationName,
+      dateText: dateStr,
+      depth: profTotal,
+      pilotText: pilotName.isNotEmpty ? l10n.pilotCallSign(pilotName) : '—',
+      likeAction: likeAction,
+      onTap: () => _navigateToRecordDetails(record),
+      l10n: l10n,
     );
   }
 

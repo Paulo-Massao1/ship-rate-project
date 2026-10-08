@@ -16,7 +16,6 @@ class ManeuversPage extends StatelessWidget {
   static const _bgDark = Color(0xFF0A1628);
   static const _bgMid = Color(0xFF0D2137);
   static const _cardBg = Color(0x0DFFFFFF);
-  static const _cardBorder = Color(0x1AFFFFFF);
   static const _textMuted = Color(0x80FFFFFF);
 
   @override
@@ -50,7 +49,7 @@ class ManeuversPage extends StatelessWidget {
                 _buildIntroCard(l10n),
                 const SizedBox(height: 20),
                 for (final port in ManeuverCatalog.ports) ...[
-                  _buildPortGroup(context, l10n, port),
+                  _buildPortGroup(context, port),
                   const SizedBox(height: 18),
                 ],
               ],
@@ -168,11 +167,7 @@ class ManeuversPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPortGroup(
-    BuildContext context,
-    AppLocalizations l10n,
-    ManeuverPortDefinition port,
-  ) {
+  Widget _buildPortGroup(BuildContext context, ManeuverPortDefinition port) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -189,47 +184,37 @@ class ManeuversPage extends StatelessWidget {
           ),
         ),
         for (final terminal in port.terminals)
-          _buildTerminalTile(context, l10n, port, terminal),
+          _buildTerminalTile(context, port, terminal),
       ],
     );
   }
 
   Widget _buildTerminalTile(
     BuildContext context,
-    AppLocalizations l10n,
     ManeuverPortDefinition port,
     ManeuverTerminalDefinition terminal,
   ) {
-    final available = terminal.isReleased;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: Material(
-        color: available ? _cardBg : const Color(0x08FFFFFF),
+        color: _cardBg,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap:
-              available
-                  ? () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => ManeuverTerminalPage(
-                            port: port,
-                            terminal: terminal,
-                          ),
-                    ),
-                  )
-                  : null,
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) =>
+                          ManeuverTerminalPage(port: port, terminal: terminal),
+                ),
+              ),
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color:
-                    available ? ModuleVisuals.maneuverCardBorder : _cardBorder,
-              ),
+              border: Border.all(color: ModuleVisuals.maneuverCardBorder),
             ),
             child: Row(
               children: [
@@ -237,9 +222,8 @@ class ManeuversPage extends StatelessWidget {
                   width: 38,
                   child: Text(
                     port.code,
-                    style: TextStyle(
-                      color:
-                          available ? _maneuverColor : const Color(0x4DFFFFFF),
+                    style: const TextStyle(
+                      color: _maneuverColor,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                     ),
@@ -250,43 +234,21 @@ class ManeuversPage extends StatelessWidget {
                     terminal.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: available ? Colors.white : _textMuted,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                if (available)
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Color(0x66FFFFFF),
-                    size: 20,
-                  )
-                else
-                  _buildComingSoonBadge(l10n),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Color(0x66FFFFFF),
+                  size: 20,
+                ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildComingSoonBadge(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: const Color(0x0DFFFFFF),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: _cardBorder),
-      ),
-      child: Text(
-        l10n.comingSoonBadge,
-        style: const TextStyle(
-          color: Color(0x66FFFFFF),
-          fontSize: 8,
-          fontWeight: FontWeight.w700,
         ),
       ),
     );

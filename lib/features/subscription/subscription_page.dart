@@ -27,7 +27,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   // Prices shown while the store has no package to read the real price from.
   static const _premiumFallbackPrice = 'R\$ 18,99';
-  static const _plusFallbackPrice = 'R\$ 15,99';
+  static const _plusFallbackPrice = 'R\$ 13,99';
 
   StreamSubscription<CustomerInfo>? _customerInfoSubscription;
 
@@ -42,8 +42,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   @override
   void initState() {
     super.initState();
-    _customerInfoSubscription =
-        SubscriptionService.customerInfoStream.listen(_onCustomerInfoUpdated);
+    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
+      _onCustomerInfoUpdated,
+    );
     _loadSubscriptionState();
   }
 
@@ -85,9 +86,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   /// Package of the current offering that sells [plan], when the store
   /// returned it.
   Package? _packageFor(String plan) {
-    final productId = plan == SubscriptionConstants.planPremium
-        ? SubscriptionConstants.premiumMonthly
-        : SubscriptionConstants.plusMonthly;
+    final productId =
+        plan == SubscriptionConstants.planPremium
+            ? SubscriptionConstants.premiumMonthly
+            : SubscriptionConstants.plusMonthly;
 
     for (final package in _packages) {
       final identifier = package.storeProduct.identifier;
@@ -195,7 +197,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               padding: EdgeInsets.fromLTRB(
-                20, Navigator.canPop(context) ? 12 : 24, 20, 32,
+                20,
+                Navigator.canPop(context) ? 12 : 24,
+                20,
+                32,
               ),
               children: [
                 // Scrolls with the content instead of floating over it.
@@ -356,13 +361,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           ),
           const SizedBox(height: 18),
           _buildPlanButton(
-            label: isActive
-                ? l10n.currentPlan
-                : isUpgrade
+            label:
+                isActive
+                    ? l10n.currentPlan
+                    : isUpgrade
                     ? l10n.upgradePlan
                     : l10n.subscribePremium,
             enabled: !_loading && !isActive,
-            loading: _loading ||
+            loading:
+                _loading ||
                 _purchasingPlan == SubscriptionConstants.planPremium,
             filled: true,
             color: _premiumColor,
@@ -506,10 +513,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             ),
             Text(
               l10n.perMonth,
-              style: const TextStyle(
-                color: Color(0x66FFFFFF),
-                fontSize: 11,
-              ),
+              style: const TextStyle(color: Color(0x66FFFFFF), fontSize: 11),
             ),
           ],
         ),
@@ -582,23 +586,24 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               border: filled ? null : Border.all(color: color),
             ),
             child: Center(
-              child: loading
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: foreground,
+              child:
+                  loading
+                      ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: foreground,
+                        ),
+                      )
+                      : Text(
+                        label,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    )
-                  : Text(
-                      label,
-                      style: TextStyle(
-                        color: foreground,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
             ),
           ),
         ),
@@ -618,23 +623,24 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         TextButton(
           onPressed:
               _restoring || _purchasingPlan != null ? null : _restorePurchases,
-          child: _restoring
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: _plusColor,
+          child:
+              _restoring
+                  ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _plusColor,
+                    ),
+                  )
+                  : Text(
+                    l10n.restorePurchases,
+                    style: const TextStyle(
+                      color: Color(0x80FFFFFF),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                )
-              : Text(
-                  l10n.restorePurchases,
-                  style: const TextStyle(
-                    color: Color(0x80FFFFFF),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
         ),
       ],
     );

@@ -254,11 +254,61 @@ service cloud.firestore {
                         )));
     }
 
-    function isReleasedManeuverTerminal(data) {
-      return data.portCode == 'STM'
-             && data.portName == 'Santarém'
-             && data.terminalId == 'stm_cargill'
-             && data.terminalName == 'Cargill';
+    function isKnownManeuverTerminal(data) {
+      return (data.portCode == 'SAN'
+              && data.portName == 'Santana'
+              && ((data.terminalId == 'san_cdsa_1'
+                   && data.terminalName == 'CDSA 1')
+                  || (data.terminalId == 'san_cdsa_2'
+                      && data.terminalName == 'CDSA 2')))
+             || (data.portCode == 'STM'
+                 && data.portName == 'Santarém'
+                 && ((data.terminalId == 'stm_cargill'
+                      && data.terminalName == 'Cargill')
+                     || (data.terminalId == 'stm_cdp_101'
+                         && data.terminalName == 'CDP 101')
+                     || (data.terminalId == 'stm_cdp_201'
+                         && data.terminalName == 'CDP 201')
+                     || (data.terminalId == 'stm_atem'
+                         && data.terminalName == 'ATEM')
+                     || (data.terminalId == 'stm_transbordo_1'
+                         && data.terminalName == 'Transbordo 1')
+                     || (data.terminalId == 'stm_transbordo_2'
+                         && data.terminalName == 'Transbordo 2')))
+             || (data.portCode == 'JAR'
+                 && data.portName == 'Jari'
+                 && ((data.terminalId == 'jar_cadam'
+                      && data.terminalName == 'CADAM')
+                     || (data.terminalId == 'jar_jarcel'
+                         && data.terminalName == 'JARCEL')))
+             || (data.portCode == 'JUR'
+                 && data.portName == 'Juruti'
+                 && data.terminalId == 'jur_alcoa'
+                 && data.terminalName == 'ALCOA')
+             || (data.portCode == 'PTR'
+                 && data.portName == 'Trombetas'
+                 && ((data.terminalId == 'ptr_mrn'
+                      && data.terminalName == 'MRN')
+                     || (data.terminalId == 'ptr_boia_1'
+                         && data.terminalName == 'Boia 1')
+                     || (data.terminalId == 'ptr_boia_2'
+                         && data.terminalName == 'Boia 2')
+                     || (data.terminalId == 'ptr_boia_3'
+                         && data.terminalName == 'Boia 3')))
+             || (data.portCode == 'ITA'
+                 && data.portName == 'Itacoatiara'
+                 && ((data.terminalId == 'ita_hermasa_1'
+                      && data.terminalName == 'Hermasa 1')
+                     || (data.terminalId == 'ita_hermasa_2'
+                         && data.terminalName == 'Hermasa 2')
+                     || (data.terminalId == 'ita_hermasa_3'
+                         && data.terminalName == 'Hermasa 3')
+                     || (data.terminalId == 'ita_tfb'
+                         && data.terminalName == 'TFB')
+                     || (data.terminalId == 'ita_chibatao'
+                         && data.terminalName == 'Chibatão')
+                     || (data.terminalId == 'ita_superterminais'
+                         && data.terminalName == 'Superterminais')));
     }
 
     match /usuarios/{uid} {
@@ -414,7 +464,7 @@ service cloud.firestore {
                     && request.resource.data.pilotId == request.auth.uid
                     && request.resource.data.createdAt == request.time
                     && request.resource.data.updatedAt == request.time
-                    && isReleasedManeuverTerminal(request.resource.data)
+                    && isKnownManeuverTerminal(request.resource.data)
                     && isValidManeuverReport(
                          request.resource.data, reportId
                        );
@@ -427,7 +477,7 @@ service cloud.firestore {
                        == resource.data.terminalId
                     && request.resource.data.terminalName
                        == resource.data.terminalName
-                    && isReleasedManeuverTerminal(request.resource.data)
+                    && isKnownManeuverTerminal(request.resource.data)
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.updatedAt == request.time
                     && isValidManeuverReport(
