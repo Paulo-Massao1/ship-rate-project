@@ -8,6 +8,27 @@ enum ManeuverPropellerPitch { fixed, controllable }
 
 enum ManeuverFirstLine { headLine, breastLine, spring }
 
+enum ManeuverCurrentDirection {
+  upstream('subindo'),
+  downstream('baixando');
+
+  const ManeuverCurrentDirection(this.firestoreValue);
+
+  final String firestoreValue;
+
+  static ManeuverCurrentDirection? fromFirestore(Object? value) {
+    final rawValue = value?.toString();
+    if (rawValue == null || rawValue.isEmpty) return null;
+
+    for (final direction in values) {
+      if (direction.firestoreValue == rawValue || direction.name == rawValue) {
+        return direction;
+      }
+    }
+    return null;
+  }
+}
+
 enum ManeuverMediaType { photo, video }
 
 class ManeuverMediaAttachment {
@@ -30,9 +51,8 @@ class ManeuverMediaAttachment {
       path: (data['path'] ?? '').toString(),
       originalName: (data['originalName'] ?? '').toString(),
       contentType: (data['contentType'] ?? '').toString(),
-      sizeBytes: data['sizeBytes'] is num
-          ? (data['sizeBytes'] as num).toInt()
-          : 0,
+      sizeBytes:
+          data['sizeBytes'] is num ? (data['sizeBytes'] as num).toInt() : 0,
       type: ManeuverMediaType.values.firstWhere(
         (candidate) => candidate.name == data['type'],
         orElse: () => ManeuverMediaType.photo,
@@ -105,6 +125,7 @@ class ManeuverReportRecord {
     this.crewNationality,
     this.forwardTug,
     this.aftTug,
+    this.currentDirection,
     this.currentDirectionDegrees,
     this.currentIntensityKnots,
     this.windDirectionDegrees,
@@ -135,6 +156,9 @@ class ManeuverReportRecord {
   final String? crewNationality;
   final ManeuverTugSnapshot? forwardTug;
   final ManeuverTugSnapshot? aftTug;
+  final ManeuverCurrentDirection? currentDirection;
+
+  /// Legacy compass direction used by reports created before schema version 4.
   final int? currentDirectionDegrees;
   final double? currentIntensityKnots;
   final int? windDirectionDegrees;
@@ -159,6 +183,7 @@ class ManeuverReportRecord {
   bool get hasApproachData =>
       forwardTug != null ||
       aftTug != null ||
+      currentDirection != null ||
       currentDirectionDegrees != null ||
       currentIntensityKnots != null ||
       windDirectionDegrees != null ||
@@ -207,6 +232,9 @@ class ManeuverReportRecord {
       crewNationality: _asOptionalString(ship['crewNationality']),
       forwardTug: _asTugSnapshot(approach['forwardTug']),
       aftTug: _asTugSnapshot(approach['aftTug']),
+      currentDirection: ManeuverCurrentDirection.fromFirestore(
+        approach['currentDirection'],
+      ),
       currentDirectionDegrees: _asInt(approach['currentDirectionDegrees']),
       currentIntensityKnots: _asDouble(approach['currentIntensityKnots']),
       windDirectionDegrees: _asInt(approach['windDirectionDegrees']),
@@ -261,9 +289,8 @@ class ManeuverReportRecord {
     return value
         .whereType<Map>()
         .map(
-          (item) => ManeuverMediaAttachment.fromMap(
-            Map<String, dynamic>.from(item),
-          ),
+          (item) =>
+              ManeuverMediaAttachment.fromMap(Map<String, dynamic>.from(item)),
         )
         .where((item) => item.path.isNotEmpty)
         .toList(growable: false);
@@ -287,7 +314,7 @@ class ManeuverReportDraft {
     this.crewNationality,
     this.forwardTug,
     this.aftTug,
-    this.currentDirectionDegrees,
+    this.currentDirection,
     this.currentIntensityKnots,
     this.windDirectionDegrees,
     this.windIntensityKnots,
@@ -314,7 +341,7 @@ class ManeuverReportDraft {
   final String? crewNationality;
   final ManeuverTug? forwardTug;
   final ManeuverTug? aftTug;
-  final int? currentDirectionDegrees;
+  final ManeuverCurrentDirection? currentDirection;
   final double? currentIntensityKnots;
   final int? windDirectionDegrees;
   final double? windIntensityKnots;
@@ -331,7 +358,7 @@ class ManeuverReportDraft {
   }) {
     final hasMedia = approachMedia.isNotEmpty || mooringMedia.isNotEmpty;
     return {
-      'schemaVersion': hasMedia ? 3 : 2,
+      'schemaVersion': 4,
       'pilotId': pilotId,
       if (pilotName != null && pilotName.isNotEmpty) 'pilotName': pilotName,
       'portName': portName,
@@ -352,7 +379,7 @@ class ManeuverReportDraft {
       'approach': _withoutNulls({
         'forwardTug': _tugSnapshot(forwardTug),
         'aftTug': _tugSnapshot(aftTug),
-        'currentDirectionDegrees': currentDirectionDegrees,
+        'currentDirection': currentDirection?.firestoreValue,
         'currentIntensityKnots': currentIntensityKnots,
         'windDirectionDegrees': windDirectionDegrees,
         'windIntensityKnots': windIntensityKnots,

@@ -87,9 +87,8 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
                 child: ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                   itemCount: reports.length + 1,
-                  separatorBuilder: (_, index) => SizedBox(
-                    height: index == 0 ? 16 : 10,
-                  ),
+                  separatorBuilder:
+                      (_, index) => SizedBox(height: index == 0 ? 16 : 10),
                   itemBuilder: (context, index) {
                     if (index == 0) return _buildHeader(l10n);
                     return _buildReportCard(l10n, reports[index - 1]);
@@ -149,10 +148,7 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
     );
   }
 
-  Widget _buildReportCard(
-    AppLocalizations l10n,
-    ManeuverReportRecord report,
-  ) {
+  Widget _buildReportCard(AppLocalizations l10n, ManeuverReportRecord report) {
     final summary = <String>[
       if (report.maximumDraftMeters != null)
         '${l10n.maneuverMaximumDraft}: ${_number(report.maximumDraftMeters!)} m',
@@ -291,10 +287,9 @@ class _ManeuverHistoryPageState extends State<ManeuverHistoryPage> {
     final deleted = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => _ManeuverReportDetailsPage(
-          report: report,
-          service: _service,
-        ),
+        builder:
+            (_) =>
+                _ManeuverReportDetailsPage(report: report, service: _service),
       ),
     );
     if (!mounted || deleted != true) return;
@@ -368,16 +363,17 @@ class _ManeuverReportDetailsPageState
             IconButton(
               tooltip: l10n.deleteLabel,
               onPressed: _deleting ? null : _confirmDelete,
-              icon: _deleting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.delete_outline),
+              icon:
+                  _deleting
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Icon(Icons.delete_outline),
             ),
         ],
       ),
@@ -475,17 +471,19 @@ class _ManeuverReportDetailsPageState
         if (report.propellerDirection != null)
           _DetailRow(
             label: l10n.maneuverPropellerDirection,
-            value: report.propellerDirection ==
-                    ManeuverPropellerDirection.rightHanded
-                ? l10n.maneuverRightHanded
-                : l10n.maneuverLeftHanded,
+            value:
+                report.propellerDirection ==
+                        ManeuverPropellerDirection.rightHanded
+                    ? l10n.maneuverRightHanded
+                    : l10n.maneuverLeftHanded,
           ),
         if (report.propellerPitch != null)
           _DetailRow(
             label: l10n.maneuverPropellerPitch,
-            value: report.propellerPitch == ManeuverPropellerPitch.fixed
-                ? l10n.maneuverPitchFixed
-                : l10n.maneuverPitchControllable,
+            value:
+                report.propellerPitch == ManeuverPropellerPitch.fixed
+                    ? l10n.maneuverPitchFixed
+                    : l10n.maneuverPitchControllable,
           ),
         if (report.officerNationality != null)
           _DetailRow(
@@ -529,11 +527,13 @@ class _ManeuverReportDetailsPageState
             label: l10n.maneuverTugAft,
             value: _tugDescription(report.aftTug!, l10n),
           ),
-        if (report.currentDirectionDegrees != null ||
+        if (report.currentDirection != null ||
+            report.currentDirectionDegrees != null ||
             report.currentIntensityKnots != null)
           _DetailRow(
             label: l10n.maneuverCurrent,
-            value: _conditions(
+            value: _currentConditions(
+              report.currentDirection,
               report.currentDirectionDegrees,
               report.currentIntensityKnots,
               l10n,
@@ -592,81 +592,85 @@ class _ManeuverReportDetailsPageState
     AppLocalizations l10n,
   ) {
     return Column(
-      children: attachments.map((attachment) {
-        final opening = _openingMediaPath == attachment.path;
-        return Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Material(
-            color: const Color(0x0DFFFFFF),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: const BorderSide(color: Color(0x2EFFFFFF)),
-            ),
-            child: InkWell(
-              onTap: opening ? null : () => _openMedia(attachment, l10n),
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-                child: Row(
-                  children: [
-                    Icon(
-                      attachment.type == ManeuverMediaType.photo
-                          ? Icons.photo_outlined
-                          : Icons.videocam_outlined,
-                      color: _amber,
-                      size: 19,
+      children: attachments
+          .map((attachment) {
+            final opening = _openingMediaPath == attachment.path;
+            return Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Material(
+                color: const Color(0x0DFFFFFF),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: const BorderSide(color: Color(0x2EFFFFFF)),
+                ),
+                child: InkWell(
+                  onTap: opening ? null : () => _openMedia(attachment, l10n),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 11,
+                      vertical: 10,
                     ),
-                    const SizedBox(width: 9),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            attachment.type == ManeuverMediaType.photo
-                                ? l10n.photo
-                                : l10n.video,
-                            style: const TextStyle(
-                              color: _muted,
-                              fontSize: 9,
-                            ),
-                          ),
-                          Text(
-                            attachment.originalName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (opening)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
+                    child: Row(
+                      children: [
+                        Icon(
+                          attachment.type == ManeuverMediaType.photo
+                              ? Icons.photo_outlined
+                              : Icons.videocam_outlined,
                           color: _amber,
-                          strokeWidth: 2,
+                          size: 19,
                         ),
-                      )
-                    else
-                      const Icon(
-                        Icons.open_in_new,
-                        color: Color(0x9964B5F6),
-                        size: 16,
-                      ),
-                  ],
+                        const SizedBox(width: 9),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                attachment.type == ManeuverMediaType.photo
+                                    ? l10n.photo
+                                    : l10n.video,
+                                style: const TextStyle(
+                                  color: _muted,
+                                  fontSize: 9,
+                                ),
+                              ),
+                              Text(
+                                attachment.originalName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (opening)
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: _amber,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        else
+                          const Icon(
+                            Icons.open_in_new,
+                            color: Color(0x9964B5F6),
+                            size: 16,
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        );
-      }).toList(growable: false),
+            );
+          })
+          .toList(growable: false),
     );
   }
 
@@ -692,10 +696,7 @@ class _ManeuverReportDetailsPageState
     }
   }
 
-  String _tugDescription(
-    ManeuverTugSnapshot tug,
-    AppLocalizations l10n,
-  ) {
+  String _tugDescription(ManeuverTugSnapshot tug, AppLocalizations l10n) {
     final details = <String>[
       tug.name,
       if (tug.bollardPull != null) 'BP ${_number(tug.bollardPull!)}',
@@ -711,13 +712,28 @@ class _ManeuverReportDetailsPageState
     return details.join(' · ');
   }
 
-  String _conditions(
-    int? direction,
+  String _conditions(int? direction, double? intensity, AppLocalizations l10n) {
+    final values = <String>[
+      if (direction != null) '${direction.toString().padLeft(3, '0')}°',
+      if (intensity != null) '${_number(intensity)} ${l10n.maneuverKnotsShort}',
+    ];
+    return values.join(' · ');
+  }
+
+  String _currentConditions(
+    ManeuverCurrentDirection? direction,
+    int? legacyDirectionDegrees,
     double? intensity,
     AppLocalizations l10n,
   ) {
     final values = <String>[
-      if (direction != null) '${direction.toString().padLeft(3, '0')}°',
+      if (direction != null)
+        switch (direction) {
+          ManeuverCurrentDirection.upstream => l10n.directionUp,
+          ManeuverCurrentDirection.downstream => l10n.directionDown,
+        }
+      else if (legacyDirectionDegrees != null)
+        '${legacyDirectionDegrees.toString().padLeft(3, '0')}°',
       if (intensity != null) '${_number(intensity)} ${l10n.maneuverKnotsShort}',
     ];
     return values.join(' · ');
@@ -735,28 +751,31 @@ class _ManeuverReportDetailsPageState
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: _bgMid,
-        title: Text(
-          l10n.maneuverDeleteReportTitle,
-          style: const TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          l10n.maneuverDeleteReportConfirm,
-          style: const TextStyle(color: _muted),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.cancel),
+      builder:
+          (dialogContext) => AlertDialog(
+            backgroundColor: _bgMid,
+            title: Text(
+              l10n.maneuverDeleteReportTitle,
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: Text(
+              l10n.maneuverDeleteReportConfirm,
+              style: const TextStyle(color: _muted),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red.shade300,
+                ),
+                child: Text(l10n.deleteLabel),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red.shade300),
-            child: Text(l10n.deleteLabel),
-          ),
-        ],
-      ),
     );
     if (confirmed != true || !mounted) return;
 

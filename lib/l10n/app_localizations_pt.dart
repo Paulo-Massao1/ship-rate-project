@@ -2000,7 +2000,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverSaveReport => 'Salvar relato';
 
   @override
-  String get maneuverInvalidNumericValue => 'Revise os valores numéricos. As direções devem estar entre 000° e 359°.';
+  String get maneuverInvalidNumericValue => 'Revise os valores numéricos. A direção do vento deve estar entre 000° e 359°.';
 
   @override
   String get maneuverReportSaved => 'Relato de manobra salvo com sucesso.';

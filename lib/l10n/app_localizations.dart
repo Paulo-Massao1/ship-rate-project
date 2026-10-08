@@ -3818,7 +3818,7 @@ abstract class AppLocalizations {
   /// Validation error for invalid optional maneuver numbers.
   ///
   /// In pt, this message translates to:
-  /// **'Revise os valores numéricos. As direções devem estar entre 000° e 359°.'**
+  /// **'Revise os valores numéricos. A direção do vento deve estar entre 000° e 359°.'**
   String get maneuverInvalidNumericValue;
 
   /// Confirmation shown after saving a maneuver report.

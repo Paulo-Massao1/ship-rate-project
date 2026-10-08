@@ -54,7 +54,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   final _lengthController = TextEditingController();
   final _beamController = TextEditingController();
   final _maximumDraftController = TextEditingController();
-  final _currentDirectionController = TextEditingController();
   final _currentIntensityController = TextEditingController();
   final _windDirectionController = TextEditingController();
   final _windIntensityController = TextEditingController();
@@ -78,6 +77,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   ManeuverPropellerPitch? _propellerPitch;
   ManeuverFirstLine? _forwardFirstLine;
   ManeuverFirstLine? _aftFirstLine;
+  ManeuverCurrentDirection? _currentDirection;
   final List<PendingManeuverMedia> _approachMedia = [];
   final List<PendingManeuverMedia> _mooringMedia = [];
   bool _loadingShips = true;
@@ -101,7 +101,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     _lengthController.dispose();
     _beamController.dispose();
     _maximumDraftController.dispose();
-    _currentDirectionController.dispose();
     _currentIntensityController.dispose();
     _windDirectionController.dispose();
     _windIntensityController.dispose();
@@ -142,10 +141,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             ),
             const SizedBox(height: 2),
             Text(
-              l10n.maneuverReportPort(
-                widget.terminalName,
-                widget.portName,
-              ),
+              l10n.maneuverReportPort(widget.terminalName, widget.portName),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -182,9 +178,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
-                    onPressed: _saving
-                        ? null
-                        : () => Navigator.maybePop(context),
+                    onPressed:
+                        _saving ? null : () => Navigator.maybePop(context),
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xCCFFFFFF),
                       padding: EdgeInsets.zero,
@@ -386,9 +381,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: value == null
-                  ? const Color(0x99FFFFFF)
-                  : Colors.white,
+              color: value == null ? const Color(0x99FFFFFF) : Colors.white,
               fontSize: 12,
             ),
           ),
@@ -409,102 +402,114 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.68,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSelectionSheetHeader(sheetContext, title),
-              const Divider(height: 1, color: Color(0x1FFFFFFF)),
-              Flexible(
-                child: StreamBuilder<List<String>>(
-                  stream: _nationalitiesStream,
-                  builder: (context, snapshot) {
-                    final predefined = _nationalityKeys
-                        .map(ManeuverNationalityService.normalizeName)
-                        .toSet();
-                    final custom = (snapshot.data ?? const <String>[])
-                        .where(
-                          (name) => !predefined.contains(
-                            ManeuverNationalityService.normalizeName(name),
+      builder:
+          (sheetContext) => SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.68,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildSelectionSheetHeader(sheetContext, title),
+                  const Divider(height: 1, color: Color(0x1FFFFFFF)),
+                  Flexible(
+                    child: StreamBuilder<List<String>>(
+                      stream: _nationalitiesStream,
+                      builder: (context, snapshot) {
+                        final predefined =
+                            _nationalityKeys
+                                .map(ManeuverNationalityService.normalizeName)
+                                .toSet();
+                        final custom = (snapshot.data ?? const <String>[])
+                            .where(
+                              (name) =>
+                                  !predefined.contains(
+                                    ManeuverNationalityService.normalizeName(
+                                      name,
+                                    ),
+                                  ),
+                            )
+                            .toList(growable: false);
+                        final options = <({String value, String label})>[
+                          (
+                            value: '',
+                            label: l10n.maneuverNationalityNotInformed,
                           ),
-                        )
-                        .toList(growable: false);
-                    final options = <({String value, String label})>[
-                      (
-                        value: '',
-                        label: l10n.maneuverNationalityNotInformed,
-                      ),
-                      for (final key in _nationalityKeys)
-                        (value: key, label: _nationalityLabel(key, l10n)),
-                      for (final name in custom) (value: name, label: name),
-                      (
-                        value: _addNationalityKey,
-                        label: l10n.maneuverAddNationality,
-                      ),
-                    ];
+                          for (final key in _nationalityKeys)
+                            (value: key, label: _nationalityLabel(key, l10n)),
+                          for (final name in custom) (value: name, label: name),
+                          (
+                            value: _addNationalityKey,
+                            label: l10n.maneuverAddNationality,
+                          ),
+                        ];
 
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      itemCount: options.length,
-                      separatorBuilder: (_, __) => const Divider(
-                        height: 1,
-                        color: Color(0x12FFFFFF),
-                      ),
-                      itemBuilder: (_, index) {
-                        final option = options[index];
-                        final isAdd = option.value == _addNationalityKey;
-                        final isSelected = selectedValue == null
-                            ? option.value.isEmpty
-                            : selectedValue == option.value;
-                        return ListTile(
-                          dense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 2,
-                          ),
-                          leading: Icon(
-                            isAdd ? Icons.add : Icons.public,
-                            color: isAdd || isSelected
-                                ? _amber
-                                : const Color(0x80FFFFFF),
-                            size: 19,
-                          ),
-                          title: Text(
-                            option.label,
-                            style: TextStyle(
-                              color: isAdd || isSelected
-                                  ? _amber
-                                  : Colors.white,
-                              fontSize: 13,
-                              fontWeight: isAdd || isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                          trailing: isSelected && !isAdd
-                              ? const Icon(
-                                  Icons.check,
-                                  color: _amber,
-                                  size: 19,
-                                )
-                              : null,
-                          onTap: () =>
-                              Navigator.pop(sheetContext, option.value),
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          itemCount: options.length,
+                          separatorBuilder:
+                              (_, __) => const Divider(
+                                height: 1,
+                                color: Color(0x12FFFFFF),
+                              ),
+                          itemBuilder: (_, index) {
+                            final option = options[index];
+                            final isAdd = option.value == _addNationalityKey;
+                            final isSelected =
+                                selectedValue == null
+                                    ? option.value.isEmpty
+                                    : selectedValue == option.value;
+                            return ListTile(
+                              dense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 2,
+                              ),
+                              leading: Icon(
+                                isAdd ? Icons.add : Icons.public,
+                                color:
+                                    isAdd || isSelected
+                                        ? _amber
+                                        : const Color(0x80FFFFFF),
+                                size: 19,
+                              ),
+                              title: Text(
+                                option.label,
+                                style: TextStyle(
+                                  color:
+                                      isAdd || isSelected
+                                          ? _amber
+                                          : Colors.white,
+                                  fontSize: 13,
+                                  fontWeight:
+                                      isAdd || isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                ),
+                              ),
+                              trailing:
+                                  isSelected && !isAdd
+                                      ? const Icon(
+                                        Icons.check,
+                                        color: _amber,
+                                        size: 19,
+                                      )
+                                      : null,
+                              onTap:
+                                  () =>
+                                      Navigator.pop(sheetContext, option.value),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -516,9 +521,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AddManeuverNationalitySheet(
-        service: _nationalityService,
-      ),
+      builder:
+          (_) => _AddManeuverNationalitySheet(service: _nationalityService),
     );
   }
 
@@ -565,9 +569,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               ],
               style: const TextStyle(color: Colors.white, fontSize: 13),
               decoration: _inputDecoration(
-                hint: _loadingShips
-                    ? l10n.maneuverLoadingShips
-                    : l10n.maneuverSearchShip,
+                hint:
+                    _loadingShips
+                        ? l10n.maneuverLoadingShips
+                        : l10n.maneuverSearchShip,
               ),
               onChanged: (_) => _selectedShipId = null,
             );
@@ -753,9 +758,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             color: const Color(0x0DFFFFFF),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: enabled
-                  ? const Color(0x2EFFFFFF)
-                  : const Color(0x1AFFFFFF),
+              color:
+                  enabled ? const Color(0x2EFFFFFF) : const Color(0x1AFFFFFF),
             ),
           ),
           child: Row(
@@ -764,9 +768,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               const SizedBox(width: 8),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: enabled
-                    ? const Color(0x99FFFFFF)
-                    : const Color(0x4DFFFFFF),
+                color:
+                    enabled ? const Color(0x99FFFFFF) : const Color(0x4DFFFFFF),
                 size: 20,
               ),
             ],
@@ -864,21 +867,25 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                       button: true,
                       selected: selected,
                       child: Material(
-                        color: selected
-                            ? _amber.withValues(alpha: 0.13)
-                            : const Color(0x08FFFFFF),
+                        color:
+                            selected
+                                ? _amber.withValues(alpha: 0.13)
+                                : const Color(0x08FFFFFF),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(7),
                           side: BorderSide(
-                            color: selected
-                                ? _amber.withValues(alpha: 0.55)
-                                : const Color(0x2EFFFFFF),
+                            color:
+                                selected
+                                    ? _amber.withValues(alpha: 0.55)
+                                    : const Color(0x2EFFFFFF),
                           ),
                         ),
                         child: InkWell(
-                          onTap: _saving
-                              ? null
-                              : () => onChanged(selected ? null : entry.key),
+                          onTap:
+                              _saving
+                                  ? null
+                                  : () =>
+                                      onChanged(selected ? null : entry.key),
                           borderRadius: BorderRadius.circular(7),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -888,13 +895,13 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: selected
-                                    ? _amber
-                                    : const Color(0xE6FFFFFF),
+                                color:
+                                    selected ? _amber : const Color(0xE6FFFFFF),
                                 fontSize: 11,
-                                fontWeight: selected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
+                                fontWeight:
+                                    selected
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
                               ),
                             ),
                           ),
@@ -979,10 +986,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                         Expanded(
                           child: Text(
                             l10n.maneuverCommunityTugsLoadError,
-                            style: const TextStyle(
-                              color: _muted,
-                              fontSize: 11,
-                            ),
+                            style: const TextStyle(color: _muted, fontSize: 11),
                           ),
                         ),
                       ],
@@ -1005,11 +1009,15 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           Row(
             children: [
               Expanded(
-                child: _buildTextField(
-                  controller: _currentDirectionController,
-                  label: l10n.maneuverDirectionDegrees,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [_integerFormatter],
+                child: _buildChoiceGroup<ManeuverCurrentDirection>(
+                  label: l10n.riverDirection,
+                  value: _currentDirection,
+                  options: {
+                    ManeuverCurrentDirection.upstream: l10n.directionUp,
+                    ManeuverCurrentDirection.downstream: l10n.directionDown,
+                  },
+                  onChanged:
+                      (value) => setState(() => _currentDirection = value),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1076,9 +1084,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     AppLocalizations l10n,
     ManeuverMediaSection section,
   ) {
-    final media = section == ManeuverMediaSection.approach
-        ? _approachMedia
-        : _mooringMedia;
+    final media =
+        section == ManeuverMediaSection.approach
+            ? _approachMedia
+            : _mooringMedia;
     final atLimit = media.length >= ManeuverMediaService.maxMediaPerSection;
 
     return Column(
@@ -1088,34 +1097,40 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           Wrap(
             spacing: 7,
             runSpacing: 7,
-            children: media.indexed.map((entry) {
-              final index = entry.$1;
-              final item = entry.$2;
-              return InputChip(
-                avatar: Icon(
-                  item.type == ManeuverMediaType.photo
-                      ? Icons.photo_outlined
-                      : Icons.videocam_outlined,
-                  color: _amber,
-                  size: 15,
-                ),
-                label: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 130),
-                  child: Text(
-                    item.file.originalName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
-                backgroundColor: const Color(0x0DFFFFFF),
-                side: const BorderSide(color: Color(0x2EFFFFFF)),
-                deleteIconColor: const Color(0xB3FFFFFF),
-                onDeleted: _saving
-                    ? null
-                    : () => setState(() => media.removeAt(index)),
-              );
-            }).toList(growable: false),
+            children: media.indexed
+                .map((entry) {
+                  final index = entry.$1;
+                  final item = entry.$2;
+                  return InputChip(
+                    avatar: Icon(
+                      item.type == ManeuverMediaType.photo
+                          ? Icons.photo_outlined
+                          : Icons.videocam_outlined,
+                      color: _amber,
+                      size: 15,
+                    ),
+                    label: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 130),
+                      child: Text(
+                        item.file.originalName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    labelStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                    backgroundColor: const Color(0x0DFFFFFF),
+                    side: const BorderSide(color: Color(0x2EFFFFFF)),
+                    deleteIconColor: const Color(0xB3FFFFFF),
+                    onDeleted:
+                        _saving
+                            ? null
+                            : () => setState(() => media.removeAt(index)),
+                  );
+                })
+                .toList(growable: false),
           ),
           const SizedBox(height: 8),
         ],
@@ -1165,9 +1180,9 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }
 
   Future<void> _pickPhoto(ManeuverMediaSection section) async {
-    final invalidMessage =
-        AppLocalizations.of(context)!.maneuverMediaInvalid;
-    final source = kIsWeb ? ImagePickSource.gallery : await _choosePhotoSource();
+    final invalidMessage = AppLocalizations.of(context)!.maneuverMediaInvalid;
+    final source =
+        kIsWeb ? ImagePickSource.gallery : await _choosePhotoSource();
     if (source == null) return;
     try {
       final media = await _mediaService.pickPhoto(source);
@@ -1178,8 +1193,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }
 
   Future<void> _pickVideo(ManeuverMediaSection section) async {
-    final invalidMessage =
-        AppLocalizations.of(context)!.maneuverMediaInvalid;
+    final invalidMessage = AppLocalizations.of(context)!.maneuverMediaInvalid;
     try {
       final media = await _mediaService.pickVideo();
       if (media != null) _addMedia(section, media);
@@ -1188,14 +1202,12 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     }
   }
 
-  void _addMedia(
-    ManeuverMediaSection section,
-    PendingManeuverMedia item,
-  ) {
+  void _addMedia(ManeuverMediaSection section, PendingManeuverMedia item) {
     if (!mounted) return;
-    final media = section == ManeuverMediaSection.approach
-        ? _approachMedia
-        : _mooringMedia;
+    final media =
+        section == ManeuverMediaSection.approach
+            ? _approachMedia
+            : _mooringMedia;
     final l10n = AppLocalizations.of(context)!;
     if (media.length >= ManeuverMediaService.maxMediaPerSection) {
       _showMediaError(l10n.maneuverMediaLimit);
@@ -1209,31 +1221,36 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     return showModalBottomSheet<ImagePickSource>(
       context: context,
       backgroundColor: _bgMid,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined, color: _amber),
-              title: Text(
-                l10n.camera,
-                style: const TextStyle(color: Colors.white),
-              ),
-              onTap: () =>
-                  Navigator.pop(sheetContext, ImagePickSource.camera),
+      builder:
+          (sheetContext) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_outlined, color: _amber),
+                  title: Text(
+                    l10n.camera,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap:
+                      () => Navigator.pop(sheetContext, ImagePickSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.photo_library_outlined,
+                    color: _amber,
+                  ),
+                  title: Text(
+                    l10n.gallery,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  onTap:
+                      () =>
+                          Navigator.pop(sheetContext, ImagePickSource.gallery),
+                ),
+              ],
             ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined, color: _amber),
-              title: Text(
-                l10n.gallery,
-                style: const TextStyle(color: Colors.white),
-              ),
-              onTap: () =>
-                  Navigator.pop(sheetContext, ImagePickSource.gallery),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -1253,8 +1270,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
   }) {
     final availableTugs = <ManeuverTug>[
       ...tugs,
-      if (selectedTug != null &&
-          !tugs.any((tug) => tug.id == selectedTug.id))
+      if (selectedTug != null && !tugs.any((tug) => tug.id == selectedTug.id))
         selectedTug,
     ];
 
@@ -1290,15 +1306,16 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
               }
             }
           },
-          child: selectedTug == null
-              ? Text(
-                  l10n.maneuverSelectTug,
-                  style: const TextStyle(
-                    color: Color(0x66FFFFFF),
-                    fontSize: 12,
-                  ),
-                )
-              : _buildTugOption(selectedTug, l10n),
+          child:
+              selectedTug == null
+                  ? Text(
+                    l10n.maneuverSelectTug,
+                    style: const TextStyle(
+                      color: Color(0x66FFFFFF),
+                      fontSize: 12,
+                    ),
+                  )
+                  : _buildTugOption(selectedTug, l10n),
         ),
       ],
     );
@@ -1317,84 +1334,98 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSelectionSheetHeader(sheetContext, title),
-              const Divider(height: 1, color: Color(0x1FFFFFFF)),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  children: [
-                    for (final tug in tugs)
-                      _buildTugSheetOption(
-                        sheetContext: sheetContext,
-                        tug: tug,
-                        selected: tug.id == selectedTug?.id,
-                        l10n: l10n,
-                      ),
-                    const Divider(height: 1, color: Color(0x1FFFFFFF)),
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 2,
-                      ),
-                      leading: Icon(
-                        Icons.block,
-                        color: selectedTug == null
-                            ? _amber
-                            : const Color(0x80FFFFFF),
-                        size: 18,
-                      ),
-                      title: Text(
-                        l10n.maneuverNoTugSelected,
-                        style: TextStyle(
-                          color: selectedTug == null
-                              ? _amber
-                              : const Color(0xCCFFFFFF),
-                          fontSize: 13,
-                          fontWeight: selectedTug == null
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
-                      ),
-                      trailing: selectedTug == null
-                          ? const Icon(Icons.check, color: _amber, size: 19)
-                          : null,
-                      onTap: () => Navigator.pop(sheetContext, ''),
-                    ),
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 2,
-                      ),
-                      leading: const Icon(Icons.add, color: _amber, size: 19),
-                      title: Text(
-                        l10n.maneuverOtherTug,
-                        style: const TextStyle(
-                          color: _amber,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      onTap: () => Navigator.pop(
-                        sheetContext,
-                        _addTugOptionValue,
-                      ),
-                    ),
-                  ],
-                ),
+      builder:
+          (sheetContext) => SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72,
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildSelectionSheetHeader(sheetContext, title),
+                  const Divider(height: 1, color: Color(0x1FFFFFFF)),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      children: [
+                        for (final tug in tugs)
+                          _buildTugSheetOption(
+                            sheetContext: sheetContext,
+                            tug: tug,
+                            selected: tug.id == selectedTug?.id,
+                            l10n: l10n,
+                          ),
+                        const Divider(height: 1, color: Color(0x1FFFFFFF)),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 2,
+                          ),
+                          leading: Icon(
+                            Icons.block,
+                            color:
+                                selectedTug == null
+                                    ? _amber
+                                    : const Color(0x80FFFFFF),
+                            size: 18,
+                          ),
+                          title: Text(
+                            l10n.maneuverNoTugSelected,
+                            style: TextStyle(
+                              color:
+                                  selectedTug == null
+                                      ? _amber
+                                      : const Color(0xCCFFFFFF),
+                              fontSize: 13,
+                              fontWeight:
+                                  selectedTug == null
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                            ),
+                          ),
+                          trailing:
+                              selectedTug == null
+                                  ? const Icon(
+                                    Icons.check,
+                                    color: _amber,
+                                    size: 19,
+                                  )
+                                  : null,
+                          onTap: () => Navigator.pop(sheetContext, ''),
+                        ),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 2,
+                          ),
+                          leading: const Icon(
+                            Icons.add,
+                            color: _amber,
+                            size: 19,
+                          ),
+                          title: Text(
+                            l10n.maneuverOtherTug,
+                            style: const TextStyle(
+                              color: _amber,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          onTap:
+                              () => Navigator.pop(
+                                sheetContext,
+                                _addTugOptionValue,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -1412,9 +1443,8 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         size: 19,
       ),
       title: _buildTugOption(tug, l10n),
-      trailing: selected
-          ? const Icon(Icons.check, color: _amber, size: 19)
-          : null,
+      trailing:
+          selected ? const Icon(Icons.check, color: _amber, size: 19) : null,
       onTap: () => Navigator.pop(sheetContext, tug.id),
     );
   }
@@ -1425,9 +1455,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       ManeuverTugType.conventional => l10n.maneuverTugTypeConventional,
       ManeuverTugType.unspecified => l10n.maneuverTugTypeUnspecified,
     };
-    final bollardPull = tug.bollardPull == null
-        ? ''
-        : ' · BP ${tug.bollardPull!.toStringAsFixed(2).replaceAll('.', ',')}';
+    final bollardPull =
+        tug.bollardPull == null
+            ? ''
+            : ' · BP ${tug.bollardPull!.toStringAsFixed(2).replaceAll('.', ',')}';
 
     return Text.rich(
       TextSpan(
@@ -1436,16 +1467,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
             text: tug.name,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          TextSpan(
-            text: bollardPull,
-            style: const TextStyle(color: _muted),
-          ),
+          TextSpan(text: bollardPull, style: const TextStyle(color: _muted)),
           TextSpan(
             text: ' · $type',
-            style: const TextStyle(
-              color: _amber,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(color: _amber, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -1463,10 +1488,11 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AddManeuverTugSheet(
-        portCode: widget.portCode,
-        service: _tugService,
-      ),
+      builder:
+          (_) => _AddManeuverTugSheet(
+            portCode: widget.portCode,
+            service: _tugService,
+          ),
     );
     if (!mounted || created == null) return null;
 
@@ -1495,19 +1521,20 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: _bgDark,
+            child:
+                _saving
+                    ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _bgDark,
+                      ),
+                    )
+                    : Text(
+                      l10n.maneuverSaveReport,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                  )
-                : Text(
-                    l10n.maneuverSaveReport,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
           ),
         ),
         const SizedBox(height: 8),
@@ -1535,7 +1562,6 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
     final length = _parseDecimal(_lengthController.text);
     final beam = _parseDecimal(_beamController.text);
     final maximumDraft = _parseDecimal(_maximumDraftController.text);
-    final currentDirection = _parseInteger(_currentDirectionController.text);
     final currentIntensity = _parseDecimal(_currentIntensityController.text);
     final windDirection = _parseInteger(_windDirectionController.text);
     final windIntensity = _parseDecimal(_windIntensityController.text);
@@ -1548,14 +1574,20 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
           maximumDraft,
           100,
         ) ||
-        !_validOptionalDirection(_currentDirectionController.text, currentDirection) ||
         !_validOptionalNumber(
           _currentIntensityController.text,
           currentIntensity,
           100,
         ) ||
-        !_validOptionalDirection(_windDirectionController.text, windDirection) ||
-        !_validOptionalNumber(_windIntensityController.text, windIntensity, 200);
+        !_validOptionalDirection(
+          _windDirectionController.text,
+          windDirection,
+        ) ||
+        !_validOptionalNumber(
+          _windIntensityController.text,
+          windIntensity,
+          200,
+        );
     if (invalid) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1608,7 +1640,7 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
         crewNationality: _selectedNationalityValue(_crewNationalityKey),
         forwardTug: _forwardTug,
         aftTug: _aftTug,
-        currentDirectionDegrees: currentDirection,
+        currentDirection: _currentDirection,
         currentIntensityKnots: currentIntensity,
         windDirectionDegrees: windDirection,
         windIntensityKnots: windIntensity,
@@ -1634,9 +1666,10 @@ class _ManeuverReportPageState extends State<ManeuverReportPage> {
       _showMediaError(l10n.maneuverMediaUploadError);
     } on ManeuverReportException catch (error) {
       if (!mounted) return;
-      final message = error.code == ManeuverReportError.signedOut
-          ? l10n.maneuverReportSignedOut
-          : l10n.maneuverReportSaveError;
+      final message =
+          error.code == ManeuverReportError.signedOut
+              ? l10n.maneuverReportSignedOut
+              : l10n.maneuverReportSaveError;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red.shade800),
       );
@@ -1714,8 +1747,13 @@ class _AddManeuverNationalitySheetState
     if (_saving) return;
     final name = _nameController.text.trim();
     if (name.length < 2) {
-      setState(() => _error = AppLocalizations.of(context)!
-          .maneuverNationalityRegistrationError);
+      setState(
+        () =>
+            _error =
+                AppLocalizations.of(
+                  context,
+                )!.maneuverNationalityRegistrationError,
+      );
       return;
     }
 
@@ -1731,8 +1769,8 @@ class _AddManeuverNationalitySheetState
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = AppLocalizations.of(context)!
-            .maneuverNationalityRegistrationError;
+        _error =
+            AppLocalizations.of(context)!.maneuverNationalityRegistrationError;
       });
     }
   }
@@ -1820,16 +1858,17 @@ class _AddManeuverNationalitySheetState
                       backgroundColor: _amber,
                       foregroundColor: _bgDark,
                     ),
-                    child: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: _bgDark,
-                            ),
-                          )
-                        : Text(l10n.maneuverSaveNationality),
+                    child:
+                        _saving
+                            ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: _bgDark,
+                              ),
+                            )
+                            : Text(l10n.maneuverSaveNationality),
                   ),
                 ),
               ],
@@ -1842,10 +1881,7 @@ class _AddManeuverNationalitySheetState
 }
 
 class _AddManeuverTugSheet extends StatefulWidget {
-  const _AddManeuverTugSheet({
-    required this.portCode,
-    required this.service,
-  });
+  const _AddManeuverTugSheet({required this.portCode, required this.service});
 
   final String portCode;
   final ManeuverTugService service;
@@ -1913,13 +1949,9 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
                   enabled: !_saving,
                   maxLength: 60,
                   textCapitalization: TextCapitalization.characters,
-                  inputFormatters: [
-                    _UpperCaseTextFormatter(),
-                  ],
+                  inputFormatters: [_UpperCaseTextFormatter()],
                   style: const TextStyle(color: Colors.white, fontSize: 13),
-                  decoration: _inputDecoration(
-                    hint: l10n.maneuverTugNameHint,
-                  ),
+                  decoration: _inputDecoration(hint: l10n.maneuverTugNameHint),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -2006,24 +2038,24 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: _saving
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Color(0xFF0A1628),
-                                ),
-                              )
-                            : Text(l10n.maneuverSaveTug),
+                        child:
+                            _saving
+                                ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF0A1628),
+                                  ),
+                                )
+                                : Text(l10n.maneuverSaveTug),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: _saving
-                            ? null
-                            : () => Navigator.pop(context),
+                        onPressed:
+                            _saving ? null : () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _muted,
                           side: const BorderSide(color: Color(0x40FFFFFF)),
@@ -2066,15 +2098,15 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
       button: true,
       selected: selected,
       child: Material(
-        color: selected
-            ? _amber.withValues(alpha: 0.13)
-            : const Color(0x08FFFFFF),
+        color:
+            selected ? _amber.withValues(alpha: 0.13) : const Color(0x08FFFFFF),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(7),
           side: BorderSide(
-            color: selected
-                ? _amber.withValues(alpha: 0.55)
-                : const Color(0x2EFFFFFF),
+            color:
+                selected
+                    ? _amber.withValues(alpha: 0.55)
+                    : const Color(0x2EFFFFFF),
           ),
         ),
         child: InkWell(
@@ -2121,9 +2153,10 @@ class _AddManeuverTugSheetState extends State<_AddManeuverTugSheet> {
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
     final rawBollardPull = _bollardPullController.text.trim();
-    final bollardPull = rawBollardPull.isEmpty
-        ? null
-        : double.tryParse(rawBollardPull.replaceAll(',', '.'));
+    final bollardPull =
+        rawBollardPull.isEmpty
+            ? null
+            : double.tryParse(rawBollardPull.replaceAll(',', '.'));
 
     if (rawBollardPull.isNotEmpty && bollardPull == null) {
       setState(() => _error = l10n.maneuverTugInvalidBollardPull);

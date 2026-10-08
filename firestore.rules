@@ -93,6 +93,7 @@ service cloud.firestore {
              && approach.keys().hasOnly([
                'forwardTug',
                'aftTug',
+               'currentDirection',
                'currentDirectionDegrees',
                'currentIntensityKnots',
                'windDirectionDegrees',
@@ -103,6 +104,8 @@ service cloud.firestore {
                  || isValidManeuverTugSnapshot(approach.forwardTug))
              && (!('aftTug' in approach)
                  || isValidManeuverTugSnapshot(approach.aftTug))
+             && (!('currentDirection' in approach)
+                 || approach.currentDirection in ['subindo', 'baixando'])
              && (!('currentDirectionDegrees' in approach)
                  || (approach.currentDirectionDegrees is int
                      && approach.currentDirectionDegrees >= 0
@@ -230,7 +233,7 @@ service cloud.firestore {
                'createdAt',
                'updatedAt'
              ])
-             && data.schemaVersion in [2, 3]
+             && data.schemaVersion in [2, 3, 4]
              && data.pilotId is string
              && (!('pilotName' in data)
                  || (data.pilotName is string && data.pilotName.size() <= 80))
@@ -251,7 +254,12 @@ service cloud.firestore {
                  || (data.schemaVersion == 3
                      && isValidManeuverMedia(
                           data.media, data.pilotId, reportId
-                        )));
+                        ))
+                 || (data.schemaVersion == 4
+                     && (!('media' in data)
+                         || isValidManeuverMedia(
+                              data.media, data.pilotId, reportId
+                            ))));
     }
 
     function isKnownManeuverTerminal(data) {
