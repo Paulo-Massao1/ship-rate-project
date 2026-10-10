@@ -20,6 +20,12 @@ class SubscriptionConstants {
   // RevenueCat public SDK key.
   static const String revenueCatApiKey = 'appl_OAZJORIhXXgpjeizbSTFyNxVOgB';
 
+  // Public legal pages required for auto-renewable subscriptions on iOS.
+  static const String termsOfUseUrl =
+      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String privacyPolicyUrl =
+      'https://shiprate-daf18.web.app/privacy';
+
   // Plan values stored in `usuarios/{uid}.subscription.plan`.
   static const String planNone = 'none';
   static const String planPlus = 'plus';

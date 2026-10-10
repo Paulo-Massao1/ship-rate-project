@@ -7,6 +7,7 @@ import 'package:ship_rate/l10n/app_localizations.dart';
 import '../../core/subscription_constants.dart';
 import '../../core/theme/module_visuals.dart';
 import '../../data/services/subscription_service.dart';
+import '../../data/services/url_launcher_service.dart';
 
 /// Subscription page offering the two ShipRate Pro plans.
 ///
@@ -137,6 +138,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       case PurchaseOutcome.cancelled:
         // The user dismissed the store sheet, stay on the page silently.
         break;
+      case PurchaseOutcome.pending:
+        _showSnackBar(l10n.subscriptionPurchasePending);
+      case PurchaseOutcome.notAllowed:
+        _showSnackBar(l10n.subscriptionPurchaseNotAllowed, isError: true);
+      case PurchaseOutcome.unavailable:
+        _showSnackBar(l10n.subscriptionProductUnavailable, isError: true);
       case PurchaseOutcome.error:
         _showSnackBar(l10n.subscriptionError, isError: true);
     }
@@ -641,6 +648,37 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
+          children: [
+            TextButton(
+              onPressed:
+                  () => UrlLauncherService.openExternalUrl(
+                    SubscriptionConstants.termsOfUseUrl,
+                  ),
+              child: Text(
+                l10n.termsOfUse,
+                style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 11),
+              ),
+            ),
+            const Text(
+              '\u2022',
+              style: TextStyle(color: Color(0x4DFFFFFF), fontSize: 11),
+            ),
+            TextButton(
+              onPressed:
+                  () => UrlLauncherService.openExternalUrl(
+                    SubscriptionConstants.privacyPolicyUrl,
+                  ),
+              child: Text(
+                l10n.privacyPolicy,
+                style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 11),
+              ),
+            ),
+          ],
         ),
       ],
     );

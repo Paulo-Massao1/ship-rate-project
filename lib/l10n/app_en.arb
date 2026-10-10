@@ -1514,7 +1514,7 @@
   "@cruzamentoModule": {
     "description": "Module name for ship crossing."
   },
-  "cruzamentoDesc": "Register and track crossings",
+  "cruzamentoDesc": "Avoid surprises!",
   "@cruzamentoDesc": {
     "description": "Description for ship crossing module."
   },
@@ -1671,6 +1671,14 @@
         "type": "int"
       }
     }
+  },
+  "crossingsReportedLabel": "Crossings reported",
+  "@crossingsReportedLabel": {
+    "description": "Label shown before the total number of reported crossings."
+  },
+  "crossingsSafetyImproved": "Safety improved!",
+  "@crossingsSafetyImproved": {
+    "description": "Motivational message shown below the total crossings count."
   },
   "crossingsDashboardTitle": "Crossings",
   "@crossingsDashboardTitle": {
@@ -2238,6 +2246,26 @@
   "subscriptionError": "Could not process. Please try again.",
   "@subscriptionError": {
     "description": "Snackbar shown when a purchase or restore fails."
+  },
+  "subscriptionPurchasePending": "Purchase awaiting App Store approval.",
+  "@subscriptionPurchasePending": {
+    "description": "Snackbar shown when a subscription purchase is pending approval."
+  },
+  "subscriptionPurchaseNotAllowed": "Purchases are disabled for this account or device.",
+  "@subscriptionPurchaseNotAllowed": {
+    "description": "Snackbar shown when the current account or device cannot make purchases."
+  },
+  "subscriptionProductUnavailable": "This plan is temporarily unavailable on the App Store.",
+  "@subscriptionProductUnavailable": {
+    "description": "Snackbar shown when the selected subscription is unavailable."
+  },
+  "termsOfUse": "Terms of Use",
+  "@termsOfUse": {
+    "description": "Link label for the Apple standard terms of use."
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Link label for the app privacy policy."
   },
   "perMonth": "/month",
   "@perMonth": {

@@ -1119,7 +1119,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cruzamentoModule => 'Cruzamento de Navios';
 
   @override
-  String get cruzamentoDesc => 'Registre e acompanhe cruzamentos';
+  String get cruzamentoDesc => 'Evite surpresas!';
 
   @override
   String get activeCrossings => 'Cruzamentos ativos';
@@ -1237,6 +1237,12 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get crossingsReportedLabel => 'Cruzamentos informados';
+
+  @override
+  String get crossingsSafetyImproved => 'Segurança incrementada!';
 
   @override
   String get crossingsDashboardTitle => 'Cruzamentos';
@@ -1656,6 +1662,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get subscriptionError => 'Não foi possível processar. Tente novamente.';
+
+  @override
+  String get subscriptionPurchasePending => 'Compra aguardando aprovação da App Store.';
+
+  @override
+  String get subscriptionPurchaseNotAllowed => 'As compras estão desativadas para esta conta ou dispositivo.';
+
+  @override
+  String get subscriptionProductUnavailable => 'Este plano está temporariamente indisponível na App Store.';
+
+  @override
+  String get termsOfUse => 'Termos de Uso';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidade';
 
   @override
   String get perMonth => '/mês';

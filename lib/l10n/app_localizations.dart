@@ -2198,7 +2198,7 @@ abstract class AppLocalizations {
   /// Description for ship crossing module.
   ///
   /// In pt, this message translates to:
-  /// **'Registre e acompanhe cruzamentos'**
+  /// **'Evite surpresas!'**
   String get cruzamentoDesc;
 
   /// Header for active crossings list.
@@ -2392,6 +2392,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{count, plural, =0{0 cruzamentos realizados com segurança, graças à sua participação} =1{1 cruzamento realizado com segurança, graças à sua participação} other{{count} cruzamentos realizados com segurança, graças à sua participação}}'**
   String crossingsMotivational(int count);
+
+  /// Label shown before the total number of reported crossings.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cruzamentos informados'**
+  String get crossingsReportedLabel;
+
+  /// Motivational message shown below the total crossings count.
+  ///
+  /// In pt, this message translates to:
+  /// **'Segurança incrementada!'**
+  String get crossingsSafetyImproved;
 
   /// Section title for crossings on the dashboard.
   ///
@@ -3154,6 +3166,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível processar. Tente novamente.'**
   String get subscriptionError;
+
+  /// Snackbar shown when a subscription purchase is pending approval.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compra aguardando aprovação da App Store.'**
+  String get subscriptionPurchasePending;
+
+  /// Snackbar shown when the current account or device cannot make purchases.
+  ///
+  /// In pt, this message translates to:
+  /// **'As compras estão desativadas para esta conta ou dispositivo.'**
+  String get subscriptionPurchaseNotAllowed;
+
+  /// Snackbar shown when the selected subscription is unavailable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este plano está temporariamente indisponível na App Store.'**
+  String get subscriptionProductUnavailable;
+
+  /// Link label for the Apple standard terms of use.
+  ///
+  /// In pt, this message translates to:
+  /// **'Termos de Uso'**
+  String get termsOfUse;
+
+  /// Link label for the app privacy policy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Política de Privacidade'**
+  String get privacyPolicy;
 
   /// Suffix shown after the monthly price of a plan.
   ///

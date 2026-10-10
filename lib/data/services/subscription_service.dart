@@ -17,6 +17,15 @@ enum PurchaseOutcome {
   /// The user dismissed the store sheet, nothing to report.
   cancelled,
 
+  /// The App Store is waiting for an external approval (for example Ask to Buy).
+  pending,
+
+  /// Purchases are disabled for the current device or Apple account.
+  notAllowed,
+
+  /// The selected store product cannot currently be purchased.
+  unavailable,
+
   /// The purchase failed, or completed without granting an entitlement.
   error,
 }
@@ -84,9 +93,9 @@ class SubscriptionService {
       await Purchases.setLogLevel(LogLevel.debug);
     }
 
-    final configuration =
-        PurchasesConfiguration(SubscriptionConstants.revenueCatApiKey)
-          ..appUserID = FirebaseAuth.instance.currentUser?.uid;
+    final configuration = PurchasesConfiguration(
+      SubscriptionConstants.revenueCatApiKey,
+    )..appUserID = FirebaseAuth.instance.currentUser?.uid;
 
     await Purchases.configure(configuration);
     _configured = true;
@@ -139,12 +148,32 @@ class SubscriptionService {
           ? PurchaseOutcome.success
           : PurchaseOutcome.error;
     } on PlatformException catch (e) {
-      if (PurchasesErrorHelper.getErrorCode(e) ==
-          PurchasesErrorCode.purchaseCancelledError) {
-        return PurchaseOutcome.cancelled;
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      debugPrint(
+        'SubscriptionService.purchasePackage error '
+        '(${errorCode.name}): ${e.message}; details=${e.details}',
+      );
+
+      switch (errorCode) {
+        case PurchasesErrorCode.purchaseCancelledError:
+          return PurchaseOutcome.cancelled;
+        case PurchasesErrorCode.paymentPendingError:
+          return PurchaseOutcome.pending;
+        case PurchasesErrorCode.purchaseNotAllowedError:
+        case PurchasesErrorCode.insufficientPermissionsError:
+          return PurchaseOutcome.notAllowed;
+        case PurchasesErrorCode.productNotAvailableForPurchaseError:
+        case PurchasesErrorCode.purchaseInvalidError:
+          return PurchaseOutcome.unavailable;
+        case PurchasesErrorCode.productAlreadyPurchasedError:
+          // A sandbox reviewer may reuse an Apple account that already owns
+          // the product. Restore it instead of presenting a false failure.
+          return await restorePurchases()
+              ? PurchaseOutcome.success
+              : PurchaseOutcome.error;
+        default:
+          return PurchaseOutcome.error;
       }
-      debugPrint('SubscriptionService.purchasePackage error: $e');
-      return PurchaseOutcome.error;
     } catch (e) {
       debugPrint('SubscriptionService.purchasePackage error: $e');
       return PurchaseOutcome.error;
@@ -205,7 +234,30 @@ class SubscriptionService {
     if (active.containsKey(SubscriptionConstants.plusEntitlement)) {
       return SubscriptionConstants.planPlus;
     }
+
+    // Keep paid access working even if a RevenueCat entitlement is
+    // accidentally detached while the App Store subscription itself is
+    // active. Entitlements remain the primary source of truth; active store
+    // products are a safe fallback supplied by the verified CustomerInfo.
+    if (_containsActiveProduct(
+      customerInfo.activeSubscriptions,
+      SubscriptionConstants.premiumMonthly,
+    )) {
+      return SubscriptionConstants.planPremium;
+    }
+    if (_containsActiveProduct(
+      customerInfo.activeSubscriptions,
+      SubscriptionConstants.plusMonthly,
+    )) {
+      return SubscriptionConstants.planPlus;
+    }
     return SubscriptionConstants.planNone;
+  }
+
+  static bool _containsActiveProduct(List<String> activeProducts, String id) {
+    return activeProducts.any(
+      (productId) => productId == id || productId.startsWith('$id:'),
+    );
   }
 
   // ===========================================================================
@@ -267,15 +319,12 @@ class SubscriptionService {
       await FirebaseFirestore.instance
           .collection(AppConstants.usersCollection)
           .doc(uid)
-          .set(
-        {
-          'subscription': {
-            'plan': plan,
-            'updatedAt': FieldValue.serverTimestamp(),
-          },
-        },
-        SetOptions(merge: true),
-      );
+          .set({
+            'subscription': {
+              'plan': plan,
+              'updatedAt': FieldValue.serverTimestamp(),
+            },
+          }, SetOptions(merge: true));
       _lastSyncedUid = uid;
       _lastSyncedPlan = plan;
     } catch (e) {
