@@ -78,8 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoverPassword => 'Recover password';
 
   @override
-  String get recoverPasswordSubtitle =>
-      'Enter your email to receive the reset link';
+  String get recoverPasswordSubtitle => 'Enter your email to receive the reset link';
 
   @override
   String get sendLink => 'Send link';
@@ -88,8 +87,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetEmailSent => 'We sent a recovery link to your email.';
 
   @override
-  String get spamNotice =>
-      'If you can\'t find the email, also check your SPAM or Junk folder.';
+  String get spamNotice => 'If you can\'t find the email, also check your SPAM or Junk folder.';
 
   @override
   String get backToLogin => 'Back to login';
@@ -122,8 +120,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateAvailable => 'New update available';
 
   @override
-  String get updateAvailableWeb =>
-      'New update available. Tap Update to load the latest version.';
+  String get updateAvailableWeb => 'New update available. Tap Update to load the latest version.';
 
   @override
   String get updateButton => 'Update';
@@ -135,8 +132,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyLink => 'Copy Link';
 
   @override
-  String get shareText =>
-      'Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths.\n\nDownload SHIPRATE PRO on the APP STORE to see depth records.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
+  String get shareText => 'Check out ShipRate, the app for maritime pilots to rate ships and report navigation depths.\n\nDownload SHIPRATE PRO on the APP STORE to see depth records.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   @override
   String get shareMoreInfo => 'To report your crossing, visit:';
@@ -160,8 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newShipRating => 'New Ship Rating';
 
   @override
-  String get rateSubtitle =>
-      'Register your technical evaluation quickly and safely';
+  String get rateSubtitle => 'Register your technical evaluation quickly and safely';
 
   @override
   String get startRating => 'Start rating';
@@ -327,8 +322,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generalObservation => 'General Observation';
 
   @override
-  String get generalObservationHint =>
-      'Additional comments about the overall experience on the ship...';
+  String get generalObservationHint => 'Additional comments about the overall experience on the ship...';
 
   @override
   String get observationsOptional => 'Observations (optional)';
@@ -337,8 +331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shipFoundTapToRate => 'Ship found — tap to select from the list';
 
   @override
-  String get shipExistsSelectFromList =>
-      'This ship already exists. Please select it from the dropdown list.';
+  String get shipExistsSelectFromList => 'This ship already exists. Please select it from the dropdown list.';
 
   @override
   String get fillRequiredFields => 'Fill in all required fields';
@@ -350,8 +343,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveChanges => 'Save Changes';
 
   @override
-  String get editRatingBanner =>
-      'Edit only to correct errors or add information from your voyage. If the ship\'s condition has changed, create a new rating instead.';
+  String get editRatingBanner => 'Edit only to correct errors or add information from your voyage. If the ship\'s condition has changed, create a new rating instead.';
 
   @override
   String get ratingUpdatedSuccess => 'Rating updated successfully!';
@@ -388,8 +380,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRatingsYet => 'No ratings yet';
 
   @override
-  String get noRatingsSubtitle =>
-      'You haven\'t rated any ships yet.\nStart rating your next voyage!';
+  String get noRatingsSubtitle => 'You haven\'t rated any ships yet.\nStart rating your next voyage!';
 
   @override
   String totalRatings(int count) {
@@ -538,8 +529,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourOpinionMatters => 'Your opinion matters';
 
   @override
-  String get helpImproveApp =>
-      'Help improve ShipRate with suggestions and ideas.';
+  String get helpImproveApp => 'Help improve ShipRate with suggestions and ideas.';
 
   @override
   String get suggestionType => 'Suggestion';
@@ -783,8 +773,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get measurementTime => 'Sounding time';
 
   @override
-  String get santanaTideReferenceHint =>
-      'This location uses the Santana tide as its reference.';
+  String get santanaTideReferenceHint => 'This location uses the Santana tide as its reference.';
 
   @override
   String get rulerReading => 'Ruler';
@@ -799,8 +788,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidRulerReading => 'Enter a valid ruler reading';
 
   @override
-  String get tideReferenceUnavailable =>
-      'Tide data is unavailable for this time.';
+  String get tideReferenceUnavailable => 'Tide data is unavailable for this time.';
 
   @override
   String get previousLowTide => 'Previous low tide';
@@ -896,8 +884,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteRecordTitle => 'Delete Record';
 
   @override
-  String get deleteRecordConfirm =>
-      'Are you sure you want to delete this record? This action cannot be undone.';
+  String get deleteRecordConfirm => 'Are you sure you want to delete this record? This action cannot be undone.';
 
   @override
   String get recordDeletedSuccess => 'Record deleted successfully!';
@@ -912,8 +899,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecordsYet => 'No records yet';
 
   @override
-  String get noRecordsSubtitle =>
-      'You haven\'t registered any passages yet.\nStart recording your next passage!';
+  String get noRecordsSubtitle => 'You haven\'t registered any passages yet.\nStart recording your next passage!';
 
   @override
   String get recordDetails => 'Record Details';
@@ -1014,8 +1000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordTooShort => 'Password must be at least 6 characters';
 
   @override
-  String get emailAlreadyRegistered =>
-      'This email already has an account. Use the login screen.';
+  String get emailAlreadyRegistered => 'This email already has an account. Use the login screen.';
 
   @override
   String get settings => 'Settings';
@@ -1033,8 +1018,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidEmail => 'Invalid email';
 
   @override
-  String get navSafetyBlocked =>
-      'To access the navigation safety area, register again in the app using your Unipilot email.';
+  String get navSafetyBlocked => 'To access the navigation safety area, register again in the app using your Unipilot email.';
 
   @override
   String get photos => 'Photos';
@@ -1049,8 +1033,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationDialogTitle => 'Notifications';
 
   @override
-  String get notificationDialogBody =>
-      'Would you like to receive notifications when new depth records are added?';
+  String get notificationDialogBody => 'Would you like to receive notifications when new depth records are added?';
 
   @override
   String get notificationDialogEnable => 'Enable';
@@ -1094,8 +1077,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordSaved => 'Record saved!';
 
   @override
-  String get shareRecordPrompt =>
-      'Would you like to share this depth record with other pilots?';
+  String get shareRecordPrompt => 'Would you like to share this depth record with other pilots?';
 
   @override
   String get shareRecord => 'Share';
@@ -1214,12 +1196,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crossingSaved => 'Crossing registered!';
 
   @override
-  String get crossingTimeMustBeFuture =>
-      'The expected crossing time must be in the future.';
+  String get crossingTimeMustBeFuture => 'The expected crossing time must be in the future.';
 
   @override
-  String get shareCrossingPrompt =>
-      'Would you like to share this crossing with other pilots?';
+  String get shareCrossingPrompt => 'Would you like to share this crossing with other pilots?';
 
   @override
   String get pushNavSafetyLabel => 'Depths';
@@ -1268,20 +1248,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crossingsDashboardTitle => 'Crossings';
 
   @override
-  String get enableNotificationsMessage =>
-      'To receive notifications, allow notifications in your device settings';
+  String get enableNotificationsMessage => 'To receive notifications, allow notifications in your device settings';
 
   @override
-  String get enableNotificationsBanner =>
-      'Enable notifications to receive alerts';
+  String get enableNotificationsBanner => 'Enable notifications to receive alerts';
 
   @override
-  String get permissionDeniedSettings =>
-      'Permission denied. Enable notifications in your browser/system settings.';
+  String get permissionDeniedSettings => 'Permission denied. Enable notifications in your browser/system settings.';
 
   @override
-  String get enableNotificationsDepthPrompt =>
-      'Enable notifications to receive alerts when new depth records are added.';
+  String get enableNotificationsDepthPrompt => 'Enable notifications to receive alerts when new depth records are added.';
 
   @override
   String get enableNotificationsButtonLabel => 'Enable notifications';
@@ -1296,8 +1272,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountTitle => 'Delete account';
 
   @override
-  String get deleteAccountBody =>
-      'Are you sure you want to delete your account? This action cannot be undone. Your ratings and records will remain available to other pilots.';
+  String get deleteAccountBody => 'Are you sure you want to delete your account? This action cannot be undone. Your ratings and records will remain available to other pilots.';
 
   @override
   String get deleteAccountConfirm => 'Delete';
@@ -1368,22 +1343,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pdfNoObservations => 'No observations';
 
   @override
-  String get defaultUpdateMessage =>
-      'New update available. Please close and reopen the app to apply improvements.';
+  String get defaultUpdateMessage => 'New update available. Please close and reopen the app to apply improvements.';
 
   @override
   String get imageEmptyError => 'The selected image is empty.';
 
   @override
-  String get formatNotSupportedError =>
-      'Format not supported. Use only JPG, PNG, or WEBP.';
+  String get formatNotSupportedError => 'Format not supported. Use only JPG, PNG, or WEBP.';
 
   @override
   String get imageTooLargeError => 'Each image must be at most 20 MB.';
 
   @override
-  String get maxImagesExceededError =>
-      'You can attach a maximum of 3 images per record.';
+  String get maxImagesExceededError => 'You can attach a maximum of 3 images per record.';
 
   @override
   String get attachFile => 'Attach file';
@@ -1404,12 +1376,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverMediaLimit => 'Maximum of 3 media files per section.';
 
   @override
-  String get maneuverMediaInvalid =>
-      'Select a JPG, PNG or WEBP photo, or an MP4 or MOV video up to 20 MB.';
+  String get maneuverMediaInvalid => 'Select a JPG, PNG or WEBP photo, or an MP4 or MOV video up to 20 MB.';
 
   @override
-  String get maneuverMediaUploadError =>
-      'The maneuver media could not be uploaded. Check your connection and try again.';
+  String get maneuverMediaUploadError => 'The maneuver media could not be uploaded. Check your connection and try again.';
 
   @override
   String get maneuverMediaOpenError => 'This media could not be opened.';
@@ -1433,12 +1403,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareDepthTitle => 'New depth recorded';
 
   @override
-  String get shareDepthFooter =>
-      'Download SHIPRATE PRO on the APP STORE to see depth records.';
+  String get shareDepthFooter => 'Download SHIPRATE PRO on the APP STORE to see depth records.';
 
   @override
-  String get firebaseUnavailable =>
-      'Unable to connect. Please close and reopen the app.';
+  String get firebaseUnavailable => 'Unable to connect. Please close and reopen the app.';
 
   @override
   String crossingStatsCount(int count, int total) {
@@ -1584,8 +1552,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationalRestrictionsShareTooltip => 'Share PDF';
 
   @override
-  String get operationalRestrictionsPdfFileName =>
-      'parametros_operacionais.pdf';
+  String get operationalRestrictionsPdfFileName => 'parametros_operacionais.pdf';
 
   @override
   String get operationalRestrictionsSubtitle => 'Limitations and parameters';
@@ -1603,15 +1570,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get milestone500RatingsTitle => '500 Ratings!';
 
   @override
-  String get milestone500RatingsMessage =>
-      'In just 7 months, the pilot community has recorded 500 ship ratings on ShipRate Pro. Each rating strengthens safety and information for everyone. Thank you for contributing!';
+  String get milestone500RatingsMessage => 'In just 7 months, the pilot community has recorded 500 ship ratings on ShipRate Pro. Each rating strengthens safety and information for everyone. Thank you for contributing!';
 
   @override
   String get milestone100UsersTitle => '100 Pilots on ShipRate!';
 
   @override
-  String get milestone100UsersMessage =>
-      'Over 100 pilots have joined ShipRate Pro — that\'s more than 65% of ZP-01 pilots! Together we\'re building the largest collaborative pilotage database in the Amazon Basin.';
+  String get milestone100UsersMessage => 'Over 100 pilots have joined ShipRate Pro — that\'s more than 65% of ZP-01 pilots! Together we\'re building the largest collaborative pilotage database in the Amazon Basin.';
 
   @override
   String get ratingsRankingTitle => 'Ratings Ranking';
@@ -1654,8 +1619,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plusActiveLabel => 'Plus active';
 
   @override
-  String get subscriptionDescription =>
-      'Your subscription keeps the app running and unlocks exclusive tools for your daily work.';
+  String get subscriptionDescription => 'Your subscription keeps the app running and unlocks exclusive tools for your daily work.';
 
   @override
   String get recommended => 'RECOMMENDED';
@@ -1697,8 +1661,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restorePurchasesTitle => 'Restore purchases?';
 
   @override
-  String get restorePurchasesDescription =>
-      'This option looks for a previous subscription made with the current App Store account. No new charge will be made.';
+  String get restorePurchasesDescription => 'This option looks for a previous subscription made with the current App Store account. No new charge will be made.';
 
   @override
   String get restorePurchasesConfirm => 'Restore';
@@ -1715,8 +1678,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreNotFoundTitle => 'No subscription found';
 
   @override
-  String get restoreNotFoundMessage =>
-      'We could not find an active subscription for this App Store account. Make sure you are using the same Apple ID used for the purchase.';
+  String get restoreNotFoundMessage => 'We could not find an active subscription for this App Store account. Make sure you are using the same Apple ID used for the purchase.';
 
   @override
   String get currentPlan => 'Current plan';
@@ -1736,16 +1698,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptionError => 'Could not process. Please try again.';
 
   @override
-  String get subscriptionPurchasePending =>
-      'Purchase awaiting App Store approval.';
+  String get subscriptionPurchasePending => 'Purchase awaiting App Store approval.';
 
   @override
-  String get subscriptionPurchaseNotAllowed =>
-      'Purchases are disabled for this account or device.';
+  String get subscriptionPurchaseNotAllowed => 'Purchases are disabled for this account or device.';
 
   @override
-  String get subscriptionProductUnavailable =>
-      'This plan is temporarily unavailable on the App Store.';
+  String get subscriptionProductUnavailable => 'This plan is temporarily unavailable on the App Store.';
 
   @override
   String get termsOfUse => 'Terms of Use';
@@ -1763,8 +1722,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageSubscription => 'Manage subscription';
 
   @override
-  String get manageSubscriptionError =>
-      'Could not open subscription management. Please try again.';
+  String get manageSubscriptionError => 'Could not open subscription management. Please try again.';
 
   @override
   String get exclusiveFeature => 'Exclusive feature';
@@ -1871,8 +1829,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuversSelectTerminal => 'Select a port or terminal';
 
   @override
-  String get maneuverAccessNotice =>
-      'Reports and history are available to everyone. Maneuver preparation requires the Plus plan.';
+  String get maneuverAccessNotice => 'Reports and history are available to everyone. Maneuver preparation requires the Plus plan.';
 
   @override
   String get reportManeuver => 'Report maneuver';
@@ -1889,34 +1846,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reportManeuverDesc =>
-      'Record the conditions and data observed during the maneuver.';
+  String get reportManeuverDesc => 'Record the conditions and data observed during the maneuver.';
 
   @override
   String get maneuverHistory => 'Maneuver history';
 
   @override
-  String get maneuverHistoryDesc =>
-      'Review reports submitted for this terminal.';
+  String get maneuverHistoryDesc => 'Review reports submitted for this terminal.';
 
   @override
   String get initialManeuverInfo => 'Maneuver preparation';
 
   @override
-  String get initialManeuverInfoDesc =>
-      'Operational limits for the port and maneuver.';
+  String get initialManeuverInfoDesc => 'Operational limits for the port and maneuver.';
 
   @override
-  String get maneuverReportComingSoon =>
-      'The complete maneuver report form will be available soon.';
+  String get maneuverReportComingSoon => 'The complete maneuver report form will be available soon.';
 
   @override
-  String get maneuverHistoryComingSoon =>
-      'Reports for this terminal will be displayed here.';
+  String get maneuverHistoryComingSoon => 'Reports for this terminal will be displayed here.';
 
   @override
-  String get maneuverInitialInfoComingSoon =>
-      'Operational information for this terminal will be available soon.';
+  String get maneuverInitialInfoComingSoon => 'Operational information for this terminal will be available soon.';
 
   @override
   String get newBadge => 'NEW';
@@ -1940,8 +1891,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugboats => 'Tugboats';
 
   @override
-  String get maneuverTugSharedNotice =>
-      'Options from the Operational Parameters and the pilot community.';
+  String get maneuverTugSharedNotice => 'Options from the Operational Parameters and the pilot community.';
 
   @override
   String get maneuverTugForward => 'FWD (forward)';
@@ -1971,15 +1921,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverTugCommunitySource => 'Community';
 
   @override
-  String get maneuverCommunityTugsLoadError =>
-      'Community tugboats could not be loaded right now. Official options remain available.';
+  String get maneuverCommunityTugsLoadError => 'Community tugboats could not be loaded right now. Official options remain available.';
 
   @override
   String get maneuverAddTugTitle => 'New tugboat';
 
   @override
-  String get maneuverTugRegistrationNotice =>
-      'The tugboat will be available to other pilots in this location.';
+  String get maneuverTugRegistrationNotice => 'The tugboat will be available to other pilots in this location.';
 
   @override
   String get maneuverTugName => 'Name';
@@ -2014,23 +1962,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get maneuverTugInvalidName =>
-      'Enter a valid name containing 2 to 60 characters.';
+  String get maneuverTugInvalidName => 'Enter a valid name containing 2 to 60 characters.';
 
   @override
-  String get maneuverTugInvalidBollardPull =>
-      'Enter a valid BP greater than zero and up to 200.';
+  String get maneuverTugInvalidBollardPull => 'Enter a valid BP greater than zero and up to 200.';
 
   @override
-  String get maneuverTugDuplicate =>
-      'This tugboat is already registered for the location.';
+  String get maneuverTugDuplicate => 'This tugboat is already registered for the location.';
 
   @override
   String get maneuverTugSignedOut => 'Sign in again to register the tugboat.';
 
   @override
-  String get maneuverTugSaveError =>
-      'The tugboat could not be registered right now. Try again.';
+  String get maneuverTugSaveError => 'The tugboat could not be registered right now. Try again.';
 
   @override
   String get maneuverShipLength => 'Length (m)';
@@ -2069,12 +2013,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverAddNationality => 'Add nationality';
 
   @override
-  String get maneuverNationalitySharedNotice =>
-      'The new nationality will be available across all Maneuvers ports and terminals.';
+  String get maneuverNationalitySharedNotice => 'The new nationality will be available across all Maneuvers ports and terminals.';
 
   @override
-  String get maneuverNationalityRegistrationError =>
-      'This nationality could not be saved. Check the name or try again.';
+  String get maneuverNationalityRegistrationError => 'This nationality could not be saved. Check the name or try again.';
 
   @override
   String get maneuverSaveNationality => 'Save';
@@ -2122,8 +2064,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverSaveReport => 'Save report';
 
   @override
-  String get maneuverInvalidNumericValue =>
-      'Review the numeric values. Wind direction must be between 000° and 359°.';
+  String get maneuverInvalidNumericValue => 'Review the numeric values. Wind direction must be between 000° and 359°.';
 
   @override
   String get maneuverReportSaved => 'Maneuver report saved successfully.';
@@ -2135,16 +2076,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverReportSignedOut => 'Sign in again to save the report.';
 
   @override
-  String get maneuverReportSaveError =>
-      'The report could not be saved right now. Try again.';
+  String get maneuverReportSaveError => 'The report could not be saved right now. Try again.';
 
   @override
-  String get maneuverHistoryIntro =>
-      'Review reports shared by pilots for this terminal.';
+  String get maneuverHistoryIntro => 'Review reports shared by pilots for this terminal.';
 
   @override
-  String get maneuverHistoryEditHint =>
-      'You can update your reports using the edit icon.';
+  String get maneuverHistoryEditHint => 'You can update your reports using the edit icon.';
 
   @override
   String maneuverLegacyCurrentDirection(int degrees) {
@@ -2155,15 +2093,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverHistoryEmpty => 'No maneuver reports';
 
   @override
-  String get maneuverHistoryEmptyDescription =>
-      'The first report submitted for this terminal will appear here.';
+  String get maneuverHistoryEmptyDescription => 'The first report submitted for this terminal will appear here.';
 
   @override
   String get maneuverHistoryLoadError => 'History could not be loaded';
 
   @override
-  String get maneuverHistoryLoadErrorDescription =>
-      'Check your connection and try again shortly.';
+  String get maneuverHistoryLoadErrorDescription => 'Check your connection and try again shortly.';
 
   @override
   String get maneuverUnknownShip => 'Ship not provided';
@@ -2184,22 +2120,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverLocation => 'Location';
 
   @override
-  String get maneuverNoAdditionalInfo =>
-      'No additional information was recorded in this report.';
+  String get maneuverNoAdditionalInfo => 'No additional information was recorded in this report.';
 
   @override
   String get maneuverDeleteReportTitle => 'Delete report?';
 
   @override
-  String get maneuverDeleteReportConfirm =>
-      'This action cannot be undone. Only the author can delete this report.';
+  String get maneuverDeleteReportConfirm => 'This action cannot be undone. Only the author can delete this report.';
 
   @override
   String get maneuverReportDeleted => 'Report deleted successfully.';
 
   @override
-  String get maneuverReportDeleteError =>
-      'The report could not be deleted. Try again.';
+  String get maneuverReportDeleteError => 'The report could not be deleted. Try again.';
 
   @override
   String get maneuverKnotsShort => 'kn';
@@ -2268,8 +2201,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverDayVideos => 'Day Videos';
 
   @override
-  String get maneuverMediaUnavailable =>
-      'Media is not yet available for this terminal.';
+  String get maneuverMediaUnavailable => 'Media is not yet available for this terminal.';
 
   @override
   String get maneuverSchedule => 'Schedule';
@@ -2296,8 +2228,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverAirDraft => 'Air draft';
 
   @override
-  String get maneuverAirDraftDetail =>
-      'Limited by the Almeirim/Jurupari power line';
+  String get maneuverAirDraftDetail => 'Limited by the Almeirim/Jurupari power line';
 
   @override
   String get maneuverMaximumWind => 'Maximum wind';
@@ -2309,8 +2240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverCrossing => 'Crossing';
 
   @override
-  String get maneuverOperationalParametersSource =>
-      'Source: Eastern Amazon Basin Operational Parameters';
+  String get maneuverOperationalParametersSource => 'Source: Eastern Amazon Basin Operational Parameters';
 
   @override
   String get maneuverMaximumDrafts => 'Maximum departure drafts';
@@ -2322,8 +2252,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverDangerousCargo => 'Dangerous cargo';
 
   @override
-  String get maneuverDraftFootnote =>
-      'To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.';
+  String get maneuverDraftFootnote => 'To comply with Ordinance no. 223/Com4DN of April 24, 2026, subtract 5 cm from the stated values, as noted in the document.';
 
   @override
   String get maneuverVhfChannel => 'VHF channel';
@@ -2335,12 +2264,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNavigation => 'Navigation';
 
   @override
-  String get maneuverTapajosNavigation =>
-      'On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.';
+  String get maneuverTapajosNavigation => 'On the Tapajós River, use no more than half ahead and do not exceed the speed achieved at dead slow ahead.';
 
   @override
-  String get maneuverMooringReferenceNote =>
-      'Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.';
+  String get maneuverMooringReferenceNote => 'Reference arrangement provided for the terminal. Confirm mooring according to maneuver conditions.';
 
   @override
   String get maneuverNormally222 => 'normally 2 × 2 × 2';
@@ -2349,19 +2276,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maneuverNormally42 => 'normally 4 × 2';
 
   @override
-  String get maneuverOperationalDisclaimer =>
-      'Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.';
+  String get maneuverOperationalDisclaimer => 'Operational support information. Before the maneuver, consult the current Operational Parameters, ordinances, and notices to mariners.';
 
   @override
   String get maneuverOfficialTugInfo => 'Tugboats — Operational Parameters';
 
   @override
-  String get maneuverTugRequirementDetail =>
-      'The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:';
+  String get maneuverTugRequirementDetail => 'The document marks tugboat use as mandatory and lists the tugboats currently operating in Santarém:';
 
   @override
-  String get maneuverTugNoSpecificMinimum =>
-      'The table does not state a minimum quantity or total BP specifically for the Cargill terminal.';
+  String get maneuverTugNoSpecificMinimum => 'The table does not state a minimum quantity or total BP specifically for the Cargill terminal.';
 
   @override
   String get maneuverDrySeason => 'Dry · Aug 16–Jan 31';
