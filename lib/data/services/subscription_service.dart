@@ -57,11 +57,14 @@ class SubscriptionService {
 
   static bool _configured = false;
   static CustomerInfo? _lastCustomerInfo;
+  static String? _customerInfoOwnerUid;
+  static String? _expectedFirebaseUid;
 
   static final StreamController<CustomerInfo> _customerInfoController =
       StreamController<CustomerInfo>.broadcast();
 
   static StreamSubscription<User?>? _authSubscription;
+  static Future<void> _authOperation = Future<void>.value();
 
   // Last plan written to Firestore, used to skip redundant writes.
   static String? _lastSyncedUid;
@@ -70,8 +73,14 @@ class SubscriptionService {
   /// True once the RevenueCat SDK has been configured.
   static bool get isConfigured => _configured;
 
-  /// Last [CustomerInfo] received from RevenueCat, if any.
-  static CustomerInfo? get lastCustomerInfo => _lastCustomerInfo;
+  /// Last [CustomerInfo] verified for the currently authenticated Firebase
+  /// user. Cached data from another app account is never exposed.
+  static CustomerInfo? get lastCustomerInfo {
+    if (_lastCustomerInfo == null || _customerInfoOwnerUid == null) return null;
+
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid == _customerInfoOwnerUid ? _lastCustomerInfo : null;
+  }
 
   /// Broadcast stream of subscription status changes.
   static Stream<CustomerInfo> get customerInfoStream =>
@@ -106,9 +115,12 @@ class SubscriptionService {
       await Purchases.setLogLevel(LogLevel.debug);
     }
 
+    final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
+    _expectedFirebaseUid = firebaseUid;
+
     final configuration = PurchasesConfiguration(
       SubscriptionConstants.revenueCatApiKey,
-    )..appUserID = FirebaseAuth.instance.currentUser?.uid;
+    )..appUserID = firebaseUid;
 
     await Purchases.configure(configuration);
     _configured = true;
@@ -159,10 +171,16 @@ class SubscriptionService {
   static Future<PurchaseOutcome> purchasePackage(Package package) async {
     if (!_configured) return PurchaseOutcome.error;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid != _expectedFirebaseUid) {
+      return PurchaseOutcome.error;
+    }
+
     try {
       final result = await Purchases.purchase(PurchaseParams.package(package));
-      _lastCustomerInfo = result.customerInfo;
-      await _syncSubscriptionToFirestore(result.customerInfo);
+      final accepted = await _acceptCustomerInfo(result.customerInfo, uid);
+      if (!accepted) return PurchaseOutcome.error;
+
       final purchasedPlan = _planFromProductIds([
         package.storeProduct.identifier,
       ]);
@@ -215,10 +233,16 @@ class SubscriptionService {
   static Future<RestoreOutcome> restorePurchasesDetailed() async {
     if (!_configured) return RestoreOutcome.error;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid != _expectedFirebaseUid) {
+      return RestoreOutcome.error;
+    }
+
     try {
       final customerInfo = await Purchases.restorePurchases();
-      _lastCustomerInfo = customerInfo;
-      await _syncSubscriptionToFirestore(customerInfo);
+      final accepted = await _acceptCustomerInfo(customerInfo, uid);
+      if (!accepted) return RestoreOutcome.error;
+
       return activePlan(customerInfo) != SubscriptionConstants.planNone
           ? RestoreOutcome.restored
           : RestoreOutcome.noActiveSubscription;
@@ -235,28 +259,28 @@ class SubscriptionService {
   /// Identifies the RevenueCat user with the Firebase [uid].
   static Future<void> logIn(String uid) async {
     if (!_configured) return;
+    if (FirebaseAuth.instance.currentUser?.uid != uid ||
+        _expectedFirebaseUid != uid) {
+      return;
+    }
 
     try {
       final result = await Purchases.logIn(uid);
-      _lastCustomerInfo = result.customerInfo;
-      await _syncSubscriptionToFirestore(result.customerInfo);
+      await _acceptCustomerInfo(result.customerInfo, uid);
     } catch (e) {
       debugPrint('SubscriptionService.logIn error: $e');
     }
   }
 
-  /// Switches RevenueCat back to an anonymous user.
+  /// Clears local subscription state when the Firebase user signs out.
+  ///
+  /// The RevenueCat SDK intentionally stays identified. Calling its `logOut`
+  /// method would create an anonymous user that could later be aliased with a
+  /// different ShipRate account. RevenueCat supports switching identified
+  /// accounts by calling `logIn` directly with the next Firebase UID.
   static Future<void> logOut() async {
     if (!_configured) return;
-
-    _lastSyncedUid = null;
-    _lastSyncedPlan = null;
-
-    try {
-      _lastCustomerInfo = await Purchases.logOut();
-    } catch (e) {
-      debugPrint('SubscriptionService.logOut error: $e');
-    }
+    _clearCachedCustomerInfo();
   }
 
   /// Active plan verified from the store product that grants access.
@@ -321,42 +345,104 @@ class SubscriptionService {
     _authSubscription?.cancel();
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
       final uid = user?.uid;
-      if (uid == null) {
-        unawaited(logOut());
-      } else {
-        unawaited(logIn(uid));
+      if (_expectedFirebaseUid != uid) {
+        _expectedFirebaseUid = uid;
+        _clearCachedCustomerInfo();
       }
+
+      // Serialize account changes so a slow logout/login transition can never
+      // finish out of order and attach the previous account's subscription to
+      // the new Firebase user.
+      _authOperation = _authOperation.then((_) async {
+        if (uid == null) {
+          await logOut();
+        } else {
+          await logIn(uid);
+        }
+      });
     });
   }
 
   static void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
+    unawaited(_acceptCustomerInfoForCurrentUser(customerInfo));
+  }
+
+  static Future<void> _acceptCustomerInfoForCurrentUser(
+    CustomerInfo customerInfo,
+  ) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    await _acceptCustomerInfo(customerInfo, uid);
+  }
+
+  static Future<bool> _acceptCustomerInfo(
+    CustomerInfo customerInfo,
+    String uid,
+  ) async {
+    if (FirebaseAuth.instance.currentUser?.uid != uid ||
+        _expectedFirebaseUid != uid) {
+      return false;
+    }
+
+    try {
+      final revenueCatUid = await Purchases.appUserID;
+      if (revenueCatUid != uid) {
+        debugPrint(
+          'SubscriptionService: ignoring CustomerInfo for RevenueCat user '
+          '$revenueCatUid while Firebase user is $uid',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('SubscriptionService.appUserID error: $e');
+      return false;
+    }
+
     _lastCustomerInfo = customerInfo;
+    _customerInfoOwnerUid = uid;
 
     if (!_customerInfoController.isClosed) {
       _customerInfoController.add(customerInfo);
     }
 
-    unawaited(_syncSubscriptionToFirestore(customerInfo));
+    await _syncSubscriptionToFirestore(customerInfo, uid);
+    return true;
   }
 
   static Future<CustomerInfo?> _fetchCustomerInfo() async {
     if (!_configured) return null;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid != _expectedFirebaseUid) return null;
+
     try {
-      _lastCustomerInfo = await Purchases.getCustomerInfo();
+      final customerInfo = await Purchases.getCustomerInfo();
+      final accepted = await _acceptCustomerInfo(customerInfo, uid);
+      return accepted ? customerInfo : null;
     } catch (e) {
       debugPrint('SubscriptionService.getCustomerInfo error: $e');
+      return null;
     }
-    return _lastCustomerInfo;
+  }
+
+  static void _clearCachedCustomerInfo() {
+    _lastCustomerInfo = null;
+    _customerInfoOwnerUid = null;
+    _lastSyncedUid = null;
+    _lastSyncedPlan = null;
   }
 
   /// Mirrors the current plan to `usuarios/{uid}.subscription` so Cloud
   /// Functions can check subscription status on the backend.
   static Future<void> _syncSubscriptionToFirestore(
     CustomerInfo customerInfo,
+    String uid,
   ) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
+    if (FirebaseAuth.instance.currentUser?.uid != uid ||
+        _expectedFirebaseUid != uid ||
+        _customerInfoOwnerUid != uid) {
+      return;
+    }
 
     final plan = activePlan(customerInfo);
     if (_lastSyncedUid == uid && _lastSyncedPlan == plan) return;
