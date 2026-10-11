@@ -548,61 +548,14 @@ class _DrawerDivider extends StatelessWidget {
   }
 }
 
-/// Drawer entry opening the subscription page.
-///
-/// Free users see the "support ShipRate" call to action in amber; subscribers
-/// see the Pro+ label in a brighter gold instead.
-class _SupportShipRateItem extends StatefulWidget {
+/// Drawer entry opening the subscription page. Its label stays stable for free
+/// users and subscribers so the management screen is always easy to find.
+class _SupportShipRateItem extends StatelessWidget {
   const _SupportShipRateItem();
 
-  @override
-  State<_SupportShipRateItem> createState() => _SupportShipRateItemState();
-}
-
-class _SupportShipRateItemState extends State<_SupportShipRateItem> {
   static const _supportColor = Color(0xFFFFB74D);
-  static const _subscriberColor = Color(0xFFFFD54F);
-  static const _subscriberLabel = 'ShipRate Pro+';
 
-  StreamSubscription<CustomerInfo>? _customerInfoSubscription;
-  bool _isSubscriber = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _isSubscriber = _hasActivePlan(SubscriptionService.lastCustomerInfo);
-    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
-      _onCustomerInfoUpdated,
-    );
-    _refreshSubscriberStatus();
-  }
-
-  @override
-  void dispose() {
-    _customerInfoSubscription?.cancel();
-    super.dispose();
-  }
-
-  /// True when [customerInfo] grants any subscription plan.
-  bool _hasActivePlan(CustomerInfo? customerInfo) {
-    if (customerInfo == null) return false;
-    return SubscriptionService.activePlan(customerInfo) !=
-        SubscriptionConstants.planNone;
-  }
-
-  Future<void> _refreshSubscriberStatus() async {
-    final isSubscriber = await SubscriptionService.isAnySubscriber();
-    if (!mounted || isSubscriber == _isSubscriber) return;
-    setState(() => _isSubscriber = isSubscriber);
-  }
-
-  void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
-    final isSubscriber = _hasActivePlan(customerInfo);
-    if (!mounted || isSubscriber == _isSubscriber) return;
-    setState(() => _isSubscriber = isSubscriber);
-  }
-
-  void _openSubscriptionPage() {
+  void _openSubscriptionPage(BuildContext context) {
     final navigator = Navigator.of(context);
     navigator.pop();
     navigator.push(MaterialPageRoute(builder: (_) => const SubscriptionPage()));
@@ -611,8 +564,8 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final accentColor = _isSubscriber ? _subscriberColor : _supportColor;
-    final label = _isSubscriber ? _subscriberLabel : l10n.supportShipRate;
+    const accentColor = _supportColor;
+    final label = l10n.supportShipRate;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -620,7 +573,7 @@ class _SupportShipRateItemState extends State<_SupportShipRateItem> {
         color: accentColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
-          onTap: _openSubscriptionPage,
+          onTap: () => _openSubscriptionPage(context),
           borderRadius: BorderRadius.circular(8),
           hoverColor: accentColor.withValues(alpha: 0.12),
           splashColor: accentColor.withValues(alpha: 0.12),

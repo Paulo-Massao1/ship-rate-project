@@ -78,16 +78,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get recoverPassword => 'Recuperar senha';
 
   @override
-  String get recoverPasswordSubtitle => 'Informe seu e-mail para receber o link de redefinição';
+  String get recoverPasswordSubtitle =>
+      'Informe seu e-mail para receber o link de redefinição';
 
   @override
   String get sendLink => 'Enviar link';
 
   @override
-  String get resetEmailSent => 'Enviamos um link de recuperação para o seu e-mail.';
+  String get resetEmailSent =>
+      'Enviamos um link de recuperação para o seu e-mail.';
 
   @override
-  String get spamNotice => 'Caso não encontre o e-mail, verifique também sua caixa de SPAM ou Lixo Eletrônico.';
+  String get spamNotice =>
+      'Caso não encontre o e-mail, verifique também sua caixa de SPAM ou Lixo Eletrônico.';
 
   @override
   String get backToLogin => 'Voltar para o login';
@@ -120,7 +123,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get updateAvailable => 'Nova atualização disponível';
 
   @override
-  String get updateAvailableWeb => 'Nova atualização disponível. Toque em Atualizar para carregar a versão mais recente.';
+  String get updateAvailableWeb =>
+      'Nova atualização disponível. Toque em Atualizar para carregar a versão mais recente.';
 
   @override
   String get updateButton => 'Atualizar';
@@ -132,7 +136,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get copyLink => 'Copiar Link';
 
   @override
-  String get shareText => 'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados.\n\nBaixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
+  String get shareText =>
+      'Conheça o ShipRate, o app dos práticos para avaliar navios e reportar profundidades dos trechos navegados.\n\nBaixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.\nhttps://apps.apple.com/br/app/shiprate-pro/id6777518989';
 
   @override
   String get shareMoreInfo => 'Para informar seu cruzamento, acesse:';
@@ -141,7 +146,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get shipRatingTitle => 'Avaliação de Navios';
 
   @override
-  String get searchSubtitle => 'Pesquise avaliações ou registre sua experiência';
+  String get searchSubtitle =>
+      'Pesquise avaliações ou registre sua experiência';
 
   @override
   String get searchTab => 'Buscar';
@@ -156,7 +162,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get newShipRating => 'Nova Avaliação de Navio';
 
   @override
-  String get rateSubtitle => 'Registre sua avaliação técnica de forma rápida e segura';
+  String get rateSubtitle =>
+      'Registre sua avaliação técnica de forma rápida e segura';
 
   @override
   String get startRating => 'Iniciar avaliação';
@@ -322,16 +329,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get generalObservation => 'Observação Geral';
 
   @override
-  String get generalObservationHint => 'Comentários adicionais sobre a experiência geral no navio...';
+  String get generalObservationHint =>
+      'Comentários adicionais sobre a experiência geral no navio...';
 
   @override
   String get observationsOptional => 'Observações (opcional)';
 
   @override
-  String get shipFoundTapToRate => 'Navio encontrado — toque para selecionar da lista';
+  String get shipFoundTapToRate =>
+      'Navio encontrado — toque para selecionar da lista';
 
   @override
-  String get shipExistsSelectFromList => 'Este navio já existe. Selecione-o na lista suspensa.';
+  String get shipExistsSelectFromList =>
+      'Este navio já existe. Selecione-o na lista suspensa.';
 
   @override
   String get fillRequiredFields => 'Preencha todos os campos obrigatórios';
@@ -343,7 +353,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveChanges => 'Salvar Alterações';
 
   @override
-  String get editRatingBanner => 'Edite apenas para corrigir erros ou inserir informações de sua viagem. Se o navio mudou de condição, crie uma nova avaliação.';
+  String get editRatingBanner =>
+      'Edite apenas para corrigir erros ou inserir informações de sua viagem. Se o navio mudou de condição, crie uma nova avaliação.';
 
   @override
   String get ratingUpdatedSuccess => 'Avaliação atualizada com sucesso!';
@@ -380,7 +391,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noRatingsYet => 'Nenhuma avaliação ainda';
 
   @override
-  String get noRatingsSubtitle => 'Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!';
+  String get noRatingsSubtitle =>
+      'Você ainda não avaliou nenhum navio.\nComece avaliando sua próxima viagem!';
 
   @override
   String totalRatings(int count) {
@@ -529,7 +541,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get yourOpinionMatters => 'Sua opinião é importante';
 
   @override
-  String get helpImproveApp => 'Ajude a melhorar o ShipRate com sugestões e ideias.';
+  String get helpImproveApp =>
+      'Ajude a melhorar o ShipRate com sugestões e ideias.';
 
   @override
   String get suggestionType => 'Sugestão';
@@ -773,7 +786,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get measurementTime => 'Horário da sondagem';
 
   @override
-  String get santanaTideReferenceHint => 'Este local usa a Maré de Santana como referência.';
+  String get santanaTideReferenceHint =>
+      'Este local usa a Maré de Santana como referência.';
 
   @override
   String get rulerReading => 'Régua';
@@ -788,7 +802,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get invalidRulerReading => 'Informe uma leitura de régua válida';
 
   @override
-  String get tideReferenceUnavailable => 'Dados de maré indisponíveis para este horário.';
+  String get tideReferenceUnavailable =>
+      'Dados de maré indisponíveis para este horário.';
 
   @override
   String get previousLowTide => 'Baixamar anterior';
@@ -884,7 +899,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get deleteRecordTitle => 'Excluir Registro';
 
   @override
-  String get deleteRecordConfirm => 'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.';
+  String get deleteRecordConfirm =>
+      'Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.';
 
   @override
   String get recordDeletedSuccess => 'Registro excluído com sucesso!';
@@ -899,7 +915,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noRecordsYet => 'Nenhum registro ainda';
 
   @override
-  String get noRecordsSubtitle => 'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!';
+  String get noRecordsSubtitle =>
+      'Você ainda não registrou nenhuma passagem.\nComece registrando sua próxima passagem!';
 
   @override
   String get recordDetails => 'Detalhes do Registro';
@@ -942,7 +959,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get sendCode => 'Enviar código';
 
   @override
-  String get emailNotAuthorized => 'Email não autorizado. Entre em contato com a ZP01.';
+  String get emailNotAuthorized =>
+      'Email não autorizado. Entre em contato com a ZP01.';
 
   @override
   String codeSentTo(String email) {
@@ -968,7 +986,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get rateLimited => 'Muitas tentativas. Aguarde 15 minutos.';
 
   @override
-  String get tooManyAttempts => 'Muitas tentativas incorretas. Aguarde 15 minutos.';
+  String get tooManyAttempts =>
+      'Muitas tentativas incorretas. Aguarde 15 minutos.';
 
   @override
   String resendIn(String seconds) {
@@ -1000,7 +1019,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get passwordTooShort => 'A senha deve ter pelo menos 6 caracteres';
 
   @override
-  String get emailAlreadyRegistered => 'Este email já possui uma conta. Use a tela de login.';
+  String get emailAlreadyRegistered =>
+      'Este email já possui uma conta. Use a tela de login.';
 
   @override
   String get settings => 'Configurações';
@@ -1018,7 +1038,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get invalidEmail => 'Email inválido';
 
   @override
-  String get navSafetyBlocked => 'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.';
+  String get navSafetyBlocked =>
+      'Para ter acesso à área de segurança da navegação, registre-se novamente no aplicativo usando seu e-mail da Unipilot.';
 
   @override
   String get photos => 'Fotos';
@@ -1033,7 +1054,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notificationDialogTitle => 'Notificações';
 
   @override
-  String get notificationDialogBody => 'Deseja receber notificações quando novos registros de profundidade forem adicionados?';
+  String get notificationDialogBody =>
+      'Deseja receber notificações quando novos registros de profundidade forem adicionados?';
 
   @override
   String get notificationDialogEnable => 'Ativar';
@@ -1077,7 +1099,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get recordSaved => 'Registro salvo!';
 
   @override
-  String get shareRecordPrompt => 'Deseja compartilhar esta profundidade com outros práticos?';
+  String get shareRecordPrompt =>
+      'Deseja compartilhar esta profundidade com outros práticos?';
 
   @override
   String get shareRecord => 'Compartilhar';
@@ -1196,10 +1219,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get crossingSaved => 'Cruzamento registrado!';
 
   @override
-  String get crossingTimeMustBeFuture => 'O horario previsto do cruzamento deve estar no futuro.';
+  String get crossingTimeMustBeFuture =>
+      'O horario previsto do cruzamento deve estar no futuro.';
 
   @override
-  String get shareCrossingPrompt => 'Deseja compartilhar este cruzamento com outros práticos?';
+  String get shareCrossingPrompt =>
+      'Deseja compartilhar este cruzamento com outros práticos?';
 
   @override
   String get pushNavSafetyLabel => 'Profundidades';
@@ -1231,7 +1256,8 @@ class AppLocalizationsPt extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cruzamentos realizados com segurança, graças à sua participação',
+      other:
+          '$count cruzamentos realizados com segurança, graças à sua participação',
       one: '1 cruzamento realizado com segurança, graças à sua participação',
       zero: '0 cruzamentos realizados com segurança, graças à sua participação',
     );
@@ -1248,16 +1274,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get crossingsDashboardTitle => 'Cruzamentos';
 
   @override
-  String get enableNotificationsMessage => 'Para receber notificações, permita o envio de notificações nas configurações do seu dispositivo';
+  String get enableNotificationsMessage =>
+      'Para receber notificações, permita o envio de notificações nas configurações do seu dispositivo';
 
   @override
-  String get enableNotificationsBanner => 'Ative as notificações para receber alertas';
+  String get enableNotificationsBanner =>
+      'Ative as notificações para receber alertas';
 
   @override
-  String get permissionDeniedSettings => 'Permissão negada. Ative as notificações nas configurações do navegador/sistema.';
+  String get permissionDeniedSettings =>
+      'Permissão negada. Ative as notificações nas configurações do navegador/sistema.';
 
   @override
-  String get enableNotificationsDepthPrompt => 'Ative as notificações para receber alertas quando novos registros de profundidade forem adicionados.';
+  String get enableNotificationsDepthPrompt =>
+      'Ative as notificações para receber alertas quando novos registros de profundidade forem adicionados.';
 
   @override
   String get enableNotificationsButtonLabel => 'Ativar notificações';
@@ -1272,7 +1302,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get deleteAccountTitle => 'Excluir conta';
 
   @override
-  String get deleteAccountBody => 'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita. Suas avaliações e registros continuarão disponíveis para outros práticos.';
+  String get deleteAccountBody =>
+      'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita. Suas avaliações e registros continuarão disponíveis para outros práticos.';
 
   @override
   String get deleteAccountConfirm => 'Excluir';
@@ -1343,19 +1374,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pdfNoObservations => 'Sem observações';
 
   @override
-  String get defaultUpdateMessage => 'Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.';
+  String get defaultUpdateMessage =>
+      'Nova atualização disponível. Por favor, feche e reabra o app para aplicar as melhorias.';
 
   @override
   String get imageEmptyError => 'A imagem selecionada está vazia.';
 
   @override
-  String get formatNotSupportedError => 'Formato não suportado. Use apenas JPG, PNG ou WEBP.';
+  String get formatNotSupportedError =>
+      'Formato não suportado. Use apenas JPG, PNG ou WEBP.';
 
   @override
   String get imageTooLargeError => 'Cada imagem deve ter no máximo 20 MB.';
 
   @override
-  String get maxImagesExceededError => 'Você pode anexar no máximo 3 imagens por registro.';
+  String get maxImagesExceededError =>
+      'Você pode anexar no máximo 3 imagens por registro.';
 
   @override
   String get attachFile => 'Anexar arquivo';
@@ -1376,10 +1410,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverMediaLimit => 'Máximo de 3 mídias por seção.';
 
   @override
-  String get maneuverMediaInvalid => 'Selecione uma foto JPG, PNG ou WEBP, ou um vídeo MP4 ou MOV de até 20 MB.';
+  String get maneuverMediaInvalid =>
+      'Selecione uma foto JPG, PNG ou WEBP, ou um vídeo MP4 ou MOV de até 20 MB.';
 
   @override
-  String get maneuverMediaUploadError => 'Não foi possível enviar as mídias da manobra. Verifique a conexão e tente novamente.';
+  String get maneuverMediaUploadError =>
+      'Não foi possível enviar as mídias da manobra. Verifique a conexão e tente novamente.';
 
   @override
   String get maneuverMediaOpenError => 'Não foi possível abrir esta mídia.';
@@ -1397,16 +1433,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get fileTooLargeError => 'Cada arquivo deve ter no máximo 10 MB.';
 
   @override
-  String get filePickError => 'Não foi possível selecionar o arquivo neste dispositivo.';
+  String get filePickError =>
+      'Não foi possível selecionar o arquivo neste dispositivo.';
 
   @override
   String get shareDepthTitle => 'Nova profundidade registrada';
 
   @override
-  String get shareDepthFooter => 'Baixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.';
+  String get shareDepthFooter =>
+      'Baixe o SHIPRATE PRO na APP STORE para ver os históricos de profundidades.';
 
   @override
-  String get firebaseUnavailable => 'Não foi possível conectar. Por favor, feche e reabra o aplicativo.';
+  String get firebaseUnavailable =>
+      'Não foi possível conectar. Por favor, feche e reabra o aplicativo.';
 
   @override
   String crossingStatsCount(int count, int total) {
@@ -1552,7 +1591,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get operationalRestrictionsShareTooltip => 'Compartilhar PDF';
 
   @override
-  String get operationalRestrictionsPdfFileName => 'parametros_operacionais.pdf';
+  String get operationalRestrictionsPdfFileName =>
+      'parametros_operacionais.pdf';
 
   @override
   String get operationalRestrictionsSubtitle => 'Limitações e Parâmetros';
@@ -1570,13 +1610,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get milestone500RatingsTitle => '500 Avaliações!';
 
   @override
-  String get milestone500RatingsMessage => 'Em apenas 7 meses, a comunidade de práticos já registrou 500 avaliações de navios no ShipRate Pro. Cada avaliação fortalece a segurança e a informação para todos. Obrigado pela contribuição!';
+  String get milestone500RatingsMessage =>
+      'Em apenas 7 meses, a comunidade de práticos já registrou 500 avaliações de navios no ShipRate Pro. Cada avaliação fortalece a segurança e a informação para todos. Obrigado pela contribuição!';
 
   @override
   String get milestone100UsersTitle => '100 Práticos no ShipRate!';
 
   @override
-  String get milestone100UsersMessage => 'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.';
+  String get milestone100UsersMessage =>
+      'Mais de 100 práticos já aderiram ao ShipRate Pro — isso representa mais de 65% dos práticos da ZP-01! Juntos estamos construindo o maior banco de dados colaborativo da praticagem na Bacia Amazônica.';
 
   @override
   String get ratingsRankingTitle => 'Ranking de Avaliações';
@@ -1613,7 +1655,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get supportShipRate => 'Apoie o ShipRate';
 
   @override
-  String get subscriptionDescription => 'Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.';
+  String get premiumActiveLabel => 'Premium ativo';
+
+  @override
+  String get plusActiveLabel => 'Plus ativo';
+
+  @override
+  String get subscriptionDescription =>
+      'Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.';
 
   @override
   String get recommended => 'RECOMENDADO';
@@ -1631,7 +1680,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get premiumFeature1 => 'Tudo do plano Plus';
 
   @override
-  String get premiumFeature2 => 'Gráficos de tendência de profundidade por local';
+  String get premiumFeature2 =>
+      'Gráficos de tendência de profundidade por local';
 
   @override
   String get plusFeature1 => 'Relatório mensal em PDF com suas contribuições';
@@ -1652,6 +1702,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get restorePurchases => 'Restaurar compras';
 
   @override
+  String get restorePurchasesTitle => 'Restaurar compras?';
+
+  @override
+  String get restorePurchasesDescription =>
+      'Esta opção procura uma assinatura anterior feita com a conta atual da App Store. Nenhuma nova cobrança será realizada.';
+
+  @override
+  String get restorePurchasesConfirm => 'Restaurar';
+
+  @override
+  String get restoreSuccessTitle => 'Compras restauradas';
+
+  @override
+  String restoreSuccessMessage(String plan) {
+    return 'Seu plano $plan foi encontrado e está ativo neste dispositivo.';
+  }
+
+  @override
+  String get restoreNotFoundTitle => 'Nenhuma assinatura encontrada';
+
+  @override
+  String get restoreNotFoundMessage =>
+      'Não encontramos uma assinatura ativa nesta conta da App Store. Confirme se está usando o mesmo Apple ID da compra.';
+
+  @override
   String get currentPlan => 'Plano atual';
 
   @override
@@ -1661,16 +1736,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscriptionSuccess => 'Assinatura ativada!';
 
   @override
-  String get subscriptionError => 'Não foi possível processar. Tente novamente.';
+  String subscriptionSuccessMessage(String plan) {
+    return 'Obrigado por apoiar o ShipRate. Seu plano $plan já está ativo e os recursos correspondentes foram liberados.';
+  }
 
   @override
-  String get subscriptionPurchasePending => 'Compra aguardando aprovação da App Store.';
+  String get subscriptionError =>
+      'Não foi possível processar. Tente novamente.';
 
   @override
-  String get subscriptionPurchaseNotAllowed => 'As compras estão desativadas para esta conta ou dispositivo.';
+  String get subscriptionPurchasePending =>
+      'Compra aguardando aprovação da App Store.';
 
   @override
-  String get subscriptionProductUnavailable => 'Este plano está temporariamente indisponível na App Store.';
+  String get subscriptionPurchaseNotAllowed =>
+      'As compras estão desativadas para esta conta ou dispositivo.';
+
+  @override
+  String get subscriptionProductUnavailable =>
+      'Este plano está temporariamente indisponível na App Store.';
 
   @override
   String get termsOfUse => 'Termos de Uso';
@@ -1683,6 +1767,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get activeBadge => 'ATIVO';
+
+  @override
+  String get manageSubscription => 'Gerenciar assinatura';
+
+  @override
+  String get manageSubscriptionError =>
+      'Não foi possível abrir o gerenciamento da assinatura. Tente novamente.';
 
   @override
   String get exclusiveFeature => 'Funcionalidade exclusiva';
@@ -1789,7 +1880,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuversSelectTerminal => 'Selecione um porto ou terminal';
 
   @override
-  String get maneuverAccessNotice => 'Relatos e histórico são livres para todos. A preparação para manobra requer o plano Plus.';
+  String get maneuverAccessNotice =>
+      'Relatos e histórico são livres para todos. A preparação para manobra requer o plano Plus.';
 
   @override
   String get reportManeuver => 'Relatar manobra';
@@ -1806,28 +1898,34 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get reportManeuverDesc => 'Registre as condições e os dados observados na manobra.';
+  String get reportManeuverDesc =>
+      'Registre as condições e os dados observados na manobra.';
 
   @override
   String get maneuverHistory => 'Histórico de manobras';
 
   @override
-  String get maneuverHistoryDesc => 'Consulte os relatos enviados para este terminal.';
+  String get maneuverHistoryDesc =>
+      'Consulte os relatos enviados para este terminal.';
 
   @override
   String get initialManeuverInfo => 'Preparação para manobra';
 
   @override
-  String get initialManeuverInfoDesc => 'Limites operacionais do porto e da manobra.';
+  String get initialManeuverInfoDesc =>
+      'Limites operacionais do porto e da manobra.';
 
   @override
-  String get maneuverReportComingSoon => 'O formulário completo de relato será disponibilizado em breve.';
+  String get maneuverReportComingSoon =>
+      'O formulário completo de relato será disponibilizado em breve.';
 
   @override
-  String get maneuverHistoryComingSoon => 'Os relatos deste terminal serão exibidos aqui.';
+  String get maneuverHistoryComingSoon =>
+      'Os relatos deste terminal serão exibidos aqui.';
 
   @override
-  String get maneuverInitialInfoComingSoon => 'As informações operacionais deste terminal estarão disponíveis em breve.';
+  String get maneuverInitialInfoComingSoon =>
+      'As informações operacionais deste terminal estarão disponíveis em breve.';
 
   @override
   String get newBadge => 'NOVO';
@@ -1842,7 +1940,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get comingSoonBadge => 'EM BREVE';
 
   @override
-  String get maneuverReportOptionalFields => 'Nenhuma informação é obrigatória.';
+  String get maneuverReportOptionalFields =>
+      'Nenhuma informação é obrigatória.';
 
   @override
   String get maneuverApproach => 'Aproximação';
@@ -1851,7 +1950,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugboats => 'Rebocadores';
 
   @override
-  String get maneuverTugSharedNotice => 'Opções dos Parâmetros Operacionais e da comunidade de práticos.';
+  String get maneuverTugSharedNotice =>
+      'Opções dos Parâmetros Operacionais e da comunidade de práticos.';
 
   @override
   String get maneuverTugForward => 'AV (avante)';
@@ -1881,13 +1981,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverTugCommunitySource => 'Comunidade';
 
   @override
-  String get maneuverCommunityTugsLoadError => 'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.';
+  String get maneuverCommunityTugsLoadError =>
+      'Não foi possível carregar agora os rebocadores cadastrados pela comunidade. As opções oficiais continuam disponíveis.';
 
   @override
   String get maneuverAddTugTitle => 'Novo rebocador';
 
   @override
-  String get maneuverTugRegistrationNotice => 'O rebocador ficará disponível para os demais práticos desta localidade.';
+  String get maneuverTugRegistrationNotice =>
+      'O rebocador ficará disponível para os demais práticos desta localidade.';
 
   @override
   String get maneuverTugName => 'Nome';
@@ -1922,19 +2024,24 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get maneuverTugInvalidName => 'Informe um nome válido com 2 a 60 caracteres.';
+  String get maneuverTugInvalidName =>
+      'Informe um nome válido com 2 a 60 caracteres.';
 
   @override
-  String get maneuverTugInvalidBollardPull => 'Informe um BP válido, maior que zero e de até 200.';
+  String get maneuverTugInvalidBollardPull =>
+      'Informe um BP válido, maior que zero e de até 200.';
 
   @override
-  String get maneuverTugDuplicate => 'Este rebocador já está cadastrado para a localidade.';
+  String get maneuverTugDuplicate =>
+      'Este rebocador já está cadastrado para a localidade.';
 
   @override
-  String get maneuverTugSignedOut => 'Entre novamente na sua conta para cadastrar o rebocador.';
+  String get maneuverTugSignedOut =>
+      'Entre novamente na sua conta para cadastrar o rebocador.';
 
   @override
-  String get maneuverTugSaveError => 'Não foi possível cadastrar o rebocador agora. Tente novamente.';
+  String get maneuverTugSaveError =>
+      'Não foi possível cadastrar o rebocador agora. Tente novamente.';
 
   @override
   String get maneuverShipLength => 'Comprimento (m)';
@@ -1973,10 +2080,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverAddNationality => 'Adicionar nacionalidade';
 
   @override
-  String get maneuverNationalitySharedNotice => 'A nova nacionalidade ficará disponível em todos os portos e terminais de Manobras.';
+  String get maneuverNationalitySharedNotice =>
+      'A nova nacionalidade ficará disponível em todos os portos e terminais de Manobras.';
 
   @override
-  String get maneuverNationalityRegistrationError => 'Não foi possível cadastrar esta nacionalidade. Verifique o nome ou tente novamente.';
+  String get maneuverNationalityRegistrationError =>
+      'Não foi possível cadastrar esta nacionalidade. Verifique o nome ou tente novamente.';
 
   @override
   String get maneuverSaveNationality => 'Salvar';
@@ -2024,25 +2133,31 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverSaveReport => 'Salvar relato';
 
   @override
-  String get maneuverInvalidNumericValue => 'Revise os valores numéricos. A direção do vento deve estar entre 000° e 359°.';
+  String get maneuverInvalidNumericValue =>
+      'Revise os valores numéricos. A direção do vento deve estar entre 000° e 359°.';
 
   @override
   String get maneuverReportSaved => 'Relato de manobra salvo com sucesso.';
 
   @override
-  String get maneuverReportUpdated => 'Relato de manobra atualizado com sucesso.';
+  String get maneuverReportUpdated =>
+      'Relato de manobra atualizado com sucesso.';
 
   @override
-  String get maneuverReportSignedOut => 'Entre novamente na sua conta para salvar o relato.';
+  String get maneuverReportSignedOut =>
+      'Entre novamente na sua conta para salvar o relato.';
 
   @override
-  String get maneuverReportSaveError => 'Não foi possível salvar o relato agora. Tente novamente.';
+  String get maneuverReportSaveError =>
+      'Não foi possível salvar o relato agora. Tente novamente.';
 
   @override
-  String get maneuverHistoryIntro => 'Consulte os relatos compartilhados pelos práticos neste terminal.';
+  String get maneuverHistoryIntro =>
+      'Consulte os relatos compartilhados pelos práticos neste terminal.';
 
   @override
-  String get maneuverHistoryEditHint => 'Seus relatos podem ser atualizados pelo ícone de edição.';
+  String get maneuverHistoryEditHint =>
+      'Seus relatos podem ser atualizados pelo ícone de edição.';
 
   @override
   String maneuverLegacyCurrentDirection(int degrees) {
@@ -2053,13 +2168,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverHistoryEmpty => 'Nenhum relato de manobra';
 
   @override
-  String get maneuverHistoryEmptyDescription => 'O primeiro relato enviado para este terminal aparecerá aqui.';
+  String get maneuverHistoryEmptyDescription =>
+      'O primeiro relato enviado para este terminal aparecerá aqui.';
 
   @override
-  String get maneuverHistoryLoadError => 'Não foi possível carregar o histórico';
+  String get maneuverHistoryLoadError =>
+      'Não foi possível carregar o histórico';
 
   @override
-  String get maneuverHistoryLoadErrorDescription => 'Verifique sua conexão e tente novamente em instantes.';
+  String get maneuverHistoryLoadErrorDescription =>
+      'Verifique sua conexão e tente novamente em instantes.';
 
   @override
   String get maneuverUnknownShip => 'Navio não informado';
@@ -2080,19 +2198,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverLocation => 'Local';
 
   @override
-  String get maneuverNoAdditionalInfo => 'Nenhuma informação adicional foi registrada neste relato.';
+  String get maneuverNoAdditionalInfo =>
+      'Nenhuma informação adicional foi registrada neste relato.';
 
   @override
   String get maneuverDeleteReportTitle => 'Excluir relato?';
 
   @override
-  String get maneuverDeleteReportConfirm => 'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.';
+  String get maneuverDeleteReportConfirm =>
+      'Esta ação não pode ser desfeita. Somente o autor pode excluir este relato.';
 
   @override
   String get maneuverReportDeleted => 'Relato excluído com sucesso.';
 
   @override
-  String get maneuverReportDeleteError => 'Não foi possível excluir o relato. Tente novamente.';
+  String get maneuverReportDeleteError =>
+      'Não foi possível excluir o relato. Tente novamente.';
 
   @override
   String get maneuverKnotsShort => 'nós';
@@ -2161,7 +2282,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverDayVideos => 'Vídeos Diurnos';
 
   @override
-  String get maneuverMediaUnavailable => 'Mídia ainda não disponível para este terminal.';
+  String get maneuverMediaUnavailable =>
+      'Mídia ainda não disponível para este terminal.';
 
   @override
   String get maneuverSchedule => 'Horário';
@@ -2188,7 +2310,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverAirDraft => 'Calado aéreo';
 
   @override
-  String get maneuverAirDraftDetail => 'Limitado ao Linhão de Almeirim/Jurupari';
+  String get maneuverAirDraftDetail =>
+      'Limitado ao Linhão de Almeirim/Jurupari';
 
   @override
   String get maneuverMaximumWind => 'Vento máximo';
@@ -2200,7 +2323,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverCrossing => 'Cruzamento';
 
   @override
-  String get maneuverOperationalParametersSource => 'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental';
+  String get maneuverOperationalParametersSource =>
+      'Fonte: Parâmetros Operacionais da Bacia Amazônica Oriental';
 
   @override
   String get maneuverMaximumDrafts => 'Calados máximos para saída do porto';
@@ -2212,7 +2336,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverDangerousCargo => 'Carga perigosa';
 
   @override
-  String get maneuverDraftFootnote => 'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.';
+  String get maneuverDraftFootnote =>
+      'Para adequação à Portaria nº 223/Com4ºDN, de 24/04/2026, os valores indicados devem considerar a subtração de 5 cm, conforme observação do documento.';
 
   @override
   String get maneuverVhfChannel => 'Canal VHF';
@@ -2224,10 +2349,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNavigation => 'Navegação';
 
   @override
-  String get maneuverTapajosNavigation => 'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.';
+  String get maneuverTapajosNavigation =>
+      'No Rio Tapajós, usar no máximo meia força e não ultrapassar a velocidade de “devagar adiante”.';
 
   @override
-  String get maneuverMooringReferenceNote => 'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.';
+  String get maneuverMooringReferenceNote =>
+      'Configuração de referência informada para o terminal. Confirme a amarração conforme as condições da manobra.';
 
   @override
   String get maneuverNormally222 => 'normalmente 2 × 2 × 2';
@@ -2236,16 +2363,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get maneuverNormally42 => 'normalmente 4 × 2';
 
   @override
-  String get maneuverOperationalDisclaimer => 'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.';
+  String get maneuverOperationalDisclaimer =>
+      'Informação de apoio operacional. Antes da manobra, consulte a versão vigente dos Parâmetros Operacionais, portarias e avisos aos navegantes.';
 
   @override
   String get maneuverOfficialTugInfo => 'Rebocadores — Parâmetros Operacionais';
 
   @override
-  String get maneuverTugRequirementDetail => 'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:';
+  String get maneuverTugRequirementDetail =>
+      'O documento indica uso obrigatório e relaciona os rebocadores atualmente em operação em Santarém:';
 
   @override
-  String get maneuverTugNoSpecificMinimum => 'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.';
+  String get maneuverTugNoSpecificMinimum =>
+      'O quadro não informa quantidade mínima nem BP total específico para o terminal Cargill.';
 
   @override
   String get maneuverDrySeason => 'Seca · 16/08–31/01';

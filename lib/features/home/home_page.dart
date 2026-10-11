@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
@@ -23,8 +24,10 @@ import '../../data/services/notification_service.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../core/constants.dart';
 import '../../core/module_access.dart';
+import '../../core/subscription_constants.dart';
 import '../../core/theme/module_visuals.dart';
 import '../../data/services/milestone_service.dart';
+import '../../data/services/subscription_service.dart';
 import '../../shared/widgets/app_drawer.dart';
 import '../../shared/widgets/milestone_overlay.dart';
 import '../../main.dart';
@@ -67,6 +70,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _showNotificationSetupBanner = false;
   bool _isRequestingNotificationSetup = false;
   StreamSubscription<RemoteMessage>? _notificationTapSubscription;
+  StreamSubscription<CustomerInfo>? _customerInfoSubscription;
+  String _activeSubscriptionPlan = SubscriptionConstants.planNone;
   final _dashboardController = DashboardController();
   DashboardData _statsData =
       DashboardController.cachedData ??
@@ -101,6 +106,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    final cachedCustomerInfo = SubscriptionService.lastCustomerInfo;
+    if (cachedCustomerInfo != null) {
+      _activeSubscriptionPlan = SubscriptionService.activePlan(
+        cachedCustomerInfo,
+      );
+    }
+    _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
+      _onCustomerInfoUpdated,
+    );
+    unawaited(_refreshSubscriptionPlan());
     _refreshModuleAccess();
     _checkForUpdates();
     _fetchNomeGuerra();
@@ -117,6 +132,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void dispose() {
     _notificationTapSubscription?.cancel();
+    _customerInfoSubscription?.cancel();
     _milestoneOverlayEntry?.remove();
     _milestoneOverlayEntry = null;
     WidgetsBinding.instance.removeObserver(this);
@@ -128,6 +144,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       _checkForUpdates();
       _checkNotificationSetupBanner();
+      unawaited(_refreshSubscriptionPlan());
     }
   }
 
@@ -667,11 +684,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  void _navigateToSupportShipRate() {
-    Navigator.push(
+  Future<void> _navigateToSupportShipRate() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const SubscriptionPage()),
     );
+    if (mounted) unawaited(_refreshSubscriptionPlan());
+  }
+
+  void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
+    final plan = SubscriptionService.activePlan(customerInfo);
+    if (!mounted || plan == _activeSubscriptionPlan) return;
+    setState(() => _activeSubscriptionPlan = plan);
+  }
+
+  Future<void> _refreshSubscriptionPlan() async {
+    final customerInfo = await SubscriptionService.refreshCustomerInfo();
+    if (!mounted || customerInfo == null) return;
+
+    final plan = SubscriptionService.activePlan(customerInfo);
+    if (plan == _activeSubscriptionPlan) return;
+    setState(() => _activeSubscriptionPlan = plan);
   }
 
   // ===========================================================================
@@ -797,10 +830,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildSupportShipRateButton(AppLocalizations l10n) {
+    final isPremium =
+        _activeSubscriptionPlan == SubscriptionConstants.planPremium;
+    final isPlus = _activeSubscriptionPlan == SubscriptionConstants.planPlus;
+    final label =
+        isPremium
+            ? l10n.premiumActiveLabel
+            : isPlus
+            ? l10n.plusActiveLabel
+            : l10n.supportShipRate;
+    final accentColor =
+        isPremium ? const Color(0xFFFFD54F) : const Color(0xFFFFB74D);
+    final icon =
+        isPremium ? Icons.workspace_premium_rounded : Icons.star_rounded;
+
     return SizedBox(
       width: 132,
       child: Material(
-        color: const Color(0xFFFFB74D),
+        color: accentColor,
         borderRadius: BorderRadius.circular(9),
         child: InkWell(
           onTap: _navigateToSupportShipRate,
@@ -812,18 +859,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.star_rounded,
-                    color: Color(0xFF0A1628),
-                    size: 15,
-                  ),
+                  Icon(icon, color: const Color(0xFF0A1628), size: 15),
                   const SizedBox(width: 4),
                   Expanded(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.center,
                       child: Text(
-                        l10n.supportShipRate,
+                        label,
                         maxLines: 1,
                         softWrap: false,
                         style: const TextStyle(

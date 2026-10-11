@@ -26,6 +26,11 @@ class SubscriptionConstants {
   static const String privacyPolicyUrl =
       'https://shiprate-daf18.web.app/privacy';
 
+  /// Official App Store destination for changing or cancelling subscriptions.
+  /// RevenueCat's customer-specific management URL is preferred when present.
+  static const String appleSubscriptionsUrl =
+      'https://apps.apple.com/account/subscriptions';
+
   // Plan values stored in `usuarios/{uid}.subscription.plan`.
   static const String planNone = 'none';
   static const String planPlus = 'plus';

@@ -44,6 +44,13 @@ void main() {
       );
     });
   });
+
+  test('restore reports an error when RevenueCat is not configured', () async {
+    expect(
+      await SubscriptionService.restorePurchasesDetailed(),
+      RestoreOutcome.error,
+    );
+  });
 }
 
 CustomerInfo _customerInfo(List<String> activeSubscriptions) {

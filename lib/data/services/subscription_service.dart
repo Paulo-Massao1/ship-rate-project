@@ -30,6 +30,19 @@ enum PurchaseOutcome {
   error,
 }
 
+/// Outcome of asking the store to recover purchases made with its current
+/// account. Restoring never creates a new charge.
+enum RestoreOutcome {
+  /// An active ShipRate plan was found and restored.
+  restored,
+
+  /// The store request succeeded but no active ShipRate plan was found.
+  noActiveSubscription,
+
+  /// RevenueCat or the store could not complete the restore request.
+  error,
+}
+
 /// Service wrapping the RevenueCat SDK (Plus / Premium subscriptions).
 ///
 /// The SDK is only configured when a real API key is set in
@@ -184,18 +197,29 @@ class SubscriptionService {
   ///
   /// Returns true when an active entitlement was restored.
   static Future<bool> restorePurchases() async {
-    if (!_configured) return false;
+    return await restorePurchasesDetailed() == RestoreOutcome.restored;
+  }
+
+  /// Restores purchases and distinguishes an empty result from a store error.
+  static Future<RestoreOutcome> restorePurchasesDetailed() async {
+    if (!_configured) return RestoreOutcome.error;
 
     try {
       final customerInfo = await Purchases.restorePurchases();
       _lastCustomerInfo = customerInfo;
       await _syncSubscriptionToFirestore(customerInfo);
-      return activePlan(customerInfo) != SubscriptionConstants.planNone;
+      return activePlan(customerInfo) != SubscriptionConstants.planNone
+          ? RestoreOutcome.restored
+          : RestoreOutcome.noActiveSubscription;
     } catch (e) {
       debugPrint('SubscriptionService.restorePurchases error: $e');
-      return false;
+      return RestoreOutcome.error;
     }
   }
+
+  /// Refreshes the verified RevenueCat state for screens that resume after
+  /// visiting the App Store subscription-management page.
+  static Future<CustomerInfo?> refreshCustomerInfo() => _fetchCustomerInfo();
 
   /// Identifies the RevenueCat user with the Firebase [uid].
   static Future<void> logIn(String uid) async {

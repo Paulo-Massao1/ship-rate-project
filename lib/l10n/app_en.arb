@@ -2179,6 +2179,14 @@
   "@supportShipRate": {
     "description": "Title of the subscription page app bar."
   },
+  "premiumActiveLabel": "Premium active",
+  "@premiumActiveLabel": {
+    "description": "Compact home badge shown to an active Premium subscriber."
+  },
+  "plusActiveLabel": "Plus active",
+  "@plusActiveLabel": {
+    "description": "Compact home badge shown to an active Plus subscriber."
+  },
   "subscriptionDescription": "Your subscription keeps the app running and unlocks exclusive tools for your daily work.",
   "@subscriptionDescription": {
     "description": "Descriptive text shown at the top of the subscription page."
@@ -2231,6 +2239,39 @@
   "@restorePurchases": {
     "description": "Label of the button that restores previous purchases."
   },
+  "restorePurchasesTitle": "Restore purchases?",
+  "@restorePurchasesTitle": {
+    "description": "Title of the confirmation shown before restoring purchases."
+  },
+  "restorePurchasesDescription": "This option looks for a previous subscription made with the current App Store account. No new charge will be made.",
+  "@restorePurchasesDescription": {
+    "description": "Explanation shown before restoring previous purchases."
+  },
+  "restorePurchasesConfirm": "Restore",
+  "@restorePurchasesConfirm": {
+    "description": "Confirmation button that starts restoring purchases."
+  },
+  "restoreSuccessTitle": "Purchases restored",
+  "@restoreSuccessTitle": {
+    "description": "Title shown after an active subscription is restored."
+  },
+  "restoreSuccessMessage": "Your {plan} plan was found and is active on this device.",
+  "@restoreSuccessMessage": {
+    "description": "Message shown after an active subscription is restored.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreNotFoundTitle": "No subscription found",
+  "@restoreNotFoundTitle": {
+    "description": "Title shown when restore finds no active subscription."
+  },
+  "restoreNotFoundMessage": "We could not find an active subscription for this App Store account. Make sure you are using the same Apple ID used for the purchase.",
+  "@restoreNotFoundMessage": {
+    "description": "Message shown when restore finds no active subscription."
+  },
   "currentPlan": "Current plan",
   "@currentPlan": {
     "description": "Label of the disabled button on the plan the user already owns."
@@ -2241,7 +2282,16 @@
   },
   "subscriptionSuccess": "Subscription activated!",
   "@subscriptionSuccess": {
-    "description": "Snackbar shown after a successful purchase or restore."
+    "description": "Title shown after a successful subscription purchase."
+  },
+  "subscriptionSuccessMessage": "Thank you for supporting ShipRate. Your {plan} plan is now active and its features have been unlocked.",
+  "@subscriptionSuccessMessage": {
+    "description": "Professional confirmation shown after a subscription purchase.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
   },
   "subscriptionError": "Could not process. Please try again.",
   "@subscriptionError": {
@@ -2274,6 +2324,14 @@
   "activeBadge": "ACTIVE",
   "@activeBadge": {
     "description": "Badge marking the subscription plan the user currently owns."
+  },
+  "manageSubscription": "Manage subscription",
+  "@manageSubscription": {
+    "description": "Button that opens the store subscription management page."
+  },
+  "manageSubscriptionError": "Could not open subscription management. Please try again.",
+  "@manageSubscriptionError": {
+    "description": "Message shown when the store subscription management page cannot open."
   },
   "exclusiveFeature": "Exclusive feature",
   "@exclusiveFeature": {

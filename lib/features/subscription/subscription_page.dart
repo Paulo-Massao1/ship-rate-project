@@ -21,8 +21,10 @@ class SubscriptionPage extends StatefulWidget {
   State<SubscriptionPage> createState() => _SubscriptionPageState();
 }
 
-class _SubscriptionPageState extends State<SubscriptionPage> {
+class _SubscriptionPageState extends State<SubscriptionPage>
+    with WidgetsBindingObserver {
   static const _premiumColor = Color(0xFF64B5F6);
+  static const _premiumActiveColor = Color(0xFFFFD54F);
   static const _plusColor = Color(0xFFFFB74D);
   static const _darkNavy = Color(0xFF0A1628);
 
@@ -38,11 +40,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   /// Plan whose purchase flow is running, null when no purchase is in flight.
   String? _purchasingPlan;
   bool _restoring = false;
+  bool _managingSubscription = false;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _customerInfoSubscription = SubscriptionService.customerInfoStream.listen(
       _onCustomerInfoUpdated,
     );
@@ -52,7 +56,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   @override
   void dispose() {
     _customerInfoSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_refreshActivePlan());
+    }
   }
 
   // ===========================================================================
@@ -77,6 +89,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     final customerInfo = SubscriptionService.lastCustomerInfo;
     if (customerInfo == null) return SubscriptionConstants.planNone;
     return SubscriptionService.activePlan(customerInfo);
+  }
+
+  Future<void> _refreshActivePlan() async {
+    final customerInfo = await SubscriptionService.refreshCustomerInfo();
+    if (!mounted || customerInfo == null) return;
+
+    final plan = SubscriptionService.activePlan(customerInfo);
+    if (plan == _activePlan) return;
+    setState(() => _activePlan = plan);
   }
 
   void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
@@ -133,8 +154,26 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
     switch (result) {
       case PurchaseOutcome.success:
-        _showSnackBar(l10n.subscriptionSuccess);
-        Navigator.pop(context);
+        final customerInfo = SubscriptionService.lastCustomerInfo;
+        final activatedPlan =
+            customerInfo == null
+                ? plan
+                : SubscriptionService.activePlan(customerInfo);
+        setState(() => _activePlan = activatedPlan);
+        await _showSubscriptionStatusDialog(
+          accentColor:
+              activatedPlan == SubscriptionConstants.planPremium
+                  ? _premiumActiveColor
+                  : _plusColor,
+          icon:
+              activatedPlan == SubscriptionConstants.planPremium
+                  ? Icons.workspace_premium_rounded
+                  : Icons.star_rounded,
+          title: l10n.subscriptionSuccess,
+          message: l10n.subscriptionSuccessMessage(
+            _localizedPlanName(l10n, activatedPlan),
+          ),
+        );
       case PurchaseOutcome.cancelled:
         // The user dismissed the store sheet, stay on the page silently.
         break;
@@ -153,8 +192,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     if (_restoring || _purchasingPlan != null) return;
 
     final l10n = AppLocalizations.of(context)!;
+    final confirmed = await _confirmRestorePurchases(l10n);
+    if (!mounted || !confirmed) return;
+
     setState(() => _restoring = true);
-    final restored = await SubscriptionService.restorePurchases();
+    final outcome = await SubscriptionService.restorePurchasesDetailed();
     if (!mounted) return;
 
     final customerInfo = SubscriptionService.lastCustomerInfo;
@@ -165,9 +207,214 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       }
     });
 
-    _showSnackBar(
-      restored ? l10n.subscriptionSuccess : l10n.subscriptionError,
-      isError: !restored,
+    switch (outcome) {
+      case RestoreOutcome.restored:
+        final restoredPlan =
+            customerInfo == null
+                ? _activePlan
+                : SubscriptionService.activePlan(customerInfo);
+        await _showSubscriptionStatusDialog(
+          accentColor:
+              restoredPlan == SubscriptionConstants.planPremium
+                  ? _premiumActiveColor
+                  : _plusColor,
+          icon: Icons.restore_rounded,
+          title: l10n.restoreSuccessTitle,
+          message: l10n.restoreSuccessMessage(
+            _localizedPlanName(l10n, restoredPlan),
+          ),
+        );
+      case RestoreOutcome.noActiveSubscription:
+        await _showSubscriptionStatusDialog(
+          accentColor: _premiumColor,
+          icon: Icons.search_off_rounded,
+          title: l10n.restoreNotFoundTitle,
+          message: l10n.restoreNotFoundMessage,
+        );
+      case RestoreOutcome.error:
+        _showSnackBar(l10n.subscriptionError, isError: true);
+    }
+  }
+
+  Future<void> _manageSubscription() async {
+    if (_managingSubscription || _purchasingPlan != null || _restoring) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _managingSubscription = true);
+
+    final customerInfo = await SubscriptionService.refreshCustomerInfo();
+    final revenueCatUrl = customerInfo?.managementURL?.trim();
+    final managementUrl =
+        revenueCatUrl != null && revenueCatUrl.isNotEmpty
+            ? revenueCatUrl
+            : SubscriptionConstants.appleSubscriptionsUrl;
+    final opened = await UrlLauncherService.openExternalUrl(managementUrl);
+
+    if (!mounted) return;
+    setState(() => _managingSubscription = false);
+    if (!opened) {
+      _showSnackBar(l10n.manageSubscriptionError, isError: true);
+    }
+  }
+
+  String _localizedPlanName(AppLocalizations l10n, String plan) {
+    return plan == SubscriptionConstants.planPremium
+        ? l10n.premiumPlan
+        : l10n.plusPlan;
+  }
+
+  Future<bool> _confirmRestorePurchases(AppLocalizations l10n) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            backgroundColor: const Color(0xFF13283D),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0x3364B5F6)),
+            ),
+            icon: const Icon(
+              Icons.restore_rounded,
+              color: _plusColor,
+              size: 32,
+            ),
+            title: Text(
+              l10n.restorePurchasesTitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            content: Text(
+              l10n.restorePurchasesDescription,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xB3FFFFFF),
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(color: Color(0x99FFFFFF)),
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _plusColor,
+                  foregroundColor: _darkNavy,
+                ),
+                icon: const Icon(Icons.restore_rounded, size: 18),
+                label: Text(l10n.restorePurchasesConfirm),
+              ),
+            ],
+          ),
+    );
+    return confirmed ?? false;
+  }
+
+  Future<void> _showSubscriptionStatusDialog({
+    required Color accentColor,
+    required IconData icon,
+    required String title,
+    required String message,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder:
+          (dialogContext) => Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 390),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(22, 16, 22, 22),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF13283D),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: accentColor.withValues(alpha: 0.4)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x66000000),
+                      blurRadius: 24,
+                      offset: Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        tooltip: l10n.close,
+                        onPressed: () => Navigator.pop(dialogContext),
+                        icon: const Icon(Icons.close_rounded),
+                        color: const Color(0x99FFFFFF),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: accentColor.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Icon(icon, color: accentColor, size: 30),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Color(0xB3FFFFFF),
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: accentColor,
+                          foregroundColor: _darkNavy,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: Text(
+                          l10n.close,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
     );
   }
 
@@ -382,6 +629,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             color: _premiumColor,
             onPressed: () => _subscribe(SubscriptionConstants.planPremium),
           ),
+          if (isActive) ...[
+            const SizedBox(height: 10),
+            _buildManageSubscriptionButton(_premiumActiveColor, l10n),
+          ],
         ],
       ),
     );
@@ -433,6 +684,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             color: _plusColor,
             onPressed: () => _subscribe(SubscriptionConstants.planPlus),
           ),
+          if (isActive) ...[
+            const SizedBox(height: 10),
+            _buildManageSubscriptionButton(_plusColor, l10n),
+          ],
         ],
       ),
     );
@@ -614,6 +869,34 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildManageSubscriptionButton(Color color, AppLocalizations l10n) {
+    final enabled =
+        !_managingSubscription && !_restoring && _purchasingPlan == null;
+
+    return OutlinedButton.icon(
+      onPressed: enabled ? _manageSubscription : null,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: color,
+        disabledForegroundColor: color.withValues(alpha: 0.45),
+        side: BorderSide(color: color.withValues(alpha: enabled ? 0.75 : 0.25)),
+        padding: const EdgeInsets.symmetric(vertical: 11),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      icon:
+          _managingSubscription
+              ? SizedBox(
+                width: 17,
+                height: 17,
+                child: CircularProgressIndicator(strokeWidth: 2, color: color),
+              )
+              : const Icon(Icons.settings_outlined, size: 18),
+      label: Text(
+        l10n.manageSubscription,
+        style: const TextStyle(fontWeight: FontWeight.w700),
       ),
     );
   }

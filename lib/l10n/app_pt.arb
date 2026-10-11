@@ -2206,6 +2206,14 @@
   "@supportShipRate": {
     "description": "Title of the subscription page app bar."
   },
+  "premiumActiveLabel": "Premium ativo",
+  "@premiumActiveLabel": {
+    "description": "Compact home badge shown to an active Premium subscriber."
+  },
+  "plusActiveLabel": "Plus ativo",
+  "@plusActiveLabel": {
+    "description": "Compact home badge shown to an active Plus subscriber."
+  },
   "subscriptionDescription": "Sua assinatura mantém o app ativo e desbloqueia ferramentas exclusivas para o seu dia a dia.",
   "@subscriptionDescription": {
     "description": "Descriptive text shown at the top of the subscription page."
@@ -2258,6 +2266,39 @@
   "@restorePurchases": {
     "description": "Label of the button that restores previous purchases."
   },
+  "restorePurchasesTitle": "Restaurar compras?",
+  "@restorePurchasesTitle": {
+    "description": "Title of the confirmation shown before restoring purchases."
+  },
+  "restorePurchasesDescription": "Esta opção procura uma assinatura anterior feita com a conta atual da App Store. Nenhuma nova cobrança será realizada.",
+  "@restorePurchasesDescription": {
+    "description": "Explanation shown before restoring previous purchases."
+  },
+  "restorePurchasesConfirm": "Restaurar",
+  "@restorePurchasesConfirm": {
+    "description": "Confirmation button that starts restoring purchases."
+  },
+  "restoreSuccessTitle": "Compras restauradas",
+  "@restoreSuccessTitle": {
+    "description": "Title shown after an active subscription is restored."
+  },
+  "restoreSuccessMessage": "Seu plano {plan} foi encontrado e está ativo neste dispositivo.",
+  "@restoreSuccessMessage": {
+    "description": "Message shown after an active subscription is restored.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreNotFoundTitle": "Nenhuma assinatura encontrada",
+  "@restoreNotFoundTitle": {
+    "description": "Title shown when restore finds no active subscription."
+  },
+  "restoreNotFoundMessage": "Não encontramos uma assinatura ativa nesta conta da App Store. Confirme se está usando o mesmo Apple ID da compra.",
+  "@restoreNotFoundMessage": {
+    "description": "Message shown when restore finds no active subscription."
+  },
   "currentPlan": "Plano atual",
   "@currentPlan": {
     "description": "Label of the disabled button on the plan the user already owns."
@@ -2268,7 +2309,16 @@
   },
   "subscriptionSuccess": "Assinatura ativada!",
   "@subscriptionSuccess": {
-    "description": "Snackbar shown after a successful purchase or restore."
+    "description": "Title shown after a successful subscription purchase."
+  },
+  "subscriptionSuccessMessage": "Obrigado por apoiar o ShipRate. Seu plano {plan} já está ativo e os recursos correspondentes foram liberados.",
+  "@subscriptionSuccessMessage": {
+    "description": "Professional confirmation shown after a subscription purchase.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
   },
   "subscriptionError": "Não foi possível processar. Tente novamente.",
   "@subscriptionError": {
@@ -2301,6 +2351,14 @@
   "activeBadge": "ATIVO",
   "@activeBadge": {
     "description": "Badge marking the subscription plan the user currently owns."
+  },
+  "manageSubscription": "Gerenciar assinatura",
+  "@manageSubscription": {
+    "description": "Button that opens the store subscription management page."
+  },
+  "manageSubscriptionError": "Não foi possível abrir o gerenciamento da assinatura. Tente novamente.",
+  "@manageSubscriptionError": {
+    "description": "Message shown when the store subscription management page cannot open."
   },
   "exclusiveFeature": "Funcionalidade exclusiva",
   "@exclusiveFeature": {

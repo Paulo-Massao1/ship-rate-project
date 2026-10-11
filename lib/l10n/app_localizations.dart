@@ -62,7 +62,8 @@ import 'app_localizations_pt.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// Title text for app.
@@ -3065,6 +3068,18 @@ abstract class AppLocalizations {
   /// **'Apoie o ShipRate'**
   String get supportShipRate;
 
+  /// Compact home badge shown to an active Premium subscriber.
+  ///
+  /// In pt, this message translates to:
+  /// **'Premium ativo'**
+  String get premiumActiveLabel;
+
+  /// Compact home badge shown to an active Plus subscriber.
+  ///
+  /// In pt, this message translates to:
+  /// **'Plus ativo'**
+  String get plusActiveLabel;
+
   /// Descriptive text shown at the top of the subscription page.
   ///
   /// In pt, this message translates to:
@@ -3143,6 +3158,27 @@ abstract class AppLocalizations {
   /// **'Restaurar compras'**
   String get restorePurchases;
 
+  /// Title of the confirmation shown before restoring purchases.
+  String get restorePurchasesTitle;
+
+  /// Explanation shown before restoring previous purchases.
+  String get restorePurchasesDescription;
+
+  /// Confirmation button that starts restoring purchases.
+  String get restorePurchasesConfirm;
+
+  /// Title shown after an active subscription is restored.
+  String get restoreSuccessTitle;
+
+  /// Message shown after an active subscription is restored.
+  String restoreSuccessMessage(String plan);
+
+  /// Title shown when restore finds no active subscription.
+  String get restoreNotFoundTitle;
+
+  /// Message shown when restore finds no active subscription.
+  String get restoreNotFoundMessage;
+
   /// Label of the disabled button on the plan the user already owns.
   ///
   /// In pt, this message translates to:
@@ -3160,6 +3196,9 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Assinatura ativada!'**
   String get subscriptionSuccess;
+
+  /// Professional confirmation shown after a subscription purchase.
+  String subscriptionSuccessMessage(String plan);
 
   /// Snackbar shown when a purchase or restore fails.
   ///
@@ -3208,6 +3247,12 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'ATIVO'**
   String get activeBadge;
+
+  /// Button that opens the store subscription management page.
+  String get manageSubscription;
+
+  /// Message shown when the subscription management page cannot open.
+  String get manageSubscriptionError;
 
   /// Title of the sheet shown when a locked feature is opened.
   ///
@@ -4332,7 +4377,8 @@ abstract class AppLocalizations {
   String get maneuverPilotageMandatory;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -4341,25 +4387,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'pt'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'pt'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'pt': return AppLocalizationsPt();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'pt':
+      return AppLocalizationsPt();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }
