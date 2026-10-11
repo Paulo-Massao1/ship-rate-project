@@ -992,7 +992,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
           borderRadius: BorderRadius.circular(12),
           child: Container(
             constraints: const BoxConstraints(minHeight: 98),
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
             decoration: BoxDecoration(
               color: const Color(0x0DFFFFFF),
               borderRadius: BorderRadius.circular(12),
@@ -1004,41 +1004,51 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    flex: 9,
+                    flex: 10,
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        dateText,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Color(0xFF80CBC4),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          dateText,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: const TextStyle(
+                            color: Color(0xFF80CBC4),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   Expanded(
-                    flex: 18,
+                    flex: 23,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Flexible(
+                        Expanded(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                locationName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.right,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 14,
+                              SizedBox(
+                                width: double.infinity,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    locationName,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 1),
@@ -1055,7 +1065,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 7),
                         Flexible(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
@@ -1075,7 +1085,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     ),
                   ),
                   Expanded(
-                    flex: 10,
+                    flex: 12,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -1090,15 +1100,21 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                                     child: likeAction,
                                   ),
                         ),
-                        Text(
-                          pilotText,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            color: Color(0xB3FFFFFF),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                        SizedBox(
+                          width: double.infinity,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              pilotText,
+                              maxLines: 1,
+                              softWrap: false,
+                              style: const TextStyle(
+                                color: Color(0xB3FFFFFF),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],

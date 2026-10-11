@@ -790,46 +790,53 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         _buildSupportShipRateButton(l10n),
       ],
     );
   }
 
   Widget _buildSupportShipRateButton(AppLocalizations l10n) {
-    return Material(
-      color: const Color(0xFFFFB74D),
-      borderRadius: BorderRadius.circular(9),
-      child: InkWell(
-        onTap: _navigateToSupportShipRate,
+    return SizedBox(
+      width: 132,
+      child: Material(
+        color: const Color(0xFFFFB74D),
         borderRadius: BorderRadius.circular(9),
-        child: Container(
-          height: 36,
-          constraints: const BoxConstraints(maxWidth: 142),
-          padding: const EdgeInsets.symmetric(horizontal: 11),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.star_rounded,
-                color: Color(0xFF0A1628),
-                size: 17,
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  l10n.supportShipRate,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+        child: InkWell(
+          onTap: _navigateToSupportShipRate,
+          borderRadius: BorderRadius.circular(9),
+          child: SizedBox(
+            height: 36,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.star_rounded,
                     color: Color(0xFF0A1628),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    size: 15,
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.center,
+                      child: Text(
+                        l10n.supportShipRate,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: const TextStyle(
+                          color: Color(0xFF0A1628),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
