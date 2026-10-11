@@ -26,6 +26,42 @@ void main() {
       );
     });
 
+    test('active Plus product takes priority over a Premium entitlement', () {
+      final premiumEntitlement = _entitlement(
+        SubscriptionConstants.premiumEntitlement,
+        SubscriptionConstants.plusMonthly,
+      );
+      final info = _customerInfo(
+        [SubscriptionConstants.plusMonthly],
+        activeEntitlements: {
+          SubscriptionConstants.premiumEntitlement: premiumEntitlement,
+        },
+      );
+
+      expect(
+        SubscriptionService.activePlan(info),
+        SubscriptionConstants.planPlus,
+      );
+    });
+
+    test('uses the entitlement source product before its identifier', () {
+      final premiumEntitlement = _entitlement(
+        SubscriptionConstants.premiumEntitlement,
+        SubscriptionConstants.plusMonthly,
+      );
+      final info = _customerInfo(
+        const [],
+        activeEntitlements: {
+          SubscriptionConstants.premiumEntitlement: premiumEntitlement,
+        },
+      );
+
+      expect(
+        SubscriptionService.activePlan(info),
+        SubscriptionConstants.planPlus,
+      );
+    });
+
     test('accepts a Google Play base-plan suffix', () {
       final info = _customerInfo([
         '${SubscriptionConstants.premiumMonthly}:monthly',
@@ -53,9 +89,12 @@ void main() {
   });
 }
 
-CustomerInfo _customerInfo(List<String> activeSubscriptions) {
+CustomerInfo _customerInfo(
+  List<String> activeSubscriptions, {
+  Map<String, EntitlementInfo> activeEntitlements = const {},
+}) {
   return CustomerInfo(
-    const EntitlementInfos({}, {}),
+    EntitlementInfos(activeEntitlements, activeEntitlements),
     const {},
     activeSubscriptions,
     const [],
@@ -64,5 +103,17 @@ CustomerInfo _customerInfo(List<String> activeSubscriptions) {
     'test-user',
     const {},
     '2026-01-01T00:00:00Z',
+  );
+}
+
+EntitlementInfo _entitlement(String identifier, String productIdentifier) {
+  return EntitlementInfo(
+    identifier,
+    true,
+    true,
+    '2026-01-01T00:00:00Z',
+    '2026-01-01T00:00:00Z',
+    productIdentifier,
+    true,
   );
 }

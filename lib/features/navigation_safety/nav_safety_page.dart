@@ -1004,7 +1004,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    flex: 10,
+                    flex: 9,
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: FittedBox(
@@ -1016,7 +1016,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                           softWrap: false,
                           style: const TextStyle(
                             color: Color(0xFF80CBC4),
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -1024,68 +1024,66 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     ),
                   ),
                   Expanded(
-                    flex: 23,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    flex: 26,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    locationName,
-                                    maxLines: 1,
-                                    softWrap: false,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 1),
-                              Text(
-                                l10n.totalDepthShort,
-                                maxLines: 1,
-                                style: const TextStyle(
-                                  color: Color(0xFFFFCC80),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 7),
-                        Flexible(
+                        SizedBox(
+                          width: double.infinity,
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
+                            alignment: Alignment.center,
                             child: Text(
-                              _formatMeters(depth),
+                              locationName,
                               maxLines: 1,
+                              softWrap: false,
                               style: const TextStyle(
-                                color: Color(0xFFFFB74D),
+                                color: Colors.white,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 21,
-                                height: 1,
+                                fontSize: 13,
                               ),
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              l10n.totalDepthShort,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Color(0xFFFFCC80),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(width: 7),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _formatMeters(depth),
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFB74D),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 19,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                   Expanded(
-                    flex: 12,
+                    flex: 11,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,

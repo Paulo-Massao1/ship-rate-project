@@ -117,13 +117,19 @@ class SubscriptionService {
     _listenAuthChanges();
   }
 
-  /// Whether the user owns the `plus` entitlement.
-  static Future<bool> isPlusSubscriber() =>
-      _hasEntitlement(SubscriptionConstants.plusEntitlement);
+  /// Whether the user owns a plan that includes the Plus features.
+  static Future<bool> isPlusSubscriber() async {
+    final customerInfo = await _fetchCustomerInfo();
+    if (customerInfo == null) return false;
+    return activePlan(customerInfo) != SubscriptionConstants.planNone;
+  }
 
-  /// Whether the user owns the `premium` entitlement.
-  static Future<bool> isPremiumSubscriber() =>
-      _hasEntitlement(SubscriptionConstants.premiumEntitlement);
+  /// Whether the user owns the Premium plan.
+  static Future<bool> isPremiumSubscriber() async {
+    final customerInfo = await _fetchCustomerInfo();
+    if (customerInfo == null) return false;
+    return activePlan(customerInfo) == SubscriptionConstants.planPremium;
+  }
 
   /// Whether the user owns any subscription (plus OR premium).
   static Future<bool> isAnySubscriber() async {
@@ -157,7 +163,12 @@ class SubscriptionService {
       final result = await Purchases.purchase(PurchaseParams.package(package));
       _lastCustomerInfo = result.customerInfo;
       await _syncSubscriptionToFirestore(result.customerInfo);
-      return activePlan(result.customerInfo) != SubscriptionConstants.planNone
+      final purchasedPlan = _planFromProductIds([
+        package.storeProduct.identifier,
+      ]);
+      final activePlanAfterPurchase = activePlan(result.customerInfo);
+      return purchasedPlan != SubscriptionConstants.planNone &&
+              activePlanAfterPurchase == purchasedPlan
           ? PurchaseOutcome.success
           : PurchaseOutcome.error;
     } on PlatformException catch (e) {
@@ -248,9 +259,28 @@ class SubscriptionService {
     }
   }
 
-  /// Highest plan granted by the active entitlements of [customerInfo].
+  /// Active plan verified from the store product that grants access.
+  ///
+  /// Product identifiers are intentionally checked before entitlement names.
+  /// A Premium product normally grants both the Plus and Premium entitlements,
+  /// and a dashboard association mistake can also leave an unexpected
+  /// entitlement active. The purchased product is therefore the safest source
+  /// for deciding which plan name, benefits and confirmation message to show.
   static String activePlan(CustomerInfo customerInfo) {
+    final subscriptionPlan = _planFromProductIds(
+      customerInfo.activeSubscriptions,
+    );
+    if (subscriptionPlan != SubscriptionConstants.planNone) {
+      return subscriptionPlan;
+    }
+
     final active = customerInfo.entitlements.active;
+    final entitlementProductPlan = _planFromProductIds(
+      active.values.map((entitlement) => entitlement.productIdentifier),
+    );
+    if (entitlementProductPlan != SubscriptionConstants.planNone) {
+      return entitlementProductPlan;
+    }
 
     if (active.containsKey(SubscriptionConstants.premiumEntitlement)) {
       return SubscriptionConstants.planPremium;
@@ -259,30 +289,28 @@ class SubscriptionService {
       return SubscriptionConstants.planPlus;
     }
 
-    // Keep paid access working even if a RevenueCat entitlement is
-    // accidentally detached while the App Store subscription itself is
-    // active. Entitlements remain the primary source of truth; active store
-    // products are a safe fallback supplied by the verified CustomerInfo.
-    if (_containsActiveProduct(
-      customerInfo.activeSubscriptions,
-      SubscriptionConstants.premiumMonthly,
-    )) {
-      return SubscriptionConstants.planPremium;
-    }
-    if (_containsActiveProduct(
-      customerInfo.activeSubscriptions,
-      SubscriptionConstants.plusMonthly,
-    )) {
-      return SubscriptionConstants.planPlus;
-    }
     return SubscriptionConstants.planNone;
   }
 
-  static bool _containsActiveProduct(List<String> activeProducts, String id) {
-    return activeProducts.any(
-      (productId) => productId == id || productId.startsWith('$id:'),
-    );
+  static String _planFromProductIds(Iterable<String> productIds) {
+    var hasPlus = false;
+
+    for (final productId in productIds) {
+      if (_matchesProduct(productId, SubscriptionConstants.premiumMonthly)) {
+        return SubscriptionConstants.planPremium;
+      }
+      if (_matchesProduct(productId, SubscriptionConstants.plusMonthly)) {
+        hasPlus = true;
+      }
+    }
+
+    return hasPlus
+        ? SubscriptionConstants.planPlus
+        : SubscriptionConstants.planNone;
   }
+
+  static bool _matchesProduct(String productId, String expectedId) =>
+      productId == expectedId || productId.startsWith('$expectedId:');
 
   // ===========================================================================
   // PRIVATE METHODS
@@ -309,12 +337,6 @@ class SubscriptionService {
     }
 
     unawaited(_syncSubscriptionToFirestore(customerInfo));
-  }
-
-  static Future<bool> _hasEntitlement(String entitlementId) async {
-    final customerInfo = await _fetchCustomerInfo();
-    return customerInfo?.entitlements.active.containsKey(entitlementId) ??
-        false;
   }
 
   static Future<CustomerInfo?> _fetchCustomerInfo() async {
