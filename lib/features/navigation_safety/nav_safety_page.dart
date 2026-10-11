@@ -1027,12 +1027,13 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     flex: 26,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: double.infinity,
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
-                            alignment: Alignment.center,
+                            alignment: Alignment.centerLeft,
                             child: Text(
                               locationName,
                               maxLines: 1,
@@ -1047,7 +1048,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         ),
                         const SizedBox(height: 2),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
