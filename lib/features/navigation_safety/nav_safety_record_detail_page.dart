@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
+import '../../core/measurement_formatter.dart';
 import '../../data/services/image_upload_service.dart';
 import '../../data/services/url_launcher_service.dart';
 
@@ -521,9 +522,7 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   }
 
   String _formatMeters(dynamic value) {
-    final text = value?.toString().trim() ?? '';
-    if (text.isEmpty) return '—';
-    return text.endsWith('m') ? text : '${text}m';
+    return MeasurementFormatter.meters(value);
   }
 
   String? _formatSpeed(dynamic value) {

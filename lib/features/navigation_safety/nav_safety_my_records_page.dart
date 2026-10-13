@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../controllers/nav_safety_controller.dart';
+import '../../core/measurement_formatter.dart';
 import '../../data/services/url_launcher_service.dart';
 import 'nav_safety_new_record_page.dart';
 
@@ -151,9 +152,7 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
   }
 
   String _formatMeters(dynamic value) {
-    final text = value?.toString().trim() ?? '';
-    if (text.isEmpty || text == '—') return '—';
-    return text.endsWith('m') ? text : '${text}m';
+    return MeasurementFormatter.meters(value);
   }
 
   String _formatDate(dynamic data, {bool includeTime = false}) {

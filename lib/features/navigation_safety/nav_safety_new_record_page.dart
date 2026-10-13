@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
 import '../../controllers/nav_safety_controller.dart';
+import '../../core/measurement_formatter.dart';
 import '../../data/services/depth_reference_service.dart';
 import '../../data/services/image_upload_service.dart';
 import '../../data/services/url_launcher_service.dart';
@@ -499,7 +500,9 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
         nomeGuerra = (userDoc.data()?['nomeGuerra'] ?? '').toString();
       }
 
-      final calculatedDepth = _calculatedDepth!;
+      final calculatedDepth = MeasurementFormatter.toHundredths(
+        _calculatedDepth!,
+      );
       final data = <String, dynamic>{
         'profundidadeTotal': calculatedDepth,
         'data': Timestamp.fromDate(_selectedDate),

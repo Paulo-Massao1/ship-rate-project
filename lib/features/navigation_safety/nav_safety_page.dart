@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../controllers/dashboard_controller.dart';
 import '../../controllers/nav_safety_controller.dart';
 import '../../core/constants.dart';
+import '../../core/measurement_formatter.dart';
 import '../../core/module_access.dart';
 import '../../data/services/url_launcher_service.dart';
 import '../../main.dart';
@@ -1025,48 +1026,45 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                   ),
                   Expanded(
                     flex: 26,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              locationName,
-                              maxLines: 1,
-                              softWrap: false,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: IntrinsicWidth(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              l10n.totalDepthShort,
-                              maxLines: 1,
-                              style: const TextStyle(
-                                color: Color(0xFFFFCC80),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                height: 1,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                locationName,
+                                maxLines: 1,
+                                softWrap: false,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 7),
-                            Flexible(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
+                            const SizedBox(height: 2),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  l10n.totalDepthShort,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFCC80),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1,
+                                  ),
+                                ),
+                                const SizedBox(width: 7),
+                                Text(
                                   _formatMeters(depth),
                                   maxLines: 1,
                                   style: const TextStyle(
@@ -1076,11 +1074,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                                     height: 1,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                   Expanded(
@@ -1475,9 +1473,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   String _formatMeters(dynamic value) {
-    final text = value?.toString().trim() ?? '';
-    if (text.isEmpty) return '—';
-    return text.endsWith('m') ? text : '${text}m';
+    return MeasurementFormatter.meters(value);
   }
 }
 
