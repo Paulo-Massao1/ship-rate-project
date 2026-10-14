@@ -1,4 +1,8 @@
-const TEST_EMAILS = ["gcbrgame@gmail.com", "spaulomassao@gmail.com"];
+const TEST_EMAILS = [
+  "gcbrgame@gmail.com",
+  "spaulomassao@gmail.com",
+  "shipratesuporte@gmail.com",
+];
 const USER_COUNT_EXCLUDED_EMAILS = [
   ...TEST_EMAILS,
   "testerapptores@gmail.com",
