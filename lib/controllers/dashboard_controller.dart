@@ -101,6 +101,7 @@ class DashboardController {
     return {
       'ships': prefs.getInt('cached_ships') ?? 0,
       'ratings': prefs.getInt('cached_ratings') ?? 0,
+      'depths': prefs.getInt('cached_depth_total') ?? 0,
       'crossings': prefs.getInt('cached_crossings') ?? 0,
       'pilots': prefs.getInt('cached_pilots') ?? 0,
       'topRaterCount': prefs.getInt('cached_topRaterCount') ?? 0,

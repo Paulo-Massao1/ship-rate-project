@@ -79,6 +79,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ? DashboardData(
             totalShips: AppCache.stats['ships'] ?? 0,
             totalRatings: AppCache.stats['ratings'] ?? 0,
+            totalDepthRecords: AppCache.stats['depths'] ?? 0,
             totalCrossings: AppCache.stats['crossings'] ?? 0,
             totalUsers: AppCache.stats['pilots'] ?? 0,
             topRaterCount: AppCache.stats['topRaterCount'] ?? 0,
@@ -89,7 +90,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             topCrosserCount: 0,
             userCrossingRanking: 0,
             totalCrossingPilots: 0,
-            totalDepthRecords: 0,
             userDepthRecordCount: 0,
             topDepthContributorCount: 0,
             userDepthRanking: 0,
@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _checkForUpdates();
     _fetchNomeGuerra();
     debugPrint(
-      'HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, crossings=${_statsData.totalCrossings}',
+      'HOME: init with cached stats: ships=${_statsData.totalShips}, ratings=${_statsData.totalRatings}, depths=${_statsData.totalDepthRecords}, crossings=${_statsData.totalCrossings}',
     );
     _loadStats();
     WidgetsBinding.instance.addPostFrameCallback((_) {

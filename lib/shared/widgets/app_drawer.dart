@@ -107,7 +107,7 @@ class AppDrawer extends StatelessWidget {
                                 decoration: const BoxDecoration(
                                   border: Border(
                                     top: BorderSide(
-                                      color: Color(0x1A64B5F6),
+                                      color: Color(0x4064B5F6),
                                       width: 1,
                                     ),
                                   ),
@@ -544,7 +544,7 @@ class _DrawerDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(height: 1, color: const Color(0x1A64B5F6));
+    return Container(height: 1, color: const Color(0x4064B5F6));
   }
 }
 
