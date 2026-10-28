@@ -957,8 +957,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       locationName: loc.name,
       dateText: loc.latestDateFormatted ?? l10n.noRecords,
       depth: loc.latestDepth,
-      pilotText:
-          hasPilot ? l10n.pilotCallSign(loc.latestPilotName!.trim()) : '—',
+      pilotName: hasPilot ? loc.latestPilotName!.trim() : '',
       likeAction: likeAction,
       onTap: () => _onLocationTap(loc.id, loc.name),
       l10n: l10n,
@@ -969,7 +968,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     required String locationName,
     required String dateText,
     required dynamic depth,
-    required String pilotText,
+    required String pilotName,
     required VoidCallback onTap,
     required AppLocalizations l10n,
     Widget? likeAction,
@@ -995,7 +994,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    flex: 9,
+                    flex: 15,
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: FittedBox(
@@ -1015,7 +1014,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     ),
                   ),
                   Expanded(
-                    flex: 26,
+                    flex: 24,
                     child: Align(
                       alignment: Alignment.center,
                       child: IntrinsicWidth(
@@ -1072,7 +1071,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                     ),
                   ),
                   Expanded(
-                    flex: 11,
+                    flex: 15,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -1089,18 +1088,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         ),
                         SizedBox(
                           width: double.infinity,
-                          child: Text(
-                            pilotText,
-                            maxLines: 2,
-                            softWrap: true,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              color: Color(0xB3FFFFFF),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              height: 1.1,
-                            ),
-                          ),
+                          child: _buildPilotName(pilotName, l10n),
                         ),
                       ],
                     ),
@@ -1335,7 +1323,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       locationName: locationName,
       dateText: dateStr,
       depth: profTotal,
-      pilotText: pilotName.isNotEmpty ? l10n.pilotCallSign(pilotName) : '—',
+      pilotName: pilotName,
       likeAction: likeAction,
       onTap: () => _navigateToRecordDetails(record),
       l10n: l10n,
@@ -1458,6 +1446,58 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
     return '—';
+  }
+
+  Widget _buildPilotName(String pilotName, AppLocalizations l10n) {
+    const style = TextStyle(
+      color: Color(0xB3FFFFFF),
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      height: 1.1,
+    );
+    if (pilotName.isEmpty) {
+      return const Text('—', textAlign: TextAlign.right, style: style);
+    }
+
+    final fullLabel = l10n.pilotCallSign(pilotName);
+    final prefix = l10n.pilotCallSign('').trim();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: TextSpan(text: fullLabel, style: style),
+          maxLines: 1,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout();
+
+        if (painter.width <= constraints.maxWidth) {
+          return Text(
+            fullLabel,
+            maxLines: 1,
+            textAlign: TextAlign.right,
+            style: style,
+          );
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(prefix, maxLines: 1, textAlign: TextAlign.right, style: style),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                pilotName,
+                maxLines: 1,
+                textAlign: TextAlign.right,
+                style: style,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   String _formatMeters(dynamic value) {

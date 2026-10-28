@@ -1178,7 +1178,10 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
           ),
           child: TextField(
             controller: _rulerValueController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
             textAlignVertical: TextAlignVertical.center,
             expands: true,
             minLines: null,

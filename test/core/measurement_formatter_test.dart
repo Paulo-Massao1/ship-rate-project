@@ -13,6 +13,7 @@ void main() {
       expect(MeasurementFormatter.meters(13.05), '13,05m');
       expect(MeasurementFormatter.meters(12.35), '12,35m');
       expect(MeasurementFormatter.meters(17), '17,0m');
+      expect(MeasurementFormatter.meters(-0.25), '-0,25m');
     });
 
     test('normalizes numeric strings and existing units', () {
