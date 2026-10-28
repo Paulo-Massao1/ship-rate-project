@@ -1,6 +1,6 @@
 const functions = require("firebase-functions/v1");
 const { admin, db } = require("../shared/firestore");
-const { TEST_EMAILS } = require("../shared/constants");
+const { isTestAccount } = require("../shared/constants");
 
 exports.onLikeCreated = functions.firestore
   .document("locais/{locationId}/registros/{recordId}/likes/{likeId}")
@@ -40,7 +40,7 @@ exports.onLikeCreated = functions.firestore
 
       const likerDoc = await db.collection("usuarios").doc(likeId).get();
       const likerData = likerDoc.data() || {};
-      if (TEST_EMAILS.includes(likerData.email)) {
+      if (isTestAccount({ email: likerData.email, uid: likeId })) {
         console.log("Skipping: test account");
         return;
       }
@@ -53,7 +53,7 @@ exports.onLikeCreated = functions.firestore
 
       const pilotData = pilotDoc.data() || {};
 
-      if (TEST_EMAILS.includes(pilotData.email)) {
+      if (isTestAccount({ email: pilotData.email, uid: pilotId })) {
         console.log("Skipping: test account");
         return;
       }

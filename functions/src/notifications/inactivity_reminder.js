@@ -1,6 +1,6 @@
 const functions = require("firebase-functions/v1");
 const { admin, db } = require("../shared/firestore");
-const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
+const { CSPAM_UID, isTestAccount } = require("../shared/constants");
 const INACTIVITY_DAYS = 90;
 const REMINDER_COOLDOWN_DAYS = 30;
 
@@ -23,7 +23,7 @@ exports.inactivityReminder = functions.pubsub
       const userData = userDoc.data();
 
       if (uid === CSPAM_UID) continue;
-      if (TEST_EMAILS.includes(userData.email)) continue;
+      if (isTestAccount({ email: userData.email, uid })) continue;
       if (userData.pushNotifications === false) continue;
       if (!userData.fcmToken) continue;
 

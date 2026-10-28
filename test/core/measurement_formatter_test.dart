@@ -20,6 +20,17 @@ void main() {
       expect(MeasurementFormatter.meters('16.20m'), '16,2m');
     });
 
+    test('uses the requested locale decimal separator', () {
+      expect(
+        MeasurementFormatter.meters(12.899999999999999, decimalSeparator: '.'),
+        '12.9m',
+      );
+      expect(
+        MeasurementFormatter.meters(15.88, decimalSeparator: '.'),
+        '15.88m',
+      );
+    });
+
     test('returns the empty marker for missing or invalid values', () {
       expect(MeasurementFormatter.meters(null), '—');
       expect(MeasurementFormatter.meters(''), '—');

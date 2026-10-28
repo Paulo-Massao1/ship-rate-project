@@ -152,7 +152,11 @@ class _NavSafetyMyRecordsPageState extends State<NavSafetyMyRecordsPage> {
   }
 
   String _formatMeters(dynamic value) {
-    return MeasurementFormatter.meters(value);
+    return MeasurementFormatter.meters(
+      value,
+      decimalSeparator:
+          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+    );
   }
 
   String _formatDate(dynamic data, {bool includeTime = false}) {

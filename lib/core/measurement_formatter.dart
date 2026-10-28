@@ -5,7 +5,11 @@ abstract final class MeasurementFormatter {
   ///
   /// Rounding before rendering removes binary floating-point artifacts such
   /// as `13.799999999999999` while preserving values such as `13.05`.
-  static String meters(dynamic value, {String emptyValue = '—'}) {
+  static String meters(
+    dynamic value, {
+    String emptyValue = '—',
+    String decimalSeparator = ',',
+  }) {
     if (value == null) return emptyValue;
 
     final raw = value.toString().trim();
@@ -28,7 +32,7 @@ abstract final class MeasurementFormatter {
       formatted = formatted.substring(0, formatted.length - 1);
     }
 
-    return '${formatted.replaceAll('.', ',')}m';
+    return '${formatted.replaceAll('.', decimalSeparator)}m';
   }
 
   /// Rounds a value to the precision persisted for depth records.

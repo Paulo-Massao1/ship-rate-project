@@ -1,7 +1,7 @@
 const functions = require("firebase-functions/v1");
 
 const { admin, db } = require("../shared/firestore");
-const { TEST_EMAILS } = require("../shared/constants");
+const { isTestAccount } = require("../shared/constants");
 
 function timestampMillis(timestamp) {
   return timestamp && typeof timestamp.toDate === "function"
@@ -49,7 +49,7 @@ exports.onCrossingUpdated = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      if (TEST_EMAILS.includes(pilotEmail)) {
+      if (isTestAccount({ email: pilotEmail, uid: pilotId })) {
         console.log("Skipping update notifications for test account");
         return;
       }
@@ -69,7 +69,7 @@ exports.onCrossingUpdated = functions.firestore
       usersSnapshot.docs.forEach((doc) => {
         const userData = doc.data();
         if (doc.id === pilotId) return;
-        if (TEST_EMAILS.includes(userData.email)) return;
+        if (isTestAccount({ email: userData.email, uid: doc.id })) return;
         if (userData.pushCruzamento === false) return;
         if (
           userData.pushCruzamentoExpiry &&

@@ -1097,7 +1097,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   /// Fetches per-pilot depth record counts from the pre-aggregated pilot
-  /// stats, applying the same ranking-only adjustments as the depths module.
+  /// stats, applying the same ranking exclusions as the depths module.
   Future<List<_StatRankingEntry>> _fetchDepthsRanking() async {
     final firestore = FirebaseFirestore.instance;
     final countsByPilot = <String, int>{};
@@ -1112,17 +1112,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       final count = (doc.data()['depthRecordCount'] as int?) ?? 0;
       if (count > 0) countsByPilot[doc.id] = count;
     }
-
-    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
-      final current = countsByPilot[uid];
-      if (current == null) return;
-      final adjusted = current + delta;
-      if (adjusted > 0) {
-        countsByPilot[uid] = adjusted;
-      } else {
-        countsByPilot.remove(uid);
-      }
-    });
 
     return _buildRankingEntries(countsByPilot);
   }

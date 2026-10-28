@@ -475,7 +475,7 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   /// Fetches the depth contribution ranking, mirroring the same
-  /// ranking-only exclusions and adjustments used by the dashboard.
+  /// ranking exclusions used by the dashboard.
   Future<List<_DepthRankingEntry>> _fetchDepthRanking() async {
     final firestore = FirebaseFirestore.instance;
     final countsByUid = <String, int>{};
@@ -492,16 +492,6 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
     }
 
     AppConstants.excludedUids.forEach(countsByUid.remove);
-    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
-      final current = countsByUid[uid];
-      if (current == null) return;
-      final adjusted = current + delta;
-      if (adjusted > 0) {
-        countsByUid[uid] = adjusted;
-      } else {
-        countsByUid.remove(uid);
-      }
-    });
 
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     String currentUserName = '';
@@ -1099,18 +1089,16 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
                         ),
                         SizedBox(
                           width: double.infinity,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              pilotText,
-                              maxLines: 1,
-                              softWrap: false,
-                              style: const TextStyle(
-                                color: Color(0xB3FFFFFF),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          child: Text(
+                            pilotText,
+                            maxLines: 2,
+                            softWrap: true,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              color: Color(0xB3FFFFFF),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              height: 1.1,
                             ),
                           ),
                         ),
@@ -1473,7 +1461,11 @@ class _NavSafetyPageState extends State<NavSafetyPage> {
   }
 
   String _formatMeters(dynamic value) {
-    return MeasurementFormatter.meters(value);
+    return MeasurementFormatter.meters(
+      value,
+      decimalSeparator:
+          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+    );
   }
 }
 

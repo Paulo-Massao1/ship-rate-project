@@ -2,10 +2,11 @@ const functions = require("firebase-functions/v1");
 const { admin, db } = require("../shared/firestore");
 const { transporter, smtpEmail } = require("../shared/mailer");
 const {
-  TEST_EMAILS,
   CSPAM_UID,
   isRestrictedModuleUser,
+  isTestAccount,
 } = require("../shared/constants");
+const { formatMeters } = require("../shared/measurement_formatter");
 
 async function incrementDepthRecordCounters(pilotId) {
   const batch = db.batch();
@@ -66,7 +67,7 @@ exports.onNewRecord = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(record.pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      if (TEST_EMAILS.includes(pilotEmail)) {
+      if (isTestAccount({ email: pilotEmail, uid: record.pilotId })) {
         console.log("Skipping notifications for test account");
         return;
       }
@@ -74,7 +75,7 @@ exports.onNewRecord = functions.firestore
       console.error("Error checking test account:", err);
     }
 
-    const profundidadeTotal = record.profundidadeTotal || "N/A";
+    const profundidadeTotal = formatMeters(record.profundidadeTotal);
     const nomeGuerra = record.nomeGuerra || "Prático";
     const rawDate = record.data;
     let formattedDate = "N/A";
@@ -100,15 +101,17 @@ exports.onNewRecord = functions.firestore
       const usuariosSnapshot = await db.collection("usuarios").get();
       const pilotEmail = record.email || "";
       const emails = usuariosSnapshot.docs
-        .map((doc) => doc.data())
-        .filter((u) =>
-          u.email &&
-          u.emailNotifications !== false &&
-          u.email !== pilotEmail &&
-          !TEST_EMAILS.includes(u.email) &&
-          !isRestrictedModuleUser({ email: u.email })
-        )
-        .map((u) => u.email);
+        .filter((doc) => {
+          const u = doc.data();
+          return (
+            u.email &&
+            u.emailNotifications !== false &&
+            u.email !== pilotEmail &&
+            !isTestAccount({ email: u.email, uid: doc.id }) &&
+            !isRestrictedModuleUser({ email: u.email })
+          );
+        })
+        .map((doc) => doc.data().email);
 
       if (emails.length > 0) {
         const mailOptions = {
@@ -129,7 +132,7 @@ exports.onNewRecord = functions.firestore
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: rgba(255,255,255,0.6);">Profundidade Total</td>
-                  <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #26a69a; font-size: 18px;">${profundidadeTotal}m</td>
+                  <td style="padding: 8px 0; text-align: right; font-weight: bold; color: #26a69a; font-size: 18px;">${profundidadeTotal}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: rgba(255,255,255,0.6);">Prático</td>
@@ -170,7 +173,7 @@ exports.onNewRecord = functions.firestore
         // Skip users restricted to the core modules
         if (isRestrictedModuleUser({ email: data.email, uid: doc.id })) return;
         // Skip test accounts
-        if (TEST_EMAILS.includes(data.email)) return;
+        if (isTestAccount({ email: data.email, uid: doc.id })) return;
         // Skip users who disabled nav safety push notifications
         if (data.pushNavSafety === false) return;
         if (data.pushNavSafety === undefined && data.pushNotifications === false) return;
@@ -194,7 +197,7 @@ exports.onNewRecord = functions.firestore
         const message = {
           notification: {
             title: `⚓ ${locationName}`,
-            body: `Nova profundidade: ${profundidadeTotal}m — registrada por ${nomeGuerra} em ${formattedDate}`,
+            body: `Nova profundidade: ${profundidadeTotal} — registrada por ${nomeGuerra} em ${formattedDate}`,
           },
           data: {
             type: "nav_safety",

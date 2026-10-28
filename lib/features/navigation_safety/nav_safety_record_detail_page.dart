@@ -522,7 +522,11 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
   }
 
   String _formatMeters(dynamic value) {
-    return MeasurementFormatter.meters(value);
+    return MeasurementFormatter.meters(
+      value,
+      decimalSeparator:
+          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+    );
   }
 
   String? _formatSpeed(dynamic value) {

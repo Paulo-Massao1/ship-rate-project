@@ -31,25 +31,25 @@ class AppConstants {
     'upyJA8HoC9Y5LHv71654Mbt7w503', // jean@adjservicos.com.br
     'vvmd4t7NHgYEiRbE3aPPcyGscdq1', // logisticars@cspam.com.br
     appReviewUid, // shipratesuporte@gmail.com (App Review)
+    '3tXrdYuTfgQsQgzvqbluyh0u7Xz2', // tester App Store
   ];
 
-  // UIDs whose emails the getUserCount Cloud Function already removes. Keeping
-  // this separate from dev bypass prevents App Review accounts from receiving
-  // paid access and prevents the pilot total from being reduced twice.
+  // UIDs that the getUserCount Cloud Function removes directly. Keeping this
+  // set prevents the pilot total from being reduced twice on the client.
   static const Set<String> userCountExcludedUidsByBackend = {
     'bb4dHPgpo8duX4hqRdpHFXXWVpF2', // spaulomassao@gmail.com
     'gcmL4ngjAbblC2LwfDUzSbpPTTH2', // gcbrgame@gmail.com
+    'RckaridTpjOXQ37oY1tAXdQVoeE2', // operacional@adjservicos.com.br
+    'upyJA8HoC9Y5LHv71654Mbt7w503', // jean@adjservicos.com.br
+    cspamUid, // logisticars@cspam.com.br
     appReviewUid, // shipratesuporte@gmail.com
+    '3tXrdYuTfgQsQgzvqbluyh0u7Xz2', // tester App Store
   };
 
-  // Excluded accounts that the backend still counts are subtracted client-side.
+  // Compatibility fallback for builds using an older getUserCount backend.
   static List<String> get excludedUidsCountedByBackend => excludedUids
       .where((uid) => !userCountExcludedUidsByBackend.contains(uid))
       .toList(growable: false);
-
-  // Ranking-only adjustments applied to the depth-record count of specific
-  // accounts (uid -> delta). Does not affect overall totals.
-  static const depthCountAdjustmentsByUid = <String, int>{andreiUid: -2};
 
   // Firestore collections
   static const usersCollection = 'usuarios';

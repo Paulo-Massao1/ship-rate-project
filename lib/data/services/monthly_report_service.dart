@@ -504,8 +504,8 @@ class MonthlyReportService {
 
   /// Reads the three rankings from [DashboardController].
   ///
-  /// The controller already drops dev accounts from every ranking and applies
-  /// the depth-count adjustments, and caches the result for 60s, so this is
+  /// The controller already drops excluded accounts from every ranking and
+  /// caches the result for 60s, so this is
   /// usually free right after the dashboard has loaded. A position of 0 means
   /// the pilot is not ranked (no contributions, or a dev account).
   Future<_ReportRankings> _fetchRankings() async {

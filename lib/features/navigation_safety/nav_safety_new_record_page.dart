@@ -161,15 +161,17 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
 
       // Depth
       if (d['profundidadeTotal'] != null) {
-        _depthController.text = d['profundidadeTotal'].toString();
+        _depthController.text = _formatEditableMeasurement(
+          d['profundidadeTotal'],
+        );
       }
       // Max draft
       if (d['caladoMax'] != null) {
-        _maxDraftController.text = d['caladoMax'].toString();
+        _maxDraftController.text = _formatEditableMeasurement(d['caladoMax']);
       }
       // UKC
       if (d['ukc'] != null) {
-        _ukcController.text = d['ukc'].toString();
+        _ukcController.text = _formatEditableMeasurement(d['ukc']);
       }
       // Direction
       _direction = d['direcao'] as String?;
@@ -191,11 +193,13 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
       // Squat value. Legacy records only stored a boolean and therefore do
       // not have a numeric amount that can be restored safely.
       if (d['squat'] != null) {
-        _squatController.text = d['squat'].toString();
+        _squatController.text = _formatEditableMeasurement(d['squat']);
       }
       final depthReference = d['depthReference'];
       if (depthReference is Map && depthReference['value'] != null) {
-        _rulerValueController.text = depthReference['value'].toString();
+        _rulerValueController.text = _formatEditableMeasurement(
+          depthReference['value'],
+        );
       }
       // Point
       if (d['ponto'] != null) {
@@ -920,7 +924,23 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
   }
 
   String _formatMetersValue(double value) {
-    return '${value.toStringAsFixed(2).replaceAll('.', ',')}m';
+    return MeasurementFormatter.meters(
+      value,
+      decimalSeparator:
+          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+    );
+  }
+
+  String _formatEditableMeasurement(dynamic value) {
+    final meters = MeasurementFormatter.meters(
+      value,
+      emptyValue: '',
+      decimalSeparator:
+          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+    );
+    return meters.endsWith('m')
+        ? meters.substring(0, meters.length - 1)
+        : meters;
   }
 
   String _formatTime(DateTime value) {
@@ -1484,7 +1504,7 @@ class _NavSafetyNewRecordPageState extends State<NavSafetyNewRecordPage>
                     Text(
                       _calculatedDepth == null
                           ? '—'
-                          : '${_calculatedDepth!.toStringAsFixed(2).replaceAll('.', ',')} m',
+                          : _formatMetersValue(_calculatedDepth!),
                       style: const TextStyle(
                         color: _teal,
                         fontSize: 20,

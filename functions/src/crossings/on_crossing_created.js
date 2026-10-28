@@ -1,7 +1,7 @@
 const functions = require("firebase-functions/v1");
 
 const { admin, db } = require("../shared/firestore");
-const { TEST_EMAILS, CSPAM_UID } = require("../shared/constants");
+const { CSPAM_UID, isTestAccount } = require("../shared/constants");
 
 function formatBrasiliaTime(timestamp) {
   const brasiliaTime = new Date(
@@ -90,7 +90,7 @@ exports.onCrossingCreated = functions.firestore
     try {
       const pilotDoc = await db.collection("usuarios").doc(pilotId).get();
       const pilotEmail = pilotDoc.exists ? (pilotDoc.data().email || "") : "";
-      if (TEST_EMAILS.includes(pilotEmail)) {
+      if (isTestAccount({ email: pilotEmail, uid: pilotId })) {
         console.log("Skipping notifications for test account");
         return;
       }
@@ -111,7 +111,7 @@ exports.onCrossingCreated = functions.firestore
       usersSnapshot.docs.forEach((doc) => {
         const userData = doc.data();
         if (doc.id === pilotId) return;
-        if (TEST_EMAILS.includes(userData.email)) return;
+        if (isTestAccount({ email: userData.email, uid: doc.id })) return;
         if (userData.pushCruzamento === false) return;
         if (
           userData.pushCruzamentoExpiry &&

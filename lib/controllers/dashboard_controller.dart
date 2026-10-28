@@ -750,19 +750,8 @@ class DashboardController {
       );
     }
 
-    // Ranking-only adjustments: totalDepthRecords above stays untouched.
+    // Ranking-only exclusions: totalDepthRecords above stays untouched.
     AppConstants.excludedUids.forEach(depthsPerPilot.remove);
-    AppConstants.depthCountAdjustmentsByUid.forEach((uid, delta) {
-      final current = depthsPerPilot[uid];
-      if (current == null) return;
-      final adjusted = current + delta;
-      if (adjusted > 0) {
-        depthsPerPilot[uid] = adjusted;
-      } else {
-        // Clamped at 0: pilots with no records are not ranked.
-        depthsPerPilot.remove(uid);
-      }
-    });
 
     final userCount = depthsPerPilot[userId] ?? 0;
 
