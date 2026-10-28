@@ -36,9 +36,9 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final pilotName = (record['nomeGuerra'] ?? '').toString();
     final date = _formatDate(record['data']);
     final direction = _directionLabel(record['direcao']?.toString(), l10n);
-    final depth = _formatMeters(record['profundidadeTotal']);
-    final maxDraft = _formatMeters(record['caladoMax']);
-    final ukc = _formatMeters(record['ukc']);
+    final depth = _formatMeters(record['profundidadeTotal'], l10n);
+    final maxDraft = _formatMeters(record['caladoMax'], l10n);
+    final ukc = _formatMeters(record['ukc'], l10n);
     final depthReference = _formatDepthReference(
       record['depthReference'],
       l10n,
@@ -316,7 +316,10 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
 
     if (record['squat'] != null) {
       compactTiles.add(
-        _buildCompactTile(l10n.squatInput, _formatMeters(record['squat'])),
+        _buildCompactTile(
+          l10n.squatInput,
+          _formatMeters(record['squat'], l10n),
+        ),
       );
     } else if (record['squatConsiderado'] != null) {
       compactTiles.add(
@@ -351,14 +354,14 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     final displayName = code.isEmpty ? name : '$name ($code)';
     final rulerValue = value['value'];
     if (rulerValue is num) {
-      return '$displayName · ${_formatMeters(rulerValue)}';
+      return '$displayName · ${_formatMeters(rulerValue, l10n)}';
     }
 
     final tideEvents = <String>[];
     final previousRaw = value['previousTide'] ?? value['previousLowTide'];
     final nextRaw = value['nextTide'] ?? value['nextHighTide'];
-    final previous = _formatTideEvent(previousRaw);
-    final next = _formatTideEvent(nextRaw);
+    final previous = _formatTideEvent(previousRaw, l10n);
+    final next = _formatTideEvent(nextRaw, l10n);
     if (previous.isNotEmpty) {
       tideEvents.add(
         '${_storedTideEventLabel(previousRaw, l10n, isPrevious: true, legacyIsHighTide: false)}: $previous',
@@ -394,10 +397,10 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     return isHighTide ? l10n.nextHighTide : l10n.nextLowTide;
   }
 
-  String _formatTideEvent(dynamic value) {
+  String _formatTideEvent(dynamic value, AppLocalizations l10n) {
     if (value is! Map || value['height'] is! num) return '';
 
-    final height = _formatMeters(value['height']);
+    final height = _formatMeters(value['height'], l10n);
     final rawDate = value['dateTime'];
     if (rawDate is! Timestamp) return height;
 
@@ -521,11 +524,10 @@ class NavSafetyRecordDetailPage extends StatelessWidget {
     return '—';
   }
 
-  String _formatMeters(dynamic value) {
+  String _formatMeters(dynamic value, AppLocalizations l10n) {
     return MeasurementFormatter.meters(
       value,
-      decimalSeparator:
-          Localizations.localeOf(context).languageCode == 'en' ? '.' : ',',
+      decimalSeparator: l10n.localeName.startsWith('en') ? '.' : ',',
     );
   }
 
