@@ -111,6 +111,10 @@ class _BarraNortePageState extends State<BarraNortePage> {
                             title: text.barraNorte,
                             document: _BarraNorteDocument.pdf8(text),
                           ),
+                          _buildPdfTile(
+                            title: text.safetyArea,
+                            document: _BarraNorteDocument.pdf12(text),
+                          ),
                           _buildGroup(
                             title: text.amazonRiver,
                             children: [
@@ -550,6 +554,14 @@ class _BarraNorteDocument {
         assetPath:
             'assets/documents/barra_norte/PDF 11 - Calenda\u0301rio 2026 .pdf',
       );
+
+  static _BarraNorteDocument pdf12(_BarraNorteText text) =>
+      _BarraNorteDocument(
+        number: 12,
+        title: text.safetyArea,
+        assetPath:
+            'assets/documents/barra_norte/PDF 12 - Area de Seguranca.pdf',
+      );
 }
 
 class _BarraNorteText {
@@ -583,6 +595,8 @@ class _BarraNorteText {
       ? 'Calado ≤ 11,50m'
       : 'Draft ≤ 11.50m';
   String get barraNorte => 'Barra Norte';
+  String get safetyArea =>
+      isPortuguese ? '\u00c1rea de Seguran\u00e7a' : 'Safety Area';
   String get amazonRiver => isPortuguese ? 'Rio Amazonas' : 'Amazon River';
   String get sharePdf => isPortuguese ? 'Compartilhar PDF' : 'Share PDF';
 }
