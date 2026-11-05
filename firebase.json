@@ -49,6 +49,19 @@
         ]
       },
       {
+        "source": "/.well-known/apple-app-site-association",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      },
+      {
         "source": "**/*.@(mjs|js|wasm|json)",
         "headers": [
           {
@@ -74,6 +87,10 @@
   {
     "source": "/reset-password",
     "destination": "/reset-password.html"
+  },
+  {
+    "source": "/assinar",
+    "destination": "/assinar.html"
   },
   {
     "source": "**",

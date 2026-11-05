@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 
@@ -257,6 +258,76 @@ class _SubscriptionPageState extends State<SubscriptionPage>
     }
   }
 
+  void _showSharePlansSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF13283D),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (sheetContext) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0x4DFFFFFF),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    l10n.sharePlans,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  _buildShareOption(
+                    icon: Icons.message_rounded,
+                    label: 'WhatsApp',
+                    color: const Color(0xFF25D366),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      UrlLauncherService.openWhatsAppShare(
+                        l10n.sharePlansMessage,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _buildShareOption(
+                    icon: Icons.link_rounded,
+                    label: l10n.copyLink,
+                    color: _premiumColor,
+                    onTap: () async {
+                      Navigator.pop(sheetContext);
+                      await Clipboard.setData(
+                        const ClipboardData(
+                          text: SubscriptionConstants.plansUrl,
+                        ),
+                      );
+                      if (mounted) _showSnackBar(l10n.linkCopied);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
   String _localizedPlanName(AppLocalizations l10n, String plan) {
     return plan == SubscriptionConstants.planPremium
         ? l10n.premiumPlan
@@ -465,6 +536,8 @@ class _SubscriptionPageState extends State<SubscriptionPage>
                 _buildHeaderIcon(),
                 const SizedBox(height: 16),
                 _buildDescription(l10n),
+                const SizedBox(height: 14),
+                _buildSharePlansButton(l10n),
                 const SizedBox(height: 28),
                 _buildPremiumCard(l10n),
                 const SizedBox(height: 16),
@@ -568,6 +641,63 @@ class _SubscriptionPageState extends State<SubscriptionPage>
       l10n.subscriptionDescription,
       textAlign: TextAlign.center,
       style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 13),
+    );
+  }
+
+  Widget _buildSharePlansButton(AppLocalizations l10n) {
+    return Center(
+      child: OutlinedButton.icon(
+        onPressed: _showSharePlansSheet,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _plusColor,
+          side: const BorderSide(color: Color(0x66FFB74D)),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
+        icon: const Icon(Icons.ios_share_rounded, size: 18),
+        label: Text(
+          l10n.sharePlans,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, color: Color(0x66FFFFFF)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

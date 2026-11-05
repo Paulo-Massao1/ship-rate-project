@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ship_rate/l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'app/auth_gate.dart';
+import 'app/subscription_deep_link_gate.dart';
 import 'core/app_cache.dart';
 import 'core/theme/app_theme.dart';
 import 'controllers/locale_controller.dart';
@@ -68,8 +69,9 @@ class _StartupWidgetState extends State<StartupWidget> {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance()
-          .timeout(const Duration(seconds: 5));
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(seconds: 5),
+      );
       AppCache.nomeGuerra = prefs.getString('cached_nomeGuerra');
       AppCache.stats = {
         'ships': prefs.getInt('cached_ships') ?? 0,
@@ -84,17 +86,18 @@ class _StartupWidgetState extends State<StartupWidget> {
     }
 
     try {
-      await localeController
-          .loadSavedLocale()
-          .timeout(const Duration(seconds: 5));
+      await localeController.loadSavedLocale().timeout(
+        const Duration(seconds: 5),
+      );
     } catch (e) {
       debugPrint('Locale loading error: $e');
     }
 
     if (StartupWidget.firebaseReady) {
       try {
-        await NotificationService.setupNotificationTapHandlers()
-            .timeout(const Duration(seconds: 5));
+        await NotificationService.setupNotificationTapHandlers().timeout(
+          const Duration(seconds: 5),
+        );
       } catch (e) {
         debugPrint('Notification setup error: $e');
       }
@@ -171,9 +174,7 @@ class _StartupWidgetState extends State<StartupWidget> {
     if (!_initialized) {
       return const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Color(0xFF0A1628),
-        ),
+        home: Scaffold(backgroundColor: Color(0xFF0A1628)),
       );
     }
 
@@ -211,6 +212,7 @@ class ShipRateApp extends StatelessWidget {
             );
           },
           home: const AuthGate(),
+          routes: {'/assinar': (_) => const SubscriptionDeepLinkGate()},
         );
       },
     );

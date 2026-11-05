@@ -2179,6 +2179,14 @@
   "@supportShipRate": {
     "description": "Title of the subscription page app bar."
   },
+  "sharePlans": "Share plans",
+  "@sharePlans": {
+    "description": "Button for sharing the subscription plans."
+  },
+  "sharePlansMessage": "Discover ShipRate Plus and Premium plans and access exclusive tools for your day-to-day work.\n\nView plans: https://shiprate-daf18.web.app/assinar",
+  "@sharePlansMessage": {
+    "description": "Shared message containing the universal plans link."
+  },
   "premiumActiveLabel": "Premium active",
   "@premiumActiveLabel": {
     "description": "Compact home badge shown to an active Premium subscriber."

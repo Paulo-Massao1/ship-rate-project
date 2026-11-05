@@ -1613,6 +1613,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportShipRate => 'Support ShipRate';
 
   @override
+  String get sharePlans => 'Share plans';
+
+  @override
+  String get sharePlansMessage => 'Discover ShipRate Plus and Premium plans and access exclusive tools for your day-to-day work.\n\nView plans: https://shiprate-daf18.web.app/assinar';
+
+  @override
   String get premiumActiveLabel => 'Premium active';
 
   @override

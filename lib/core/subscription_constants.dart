@@ -26,6 +26,9 @@ class SubscriptionConstants {
   static const String privacyPolicyUrl =
       'https://shiprate-daf18.web.app/privacy';
 
+  /// Universal link used in campaigns and when pilots share the plans.
+  static const String plansUrl = 'https://shiprate-daf18.web.app/assinar';
+
   /// Official App Store destination for changing or cancelling subscriptions.
   /// RevenueCat's customer-specific management URL is preferred when present.
   static const String appleSubscriptionsUrl =

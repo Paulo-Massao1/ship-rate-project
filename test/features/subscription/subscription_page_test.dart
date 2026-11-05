@@ -28,6 +28,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Compartilhar planos'), findsOneWidget);
+    await tester.tap(find.text('Compartilhar planos'));
+    await tester.pumpAndSettle();
+    expect(find.text('WhatsApp'), findsOneWidget);
+    expect(find.text('Copiar Link'), findsOneWidget);
+    Navigator.of(tester.element(find.text('WhatsApp'))).pop();
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Restaurar compras'));
     await tester.pumpAndSettle();
 

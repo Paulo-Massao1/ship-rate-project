@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "77MQ537596.com.shiprate.app"
+        ],
+        "components": [
+          {
+            "/": "/assinar",
+            "comment": "Opens the ShipRate subscription plans"
+          }
+        ]
+      }
+    ]
+  }
+}

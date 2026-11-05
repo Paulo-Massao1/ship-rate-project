@@ -3065,6 +3065,18 @@ abstract class AppLocalizations {
   /// **'Apoie o ShipRate'**
   String get supportShipRate;
 
+  /// Button for sharing the subscription plans.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compartilhar planos'**
+  String get sharePlans;
+
+  /// Shared message containing the universal plans link.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conheça os planos ShipRate Plus e Premium e tenha acesso a recursos exclusivos para o seu dia a dia.\n\nVeja os planos: https://shiprate-daf18.web.app/assinar'**
+  String get sharePlansMessage;
+
   /// Compact home badge shown to an active Premium subscriber.
   ///
   /// In pt, this message translates to:

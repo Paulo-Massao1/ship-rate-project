@@ -2,7 +2,7 @@ name: ship_rate
 description: "ShipRate - Ship evaluation and navigation safety"
 publish_to: 'none'
 
-version: 1.0.17+13
+version: 1.0.18+14
 
 environment:
   sdk: ">=3.7.0 <4.0.0"
